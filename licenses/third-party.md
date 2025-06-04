@@ -1,4 +1,4 @@
-# Third-Party Notices & Attributions
+# Section C: Third-Party Notices & Attributions
 
 This file records all external assets, libraries, and services used in **Luminari’s Quest** that are **not** covered by the MIT core license or the OGL/ORC game-mechanics license.  
 Update this list any time you add a new dependency, font, icon set, or media file.
