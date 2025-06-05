@@ -4,7 +4,7 @@ All core app logic and UI were built primarily in Bolt.new
 
 | Slice (smallest increment) | "Done" means |
 |---------------------------|--------------|
-| **Project Scaffold** – React + TS via Vite, Tailwind, Shadcn/UI, `.bolt/prompt`, `.env.example`, MIT+OGL licenses | Code compiles & runs; repo pushed |
+| **Project Scaffold** – React + TS via Vite, Tailwind, Shadcn/UI, `.bolt\prompt`, `.env.example`, MIT+OGL licenses | Code compiles & runs; repo pushed |
 | **Core Layout Shell** – `<Navbar />`, `<Main />`, `<Footer />` placeholders wired in `App.tsx` | DOM shows three sections with Tailwind spacing |
 | **Auth Module (stub)** – `/login` & `/signup` routes with empty forms | Navigation works; no backend yet |
 | **Supabase Client Setup** – singleton service in `src/services/supabase.ts` | `npm run dev` still green |
