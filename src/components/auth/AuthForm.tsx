@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSupabase } from '@/lib/providers/supabase-provider';
 import { supabase } from '@/lib/supabase';
+import { Spinner } from '@/components/ui/spinner';
 
 export function AuthForm() {
   const [email, setEmail] = useState('');
@@ -31,7 +32,6 @@ export function AuthForm() {
         if (signInError) throw signInError;
         navigate('/adventure');
       } else {
-        // Validate password
         if (password.length < 6) {
           throw new Error('Password must be at least 6 characters long');
         }
@@ -60,8 +60,13 @@ export function AuthForm() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+    setIsLoading(true);
+    try {
+      await supabase.auth.signOut();
+      navigate('/');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (user) {
@@ -72,8 +77,13 @@ export function AuthForm() {
           <CardDescription>You are currently signed in as {user.email}</CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button onClick={handleSignOut} variant="outline" className="w-full">
-            Sign Out
+          <Button 
+            onClick={handleSignOut} 
+            variant="outline" 
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? <Spinner /> : 'Sign Out'}
           </Button>
         </CardFooter>
       </Card>
@@ -120,6 +130,7 @@ export function AuthForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -129,6 +140,7 @@ export function AuthForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
               minLength={6}
             />
             {mode === 'signup' && (
@@ -145,7 +157,7 @@ export function AuthForm() {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Loading...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+            {isLoading ? <Spinner /> : mode === 'login' ? 'Sign In' : 'Create Account'}
           </Button>
           <Button
             type="button"
@@ -155,6 +167,7 @@ export function AuthForm() {
               setMode(mode === 'login' ? 'signup' : 'login');
               setError(null);
             }}
+            disabled={isLoading}
           >
             {mode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
           </Button>

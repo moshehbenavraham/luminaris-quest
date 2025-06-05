@@ -9,23 +9,25 @@ export function Layout() {
 
   return (
     <div className="relative min-h-screen flex flex-col">
-      {/* Navbar */}
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      <header>
+        <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      </header>
       
       <div className="flex flex-1">
-        {/* Sidebar */}
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <nav aria-label="Main navigation">
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        </nav>
         
-        {/* Main content area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto" id="main-content">
           <div className="container py-6">
             <Outlet />
           </div>
         </main>
       </div>
       
-      {/* Footer */}
-      <Footer />
+      <footer>
+        <Footer />
+      </footer>
     </div>
   );
-} 
+}
