@@ -1,0 +1,25 @@
+# Dependency directories
+node_modules
+dist
+
+# Build outputs
+build
+coverage
+
+# Environment files
+.env*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor directories
+.idea
+.vscode
+*.swp
+*.swo
+
+# System Files
+.DS_Store
+Thumbs.db
