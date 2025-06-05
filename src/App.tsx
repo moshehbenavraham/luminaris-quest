@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from '@/lib/providers/query-provider';
 import { SupabaseProvider } from '@/lib/providers/supabase-provider';
-// import { Layout } from '@/components/layout/Layout';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { AuthForm } from '@/components/auth/AuthForm';
 
 // Page components
 function Home() {
@@ -15,6 +15,9 @@ function Home() {
       <p className="text-xl text-muted-foreground">
         Your journey to healing and growth begins here.
       </p>
+      <div className="mt-8">
+        <AuthForm />
+      </div>
     </div>
   );
 }
@@ -79,13 +82,15 @@ function App() {
           <div className="relative min-h-screen flex flex-col">
             <Navbar />
             <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/adventure" element={<Adventure />} />
-                <Route path="/progress" element={<Progress />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/legal" element={<Legal />} />
-              </Routes>
+              <div className="container py-6">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/adventure" element={<Adventure />} />
+                  <Route path="/progress" element={<Progress />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/legal" element={<Legal />} />
+                </Routes>
+              </div>
             </main>
             <Footer />
           </div>
