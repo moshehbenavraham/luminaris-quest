@@ -2,7 +2,18 @@ All core app logic and UI were built primarily in Bolt.new
 
 # 🌟 Luminari's Quest — Built with Bolt.new
 
-> **This project was built primarily with [Bolt.new](https://bolt.new/) as part of the World's Largest AI Hackathon. All major features, UI, and integrations were conceived and executed inside Bolt.new, showcasing its power as a next-gen AI development platform.**
+**Environment Setup**
+
+1. Copy `.env.example` to `.env` in your project root:
+```bash
+cp .env.example .env
+```
+2. Fill in your real API keys and URLs (never commit your `.env` file!).
+3. After editing `.env`, restart your dev server (`npm run dev`) to apply new variables.
+
+> `.env.example` must be kept up to date and committed to git so every developer knows which environment variables are required.
+
+If a new environment variable is added to the project, update `.env.example` and notify all contributors to update their `.env` files.
 
 ---
 
