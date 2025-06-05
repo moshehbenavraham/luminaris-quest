@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Contextual information about the Luminari’s Quest project.
+globs: []
+alwaysApply: true
+---
+
+- Project: Luminari’s Quest, a therapeutic RPG developed for the Bolt.new hackathon.
+- Comply with open-source RPG licensing: Utilize only OGL/ORC content; avoid Product Identity.
+- Display a “Built with Bolt.new” badge in the Footer.
+

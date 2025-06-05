@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Guidelines for Sidebar component implementation.
+globs: ["src/components/Sidebar.tsx"]
+alwaysApply: true
+---
+
+- Include navigation links: Home, Adventure, Progress, Profile, Legal.
+- Ensure responsiveness: Fixed on desktop, collapsible or off-canvas on mobile.
+- Highlight the active link.
+- Support section headings for organization if needed.
+- Utilize Shadcn/UI primitives and Tailwind for structure and styling.
+
