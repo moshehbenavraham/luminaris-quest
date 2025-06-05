@@ -1,5 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
+  "_note": "Shadcn/UI config for Luminari's Quest. See .bolt/prompt, .cursor/rules/, tailwind.config.ts for related standards.",
   "style": "new-york",
   "rsc": false,
   "tsx": true,

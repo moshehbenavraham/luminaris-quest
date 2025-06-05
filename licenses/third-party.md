@@ -5,6 +5,8 @@ All core app logic and UI were built primarily in Bolt.new
 This file records all external assets, libraries, and services used in **Luminari's Quest** that are **not** covered by the MIT core license or the OGL/ORC game-mechanics license.  
 Update this list any time you add a new dependency, font, icon set, or media file.
 
+> **Cross-References:** Main project license in `LICENSE`, OGL compliance in `licenses/OGL.txt`, dependency management in `package.json`, and legal requirements in `.bolt/prompt` and `.cursor/rules/project-context.mdc`.
+
 | Item | Type | Source / License | Notes |
 |------|------|------------------|-------|
 | **React 18** | JavaScript library | MIT | Installed via Vite scaffold |

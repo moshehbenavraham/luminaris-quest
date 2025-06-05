@@ -1,3 +1,7 @@
+// Tailwind CSS configuration for Luminari's Quest
+// Cross-references: .bolt/prompt (styling standards), .cursor/rules/ (component guidelines),
+// components.json (Shadcn/UI integration), CONTRIBUTING.md (code style requirements)
+
 import type { Config } from 'tailwindcss'
 import animate from 'tailwindcss-animate'
 

@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Therapeutic AI-powered RPG adventure. Built with Bolt.new. See README.md, .bolt/prompt, and .cursor/rules/ for development standards.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

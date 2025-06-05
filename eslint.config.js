@@ -1,3 +1,7 @@
+// ESLint configuration for Luminari's Quest
+// Cross-references: .bolt/prompt (code generation standards), .cursor/rules/ (IDE guidelines), 
+// CONTRIBUTING.md (code quality standards), tsconfig.*.json (TypeScript settings)
+
 import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'

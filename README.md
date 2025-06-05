@@ -17,6 +17,19 @@ If a new environment variable is added to the project, update `.env.example` and
 
 ---
 
+## 📚 Documentation & Platform Integration
+
+This project integrates multiple development platforms and tools. For comprehensive development guidelines:
+
+- **Code Generation Rules:** See `.bolt/prompt` for Bolt.new scaffolding standards
+- **IDE Integration:** Reference `.cursor/rules/` for Cursor IDE component and layout guidelines  
+- **Component Roadmap:** Check `docs/COMPONENT_MAP.md` for build priorities and component relationships
+- **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
+- **Legal Compliance:** Reference `LICENSE` and `licenses/` directory for OGL/ORC licensing requirements
+- **Configuration Standards:** Follow `eslint.config.js`, `.prettierrc`, and `tsconfig.*.json` for code quality
+
+---
+
 ## 🚀 Project Overview
 
 **Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure, designed to help young adults process the trauma of losing parents and experiencing homelessness during their teenage years.

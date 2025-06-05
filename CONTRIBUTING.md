@@ -44,10 +44,12 @@ This guide will help you get started, set expectations for quality and collabora
    - Create a feature branch: `feature/your-feature-name`
 
 2. **Code Style:**
-   - Follow TypeScript strict mode
-   - Use Tailwind classes (no separate CSS)
-   - Follow atomic design principles
-   - Keep components small and focused
+   - Follow TypeScript strict mode (see `tsconfig.*.json`)
+   - Use Tailwind classes (no separate CSS, see `tailwind.config.ts`)
+   - Follow atomic design principles (detailed in `.bolt/prompt`)
+   - Keep components small and focused (<250 lines)
+   - Use ESLint/Prettier standards (see `eslint.config.js`, `.prettierrc`)
+   - Reference `.cursor/rules/` for IDE-specific component guidelines
 
 3. **Testing:**
    - Write tests for new features
@@ -63,6 +65,8 @@ This guide will help you get started, set expectations for quality and collabora
    - Update README.md if needed
    - Add JSDoc comments
    - Document new features
+   - Reference `docs/COMPONENT_MAP.md` for component relationships
+   - Check `licenses/third-party.md` when adding dependencies
 
 6. **Pull Requests:**
    - Create PR against `main`

@@ -2,6 +2,8 @@ All core app logic and UI were built primarily in Bolt.new
 
 # Luminari's Quest · Component Map (MVP slices, top priority first)
 
+> **Cross-References:** This roadmap follows build standards in `.bolt/prompt` and component guidelines in `.cursor/rules/`. For code quality standards, see `eslint.config.js`, `tsconfig.*.json`, and `CONTRIBUTING.md`.
+
 | Slice (smallest increment) | "Done" means |
 |---------------------------|--------------|
 | **Project Scaffold** – React + TS via Vite, Tailwind, Shadcn/UI, `.bolt\prompt`, `.env.example`, MIT+OGL licenses | Code compiles & runs; repo pushed |
