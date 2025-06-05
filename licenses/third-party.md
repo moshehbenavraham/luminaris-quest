@@ -1,6 +1,8 @@
+All core app logic and UI were built primarily in Bolt.new
+
 # Section C: Third-Party Notices & Attributions
 
-This file records all external assets, libraries, and services used in **Luminari’s Quest** that are **not** covered by the MIT core license or the OGL/ORC game-mechanics license.  
+This file records all external assets, libraries, and services used in **Luminari's Quest** that are **not** covered by the MIT core license or the OGL/ORC game-mechanics license.  
 Update this list any time you add a new dependency, font, icon set, or media file.
 
 | Item | Type | Source / License | Notes |
@@ -23,7 +25,7 @@ Update this list any time you add a new dependency, font, icon set, or media fil
 1. Identify the **exact package / asset name**.  
 2. Record its **license** (check `npm info <pkg> license` or its repo).  
 3. Provide the **URL to the source or TOS** if not obvious.  
-4. Add any notes on usage constraints (e.g., “credit required in About page”).
+4. Add any notes on usage constraints (e.g., "credit required in About page").
 
 ---
 

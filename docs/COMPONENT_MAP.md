@@ -1,6 +1,8 @@
-# Luminari’s Quest · Component Map (MVP slices, top priority first)
+All core app logic and UI were built primarily in Bolt.new
 
-| Step | Slice (smallest increment) | “Done” means |
+# Luminari's Quest · Component Map (MVP slices, top priority first)
+
+| Step | Slice (smallest increment) | "Done" means |
 |------|---------------------------|--------------|
 | 1 ✅ | **Project Scaffold** – React + TS via Vite, Tailwind, Shadcn/UI, `.bolt/prompt`, `.env.example`, MIT+OGL licenses | Code compiles & runs; repo pushed |
 | 2 ☐ | **Core Layout Shell** – `<Navbar />`, `<Main />`, `<Footer />` placeholders wired in `App.tsx` | DOM shows three sections with Tailwind spacing |
