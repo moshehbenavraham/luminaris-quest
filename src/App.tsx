@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from '@/lib/providers/query-provider';
 import { SupabaseProvider } from '@/lib/providers/supabase-provider';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { Layout } from '@/components/layout/Layout';
 import { AuthForm } from '@/components/auth/AuthForm';
 
 // Page components
@@ -79,21 +78,16 @@ function App() {
     <QueryProvider>
       <SupabaseProvider>
         <Router>
-          <div className="relative min-h-screen flex flex-col">
-            <Navbar />
-            <main className="flex-1">
-              <div className="container py-6">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/adventure" element={<Adventure />} />
-                  <Route path="/progress" element={<Progress />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/legal" element={<Legal />} />
-                </Routes>
-              </div>
-            </main>
-            <Footer />
-          </div>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/adventure" element={<Adventure />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/legal" element={<Legal />} />
+              <Route path="/auth/callback" element={<Home />} />
+            </Route>
+          </Routes>
         </Router>
       </SupabaseProvider>
     </QueryProvider>
