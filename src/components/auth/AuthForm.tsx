@@ -12,6 +12,7 @@ export function AuthForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const navigate = useNavigate();
   const { user } = useSupabase();
 
@@ -19,22 +20,37 @@ export function AuthForm() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSignUpSuccess(false);
 
     try {
       if (mode === 'login') {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
-        navigate('/');
+        if (signInError) throw signInError;
+        navigate('/adventure');
       } else {
-        const { error } = await supabase.auth.signUp({
+        // Validate password
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters long');
+        }
+
+        const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
         });
-        if (error) throw error;
-        // Show success message or redirect
+
+        if (signUpError) throw signUpError;
+
+        if (data.user) {
+          setSignUpSuccess(true);
+          setEmail('');
+          setPassword('');
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -58,6 +74,27 @@ export function AuthForm() {
         <CardFooter>
           <Button onClick={handleSignOut} variant="outline" className="w-full">
             Sign Out
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  if (signUpSuccess) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Account Created!</CardTitle>
+          <CardDescription>
+            Please check your email to confirm your account. Once confirmed, you can sign in.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Button onClick={() => {
+            setMode('login');
+            setSignUpSuccess(false);
+          }} className="w-full">
+            Return to Sign In
           </Button>
         </CardFooter>
       </Card>
@@ -92,9 +129,19 @@ export function AuthForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
+            {mode === 'signup' && (
+              <p className="text-xs text-muted-foreground">
+                Password must be at least 6 characters long
+              </p>
+            )}
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+              {error}
+            </p>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
@@ -104,7 +151,10 @@ export function AuthForm() {
             type="button"
             variant="ghost"
             className="w-full"
-            onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+            onClick={() => {
+              setMode(mode === 'login' ? 'signup' : 'login');
+              setError(null);
+            }}
           >
             {mode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
           </Button>
