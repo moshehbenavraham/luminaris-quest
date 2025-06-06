@@ -132,7 +132,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
               </span>
             </div>
           </div>
-          <CardTitle>{currentScene.title}</CardTitle>
+          <CardTitle className="mt-2">{currentScene.title}</CardTitle>
           <CardDescription>
             Your guardian spirit watches as you face this {currentScene.type} challenge.
           </CardDescription>
@@ -144,39 +144,49 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
             </p>
           </div>
           
-          <div className="space-y-3">
-            <Button
-              onClick={() => handleChoice('bold')}
-              disabled={isProcessing}
-              className="w-full justify-start h-auto p-4 text-left"
-              variant="outline"
-            >
-              <div>
-                <div className="font-medium">{currentScene.choices.bold}</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Trust your instincts and act decisively
-                </div>
-              </div>
-            </Button>
+          <div className="space-y-4">
+            <div className="text-center space-y-1 py-2 border-t border-b border-muted">
+              <p className="text-sm font-medium text-muted-foreground">
+                Difficulty: {currentScene.dc}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Your choice will be tested by fate
+              </p>
+            </div>
             
-            <Button
-              onClick={() => handleChoice('cautious')}
-              disabled={isProcessing}
-              className="w-full justify-start h-auto p-4 text-left"
-              variant="outline"
-            >
-              <div>
-                <div className="font-medium">{currentScene.choices.cautious}</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Observe carefully and proceed with wisdom
+            <div className="space-y-3">
+              <Button
+                onClick={() => handleChoice('bold')}
+                disabled={isProcessing}
+                className="w-full justify-start h-auto p-4 text-left"
+                variant="outline"
+              >
+                <div className="w-full">
+                  <div className="font-medium text-base mb-1">
+                    {currentScene.choices.bold}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Trust your instincts and act decisively
+                  </div>
                 </div>
-              </div>
-            </Button>
-          </div>
-          
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Difficulty: {currentScene.dc}</span>
-            <span>Your choice will be tested by fate</span>
+              </Button>
+              
+              <Button
+                onClick={() => handleChoice('cautious')}
+                disabled={isProcessing}
+                className="w-full justify-start h-auto p-4 text-left"
+                variant="outline"
+              >
+                <div className="w-full">
+                  <div className="font-medium text-base mb-1">
+                    {currentScene.choices.cautious}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Observe carefully and proceed with wisdom
+                  </div>
+                </div>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
