@@ -7,17 +7,20 @@ import { getCurrentScene, advanceScene, rollDice, isLastScene, type DiceResult }
 import { DiceRollOverlay } from './DiceRollOverlay';
 
 interface ChoiceListProps {
+  guardianTrust: number;
+  setGuardianTrust: (trust: number) => void;
+  setGuardianMessage: (message: string) => void;
   onSceneComplete?: () => void;
 }
 
-export function ChoiceList({ onSceneComplete }: ChoiceListProps) {
+export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete }: ChoiceListProps) {
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const currentScene = getCurrentScene();
 
-  const handleChoice = (choiceIndex: number) => {
+  const handleChoice = () => {
     if (isProcessing) return;
     
     setIsProcessing(true);
@@ -31,8 +34,17 @@ export function ChoiceList({ onSceneComplete }: ChoiceListProps) {
 
     setShowDiceRoll(false);
     
-    // Update guardian trust and message (these would come from context in full implementation)
-    // For MVP, we'll just advance the scene
+    // Update guardian trust and message based on result
+    const currentScene = getCurrentScene();
+    if (diceResult.success) {
+      const newTrust = Math.min(100, guardianTrust + 5);
+      setGuardianTrust(newTrust);
+      setGuardianMessage(currentScene.successText);
+    } else {
+      const newTrust = Math.max(0, guardianTrust - 5);
+      setGuardianTrust(newTrust);
+      setGuardianMessage(currentScene.failureText);
+    }
     
     if (!isLastScene()) {
       advanceScene();
@@ -85,7 +97,7 @@ export function ChoiceList({ onSceneComplete }: ChoiceListProps) {
           
           <div className="space-y-3">
             <Button
-              onClick={() => handleChoice(0)}
+              onClick={handleChoice}
               disabled={isProcessing}
               className="w-full justify-start h-auto p-4 text-left"
               variant="outline"
@@ -99,7 +111,7 @@ export function ChoiceList({ onSceneComplete }: ChoiceListProps) {
             </Button>
             
             <Button
-              onClick={() => handleChoice(1)}
+              onClick={handleChoice}
               disabled={isProcessing}
               className="w-full justify-start h-auto p-4 text-left"
               variant="outline"

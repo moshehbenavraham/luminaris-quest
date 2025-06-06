@@ -3,6 +3,9 @@ import { QueryProvider } from '@/lib/providers/query-provider';
 import { SupabaseProvider } from '@/lib/providers/supabase-provider';
 import { Layout } from '@/components/layout/Layout';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { ChoiceList } from '@/components/ChoiceList';
+import { GuardianText } from '@/components/GuardianText';
+import { useState } from 'react';
 
 // Page components
 function Home() {
@@ -22,14 +25,37 @@ function Home() {
 }
 
 function Adventure() {
+  const [guardianTrust, setGuardianTrust] = useState(50);
+  const [guardianMessage, setGuardianMessage] = useState(
+    "I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward."
+  );
+
   return (
-    <div>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
-        Adventure
-      </h1>
-      <p className="text-xl text-muted-foreground">
-        Embark on your therapeutic quest.
-      </p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
+          Adventure
+        </h1>
+        <p className="text-xl text-muted-foreground">
+          Embark on your therapeutic quest.
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <ChoiceList 
+            guardianTrust={guardianTrust}
+            setGuardianTrust={setGuardianTrust}
+            setGuardianMessage={setGuardianMessage}
+          />
+        </div>
+        <div>
+          <GuardianText 
+            trust={guardianTrust}
+            message={guardianMessage}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dice6 } from 'lucide-react';
-import { DiceResult } from '@/engine/scene-engine';
+import { type DiceResult } from '@/engine/scene-engine';
 
 interface DiceRollOverlayProps {
   result: DiceResult;
