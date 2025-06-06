@@ -13,9 +13,10 @@ interface ChoiceListProps {
   setGuardianTrust: (trust: number) => void;
   setGuardianMessage: (message: string) => void;
   onSceneComplete?: () => void;
+  onLearningMoment?: () => void;
 }
 
-export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete }: ChoiceListProps) {
+export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete, onLearningMoment }: ChoiceListProps) {
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -80,6 +81,10 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
     
     if (onSceneComplete) {
       onSceneComplete();
+    }
+
+    if (onLearningMoment) {
+      onLearningMoment();
     }
   };
 
