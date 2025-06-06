@@ -33,7 +33,6 @@ function Adventure() {
   const [guardianMessage, setGuardianMessage] = useState(
     "I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward."
   );
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalTrigger, setJournalTrigger] = useState<'milestone' | 'learning'>('milestone');
   const [lastMilestone, setLastMilestone] = useState(0);
@@ -51,7 +50,8 @@ function Adventure() {
   }, [guardianTrust, lastMilestone]);
 
   const handleSaveJournalEntry = useCallback((entry: JournalEntry) => {
-    setJournalEntries(prev => [...prev, entry]);
+    // Journal entries will be handled globally in future implementation
+    console.log('Journal entry saved:', entry);
   }, []);
 
   const handleSceneComplete = useCallback(() => {
@@ -106,7 +106,7 @@ function Adventure() {
 
 function Progress() {
   const [guardianTrust] = useState(50); // This should come from shared state in real implementation
-  const [journalEntries] = useState<JournalEntry[]>([]); // This should come from shared state
+  const journalEntries: JournalEntry[] = []; // Empty for now - will be implemented with global state management
 
   const getTrustColor = (trustLevel: number) => {
     if (trustLevel >= 80) return 'bg-green-500';
