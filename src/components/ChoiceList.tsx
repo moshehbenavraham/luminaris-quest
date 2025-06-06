@@ -162,11 +162,8 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="font-medium text-base mb-1">
+                  <div className="font-medium text-base">
                     {currentScene.choices.bold}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Trust your instincts and act decisively
                   </div>
                 </div>
               </Button>
@@ -178,11 +175,8 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="font-medium text-base mb-1">
+                  <div className="font-medium text-base">
                     {currentScene.choices.cautious}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Observe carefully and proceed with wisdom
                   </div>
                 </div>
               </Button>
