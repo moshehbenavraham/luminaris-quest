@@ -19,7 +19,6 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedChoice, setSelectedChoice] = useState<'bold' | 'cautious' | null>(null);
 
   const currentScene = getCurrentScene();
   const progress = getSceneProgress();
@@ -46,10 +45,9 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
     }
   };
 
-  const handleChoice = (choiceType: 'bold' | 'cautious') => {
+  const handleChoice = () => {
     if (isProcessing) return;
     
-    setSelectedChoice(choiceType);
     setIsProcessing(true);
     const result = rollDice(currentScene.dc);
     setDiceResult(result);
@@ -79,7 +77,6 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
     
     setIsProcessing(false);
     setDiceResult(null);
-    setSelectedChoice(null);
     
     if (onSceneComplete) {
       onSceneComplete();
@@ -156,7 +153,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
             
             <div className="space-y-3">
               <Button
-                onClick={() => handleChoice('bold')}
+                onClick={handleChoice}
                 disabled={isProcessing}
                 className="w-full justify-start h-auto p-4 text-left"
                 variant="outline"
@@ -169,7 +166,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
               </Button>
               
               <Button
-                onClick={() => handleChoice('cautious')}
+                onClick={handleChoice}
                 disabled={isProcessing}
                 className="w-full justify-start h-auto p-4 text-left"
                 variant="outline"
