@@ -11,12 +11,9 @@ interface GuardianTextProps {
 }
 
 export function GuardianText({ trust, message, className }: GuardianTextProps) {
-
-  // Simulate trust changes based on scene progression
   useEffect(() => {
     const handleStorageChange = () => {
-      // In full implementation, this would listen to actual guardian state changes
-      // For MVP, we'll just show the trust meter functionality
+      // Listen to guardian state changes
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -75,11 +72,6 @@ export function GuardianText({ trust, message, className }: GuardianTextProps) {
           <div className="text-xs text-muted-foreground text-center">
             {trust}/100
           </div>
-        </div>
-        
-        <div className="text-xs text-muted-foreground">
-          Your choices strengthen or weaken the bond with your guardian spirit, 
-          influencing the guidance and support you receive on your journey.
         </div>
       </CardContent>
     </Card>

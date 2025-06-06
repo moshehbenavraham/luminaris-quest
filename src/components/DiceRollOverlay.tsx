@@ -16,15 +16,12 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
-    // Fade in the overlay
     setIsVisible(true);
     
-    // Show the rolling animation, then the result
     const resultTimer = setTimeout(() => {
       setShowResult(true);
     }, 800);
 
-    // Auto-close after 1.5 seconds of showing the result
     const closeTimer = setTimeout(() => {
       handleClose();
     }, 2300);
@@ -37,7 +34,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
 
   const handleClose = () => {
     setIsVisible(false);
-    setTimeout(onClose, 300); // Wait for fade out animation
+    setTimeout(onClose, 300);
   };
 
   return (
@@ -83,14 +80,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
               <div className={`text-xl font-semibold ${
                 result.success ? 'text-green-600' : 'text-red-600'
               }`}>
-                {result.success ? '✨ Success!' : '💫 Failure'}
-              </div>
-              
-              <div className="text-sm text-muted-foreground">
-                {result.success 
-                  ? 'Your guardian spirit glows with approval'
-                  : 'Your guardian spirit offers comfort and guidance'
-                }
+                {result.success ? '✨ Success!' : '💫 Learning'}
               </div>
               
               <Button 
