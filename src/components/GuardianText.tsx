@@ -60,10 +60,10 @@ export function GuardianText({ trust, message, className }: GuardianTextProps) {
         
         <div className="space-y-3 pt-2 border-t border-muted">
           <div className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2 font-medium">
+            <div className="flex items-center gap-2 font-medium">
               <Heart className="h-4 w-4 text-red-500" />
-              Trust Bond
-            </span>
+              <span>Trust Bond</span>
+            </div>
             <span className="font-semibold text-base">
               {getTrustLabel(trust)}
             </span>
