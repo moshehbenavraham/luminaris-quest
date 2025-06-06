@@ -1,8 +1,10 @@
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from '@/lib/providers/query-provider';
 import { SupabaseProvider } from '@/lib/providers/supabase-provider';
 import { Layout } from '@/components/layout/Layout';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';
 import { JournalModal, type JournalEntry } from '@/components/JournalModal';
@@ -313,9 +315,21 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
-              <Route path="/adventure" element={<Adventure />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/adventure" element={
+                <ProtectedRoute>
+                  <Adventure />
+                </ProtectedRoute>
+              } />
+              <Route path="/progress" element={
+                <ProtectedRoute>
+                  <Progress />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
               <Route path="/legal" element={<Legal />} />
               <Route path="/auth/callback" element={<Home />} />
             </Route>

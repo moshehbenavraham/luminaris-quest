@@ -1,14 +1,22 @@
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'node:path'
+import tsconfigPaths from 'vite-tsconfig-paths'
+import { componentTagger } from "lovable-tagger"
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: '/',
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src')
+  plugins: [
+    react(),
+    tsconfigPaths(),
+    mode === 'development' && componentTagger(),
+  ].filter(Boolean),
+  server: {
+    host: "::",
+    port: 8080,
+    hmr: {
+      clientPort: 8080,
     }
   },
   build: {
@@ -22,4 +30,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))

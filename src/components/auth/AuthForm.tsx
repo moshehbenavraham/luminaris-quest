@@ -1,10 +1,11 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSupabase } from '@/lib/providers/supabase-provider';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { Spinner } from '@/components/ui/spinner';
 
 export function AuthForm() {
@@ -19,14 +20,29 @@ export function AuthForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Reset states
     setIsLoading(true);
     setError(null);
     setSignUpSuccess(false);
 
+    // Basic validation
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       if (mode === 'login') {
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password,
         });
         if (signInError) throw signInError;
@@ -37,22 +53,26 @@ export function AuthForm() {
         }
 
         const { error: signUpError, data } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: `${window.location.origin}/`,
           },
         });
 
         if (signUpError) throw signUpError;
 
-        if (data.user) {
+        if (data.user && !data.user.email_confirmed_at) {
           setSignUpSuccess(true);
           setEmail('');
           setPassword('');
+        } else if (data.user && data.user.email_confirmed_at) {
+          // User is already confirmed, redirect to adventure
+          navigate('/adventure');
         }
       }
     } catch (err) {
+      console.error('Auth error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);
@@ -61,9 +81,14 @@ export function AuthForm() {
 
   const handleSignOut = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       navigate('/');
+    } catch (err) {
+      console.error('Sign out error:', err);
+      setError('Error signing out');
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +128,7 @@ export function AuthForm() {
           <Button onClick={() => {
             setMode('login');
             setSignUpSuccess(false);
+            setError(null);
           }} className="w-full">
             Return to Sign In
           </Button>
@@ -131,6 +157,7 @@ export function AuthForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={isLoading}
+              autoComplete={mode === 'login' ? 'email' : 'username'}
             />
           </div>
           <div className="space-y-2">
@@ -142,6 +169,7 @@ export function AuthForm() {
               required
               disabled={isLoading}
               minLength={6}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             />
             {mode === 'signup' && (
               <p className="text-xs text-muted-foreground">
@@ -150,9 +178,9 @@ export function AuthForm() {
             )}
           </div>
           {error && (
-            <p className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+            <div className="text-sm text-destructive bg-destructive/10 p-2 rounded border border-destructive/20">
               {error}
-            </p>
+            </div>
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
@@ -166,6 +194,7 @@ export function AuthForm() {
             onClick={() => {
               setMode(mode === 'login' ? 'signup' : 'login');
               setError(null);
+              setSignUpSuccess(false);
             }}
             disabled={isLoading}
           >

@@ -1,47 +1,12 @@
+
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Create default values for build time
-const defaultUrl = 'https://placeholder.supabase.co';
-const defaultKey = 'placeholder-key';
-
-// Use actual values if available, otherwise use defaults for build
-const url = supabaseUrl || defaultUrl;
-const key = supabaseAnonKey || defaultKey;
-
-// Validate at runtime only (not during build)
-const validateEnvironment = () => {
-  if (!supabaseUrl) {
-    console.error(
-      'Missing VITE_SUPABASE_URL environment variable. Please check your .env file and ensure it contains your Supabase project URL.'
-    );
-    return false;
-  }
-
-  if (!supabaseAnonKey) {
-    console.error(
-      'Missing VITE_SUPABASE_ANON_KEY environment variable. Please check your .env file and ensure it contains your Supabase anonymous key.'
-    );
-    return false;
-  }
-
-  // Validate URL format
-  try {
-    new URL(supabaseUrl);
-  } catch {
-    console.error(
-      'Invalid VITE_SUPABASE_URL format. Please ensure it is a valid URL (e.g., https://your-project.supabase.co)'
-    );
-    return false;
-  }
-
-  return true;
-};
+// Use the actual Supabase project values instead of environment variables
+const supabaseUrl = 'https://lxjetnrmjyazegwnymkk.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4amV0bnJtanlhemVnd255bWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTgsImV4cCI6MjA2NDY1Mjk5OH0.qR888X8VCTMLFk2udqZx0zxEsHY_BvSzOdfxJo2DA3g';
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(url, key, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
@@ -50,9 +15,6 @@ export const supabase = createClient(url, key, {
 });
 
 // Export validation function for runtime checks
-export const isSupabaseConfigured = validateEnvironment;
-
-// Validate environment in development/production (not during build)
-if (typeof window !== 'undefined') {
-  validateEnvironment();
-}
+export const isSupabaseConfigured = () => {
+  return true; // Always configured since we have hardcoded values
+};

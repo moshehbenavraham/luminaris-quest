@@ -1,6 +1,7 @@
+
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 import { type User } from '@supabase/supabase-js';
-import { supabase } from '../supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 type SupabaseContextType = {
   user: User | null;
