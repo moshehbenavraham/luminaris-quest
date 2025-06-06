@@ -2,33 +2,83 @@
 
 export interface Scene {
   id: string;
+  type: 'social' | 'skill' | 'combat' | 'journal' | 'exploration';
+  title: string;
   text: string;
   dc: number;
   successText: string;
   failureText: string;
+  choices: {
+    bold: string;
+    cautious: string;
+  };
 }
 
 const scenes: Scene[] = [
   {
-    id: "scene-1",
-    text: "You find yourself at the edge of a misty forest. Ancient trees whisper secrets in the wind. A narrow path leads deeper into the shadows, while another route circles around the perimeter. Your guardian spirit watches silently, waiting for your choice.",
+    id: "social-encounter",
+    type: "social",
+    title: "The Worried Merchant",
+    text: "A traveling merchant sits by the roadside, tears streaming down his weathered face. His cart is overturned, goods scattered. 'Bandits took everything,' he whispers. 'My family's livelihood... gone.' He looks up at you with desperate hope. You could offer comfort, share resources, or help him gather his belongings.",
     dc: 10,
-    successText: "Your intuition guides you well. The path reveals hidden runes that glow softly, marking safe passage. Your guardian spirit nods approvingly as you navigate the mystical terrain with confidence.",
-    failureText: "The mist thickens around you, and you stumble over hidden roots. Though you find your way eventually, your guardian spirit's light dims slightly, sensing your uncertainty in this sacred place."
+    successText: "Your words of comfort and genuine care touch the merchant's heart. He stands straighter, hope returning to his eyes. 'Thank you, young one. Your kindness reminds me that good still exists in this world.' Your guardian spirit glows warmly, sensing your growing empathy.",
+    failureText: "Despite your good intentions, your words feel hollow and awkward. The merchant nods politely but remains distant, his pain unchanged. Your guardian spirit dims slightly, recognizing your struggle to connect with others' suffering.",
+    choices: {
+      bold: "Offer immediate help and comfort",
+      cautious: "Listen carefully before responding"
+    }
   },
   {
-    id: "scene-2", 
-    text: "A crystalline stream blocks your path, its waters shimmering with otherworldly energy. You can attempt to leap across the narrowest point, or search for stepping stones upstream. The current seems gentle, but appearances can be deceiving.",
+    id: "skill-challenge",
+    type: "skill",
+    title: "The Ancient Lock",
+    text: "Before you stands an ornate chest, its surface covered in intricate mechanisms and glowing runes. The lock appears to be a puzzle requiring both dexterity and wisdom to solve. Ancient symbols shift and change as you approach. This could contain something valuable, but one wrong move might trigger unknown consequences.",
     dc: 12,
-    successText: "Your leap is graceful and sure, landing safely on the far bank. The stream's energy seems to recognize your courage, and small lights dance around you. Your guardian spirit glows brighter with pride.",
-    failureText: "You misjudge the distance and splash into the cool water. Though unharmed, you emerge soaked and shivering. Your guardian spirit offers warmth, but you sense its concern for your hasty decision."
+    successText: "Your fingers move with surprising grace across the mechanisms. The runes align perfectly, and the chest opens with a satisfying click. Inside, you find a small crystal that pulses with warm light. Your guardian spirit radiates pride at your growing skill and patience.",
+    failureText: "The mechanisms resist your efforts, and the runes flash angrily before going dark. The chest remains sealed, and you feel a wave of frustration. Your guardian spirit offers gentle encouragement, reminding you that failure is part of learning.",
+    choices: {
+      bold: "Trust your instincts and work quickly",
+      cautious: "Study the patterns before acting"
+    }
   },
   {
-    id: "scene-3",
-    text: "Before you stands an ancient stone door covered in glowing symbols. Three symbols pulse more brightly than the others - a star, a tree, and a flame. You must choose which symbol to touch to unlock the passage to your destiny.",
+    id: "combat-encounter",
+    type: "combat",
+    title: "Shadow Wolf",
+    text: "A creature of living shadow emerges from the darkness between the trees. Its eyes glow with an otherworldly hunger, and its form shifts like smoke. This shadow wolf blocks your path, growling low. You sense it feeds on fear and doubt. You must decide how to face this manifestation of inner darkness.",
     dc: 14,
-    successText: "The symbol responds to your touch with a warm, golden light. The door opens smoothly, revealing a chamber filled with gentle radiance. Your guardian spirit radiates joy - you have chosen wisely and proven your growing wisdom.",
-    failureText: "The symbol flickers and dims under your touch. The door remains sealed, and you feel a wave of disappointment. Your guardian spirit dims as well, sharing in your struggle, but encourages you to learn from this moment."
+    successText: "You stand firm against the shadow wolf, your inner light blazing bright. The creature recoils, then slowly dissolves back into harmless shadows. Your courage has banished this manifestation of fear. Your guardian spirit shines brilliantly, proud of your bravery.",
+    failureText: "Fear grips your heart as the shadow wolf advances. Though you manage to escape unharmed, the creature's presence lingers in your mind. Your guardian spirit wraps you in protective warmth, helping you process this encounter with your inner fears.",
+    choices: {
+      bold: "Face the wolf with courage and determination",
+      cautious: "Seek to understand what the wolf represents"
+    }
+  },
+  {
+    id: "journal-reflection",
+    type: "journal",
+    title: "The Memory Pool",
+    text: "You discover a still pool that reflects not your face, but memories from your past. Images of loss, moments of joy, times of struggle all shimmer on the surface. Your guardian spirit whispers that this is a place of healing, where you can choose to face difficult memories or let them remain buried for now.",
+    dc: 11,
+    successText: "You kneel by the pool and allow the memories to wash over you. Though some bring pain, you find strength in acknowledging them. The pool's surface clears, showing your reflection with new wisdom in your eyes. Your guardian spirit glows with gentle approval.",
+    failureText: "The memories feel too overwhelming, and you step back from the pool. The images fade, leaving you feeling disconnected from your past. Your guardian spirit offers comfort, understanding that healing takes time and cannot be rushed.",
+    choices: {
+      bold: "Dive deep into the difficult memories",
+      cautious: "Approach the memories gradually and gently"
+    }
+  },
+  {
+    id: "exploration-discovery",
+    type: "exploration",
+    title: "The Singing Crystals",
+    text: "You enter a cavern filled with luminescent crystals that hum with ethereal music. Each crystal seems to respond to your emotions, their songs shifting in harmony with your inner state. At the cavern's heart stands a larger crystal, its song more complex and beautiful than the others. You sense this place holds ancient wisdom.",
+    dc: 13,
+    successText: "You attune yourself to the crystals' song, letting their harmony guide your movements. The large crystal's music becomes clearer, revealing melodies that speak of hope, resilience, and growth. Your guardian spirit resonates with the crystals, creating a symphony of healing energy.",
+    failureText: "The crystals' songs feel chaotic and overwhelming. You struggle to find harmony with their music, and the large crystal's song remains mysterious and distant. Your guardian spirit helps steady you, but you sense you've missed something important in this sacred place.",
+    choices: {
+      bold: "Touch the central crystal immediately",
+      cautious: "Listen to the smaller crystals first"
+    }
   }
 ];
 
@@ -50,6 +100,13 @@ export const isLastScene = (): boolean => {
 
 export const resetScenes = (): void => {
   currentSceneIndex = 0;
+};
+
+export const getSceneProgress = (): { current: number; total: number } => {
+  return {
+    current: currentSceneIndex + 1,
+    total: scenes.length
+  };
 };
 
 // Dice rolling utility
