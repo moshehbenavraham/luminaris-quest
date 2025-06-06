@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -106,7 +105,7 @@ export function JournalModal({
         aria-labelledby="journal-title"
         aria-describedby="journal-description"
       >
-        <DialogHeader>
+        <div className="flex flex-col space-y-1.5 text-center sm:text-left">
           <DialogTitle 
             id="journal-title"
             className="flex items-center gap-2 text-xl"
@@ -117,7 +116,7 @@ export function JournalModal({
           <DialogDescription id="journal-description">
             A moment of reflection on your healing journey
           </DialogDescription>
-        </DialogHeader>
+        </div>
         
         <Card className="border-none shadow-none">
           <CardContent className="p-0 space-y-4">
