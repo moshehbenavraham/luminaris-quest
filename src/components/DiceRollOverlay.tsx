@@ -24,7 +24,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
 
     const closeTimer = setTimeout(() => {
       handleClose();
-    }, 2300);
+    }, 7000);
 
     return () => {
       clearTimeout(resultTimer);
@@ -39,55 +39,61 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
 
   return (
     <div 
-      className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={handleClose}
     >
       <Card 
-        className={`w-80 mx-4 transform transition-all duration-300 ${
+        className={`w-96 mx-4 transform transition-all duration-300 bg-background/95 backdrop-blur-sm border border-border/50 shadow-2xl ${
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            <Dice6 className={`h-6 w-6 ${!showResult ? 'animate-spin' : ''}`} />
+        <CardHeader className="text-center pb-2">
+          <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-white">
+            <Dice6 className={`h-7 w-7 ${!showResult ? 'animate-spin' : ''} text-white`} />
             Fate's Decision
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
+        <CardContent className="text-center space-y-6 py-6">
           {!showResult ? (
-            <div className="space-y-2">
-              <div className="text-2xl font-bold animate-pulse">
+            <div className="space-y-3">
+              <div className="text-3xl font-bold animate-pulse text-foreground">
                 Rolling...
               </div>
-              <div className="text-sm text-muted-foreground">
-                Target: {result.dc}
+              <div className="text-base text-muted-foreground">
+                Target: <span className="font-medium text-foreground">{result.dc}</span>
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="text-4xl font-bold">
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <div className="text-7xl font-extrabold bg-gradient-to-b from-white to-gray-200 bg-clip-text text-transparent">
                   {result.roll}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  vs DC {result.dc}
+                <div className="text-base text-white/80">
+                  vs <span className="font-medium text-white">DC {result.dc}</span>
                 </div>
               </div>
               
-              <div className={`text-xl font-semibold ${
-                result.success ? 'text-green-600' : 'text-red-600'
+              <div className={`text-2xl font-bold ${
+                result.success 
+                  ? 'text-primary' 
+                  : 'text-amber-500 dark:text-amber-400'
               }`}>
-                {result.success ? '✨ Success!' : '💫 Learning'}
+                {result.success ? '✨ Success!' : '💡 Try Again'}
               </div>
               
               <Button 
                 onClick={handleClose}
-                variant="outline"
-                size="sm"
-                className="mt-4"
+                variant={result.success ? 'default' : 'outline'}
+                size="lg"
+                className={`mt-2 px-8 text-base h-11 rounded-full ${
+                  result.success 
+                    ? 'bg-primary hover:bg-primary/90' 
+                    : 'border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10'
+                }`}
               >
                 Continue
               </Button>
