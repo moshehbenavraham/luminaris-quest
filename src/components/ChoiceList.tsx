@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { getCurrentScene, advanceScene, rollDice, isLastScene, getSceneProgress, resetScenes, type DiceResult } from '@/engine/scene-engine';
 import { DiceRollOverlay } from './DiceRollOverlay';
+import { useGameStore } from '@/store/game-store';
 import { Sword, Users, Wrench, BookOpen, Map } from 'lucide-react';
 
 interface ChoiceListProps {
@@ -17,6 +18,7 @@ interface ChoiceListProps {
 }
 
 export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete, onLearningMoment }: ChoiceListProps) {
+  const { completeScene } = useGameStore();
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -62,15 +64,29 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
     
     // Update guardian trust and message based on result
     const currentScene = getCurrentScene();
+    const trustChange = diceResult.success ? 5 : -5;
+    const newTrust = Math.min(100, Math.max(0, guardianTrust + trustChange));
+    
+    setGuardianTrust(newTrust);
+    
     if (diceResult.success) {
-      const newTrust = Math.min(100, guardianTrust + 5);
-      setGuardianTrust(newTrust);
       setGuardianMessage(currentScene.successText);
     } else {
-      const newTrust = Math.max(0, guardianTrust - 5);
-      setGuardianTrust(newTrust);
       setGuardianMessage(currentScene.failureText);
     }
+
+    // Record the completed scene
+    completeScene({
+      id: `scene-${Date.now()}`,
+      sceneId: currentScene.id,
+      type: currentScene.type,
+      title: currentScene.title,
+      success: diceResult.success,
+      roll: diceResult.roll,
+      dc: diceResult.dc,
+      trustChange,
+      completedAt: new Date(),
+    });
     
     if (!isLastScene()) {
       advanceScene();
@@ -83,7 +99,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
       onSceneComplete();
     }
 
-    if (onLearningMoment) {
+    if (onLearningMoment && !diceResult.success) {
       onLearningMoment();
     }
   };

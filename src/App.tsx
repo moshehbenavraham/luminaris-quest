@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryProvider } from '@/lib/providers/query-provider';
 import { SupabaseProvider } from '@/lib/providers/supabase-provider';
@@ -8,6 +7,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';
 import { JournalModal, type JournalEntry } from '@/components/JournalModal';
+import { useGameStore } from '@/store/game-store';
 import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +31,13 @@ function Home() {
 }
 
 function Adventure() {
-  const [guardianTrust, setGuardianTrust] = useState(50);
+  const { 
+    guardianTrust, 
+    setGuardianTrust, 
+    addJournalEntry,
+    completeScene 
+  } = useGameStore();
+  
   const [guardianMessage, setGuardianMessage] = useState(
     "I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward."
   );
@@ -52,9 +58,8 @@ function Adventure() {
   }, [guardianTrust, lastMilestone]);
 
   const handleSaveJournalEntry = useCallback((entry: JournalEntry) => {
-    // Journal entries will be handled globally in future implementation
-    console.log('Journal entry saved:', entry);
-  }, []);
+    addJournalEntry(entry);
+  }, [addJournalEntry]);
 
   const handleSceneComplete = useCallback(() => {
     // This will be called when a scene completes, potentially triggering learning journal
@@ -107,8 +112,7 @@ function Adventure() {
 }
 
 function Progress() {
-  const [guardianTrust] = useState(50); // This should come from shared state in real implementation
-  const journalEntries: JournalEntry[] = []; // Empty for now - will be implemented with global state management
+  const { guardianTrust, journalEntries, milestones } = useGameStore();
 
   const getTrustColor = (trustLevel: number) => {
     if (trustLevel >= 80) return 'bg-green-500';
@@ -124,15 +128,6 @@ function Progress() {
     if (trustLevel >= 40) return 'Growing Bond';
     if (trustLevel >= 20) return 'Cautious Trust';
     return 'Fragile Bond';
-  };
-
-  const getMilestonesBadges = (trustLevel: number) => {
-    const milestones = [
-      { level: 25, label: 'Inner Strength', achieved: trustLevel >= 25 },
-      { level: 50, label: 'Finding Balance', achieved: trustLevel >= 50 },
-      { level: 75, label: 'Deep Connection', achieved: trustLevel >= 75 }
-    ];
-    return milestones;
   };
 
   const getEntryIcon = (type: 'milestone' | 'learning') => {
@@ -198,9 +193,9 @@ function Progress() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {getMilestonesBadges(guardianTrust).map((milestone) => (
+            {milestones.map((milestone) => (
               <div
-                key={milestone.level}
+                key={milestone.id}
                 className={`p-4 rounded-lg border-2 transition-all duration-300 ${
                   milestone.achieved
                     ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20'
