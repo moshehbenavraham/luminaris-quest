@@ -35,7 +35,8 @@ function Adventure() {
     guardianTrust, 
     setGuardianTrust, 
     addJournalEntry,
-    completeScene 
+    completeScene,
+    milestones
   } = useGameStore();
   
   const [guardianMessage, setGuardianMessage] = useState(
@@ -47,15 +48,15 @@ function Adventure() {
 
   // Check for trust milestones
   useEffect(() => {
-    const milestones = [25, 50, 75];
-    const currentMilestone = milestones.find(m => guardianTrust >= m && lastMilestone < m);
+    const unachievedMilestones = milestones.filter(m => !m.achieved && guardianTrust >= m.level);
+    const currentMilestone = unachievedMilestones.find(m => lastMilestone < m.level);
     
     if (currentMilestone) {
-      setLastMilestone(currentMilestone);
+      setLastMilestone(currentMilestone.level);
       setJournalTrigger('milestone');
       setShowJournalModal(true);
     }
-  }, [guardianTrust, lastMilestone]);
+  }, [guardianTrust, milestones, lastMilestone]);
 
   const handleSaveJournalEntry = useCallback((entry: JournalEntry) => {
     addJournalEntry(entry);

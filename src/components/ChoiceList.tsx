@@ -18,7 +18,7 @@ interface ChoiceListProps {
 }
 
 export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete, onLearningMoment }: ChoiceListProps) {
-  const { completeScene } = useGameStore();
+  const { completeScene, resetGame } = useGameStore();
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -106,7 +106,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
 
   const handleNewJourney = () => {
     resetScenes();
-    setGuardianTrust(50);
+    resetGame();
     setGuardianMessage("I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward.");
   };
 
