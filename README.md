@@ -142,3 +142,101 @@ export default tseslint.config({
   },
 })
 ```
+
+---
+
+## 🚀 **Luminari’s Quest — Bolt.new Pre-Deployment Checklist**
+
+### **1. Clean Build Test**
+
+* [ ] **Run:** `npm run build`
+* [ ] **Verify:** No errors; `dist/` folder created
+
+### **2. Local Preview Test**
+
+* [ ] **Run:** `npm run preview`
+* [ ] **Verify:** App loads at [http://localhost:4173](http://localhost:4173) (or configured port), *all main routes function*
+
+### **3. Dependency Audit**
+
+* [ ] **Run:** `npm audit --production`
+* [ ] **Verify:** No high/critical vulnerabilities (fix before continuing)
+
+### **4. Check Platform Dependencies**
+
+* [ ] **Check:** `package.json` has both:
+
+  * `@rollup/rollup-linux-x64-gnu` (for Linux deploy)
+  * `@rollup/rollup-win32-x64-msvc` (for Windows dev)
+* [ ] **Verify:** No platform-specific code/imports in your own files
+
+### **5. File Cleanup Checklist**
+
+* [ ] `node_modules/` (EXCLUDE)
+* [ ] `dist/` (EXCLUDE)
+* [ ] `.env` with secrets (EXCLUDE; use `.env.example` only)
+* [ ] Local IDE/VSCODE files (EXCLUDE: `.vscode/`, etc)
+* [ ] **INCLUDE:**
+
+  * `package.json` (updated)
+  * `package-lock.json` (latest, synced)
+  * `src/`, `public/`, `vite.config.ts`, `tsconfig.json`, etc.
+
+### **6. Configuration Verification**
+
+* [ ] **package.json:**
+
+  * Scripts (`build`, `build:deploy` if needed)
+  * Correct dependencies/optionalDependencies
+* [ ] **vite.config.ts:**
+
+  * No hardcoded dev/prod paths
+  * `optimizeDeps` set for React/ReactDOM
+
+### **7. Environment Variables Check**
+
+* [ ] **`.env.example`** present (no values)
+* [ ] No hardcoded API keys/secrets in code or config
+* [ ] All variables use `VITE_` prefix for frontend use
+
+### **8. TypeScript Check**
+
+* [ ] **Run:** `npx tsc --noEmit`
+* [ ] **Verify:** No errors/warnings
+
+### **9. Final Size Check**
+
+* [ ] **Run:** (check post-build output)
+* [ ] **Verify:** Main chunk <1MB; total bundle <2MB if possible
+
+---
+
+## 🚨 **Stop and Fix If:**
+
+* Build or preview fails locally
+* TypeScript errors or warnings
+* Missing platform dependencies in `package.json`
+* Bundle warnings: main >1MB, total >2MB
+* Critical npm audit issues
+* Local preview broken or console errors
+
+---
+
+## 📋 **Quick Pre-Upload Summary**
+
+* [ ] Run full local build/test
+* [ ] Confirm bundle and config health
+* [ ] Exclude node\_modules, dist, secrets, local dev files
+* [ ] Upload zipped folder or push to Bolt.new as required
+
+---
+
+### 💡 **Pro Tips**
+
+* **Keep a deploy log:** Note what failed/fixed—next deploy will be faster.
+* **Test in incognito/private browser:** Catches old cache issues.
+* **Open browser console during preview:** Silent errors kill demos.
+* **Manually test all routes/views.**
+* **Test mobile/responsive before uploading.**
+
+---

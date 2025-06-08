@@ -26,5 +26,9 @@ export default defineConfig({
         }
       }
     }
+  },
+  // Add this to help with platform-specific dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   }
 })
