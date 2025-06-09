@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getCurrentScene, advanceScene, rollDice, isLastScene, getSceneProgress, resetScenes, type DiceResult } from '@/engine/scene-engine';
+import { getScene, isLastScene, getSceneProgress, rollDice, type DiceResult } from '@/engine/scene-engine';
 import { DiceRollOverlay } from './DiceRollOverlay';
 import { useGameStore } from '@/store/game-store';
 import { Sword, Users, Wrench, BookOpen, Map } from 'lucide-react';
@@ -18,13 +18,13 @@ interface ChoiceListProps {
 }
 
 export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete, onLearningMoment }: ChoiceListProps) {
-  const { completeScene, resetGame } = useGameStore();
+  const { completeScene, resetGame, currentSceneIndex, advanceScene } = useGameStore();
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const currentScene = getCurrentScene();
-  const progress = getSceneProgress();
+  const currentScene = getScene(currentSceneIndex);
+  const progress = getSceneProgress(currentSceneIndex);
 
   const getSceneIcon = (type: string) => {
     switch (type) {
@@ -63,32 +63,32 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
     setShowDiceRoll(false);
     
     // Update guardian trust and message based on result
-    const currentScene = getCurrentScene();
+    const scene = getScene(currentSceneIndex);
     const trustChange = diceResult.success ? 5 : -5;
     const newTrust = Math.min(100, Math.max(0, guardianTrust + trustChange));
     
     setGuardianTrust(newTrust);
     
     if (diceResult.success) {
-      setGuardianMessage(currentScene.successText);
+      setGuardianMessage(scene.successText);
     } else {
-      setGuardianMessage(currentScene.failureText);
+      setGuardianMessage(scene.failureText);
     }
 
     // Record the completed scene
     completeScene({
       id: `scene-${Date.now()}`,
-      sceneId: currentScene.id,
-      type: currentScene.type,
-      title: currentScene.title,
+      sceneId: scene.id,
+      type: scene.type,
+      title: scene.title,
       success: diceResult.success,
       roll: diceResult.roll,
-      dc: diceResult.dc,
+      dc: scene.dc,
       trustChange,
-      completedAt: new Date(),
+      completedAt: Date.now(),
     });
     
-    if (!isLastScene()) {
+    if (!isLastScene(currentSceneIndex)) {
       advanceScene();
     }
     
@@ -105,12 +105,11 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
   };
 
   const handleNewJourney = () => {
-    resetScenes();
     resetGame();
     setGuardianMessage("I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward.");
   };
 
-  if (isLastScene() && !showDiceRoll) {
+  if (isLastScene(currentSceneIndex) && !showDiceRoll) {
     return (
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>

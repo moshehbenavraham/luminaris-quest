@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 import { type User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +16,7 @@ const SupabaseContext = createContext<SupabaseContextType>({
 
 export function SupabaseProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -25,6 +24,7 @@ export function SupabaseProvider({ children }: PropsWithChildren) {
 
     async function initializeAuth() {
       try {
+        setLoading(true);
         // Check initial session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;

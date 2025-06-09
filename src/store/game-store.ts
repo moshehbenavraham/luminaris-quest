@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useEffect, useState } from 'react';
 import type { JournalEntry } from '@/components/JournalModal';
 
 export interface Milestone {
@@ -9,7 +10,7 @@ export interface Milestone {
   level: number;
   label: string;
   achieved: boolean;
-  achievedAt?: Date;
+  achievedAt?: number; // Use timestamp instead of Date
 }
 
 export interface CompletedScene {
@@ -21,23 +22,26 @@ export interface CompletedScene {
   roll: number;
   dc: number;
   trustChange: number;
-  completedAt: Date;
+  completedAt: number; // Use timestamp instead of Date
 }
 
 export interface GameState {
   guardianTrust: number;
   playerLevel: number;
-  currentScene: number;
+  currentSceneIndex: number;
   journalEntries: JournalEntry[];
   milestones: Milestone[];
   sceneHistory: CompletedScene[];
   setGuardianTrust: (trust: number) => void;
   addJournalEntry: (entry: JournalEntry) => void;
   completeScene: (scene: CompletedScene) => void;
+  advanceScene: () => void;
   saveToSupabase: () => Promise<void>;
   loadFromSupabase: () => Promise<void>;
   resetGame: () => void;
   updateMilestone: (level: number) => void;
+  _hasHydrated: boolean;
+  _setHasHydrated: (hasHydrated: boolean) => void;
 }
 
 const initialMilestones: Milestone[] = [
@@ -46,16 +50,17 @@ const initialMilestones: Milestone[] = [
   { id: 'milestone-75', level: 75, label: 'Deep Connection', achieved: false },
 ];
 
-export const useGameStore = create<GameState>()(
+const useGameStoreBase = create<GameState>()(
   persist(
     (set, get) => ({
       // Initial state
       guardianTrust: 50,
       playerLevel: 1,
-      currentScene: 0,
+      currentSceneIndex: 0,
       journalEntries: [],
       milestones: initialMilestones,
       sceneHistory: [],
+      _hasHydrated: false,
 
       // Actions
       setGuardianTrust: (trust: number) => {
@@ -67,42 +72,69 @@ export const useGameStore = create<GameState>()(
       },
 
       addJournalEntry: (entry: JournalEntry) => {
-        set((state) => ({
-          journalEntries: [...state.journalEntries, entry],
-        }));
+        set((state) => {
+          const newEntries = [...state.journalEntries, entry];
+          // Keep only the most recent 12 entries
+          const limitedEntries = newEntries
+            .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+            .slice(0, 12);
+          
+          return {
+            journalEntries: limitedEntries,
+          };
+        });
       },
 
       completeScene: (scene: CompletedScene) => {
         set((state) => ({
           sceneHistory: [...state.sceneHistory, scene],
-          currentScene: state.currentScene + 1,
+        }));
+      },
+
+      advanceScene: () => {
+        set((state) => ({
+          currentSceneIndex: state.currentSceneIndex + 1,
         }));
       },
 
       updateMilestone: (trustLevel: number) => {
-        set((state) => ({
-          milestones: state.milestones.map((milestone) => {
+        set((state) => {
+          const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
               return {
                 ...milestone,
                 achieved: true,
-                achievedAt: new Date(),
+                achievedAt: Date.now(),
               };
             }
             return milestone;
-          }),
-        }));
+          });
+
+          // Deduplicate milestones to prevent runaway state growth from old bugs
+          const uniqueMilestones = updatedMilestones.filter(
+            (milestone, index, self) =>
+              index === self.findIndex((m) => m.id === milestone.id)
+          );
+
+          return { milestones: uniqueMilestones };
+        });
       },
 
       resetGame: () => {
         set({
           guardianTrust: 50,
           playerLevel: 1,
-          currentScene: 0,
+          currentSceneIndex: 0,
           journalEntries: [],
-          milestones: initialMilestones,
+          milestones: initialMilestones.map(m => ({...m, achieved: false, achievedAt: undefined })),
           sceneHistory: [],
         });
+        // Also clear from storage to prevent rehydration of bad state
+        localStorage.removeItem('luminari-game-state');
+      },
+
+      _setHasHydrated: (hasHydrated: boolean) => {
+        set({ _hasHydrated: hasHydrated });
       },
 
       // Placeholder implementations for Supabase integration
@@ -125,11 +157,86 @@ export const useGameStore = create<GameState>()(
       partialize: (state) => ({
         guardianTrust: state.guardianTrust,
         playerLevel: state.playerLevel,
-        currentScene: state.currentScene,
-        journalEntries: state.journalEntries,
-        milestones: state.milestones,
-        sceneHistory: state.sceneHistory,
+        currentSceneIndex: state.currentSceneIndex,
+        journalEntries: state.journalEntries.map(entry => ({
+          ...entry,
+          timestamp: entry.timestamp.toISOString()
+        })),
+        milestones: state.milestones.map(milestone => ({
+          ...milestone,
+          achievedAt: milestone.achievedAt ? new Date(milestone.achievedAt).toISOString() : undefined
+        })),
+        sceneHistory: state.sceneHistory.map(scene => ({
+          ...scene,
+          completedAt: new Date(scene.completedAt).toISOString()
+        })),
       }),
+      // Add a merge function to handle rehydration
+      merge: (persistedState: any, currentState) => {
+        if (!persistedState) return currentState;
+        
+        // Convert ISO strings back to Date objects
+        const hydratedJournalEntries = (persistedState.journalEntries || []).map((entry: any) => ({
+          ...entry,
+          timestamp: new Date(entry.timestamp)
+        }));
+        
+        // Properly merge milestones, ensuring we don't duplicate and maintain initial structure
+        const mergedMilestones = initialMilestones.map(initialMilestone => {
+          const persistedMilestone = (persistedState.milestones || []).find(
+            (m: any) => m.id === initialMilestone.id
+          );
+          return persistedMilestone ? {
+            ...initialMilestone,
+            ...persistedMilestone,
+            achievedAt: persistedMilestone.achievedAt ? new Date(persistedMilestone.achievedAt).getTime() : undefined
+          } : initialMilestone;
+        });
+        
+        return {
+          ...currentState,
+          ...persistedState,
+          journalEntries: hydratedJournalEntries,
+          milestones: mergedMilestones,
+        };
+      },
+      onRehydrateStorage: () => (state) => {
+        state?._setHasHydrated(true);
+      },
     }
   )
 );
+
+// Hydration-safe hook that prevents mismatches
+export const useGameStore = () => {
+  const store = useGameStoreBase();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Return initial values during SSR/hydration to prevent mismatches
+  if (!hasMounted || !store._hasHydrated) {
+    return {
+      guardianTrust: 50,
+      playerLevel: 1,
+      currentSceneIndex: 0,
+      journalEntries: [],
+      milestones: initialMilestones,
+      sceneHistory: [],
+      setGuardianTrust: store.setGuardianTrust,
+      addJournalEntry: store.addJournalEntry,
+      completeScene: store.completeScene,
+      advanceScene: store.advanceScene,
+      saveToSupabase: store.saveToSupabase,
+      loadFromSupabase: store.loadFromSupabase,
+      resetGame: store.resetGame,
+      updateMilestone: store.updateMilestone,
+      _hasHydrated: false,
+      _setHasHydrated: store._setHasHydrated,
+    };
+  }
+
+  return store;
+};

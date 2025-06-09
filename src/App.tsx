@@ -8,7 +8,7 @@ import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';
 import { JournalModal, type JournalEntry } from '@/components/JournalModal';
 import { useGameStore } from '@/store/game-store';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Heart, BookOpen, Calendar, Award } from 'lucide-react';
@@ -35,42 +35,74 @@ function Adventure() {
     guardianTrust, 
     setGuardianTrust, 
     addJournalEntry,
-    completeScene,
-    milestones
+    milestones,
+    _hasHydrated
   } = useGameStore();
   
+  const [isClient, setIsClient] = useState(false);
   const [guardianMessage, setGuardianMessage] = useState(
     "I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward."
   );
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalTrigger, setJournalTrigger] = useState<'milestone' | 'learning'>('milestone');
-  const [lastMilestone, setLastMilestone] = useState(0);
+  const shownMilestonesRef = useRef<Set<number>>(new Set());
+
+  // Set isClient to true after mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Check for trust milestones
   useEffect(() => {
-    const unachievedMilestones = milestones.filter(m => !m.achieved && guardianTrust >= m.level);
-    const currentMilestone = unachievedMilestones.find(m => lastMilestone < m.level);
+    if (!_hasHydrated || !milestones.length) return; // Wait for hydration and milestones to load
     
-    if (currentMilestone) {
-      setLastMilestone(currentMilestone.level);
-      setJournalTrigger('milestone');
-      setShowJournalModal(true);
+    try {
+      // Find milestones that are achieved but not yet shown
+      const newlyAchievedMilestones = milestones.filter(m => 
+        m && m.achieved && !shownMilestonesRef.current.has(m.level)
+      );
+      
+      if (newlyAchievedMilestones.length > 0) {
+        // Show the first newly achieved milestone
+        const milestoneToShow = newlyAchievedMilestones[0];
+        if (milestoneToShow && typeof milestoneToShow.level === 'number') {
+          shownMilestonesRef.current.add(milestoneToShow.level);
+          setJournalTrigger('milestone');
+          setShowJournalModal(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking milestones:', error);
     }
-  }, [guardianTrust, milestones, lastMilestone]);
+  }, [milestones, _hasHydrated]);
 
   const handleSaveJournalEntry = useCallback((entry: JournalEntry) => {
-    addJournalEntry(entry);
+    try {
+      if (entry && entry.id && entry.content) {
+        addJournalEntry(entry);
+      }
+    } catch (error) {
+      console.error('Error saving journal entry:', error);
+    }
   }, [addJournalEntry]);
 
   const handleSceneComplete = useCallback(() => {
     // This will be called when a scene completes, potentially triggering learning journal
-    // The ChoiceList component will handle failed rolls and call this
   }, []);
 
   const handleLearningMoment = useCallback(() => {
     setJournalTrigger('learning');
     setShowJournalModal(true);
   }, []);
+
+  // Don't render anything until hydration is complete
+  if (!isClient || !_hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -113,7 +145,28 @@ function Adventure() {
 }
 
 function Progress() {
-  const { guardianTrust, journalEntries, milestones } = useGameStore();
+  const { 
+    guardianTrust, 
+    journalEntries, 
+    milestones, 
+    _hasHydrated 
+  } = useGameStore();
+  
+  const [isClient, setIsClient] = useState(false);
+  
+  // Set isClient to true after mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Don't render anything until hydration is complete
+  if (!isClient || !_hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
 
   const getTrustColor = (trustLevel: number) => {
     if (trustLevel >= 80) return 'bg-green-500';
@@ -194,7 +247,13 @@ function Progress() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {milestones.map((milestone) => (
+            {milestones
+              .filter((milestone, index, arr) => 
+                // Remove duplicates by level
+                arr.findIndex(m => m.level === milestone.level) === index
+              )
+              .slice(0, 6) // Limit to max 6 milestones
+              .map((milestone) => (
               <div
                 key={milestone.id}
                 className={`p-4 rounded-lg border-2 transition-all duration-300 ${
@@ -226,7 +285,7 @@ function Progress() {
             Journal Entries
           </CardTitle>
           <CardDescription>
-            Reflections from your healing journey
+            Reflections from your healing journey (showing most recent 12 entries)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -239,36 +298,51 @@ function Progress() {
             <div className="space-y-4">
               {journalEntries
                 .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-                .map((entry, index) => (
-                  <Card 
-                    key={entry.id}
-                    className={`transition-all duration-500 ease-in-out transform ${
-                      index === 0 ? 'animate-in fade-in slide-in-from-top-2' : ''
-                    }`}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                          {getEntryIcon(entry.type)}
-                          {entry.title}
-                        </CardTitle>
-                        <Badge variant={entry.type === 'milestone' ? 'default' : 'secondary'}>
-                          {entry.type === 'milestone' ? 'Milestone' : 'Learning'}
-                        </Badge>
-                      </div>
-                      <CardDescription className="flex items-center gap-2">
-                        <Calendar className="h-3 w-3" />
-                        {entry.timestamp.toLocaleDateString()} at {entry.timestamp.toLocaleTimeString()}
-                        • Trust Level: {entry.trustLevel}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <blockquote className="border-l-4 border-purple-400 pl-4 italic text-foreground">
-                        "{entry.content}"
-                      </blockquote>
-                    </CardContent>
-                  </Card>
-                ))}
+                .slice(0, 12) // Ensure we never show more than 12 entries
+                .map((entry, index) => {
+                  // Add error boundary for individual entries
+                  try {
+                    return (
+                      <Card 
+                        key={entry.id}
+                        className={`transition-all duration-500 ease-in-out transform ${
+                          index === 0 ? 'animate-in fade-in slide-in-from-top-2' : ''
+                        }`}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                              {getEntryIcon(entry.type)}
+                              {entry.title}
+                            </CardTitle>
+                            <Badge variant={entry.type === 'milestone' ? 'default' : 'secondary'}>
+                              {entry.type === 'milestone' ? 'Milestone' : 'Learning'}
+                            </Badge>
+                          </div>
+                          <CardDescription className="flex items-center gap-2">
+                            <Calendar className="h-3 w-3" />
+                            {entry.timestamp.toLocaleDateString()} at {entry.timestamp.toLocaleTimeString()}
+                            • Trust Level: {entry.trustLevel}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <blockquote className="border-l-4 border-purple-400 pl-4 italic text-foreground">
+                            "{entry.content}"
+                          </blockquote>
+                        </CardContent>
+                      </Card>
+                    );
+                  } catch (error) {
+                    console.error('Error rendering journal entry:', error, entry);
+                    return (
+                      <Card key={entry.id || `error-${index}`} className="border-red-200">
+                        <CardContent className="p-4">
+                          <p className="text-red-600 text-sm">Error displaying journal entry</p>
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+                })}
             </div>
           )}
         </CardContent>

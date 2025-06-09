@@ -82,29 +82,17 @@ const scenes: Scene[] = [
   }
 ];
 
-let currentSceneIndex = 0;
-
-export const getCurrentScene = (): Scene => {
-  return scenes[currentSceneIndex];
+export const getScene = (index: number): Scene => {
+  return scenes[index];
 };
 
-export const advanceScene = (): void => {
-  if (currentSceneIndex < scenes.length - 1) {
-    currentSceneIndex++;
-  }
+export const isLastScene = (index: number): boolean => {
+  return index >= scenes.length - 1;
 };
 
-export const isLastScene = (): boolean => {
-  return currentSceneIndex >= scenes.length - 1;
-};
-
-export const resetScenes = (): void => {
-  currentSceneIndex = 0;
-};
-
-export const getSceneProgress = (): { current: number; total: number } => {
+export const getSceneProgress = (index: number): { current: number; total: number } => {
   return {
-    current: currentSceneIndex + 1,
+    current: index + 1,
     total: scenes.length
   };
 };

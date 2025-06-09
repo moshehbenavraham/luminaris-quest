@@ -132,7 +132,7 @@ All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md). We're co
 ## 🙋‍♀️ Getting Help
 
 - Create an issue for bugs/features
-- Join our Discord community
+- Join our Skool community: https://www.skool.com/ai-with-apex/about
 - Check existing documentation
 - Read our [FAQ](docs/FAQ.md)
 
