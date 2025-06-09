@@ -12,6 +12,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Heart, BookOpen, Calendar, Award } from 'lucide-react';
+import { Legal } from '@/pages/Legal';
 
 // Page components
 function Home() {
@@ -364,18 +365,7 @@ function Profile() {
   );
 }
 
-function Legal() {
-  return (
-    <div>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
-        Legal
-      </h1>
-      <p className="text-xl text-muted-foreground">
-        Terms of service and privacy policy.
-      </p>
-    </div>
-  );
-}
+
 
 function App() {
   return (
