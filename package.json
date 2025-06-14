@@ -1,7 +1,7 @@
 {
   "name": "luminaris-quest",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Therapeutic AI-powered RPG adventure. Built with Bolt.new. See README.md, .bolt/prompt, and .cursor/rules/ for development standards.",
   "scripts": {
@@ -93,7 +93,9 @@
     "vitest": "^3.2.2"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.42.0",
-    "@rollup/rollup-win32-x64-msvc": "^4.42.0"
+    "@rollup/rollup-linux-x64-gnu": "^4.43.0",
+    "@rollup/rollup-win32-x64-msvc": "^4.42.0",
+    "@rollup/rollup-darwin-x64": "^4.43.0",
+    "@rollup/rollup-darwin-arm64": "^4.43.0"
   }
 }

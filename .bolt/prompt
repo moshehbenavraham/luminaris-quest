@@ -10,14 +10,17 @@
 ## 0. Stack Snapshot  (reference – do not override)
 TECH_FRONTEND          = React 18 + TypeScript 5 (Vite)
 STYLING                = Tailwind CSS (JIT)  +  Shadcn/UI components
+STATE_MANAGEMENT       = Zustand with persistence and hydration safety
 BACKEND_API            = Supabase JS client (only calls, no schema edits)
 AI_SERVICES            = OpenAI (narrative) · Leonardo.AI (visuals) · ElevenLabs (voice)
 DEPLOY_TARGET          = Netlify
 FILE_STRUCTURE_ROOT    = src/
-  • src/pages/         = route entry points
-  • src/components/    = atomic UI pieces
+  • src/pages/         = route entry points (Home, Adventure, Progress, Profile, Legal)
+  • src/components/    = atomic UI pieces (including JournalEntryCard with CRUD)
   • src/hooks/         = reusable logic
   • src/services/      = API wrappers & helpers
+  • src/store/         = Zustand state management
+  • src/engine/        = game logic and scene engine
 ENV_PLACEHOLDERS_FILE  = .env.example
 
 ## 1. Scope & Safety Rules  (highest priority)
@@ -61,26 +64,28 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 ## 2. Component Design Principles (Atomic Design)
 • Follow atomic design principles for all components:
   - Atoms: Basic UI elements (Button, Input, Card)  
-  - Molecules: Composite components (AuthForm, NavItem)  
-  - Organisms: Complex components (Layout, Sidebar)
+  - Molecules: Composite components (AuthForm, NavItem, JournalEntryCard)  
+  - Organisms: Complex components (Layout, Sidebar, Adventure, Progress)
 • All components must:
   - Use TypeScript with strict mode; no `any` unless explicitly allowed
-  - Be under 250 lines (split into subcomponents if needed)
+  - Be under 500 lines (split into subcomponents if needed)
   - Use Tailwind CSS for styling only—no separate CSS/Sass files
   - Use Shadcn/UI components as base: `import { Button } from "@/components/ui/button"`
   - Use Lucide icons for navigation/actions
   - Include proper accessibility attributes (ARIA, keyboard nav, screen reader support)
 • File naming:
-  - React components: PascalCase (e.g., AuthForm.tsx)
+  - React components: PascalCase (e.g., AuthForm.tsx, JournalEntryCard.tsx)
   - Utilities/hooks: camelCase (e.g., useAuth.ts)
   - Test files: *.test.tsx
 
 ## 3. Project Roadmap & Task Tracking
-• Follow component priority in docs/COMPONENT_MAP.md:
-  1. Project Scaffold → 2. Core Layout Shell → 3. Auth Module → 4. Supabase Client
-  5. Game State Store → 6. Character Creation → 7. Narrative Engine → 8. AI Integrations
-• Never build features out of order unless explicitly approved.
-• Track current focus through GitHub Issues/PRs and docs/COMPONENT_MAP.md.
+• Component architecture has been refactored:
+  - ✅ Page components extracted to src/pages/
+  - ✅ Journal system enhanced with full CRUD operations
+  - ✅ TypeScript compilation errors resolved
+  - ✅ Code quality improvements with ESLint and Prettier
+• Follow component priority in docs/COMPONENT_MAP.md for new features
+• Track current focus through GitHub Issues/PRs and CHANGELOG.md
 
 ## 4. Prompt Format Expectations
 • The incoming prompt must follow the SPECS-E pattern  
@@ -104,7 +109,7 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 ## 6. Environment & API Requirements
 • Required environment variables (reference .env.example):
   - VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
-  - VITE_OPENAI_API_KEY, VITE_LEONARDO_API_KEY, VITE_ELEVENLABS_API_KEY
+  - VITE_OPENAI_API_KEY, VITE_LEONARDO_API_KEY, VITE_ELEVENLABS_API_KEY (planned)
 • Read runtime secrets exclusively from `process.env.*`; never hard-code keys.  
 • If a required env var is missing, leave a TODO and reference `.env.example`.  
 • Do not alter `.env.example` unless the prompt specifies new placeholders.
@@ -130,7 +135,7 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 • **Import Verification**: All imports must resolve to existing files/exports.
 
 ## 9. Documentation & Commit Standards
-• Keep core documentation files unchanged: README.md, CONTRIBUTING.md, licenses/third-party.md, docs/COMPONENT_MAP.md.
+• Keep core documentation files updated: README.md, CONTRIBUTING.md, CHANGELOG.md, docs/COMPONENT_MAP.md.
 • Write conventional commit messages: feat/fix/docs/style/refactor/test/chore.
 • Stage only files related to current task; keep commits atomic and focused.
 
@@ -157,6 +162,17 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 • ❌ Importing hooks from UI components instead of hooks directory
 • ❌ Breaking existing functionality while adding new features
 • ❌ Deploying code that doesn't compile or has TypeScript errors
+
+## 13. Current Project Status (December 2024)
+• ✅ Page components properly extracted to src/pages/
+• ✅ Journal system enhanced with JournalEntryCard CRUD functionality
+• ✅ TypeScript compilation errors resolved
+• ✅ ESLint configuration updated with browser globals
+• ✅ Prettier formatting applied consistently
+• ✅ Component prop interfaces properly typed
+• ✅ Zustand store with hydration safety implemented
+• 🚧 Supabase journal persistence (planned)
+• 🚧 AI integrations (OpenAI, Leonardo.AI, ElevenLabs) (planned)
 
 # ────────────────────────────────────────────────────────────
 #  End of .bolt/prompt

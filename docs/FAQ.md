@@ -9,7 +9,7 @@
 This project was built for the World's Largest AI Hackathon to demonstrate how AI can be used for therapeutic purposes. It addresses the real need for accessible mental health resources for young adults who have experienced significant trauma.
 
 ### How was this built?
-The project was built primarily using [Bolt.new](https://bolt.new/), an AI-powered development environment. This allowed for rapid prototyping, iterative development, and seamless integration of complex AI services.  Other tools used include OpenAI's "Project" feature (for keeping track and taking notes for the project), Cursor (for local debugging), and Windsurf (was interested in testing platform, very limited usage).
+The project was built primarily using [Bolt.new](https://bolt.new/), an AI-powered development environment. This allowed for rapid prototyping, iterative development, and seamless integration of complex AI services. Other tools used include OpenAI's "Project" feature (for keeping track and taking notes for the project), Cursor (for local debugging), and Windsurf (was interested in testing platform, very limited usage).
 
 ---
 
@@ -19,8 +19,8 @@ The project was built primarily using [Bolt.new](https://bolt.new/), an AI-power
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/YOUR_ORG/luminari-quest.git
-   cd luminari-quest
+   git clone https://github.com/moshehbenavraham/luminaris-quest.git
+   cd luminaris-quest
    ```
 
 2. **Install dependencies:**
@@ -41,10 +41,10 @@ The project was built primarily using [Bolt.new](https://bolt.new/), an AI-power
 
 ### What environment variables do I need?
 Check the `.env.example` file for the complete list. You'll need API keys for:
-- OpenAI (for narrative generation)
-- Leonardo.AI (for image generation)
-- ElevenLabs (for voice synthesis)
 - Supabase (for backend and authentication)
+- OpenAI (for narrative generation) - *Planned*
+- Leonardo.AI (for image generation) - *Planned*
+- ElevenLabs (for voice synthesis) - *Planned*
 
 ### Why can't I see my environment variables?
 Make sure you:
@@ -53,24 +53,41 @@ Make sure you:
 3. Restarted your development server after editing `.env`
 4. Used the `VITE_` prefix for frontend environment variables
 
+### How do I fix the Rollup build error?
+If you encounter `Cannot find module @rollup/rollup-linux-x64-gnu` error:
+1. Delete `node_modules` and `package-lock.json`
+2. Run `npm install` again
+3. Or install the specific dependency: `npm install @rollup/rollup-linux-x64-gnu --save-optional`
+
 ---
 
 ## 🏗️ Development
 
-### What's the project structure?
-- `src/components/` - React components organized by feature
-- `src/pages/` - Route components
-- `src/hooks/` - Custom React hooks
-- `src/lib/` - Utility functions and providers
-- `src/store/` - State management (Zustand)
-- `src/integrations/` - External service integrations
-- `docs/` - Documentation files
-- `.bolt/` - Bolt.new configuration and prompts
+### What's the current project structure?
+```
+src/
+├── components/       # React components organized by feature
+│   ├── ui/          # Shadcn/UI base components
+│   ├── layout/      # Layout components (Navbar, Sidebar, Footer)
+│   ├── auth/        # Authentication components
+│   └── *.tsx        # Feature-specific components
+├── pages/           # Route components (extracted from App.tsx)
+│   ├── Home.tsx     # Landing page with authentication
+│   ├── Adventure.tsx # Main gameplay interface
+│   ├── Progress.tsx  # Progress tracking and journal display
+│   ├── Profile.tsx   # User profile management
+│   └── Legal.tsx     # Legal information and compliance
+├── hooks/           # Custom React hooks
+├── lib/             # Utility functions and providers
+├── store/           # State management (Zustand)
+├── engine/          # Game logic and scene engine
+└── integrations/    # External service integrations
+```
 
 ### What coding standards should I follow?
 - **TypeScript:** Strict mode enabled (see `tsconfig.*.json`)
 - **Styling:** Tailwind CSS only (no separate CSS files)
-- **Components:** Keep under 250 lines, follow atomic design principles
+- **Components:** Keep under 500 lines, follow atomic design principles
 - **Code Quality:** Use ESLint and Prettier (see `eslint.config.js`, `.prettierrc`)
 - **Testing:** Write tests for new features
 - **Documentation:** Add JSDoc comments for complex functions
@@ -90,20 +107,21 @@ We use [Shadcn/UI](https://ui.shadcn.com/) components built on top of Radix UI p
 ## 🤖 AI Integrations
 
 ### Which AI services are integrated?
-- **OpenAI:** Narrative generation and story progression
-- **Leonardo.AI:** Dynamic visual art generation
-- **ElevenLabs:** Voice synthesis for narration
-- **Suno:** Music generation (manually curated)
+Currently planned integrations:
+- **OpenAI:** Narrative generation and story progression (*Planned*)
+- **Leonardo.AI:** Dynamic visual art generation (*Planned*)
+- **ElevenLabs:** Voice synthesis for narration (*Planned*)
+- **Suno:** Music generation (manually curated) (*Planned*)
 
 ### How do the AI features work?
-The game uses AI to:
+The game will use AI to:
 1. Generate personalized story content based on user choices
 2. Create fantasy artwork that matches story moments
 3. Provide immersive voice narration
 4. Adapt the therapeutic content to individual needs
 
 ### Can I test without API keys?
-Yes! The app includes fallback content and stub responses for development. However, you'll need real API keys to test the full AI functionality.
+Yes! The app includes fallback content and stub responses for development. The core gameplay mechanics, journal system, and progress tracking work without AI integrations.
 
 ---
 
@@ -112,10 +130,20 @@ Yes! The app includes fallback content and stub responses for development. Howev
 ### What makes this therapeutic?
 The game incorporates:
 - Evidence-based therapeutic techniques
-- Safe exploration of difficult emotions
+- Safe exploration of difficult emotions through journaling
 - Resilience-building activities
 - Choice-driven narrative that empowers users
 - Fantasy metaphors for real-world challenges
+- Milestone-based progress tracking
+
+### What's the journal system?
+The enhanced journal system features:
+- **Full CRUD operations**: Create, read, update, and delete journal entries
+- **Inline editing**: Edit entries without leaving the page
+- **Visual distinction**: Different styles for milestone vs. learning entries
+- **Edit history**: Track when entries were modified
+- **Confirmation dialogs**: Prevent accidental deletions
+- **Automatic prompts**: Journal entries triggered by milestones and learning moments
 
 ### Is this a replacement for therapy?
 No. Luminari's Quest is designed as a supplemental tool to support healing and growth. It's not a replacement for professional mental health care.
@@ -170,17 +198,18 @@ All third-party licenses are documented in `licenses/third-party.md`. We only us
 5. Submit a pull request
 
 ### What areas need help?
-We especially welcome contributions in:
-- Accessibility improvements
-- Performance optimization
-- Documentation
-- Testing
-- Bug fixes
+Based on recent development priorities:
+- **Supabase Integration**: Complete journal entry persistence
+- **AI Features**: Implement OpenAI narrative generation
+- **Enhanced UX**: Improve journal search and filtering
+- **Performance**: Optimize bundle size and loading times
+- **Testing**: Expand test coverage for new components
+- **Accessibility**: Improve screen reader support
 
 ### What's not accepting contributions?
 - Core game narrative/story changes
-- Major architectural changes
-- New AI service integrations
+- Major architectural changes without discussion
+- New AI service integrations without approval
 - Therapeutic content (requires expert review)
 
 ---
@@ -193,17 +222,24 @@ We especially welcome contributions in:
 3. Verify your `.env` file exists and has the required variables
 4. Try deleting `node_modules` and running `npm install` again
 
-### Build errors
-1. Run `npm run lint` to check for code issues
-2. Ensure all TypeScript errors are resolved
-3. Check that all imports are correct
-4. Verify environment variables are properly prefixed with `VITE_`
+### TypeScript/Build errors
+1. Run `npm run build` to check for TypeScript errors
+2. Ensure all imports are correct and files exist
+3. Check that all component props have proper interfaces
+4. Verify no circular imports exist
+5. Make sure all variables are properly destructured from stores
 
 ### API integration issues
 1. Verify your API keys are correct in `.env`
 2. Check API rate limits and quotas
 3. Look at browser console for specific error messages
 4. Test with stub/fallback content first
+
+### Journal system issues
+1. Check browser console for state management errors
+2. Verify Zustand store is properly hydrated
+3. Clear local storage if experiencing persistence issues
+4. Check that journal entries have unique IDs
 
 ### Performance issues
 1. Check bundle size with `npm run build`
@@ -215,11 +251,12 @@ We especially welcome contributions in:
 
 ## 🔗 Additional Resources
 
-- **Project Repository:** [https://github.com/moshehbenavraham/luminaris-quest]
+- **Project Repository:** [https://github.com/moshehbenavraham/luminaris-quest](https://github.com/moshehbenavraham/luminaris-quest)
 - **Community:** [Skool Community](https://www.skool.com/ai-with-apex/about)
 - **Bolt.new:** [https://bolt.new/](https://bolt.new/)
 - **Component Documentation:** [docs/COMPONENT_MAP.md](COMPONENT_MAP.md)
 - **Contributing Guide:** [CONTRIBUTING.md](../CONTRIBUTING.md)
+- **Changelog:** [CHANGELOG.md](../CHANGELOG.md)
 
 ---
 
@@ -228,13 +265,14 @@ We especially welcome contributions in:
 Still have questions? Here's how to get help:
 
 1. **Check existing documentation** in the `docs/` folder
-2. **Search existing issues** on GitHub
-3. **Create a new issue** with detailed information
-4. **Join our community** on Skool for discussions
-5. **Read the source code** - it's well-documented!
+2. **Review the changelog** for recent updates
+3. **Search existing issues** on GitHub
+4. **Create a new issue** with detailed information
+5. **Join our community** on Skool for discussions
+6. **Read the source code** - it's well-documented!
 
 ---
 
 *Built with [Bolt.new](https://bolt.new/) 🚀*
 
-*Last updated: June 2025* 
+*Last updated: December 2024* 
