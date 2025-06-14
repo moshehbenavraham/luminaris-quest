@@ -86,4 +86,4 @@ Update this list any time you add a new dependency, font, icon set, or media fil
 
 ---
 
-_Last updated: December 2024_
+_Last updated: June 2025_

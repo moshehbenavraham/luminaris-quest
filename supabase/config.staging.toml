@@ -1,0 +1,14 @@
+# Supabase Staging Environment Configuration
+# This configuration is used for staging environment
+
+# TODO: Replace with actual staging project ID
+project_id = "your-staging-project-id"
+
+[auth]
+# TODO: Replace with actual staging site URL
+site_url = "https://your-staging-app.netlify.app"
+additional_redirect_urls = []
+
+# Staging-specific settings
+[api]
+# Add any staging-specific API settings here 

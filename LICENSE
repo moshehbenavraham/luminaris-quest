@@ -1,12 +1,14 @@
-All core app logic and UI were built primarily in Bolt.new
+# Luminari's Quest - License Information
 
-Section A
+*All core app logic and UI were built primarily in Bolt.new*
 
-*Please note there are also Sections B & C for Licensing in /licenses/
+## Section A: MIT License (Code)
+
+**Applies to:** All original source code, configuration files, and build scripts
 
 MIT License
 
-Copyright (c) 2025 Max Gibson
+Copyright (c) 2025 AIwithApex.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,3 +27,39 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Additional Licensing Sections
+
+**Please note there are also Sections B & C for Licensing:**
+
+### Section B: Open Game License (OGL) / Open RPG Creative (ORC)
+**Location:** `licenses/OGL.txt`  
+**Applies to:** Game mechanics, rules, and RPG content derived from Pathfinder 2e and other OGL/ORC sources
+
+### Section C: Third-Party Dependencies & Attributions
+**Location:** `licenses/third-party.md`  
+**Applies to:** All external libraries, frameworks, fonts, icons, and other third-party assets
+
+---
+
+## License Summary
+
+- **Source Code**: MIT License (this file)
+- **Game Content**: OGL/ORC License (see `licenses/OGL.txt`)
+- **Dependencies**: Various licenses (see `licenses/third-party.md`)
+
+For complete licensing information, please review all files in the `licenses/` directory.
+
+## Attribution Requirements
+
+When using this project:
+
+1. **For Code**: Include the MIT license notice above
+2. **For Game Content**: Follow OGL/ORC attribution requirements in `licenses/OGL.txt`
+3. **For Dependencies**: Respect individual third-party license terms in `licenses/third-party.md`
+
+---
+
+**Built with [Bolt.new](https://bolt.new/) 🚀**

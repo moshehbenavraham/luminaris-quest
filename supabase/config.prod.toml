@@ -1,0 +1,18 @@
+# Supabase Production Environment Configuration
+# This configuration is used for production environment
+
+# TODO: Replace with actual production project ID
+project_id = "your-production-project-id"
+
+[auth]
+# TODO: Replace with actual production site URL
+site_url = "https://your-production-app.netlify.app"
+additional_redirect_urls = []
+
+# Production-specific settings
+[api]
+# Add any production-specific API settings here
+
+# Production security settings
+[db]
+# Enable additional security measures for production 

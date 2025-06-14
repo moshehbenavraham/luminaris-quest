@@ -1,0 +1,14 @@
+# Supabase Development Environment Configuration
+# This configuration is used for development environment
+
+# TODO: Replace with actual development project ID
+project_id = "your-dev-project-id"
+
+[auth]
+# TODO: Replace with actual development site URL
+site_url = "https://your-dev-app.netlify.app"
+additional_redirect_urls = []
+
+# Development-specific settings
+[api]
+# Add any development-specific API settings here 

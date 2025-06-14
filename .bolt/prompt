@@ -158,6 +158,7 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
 - **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
 - **Legal Compliance:** Reference `LICENSE` and `licenses/` directory for OGL/ORC licensing requirements
 - **Configuration Standards:** Follow `eslint.config.js`, `.prettierrc`, and `tsconfig.*.json` for code quality
+- **[Environment Architecture](docs/ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup and deployment strategy
 - **OTHER Documentation:**:
   - CODE_OF_CONDUCT.md
   - FAQ.md

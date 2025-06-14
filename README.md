@@ -1,278 +1,204 @@
-All core app logic and UI were built primarily in Bolt.new
+# Luminari's Quest
 
-# 🌟 Luminari's Quest — Built with Bolt.new
+A therapeutic AI-powered RPG adventure designed to help young adults process trauma through interactive storytelling and journaling.
 
-**Environment Setup**
+**Built with [Bolt.new](https://bolt.new/) 🚀**
 
-1. Copy `.env.example` to `.env` in your project root:
-```bash
-cp .env.example .env
-```
-2. Fill in your real API keys and URLs (never commit your `.env` file!).
-3. After editing `.env`, restart your dev server (`npm run dev`) to apply new variables.
+## 🌟 About
 
-> `.env.example` must be kept up to date and committed to git so every developer knows which environment variables are required.
+**Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure designed to help young adults process trauma from losing parents and experiencing homelessness during their teenage years. The game combines fantasy storytelling with evidence-based therapeutic techniques to create a safe space for healing and growth.
 
-If a new environment variable is added to the project, update `.env.example` and notify all contributors to update their `.env` files.
+This project was built for the World's Largest AI Hackathon to demonstrate how AI can be used for therapeutic purposes, addressing the real need for accessible mental health resources.
 
----
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + Shadcn/UI components  
+- **State Management**: Zustand with persistence
+- **Backend**: Supabase (authentication & database)
+- **AI Services**: OpenAI (planned), Leonardo.AI (planned), ElevenLabs (planned)
+- **Deployment**: Netlify
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/moshehbenavraham/luminaris-quest.git
+   cd luminaris-quest
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   Then fill in your API keys in the `.env` file.
+
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+### Environment Variables
+
+Check `.env.example` for required environment variables:
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- Additional AI service keys (planned for future features)
+
+## 🎮 Features
+
+- **Guardian Trust System**: Core mechanic tracking player's bond with their guardian spirit (0-100)
+- **Therapeutic Journaling**: Reflections triggered by milestones and learning moments with full CRUD operations
+- **Scene-based Gameplay**: Social, skill, combat, journal, and exploration scenarios
+- **Milestone Achievements**: Progress tracking with meaningful rewards
+- **Enhanced Journal System**: Inline editing, delete confirmation, and edit history tracking
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+
+## 🏗️ Architecture
+
+The app follows a component-based architecture with recent improvements:
+
+### Component Structure
+- **`src/pages/`** - Route entry points (Home, Adventure, Progress, Profile, Legal)
+- **`src/components/`** - Reusable UI components including enhanced JournalEntryCard
+- **`src/store/`** - Zustand state management with persistence and hydration safety
+- **`src/engine/`** - Game logic and scene engine
+- **`src/integrations/`** - External service integrations (Supabase)
+
+### Recent Architecture Improvements
+- **Page Component Extraction**: Moved from monolithic App.tsx to dedicated page files
+- **Enhanced Journal System**: Full CRUD functionality with visual distinction between entry types
+- **TypeScript Improvements**: All compilation errors resolved with proper type safety
+- **Code Quality**: ESLint configuration updated, Prettier formatting applied consistently
+
+## 📝 Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production  
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm run test` - Run tests with Vitest
+
+### Development Standards
+
+- **TypeScript**: Strict typing required for all components
+- **Component Guidelines**: Follow atomic design principles (atoms → molecules → organisms)
+- **Accessibility**: WCAG compliance with semantic HTML and keyboard navigation
+- **File Size**: Keep components under 500 lines; split into subcomponents if necessary
+- **Testing**: Vitest for unit and integration tests
 
 ## 📚 Documentation & Platform Integration
 
-While this project is primarily built using the 'Bolt.new' platform, it also integrates multiple other development platforms and tools. For documentation and comprehensive development guidelines:
+WHile being primarily developed on Bolt.new, this project integrates multiple AI development platforms and tools.  We try to maintain comprehensive documentation covering all aspects of development, architecture, and deployment.
 
-- **Code Generation Rules:** See `.bolt/prompt` for Bolt.new guidance
-- **IDE Integration:** .cursorignore for files that Cursor should not include in context.
-  Reference `.cursor/` for Cursor IDE component and layout guidelines
-    - *Note not a document, but part of Cursor config for background agents: environment.json
-    - `.cursor/rules/`
-      - layout-integration.mdc
-      - project-context.mdc
-      - sidebar-navigation.mdc
-- **Claude Code - Agentic AI Coder:** See `CLAUDE.md` for Claude Code's guidance
-  `.claude/settings.local.json` - Settings for Claude Code
-- **Roo Code Orchestration Modes:** `.roomodes` defines per-project AI task orchestration settings for Roo Code and Cursor. It enables custom multi-agent workflows (e.g., Boomerang Mode) to be scoped and run only within this project.
-- **Component Roadmap:** Check `docs/COMPONENT_MAP.md` for build priorities and component relationships
-- **Change Log:** CHANGELOG.md - document all notable changes to Luminari's Quest
-- **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
-- **Legal Compliance:** Reference `LICENSE` and `licenses/` directory for OGL/ORC licensing requirements
-- **Configuration Standards:** Follow `eslint.config.js`, `.prettierrc`, and `tsconfig.*.json` for code quality
-- **OTHER Documentation:**:
-  - CODE_OF_CONDUCT.md
-  - FAQ.md
+#### 📋 **Core Documentation**
+- **[README.md](README.md)** - Project overview and getting started guide
+- **[FAQ](docs/FAQ.md)** - Frequently asked questions and setup guidance
+- **[Contributing](CONTRIBUTING.md)** - Development guidelines and standards
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community guidelines
+- **[Changelog](CHANGELOG.md)** - Version history and notable changes
 
----
+#### 🏗️ **Architecture & Development**
+- **[Component Map](docs/COMPONENT_MAP.md)** - Architecture overview and build priorities
+- **[Database Schema](docs/DATABASE_SCHEMA.md)** - Database table structures and relationships
+- **[Environment Architecture](docs/ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup and deployment strategy
 
-## 🚀 Project Overview
+#### 🤖 **AI Development Platform Integration**
+- **[Code Generation Rules](.bolt/prompt)** - Bolt.new guidance and build standards
+- **[Claude Code Guidelines](CLAUDE.md)** - Claude Code's development guidance
+  - `.claude/settings.local.json` - Settings for Claude Code
+- **[Cursor IDE Integration](.cursor/rules/)** - Component and layout guidelines
+  - `layout-integration.mdc` - Layout integration standards
+  - `project-context.mdc` - Project context rules
+  - `sidebar-navigation.mdc` - Navigation component guidelines
+- **[Roo Code Orchestration](.roomodes)** - Multi-agent workflow configurations
 
-**Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure, designed to help young adults process the trauma of losing parents and experiencing homelessness during their teenage years.
+#### ⚖️ **Legal & Licensing**
+- **[License](LICENSE)** - MIT License for code
+- **[Third-Party Licenses](licenses/)** - OGL/ORC and dependency attributions
+  - `OGL.txt` - Open Game License
+  - `third-party.md` - External dependencies and attributions
 
-Every step of this project—from scaffolding, atomic UI components, and backend integrations to AI-driven content and voice features—was built and orchestrated using Bolt.new's unique AI development environment.
+#### ⚙️ **Configuration Standards**
+- **[ESLint Config](eslint.config.js)** - Code quality and linting rules
+- **[TypeScript Config](tsconfig.json)** - TypeScript compilation settings
+- **[Prettier Config](.prettierrc)** - Code formatting standards
+- **[Tailwind Config](tailwind.config.ts)** - Styling configuration
+- **[Shadcn/UI Config](components.json)** - Component library configuration
 
----
+## 🎯 Why Bolt.new?
 
-## 🛠️ Why Bolt.new?
+This repository showcases the power of AI-accelerated development:
 
-- **AI-Accelerated Development:**  
-  All core logic, UI/UX flows, and backend connections were generated or composed directly within Bolt.new. This allowed rapid, incremental progress with strong architectural guardrails.
+- **AI-Accelerated Development**: All core logic, UI/UX flows, and backend connections were generated or composed directly within Bolt.new
+- **Instant MVP Prototyping**: Enabled breaking the app into smallest functional increments with real-time testing
+- **Seamless Integration**: Complex features like AI narration and voice synthesis made possible through Bolt.new's automation
+- **Transparent Workflow**: The Bolt.new project history captures each component and decision for full transparency
 
-- **Instant MVP Prototyping:**  
-  Bolt.new enabled us to break the app into the smallest functional increments (atomic design), test in real time, and refine UI/logic for accessibility, beauty, and performance.
+## 🚀 Key Features
 
-- **Seamless Integration:**  
-  Complex features—like real-time AI narration, voice synthesis, and dynamic visual generation—were made possible with Bolt.new's automation and API prompt engineering.
+- **Interactive Scenario Selection**: Users choose narrative paths that echo real-world emotional challenges
+- **AI-Generated Visuals**: Story moments enhanced with fantasy art (Leonardo.AI integration planned)
+- **Immersive AI Voice Narration**: Dynamic storytelling using voice synthesis (ElevenLabs integration planned)
+- **Therapeutic Gameplay Mechanics**: Mini-tasks and choices designed for resilience, healing, and growth
+- **Original Music Integration**: Curated tracks to enhance emotional immersion
 
-- **Transparent, Documented Workflow:**  
-  The Bolt.new project history captures each component and decision. Judges and collaborators can see precisely how the app was built.
+## 📜 License
 
----
+- **Code**: MIT License
+- **Game Content**: Open Game License (OGL) / Open RPG Creative (ORC)
+- **Pathfinder 2e**: Used under ORC License (excludes Product Identity)
 
-## ✨ Key Features
+See `LICENSE` and `licenses/` directory for detailed license information.
 
-- **Interactive Scenario Selection:**  
-  Users choose narrative paths that echo real-world emotional challenges.
+## 🤝 Contributing
 
-- **AI-Generated Visuals (Leonardo.AI):**  
-  Story moments come to life with fantasy art, generated on-demand via API.
+We welcome contributions! Please read our guidelines:
 
-- **Immersive AI Voice Narration (ElevenLabs):**  
-  Dynamic, expressive storytelling using real-time voice synthesis.
+1. **Read Documentation**: Check `CONTRIBUTING.md` for detailed guidelines
+2. **Follow Standards**: Adhere to TypeScript strict mode and component guidelines
+3. **Test Changes**: Ensure all tests pass and no TypeScript errors
+4. **Respect Architecture**: Follow the established component structure and patterns
 
-- **Therapeutic Gameplay Mechanics:**  
-  Mini-tasks and choices designed for resilience, healing, and growth.
+## 🌍 Community & Resources
 
-- **Enhanced Journal System:**  
-  Full CRUD operations for journal entries with inline editing, deletion confirmation, and edit history tracking.
+- **Repository**: [GitHub](https://github.com/moshehbenavraham/luminaris-quest)
+- **Community**: [Skool Community](https://www.skool.com/ai-with-apex/about)
+- **Built with**: [Bolt.new](https://bolt.new/)
+- **Supabase**: Backend and authentication platform
 
-- **Original Music Integration:**  
-  Suno-generated tracks (manually curated) enhance emotional immersion.
+## ⚠️ Important Notes
 
----
+- **Therapeutic Purpose**: Luminari's Quest is designed as a supplemental tool to support healing and growth. It is not a replacement for professional mental health care.
+- **Target Audience**: Designed for young adults (18-25) who have experienced parental loss and homelessness during their teenage years.
+- **Development Environment**: Currently in active development with ongoing database schema implementation.
 
-## 🏗️ Stack & Architecture
+## 🚨 Current Development Status
 
-- **Frontend:** React, TypeScript, Tailwind CSS, Shadcn/UI
-- **Backend & Auth:** Supabase, Netlify Functions
-- **State Management:** Zustand with persistence and hydration safety
-- **AI Services:**  
-  - OpenAI (narrative generation)  
-  - Leonardo.AI (image generation)  
-  - ElevenLabs (voice)  
-  - Suno (manual music)
-- **DevOps:**  
-  - Built, tested, and deployed via Bolt.new  
-  - CI/CD
-
-### Recent Architecture Improvements
-
-**Component Structure Refactoring (Latest)**
-- Extracted page components from `App.tsx` into dedicated files:
-  - `src/pages/Home.tsx` - Landing page with authentication
-  - `src/pages/Adventure.tsx` - Main gameplay interface
-  - `src/pages/Progress.tsx` - Progress tracking and journal display
-  - `src/pages/Profile.tsx` - User profile management
-- Enhanced journal system with `JournalEntryCard` component providing:
-  - Inline editing with save/cancel functionality
-  - Delete confirmation dialogs
-  - Visual distinction between milestone and learning entries
-  - Edit history tracking with timestamps
-
-**Code Quality Enhancements**
-- TypeScript compilation errors resolved
-- ESLint configuration updated with browser globals
-- Prettier formatting applied across all TypeScript/React files
-- Proper component prop interfaces and type safety
+- ✅ Core application architecture complete
+- ✅ Component structure refactored and improved
+- ✅ TypeScript compilation errors resolved
+- ⚠️ Database schema implementation in progress
+- 🔄 Supabase integration being finalized
+- 📋 AI service integrations planned for future releases
 
 ---
 
-# React + TypeScript + Vite
+**Built with [Bolt.new](https://bolt.new/) 🚀**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-
----
-
-## 🚀 **Luminari's Quest — Bolt.new Pre-Deployment Checklist**
-
-### **1. Clean Build Test**
-
-* [x] **Run:** `npm run build`
-* [x] **Verify:** No errors; `dist/` folder created
-* [x] **Status:** TypeScript compilation errors resolved
-
-### **2. Local Preview Test**
-
-* [ ] **Run:** `npm run preview`
-* [ ] **Verify:** App loads at [http://localhost:4173](http://localhost:4173) (or configured port), *all main routes function*
-
-### **3. Dependency Audit**
-
-* [ ] **Run:** `npm audit --production`
-* [ ] **Verify:** No high/critical vulnerabilities (fix before continuing)
-
-### **4. Check Platform Dependencies**
-
-* [ ] **Check:** `package.json` has both:
-
-  * `@rollup/rollup-linux-x64-gnu` (for Linux deploy)
-  * `@rollup/rollup-win32-x64-msvc` (for Windows dev)
-* [ ] **Verify:** No platform-specific code/imports in your own files
-
-### **5. File Cleanup Checklist**
-
-* [ ] `node_modules/` (EXCLUDE)
-* [ ] `dist/` (EXCLUDE)
-* [ ] `.env` with secrets (EXCLUDE; use `.env.example` only)
-* [ ] Local IDE/VSCODE files (EXCLUDE: `.vscode/`, etc)
-* [ ] **INCLUDE:**
-
-  * `package.json` (updated)
-  * `package-lock.json` (latest, synced)
-  * `src/`, `public/`, `vite.config.ts`, `tsconfig.json`, etc.
-
-### **6. Configuration Verification**
-
-* [x] **package.json:**
-
-  * Scripts (`build`, `build:deploy` if needed)
-  * Correct dependencies/optionalDependencies
-* [x] **vite.config.ts:**
-
-  * No hardcoded dev/prod paths
-  * `optimizeDeps` set for React/ReactDOM
-* [x] **ESLint Configuration:** Updated with browser globals and proper TypeScript support
-
-### **7. Environment Variables Check**
-
-* [ ] **`.env.example`** present (no values)
-* [ ] No hardcoded API keys/secrets in code or config
-* [ ] All variables use `VITE_` prefix for frontend use
-
-### **8. Code Quality Status**
-
-* [x] **TypeScript Compilation:** All errors resolved
-* [x] **Component Structure:** Page components properly extracted and organized
-* [x] **Journal System:** Enhanced with full CRUD functionality
-* [x] **Code Formatting:** Prettier applied consistently across codebase
-
----
-
-## 🚨 **Stop and Fix If:**
-
-* Build or preview fails locally
-* TypeScript errors or warnings
-* Missing platform dependencies in `package.json`
-* Bundle warnings: main >1MB, total >2MB
-* Critical npm audit issues
-* Local preview broken or console errors
-
----
-
-## 📋 **Quick Pre-Upload Summary**
-
-* [ ] Run full local build/test
-* [ ] Confirm bundle and config health
-* [ ] Exclude node\_modules, dist, secrets, local dev files
-* [ ] Upload zipped folder or push to Bolt.new as required
-
----
-
-### 💡 **Pro Tips**
-
-* **Keep a deploy log:** Note what failed/fixed—next deploy will be faster.
-* **Test in incognito/private browser:** Catches old cache issues.
-* **Open browser console during preview:** Silent errors kill demos.
-* **Manually test all routes/views.**
-* **Test mobile/responsive before uploading.**
-
----
+*Last updated: December 2024*

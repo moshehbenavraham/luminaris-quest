@@ -1,0 +1,25 @@
+# Supabase Local Environment Configuration
+# This configuration is used for local development
+
+project_id = "lxjetnrmjyazegwnymkk"
+api_port = 54321
+db_port = 54322
+studio_port = 54323
+inbucket_port = 54324
+jwt_expiry = 3600
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:3000"]
+
+[db]
+port = 54322
+shadow_port = 54320
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324 
