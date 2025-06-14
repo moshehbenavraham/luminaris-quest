@@ -19,14 +19,26 @@ If a new environment variable is added to the project, update `.env.example` and
 
 ## 📚 Documentation & Platform Integration
 
-This project integrates multiple development platforms and tools. For comprehensive development guidelines:
+While this project is primarily built using the 'Bolt.new' platform, it also integrates multiple other development platforms and tools. For documentation and comprehensive development guidelines:
 
-- **Code Generation Rules:** See `.bolt/prompt` for Bolt.new scaffolding standards
-- **IDE Integration:** Reference `.cursor/rules/` for Cursor IDE component and layout guidelines  
+- **Code Generation Rules:** See `.bolt/prompt` for Bolt.new guidance
+- **IDE Integration:** .cursorignore for files that Cursor should not include in context.
+  Reference `.cursor/` for Cursor IDE component and layout guidelines
+    - *Note not a document, but part of Cursor config for background agents: environment.json
+    - `.cursor/rules/`
+      - layout-integration.mdc
+      - project-context.mdc
+      - sidebar-navigation.mdc
+- **Claude Code - Agentic AI Coder:** See `CLAUDE.md` for Claude Code's guidance
+  `.claude/settings.local.json` - Settings for Claude Code
 - **Component Roadmap:** Check `docs/COMPONENT_MAP.md` for build priorities and component relationships
+- **Change Log:** CHANGELOG.md - document all notable changes to Luminari's Quest
 - **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
 - **Legal Compliance:** Reference `LICENSE` and `licenses/` directory for OGL/ORC licensing requirements
 - **Configuration Standards:** Follow `eslint.config.js`, `.prettierrc`, and `tsconfig.*.json` for code quality
+- **OTHER Documentation:**:
+  - CODE_OF_CONDUCT.md
+  - FAQ.md
 
 ---
 

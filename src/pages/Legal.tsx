@@ -4,9 +4,21 @@ import { ExternalLink } from 'lucide-react';
 
 const renderContent = (content: any) => {
   if (typeof content === 'string') {
-    // Handle markdown links
-    const parts = content.split(/(\[.*?\]\(.*?\))/g);
+    // Handle markdown headers (#### **text**)
+    if (content.startsWith('#### ')) {
+      const headerText = content.replace(/^#### \*\*(.*)\*\*$/, '$1').replace(/^#### (.*)$/, '$1');
+      return (
+        <h4 className="mt-4 mb-2 text-lg font-semibold text-foreground">
+          {headerText}
+        </h4>
+      );
+    }
+
+    // Split content by markdown patterns
+    const parts = content.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
+    
     return parts.map((part: string, i: number) => {
+      // Handle markdown links [text](url)
       if (part.match(/\[.*\]\(.*\)/)) {
         const [text, url] = part.replace(/\[(.*)\]\((.*)\)/, '$1|||$2').split('|||');
         return (
@@ -21,6 +33,17 @@ const renderContent = (content: any) => {
           </a>
         );
       }
+      
+      // Handle bold text **text**
+      if (part.match(/\*\*.*\*\*/)) {
+        const boldText = part.replace(/\*\*(.*)\*\*/, '$1');
+        return (
+          <strong key={i} className="font-semibold text-foreground">
+            {boldText}
+          </strong>
+        );
+      }
+      
       return <span key={i}>{part}</span>;
     });
   } else if (content.list) {
@@ -33,6 +56,18 @@ const renderContent = (content: any) => {
         ))}
       </ul>
     );
+  } else if (content.title && content.content) {
+    // Handle nested content with title
+    return (
+      <div className="mt-4">
+        <h5 className="mb-2 font-medium text-foreground">{content.title}</h5>
+        <div className="space-y-2">
+          {content.content.map((item: any, i: number) => (
+            <div key={i}>{renderContent(item)}</div>
+          ))}
+        </div>
+      </div>
+    );
   }
   return null;
 };
@@ -40,12 +75,19 @@ const renderContent = (content: any) => {
 const LegalSection = ({ section }: { section: any }) => (
   <section className="mb-8">
     <h3 className="mb-3 text-xl font-semibold text-foreground">{section.title}</h3>
-    <div className="text-foreground/80 space-y-3">
-      {section.content.map((item: any, i: number) => (
-        <p key={i} className="leading-relaxed">
-          {renderContent(item)}
-        </p>
-      ))}
+    <div className="space-y-3 text-foreground/80">
+      {section.content.map((item: any, i: number) => {
+        // Check if this is a markdown header
+        if (typeof item === 'string' && item.startsWith('#### ')) {
+          return <div key={i}>{renderContent(item)}</div>;
+        }
+        
+        return (
+          <div key={i} className="leading-relaxed">
+            {renderContent(item)}
+          </div>
+        );
+      })}
     </div>
   </section>
 );
