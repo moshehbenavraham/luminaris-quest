@@ -1,0 +1,117 @@
+import { useState, useCallback, useEffect } from 'react';
+import { ChoiceList } from '@/components/ChoiceList';
+import { GuardianText } from '@/components/GuardianText';
+import { JournalModal, type JournalEntry } from '@/components/JournalModal';
+import { useGameStore } from '@/store/game-store';
+
+export function Adventure() {
+  const {
+    guardianTrust,
+    setGuardianTrust,
+    addJournalEntry,
+    pendingMilestoneJournals,
+    markMilestoneJournalShown,
+    currentSceneIndex,
+    _hasHydrated,
+  } = useGameStore();
+
+  const [isClient, setIsClient] = useState(false);
+  const [guardianMessage, setGuardianMessage] = useState(
+    'I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward.',
+  );
+  const [showJournalModal, setShowJournalModal] = useState(false);
+  const [journalTrigger, setJournalTrigger] = useState<'milestone' | 'learning'>('milestone');
+  const [currentMilestoneLevel, setCurrentMilestoneLevel] = useState<number | null>(null);
+
+  // Set isClient to true after mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Check for pending milestone journals
+  useEffect(() => {
+    if (!_hasHydrated || !pendingMilestoneJournals || pendingMilestoneJournals.size === 0) return;
+
+    try {
+      // Get the first pending milestone
+      const pendingLevels = Array.from(pendingMilestoneJournals);
+      if (pendingLevels.length > 0) {
+        const levelToShow = pendingLevels[0];
+        setCurrentMilestoneLevel(levelToShow as number);
+        setJournalTrigger('milestone');
+        setShowJournalModal(true);
+      }
+    } catch (error) {
+      console.error('Error checking pending milestones:', error);
+    }
+  }, [pendingMilestoneJournals, _hasHydrated]);
+
+  const handleSaveJournalEntry = useCallback(
+    (entry: JournalEntry) => {
+      try {
+        if (entry && entry.id && entry.content) {
+          // Add scene ID if we're on a scene
+          const enhancedEntry = {
+            ...entry,
+            sceneId: currentSceneIndex > 0 ? `scene-${currentSceneIndex}` : undefined,
+          };
+          addJournalEntry(enhancedEntry);
+
+          // If this was a milestone journal, mark it as shown
+          if (entry.type === 'milestone' && currentMilestoneLevel !== null) {
+            markMilestoneJournalShown(currentMilestoneLevel);
+            setCurrentMilestoneLevel(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error saving journal entry:', error);
+      }
+    },
+    [addJournalEntry, currentSceneIndex, currentMilestoneLevel, markMilestoneJournalShown],
+  );
+
+  const handleSceneComplete = useCallback((_sceneId: string, success: boolean) => {
+    // Trigger a learning journal on scene failure
+    if (!success) {
+      setJournalTrigger('learning');
+      setShowJournalModal(true);
+    }
+  }, []);
+
+  const handleLearningMoment = useCallback(() => {
+    setJournalTrigger('learning');
+    setShowJournalModal(true);
+  }, []);
+
+  // Don't render anything until hydration is complete
+  if (!isClient || !_hasHydrated) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <GuardianText trust={guardianTrust} message={guardianMessage} />
+      <ChoiceList
+        guardianTrust={guardianTrust}
+        setGuardianTrust={setGuardianTrust}
+        setGuardianMessage={setGuardianMessage}
+        onSceneComplete={handleSceneComplete}
+        onLearningMoment={handleLearningMoment}
+      />
+      <JournalModal
+        isOpen={showJournalModal}
+        onClose={() => {
+          setShowJournalModal(false);
+          setCurrentMilestoneLevel(null);
+        }}
+        trustLevel={guardianTrust}
+        triggerType={journalTrigger}
+        onSaveEntry={handleSaveJournalEntry}
+      />
+    </div>
+  );
+}

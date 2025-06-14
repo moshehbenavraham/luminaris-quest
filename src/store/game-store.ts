@@ -32,14 +32,18 @@ export interface GameState {
   journalEntries: JournalEntry[];
   milestones: Milestone[];
   sceneHistory: CompletedScene[];
+  pendingMilestoneJournals: Set<number>;
   setGuardianTrust: (trust: number) => void;
   addJournalEntry: (entry: JournalEntry) => void;
+  updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => void;
+  deleteJournalEntry: (id: string) => void;
   completeScene: (scene: CompletedScene) => void;
   advanceScene: () => void;
   saveToSupabase: () => Promise<void>;
   loadFromSupabase: () => Promise<void>;
   resetGame: () => void;
   updateMilestone: (level: number) => void;
+  markMilestoneJournalShown: (level: number) => void;
   _hasHydrated: boolean;
   _setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -60,29 +64,62 @@ const useGameStoreBase = create<GameState>()(
       journalEntries: [],
       milestones: initialMilestones,
       sceneHistory: [],
+      pendingMilestoneJournals: new Set(),
       _hasHydrated: false,
 
       // Actions
       setGuardianTrust: (trust: number) => {
         const clampedTrust = Math.max(0, Math.min(100, trust));
         set({ guardianTrust: clampedTrust });
-        
+
         // Check for milestone achievements
         get().updateMilestone(clampedTrust);
       },
 
       addJournalEntry: (entry: JournalEntry) => {
         set((state) => {
+          // Check for duplicate milestone entries
+          if (entry.type === 'milestone') {
+            const existingMilestone = state.journalEntries.find(
+              (e) => e.type === 'milestone' && e.trustLevel === entry.trustLevel,
+            );
+            if (existingMilestone) {
+              console.warn('Duplicate milestone journal entry prevented');
+              return state;
+            }
+          }
+
           const newEntries = [...state.journalEntries, entry];
-          // Keep only the most recent 12 entries
-          const limitedEntries = newEntries
-            .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-            .slice(0, 12);
-          
+          // No limit on journal entries - store them all
           return {
-            journalEntries: limitedEntries,
+            journalEntries: newEntries,
           };
         });
+
+        // Auto-save to Supabase after adding entry
+        get().saveToSupabase();
+      },
+
+      updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => {
+        set((state) => ({
+          journalEntries: state.journalEntries.map((entry) =>
+            entry.id === id
+              ? { ...entry, ...updates, isEdited: true, editedAt: new Date() }
+              : entry,
+          ),
+        }));
+
+        // Auto-save to Supabase after update
+        get().saveToSupabase();
+      },
+
+      deleteJournalEntry: (id: string) => {
+        set((state) => ({
+          journalEntries: state.journalEntries.filter((entry) => entry.id !== id),
+        }));
+
+        // Auto-save to Supabase after deletion
+        get().saveToSupabase();
       },
 
       completeScene: (scene: CompletedScene) => {
@@ -101,6 +138,8 @@ const useGameStoreBase = create<GameState>()(
         set((state) => {
           const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
+              // Mark milestone as achieved and add to pending journals
+              state.pendingMilestoneJournals.add(milestone.level);
               return {
                 ...milestone,
                 achieved: true,
@@ -112,11 +151,17 @@ const useGameStoreBase = create<GameState>()(
 
           // Deduplicate milestones to prevent runaway state growth from old bugs
           const uniqueMilestones = updatedMilestones.filter(
-            (milestone, index, self) =>
-              index === self.findIndex((m) => m.id === milestone.id)
+            (milestone, index, self) => index === self.findIndex((m) => m.id === milestone.id),
           );
 
           return { milestones: uniqueMilestones };
+        });
+      },
+
+      markMilestoneJournalShown: (level: number) => {
+        set((state) => {
+          state.pendingMilestoneJournals.delete(level);
+          return { pendingMilestoneJournals: new Set(state.pendingMilestoneJournals) };
         });
       },
 
@@ -126,8 +171,13 @@ const useGameStoreBase = create<GameState>()(
           playerLevel: 1,
           currentSceneIndex: 0,
           journalEntries: [],
-          milestones: initialMilestones.map(m => ({...m, achieved: false, achievedAt: undefined })),
+          milestones: initialMilestones.map((m) => ({
+            ...m,
+            achieved: false,
+            achievedAt: undefined,
+          })),
           sceneHistory: [],
+          pendingMilestoneJournals: new Set(),
         });
         // Also clear from storage to prevent rehydration of bad state
         localStorage.removeItem('luminari-game-state');
@@ -137,19 +187,139 @@ const useGameStoreBase = create<GameState>()(
         set({ _hasHydrated: hasHydrated });
       },
 
-      // Placeholder implementations for Supabase integration
       saveToSupabase: async () => {
-        // TODO: Implement Supabase save functionality
-        // This will save the current game state to the user's profile
-        console.log('Saving game state to Supabase...', get());
-        return Promise.resolve();
+        try {
+          const state = get();
+          const { supabase } = await import('@/lib/supabase');
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          if (!user) {
+            console.warn('No user authenticated - skipping save');
+            return;
+          }
+
+          // Save game state
+          const gameState = {
+            user_id: user.id,
+            guardian_trust: state.guardianTrust,
+            player_level: state.playerLevel,
+            current_scene_index: state.currentSceneIndex,
+            milestones: state.milestones,
+            scene_history: state.sceneHistory,
+            updated_at: new Date().toISOString(),
+          };
+
+          const { error: stateError } = await supabase
+            .from('game_states')
+            .upsert(gameState, { onConflict: 'user_id' });
+
+          if (stateError) {
+            console.error('Error saving game state:', stateError);
+            throw stateError;
+          }
+
+          // Save journal entries
+          const journalEntries = state.journalEntries.map((entry) => ({
+            id: entry.id,
+            user_id: user.id,
+            type: entry.type,
+            trust_level: entry.trustLevel,
+            content: entry.content,
+            title: entry.title,
+            scene_id: entry.sceneId || null,
+            tags: entry.tags || [],
+            is_edited: entry.isEdited || false,
+            created_at: entry.timestamp.toISOString(),
+            edited_at: entry.editedAt?.toISOString() || null,
+          }));
+
+          if (journalEntries.length > 0) {
+            const { error: journalError } = await supabase
+              .from('journal_entries')
+              .upsert(journalEntries, { onConflict: 'id' });
+
+            if (journalError) {
+              console.error('Error saving journal entries:', journalError);
+              throw journalError;
+            }
+          }
+
+          console.log('Game state saved to Supabase successfully');
+        } catch (error) {
+          console.error('Failed to save to Supabase:', error);
+          // Don't throw - we want the game to continue even if save fails
+        }
       },
 
       loadFromSupabase: async () => {
-        // TODO: Implement Supabase load functionality
-        // This will load the user's saved game state from their profile
-        console.log('Loading game state from Supabase...');
-        return Promise.resolve();
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          if (!user) {
+            console.warn('No user authenticated - skipping load');
+            return;
+          }
+
+          // Load game state
+          const { data: gameState, error: stateError } = await supabase
+            .from('game_states')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+
+          if (stateError && stateError.code !== 'PGRST116') {
+            // PGRST116 = no rows
+            console.error('Error loading game state:', stateError);
+            throw stateError;
+          }
+
+          // Load journal entries
+          const { data: journalEntries, error: journalError } = await supabase
+            .from('journal_entries')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+          if (journalError) {
+            console.error('Error loading journal entries:', journalError);
+            throw journalError;
+          }
+
+          if (gameState || journalEntries) {
+            set({
+              ...(gameState && {
+                guardianTrust: gameState.guardian_trust,
+                playerLevel: gameState.player_level,
+                currentSceneIndex: gameState.current_scene_index,
+                milestones: gameState.milestones || initialMilestones,
+                sceneHistory: gameState.scene_history || [],
+              }),
+              journalEntries:
+                journalEntries?.map((entry) => ({
+                  id: entry.id,
+                  type: entry.type as 'milestone' | 'learning',
+                  trustLevel: entry.trust_level,
+                  content: entry.content,
+                  title: entry.title,
+                  timestamp: new Date(entry.created_at),
+                  sceneId: entry.scene_id || undefined,
+                  tags: entry.tags || undefined,
+                  isEdited: entry.is_edited || false,
+                  editedAt: entry.edited_at ? new Date(entry.edited_at) : undefined,
+                })) || [],
+            });
+
+            console.log('Game state loaded from Supabase successfully');
+          }
+        } catch (error) {
+          console.error('Failed to load from Supabase:', error);
+          // Don't throw - we want the game to continue even if load fails
+        }
       },
     }),
     {
@@ -158,41 +328,47 @@ const useGameStoreBase = create<GameState>()(
         guardianTrust: state.guardianTrust,
         playerLevel: state.playerLevel,
         currentSceneIndex: state.currentSceneIndex,
-        journalEntries: state.journalEntries.map(entry => ({
+        journalEntries: state.journalEntries.map((entry) => ({
           ...entry,
-          timestamp: entry.timestamp.toISOString()
+          timestamp: entry.timestamp.toISOString(),
         })),
-        milestones: state.milestones.map(milestone => ({
+        milestones: state.milestones.map((milestone) => ({
           ...milestone,
-          achievedAt: milestone.achievedAt ? new Date(milestone.achievedAt).toISOString() : undefined
+          achievedAt: milestone.achievedAt
+            ? new Date(milestone.achievedAt).toISOString()
+            : undefined,
         })),
-        sceneHistory: state.sceneHistory.map(scene => ({
+        sceneHistory: state.sceneHistory.map((scene) => ({
           ...scene,
-          completedAt: new Date(scene.completedAt).toISOString()
+          completedAt: new Date(scene.completedAt).toISOString(),
         })),
       }),
       // Add a merge function to handle rehydration
       merge: (persistedState: any, currentState) => {
         if (!persistedState) return currentState;
-        
+
         // Convert ISO strings back to Date objects
         const hydratedJournalEntries = (persistedState.journalEntries || []).map((entry: any) => ({
           ...entry,
-          timestamp: new Date(entry.timestamp)
+          timestamp: new Date(entry.timestamp),
         }));
-        
+
         // Properly merge milestones, ensuring we don't duplicate and maintain initial structure
-        const mergedMilestones = initialMilestones.map(initialMilestone => {
+        const mergedMilestones = initialMilestones.map((initialMilestone) => {
           const persistedMilestone = (persistedState.milestones || []).find(
-            (m: any) => m.id === initialMilestone.id
+            (m: any) => m.id === initialMilestone.id,
           );
-          return persistedMilestone ? {
-            ...initialMilestone,
-            ...persistedMilestone,
-            achievedAt: persistedMilestone.achievedAt ? new Date(persistedMilestone.achievedAt).getTime() : undefined
-          } : initialMilestone;
+          return persistedMilestone
+            ? {
+                ...initialMilestone,
+                ...persistedMilestone,
+                achievedAt: persistedMilestone.achievedAt
+                  ? new Date(persistedMilestone.achievedAt).getTime()
+                  : undefined,
+              }
+            : initialMilestone;
         });
-        
+
         return {
           ...currentState,
           ...persistedState,
@@ -203,8 +379,8 @@ const useGameStoreBase = create<GameState>()(
       onRehydrateStorage: () => (state) => {
         state?._setHasHydrated(true);
       },
-    }
-  )
+    },
+  ),
 );
 
 // Hydration-safe hook that prevents mismatches
@@ -225,14 +401,18 @@ export const useGameStore = () => {
       journalEntries: [],
       milestones: initialMilestones,
       sceneHistory: [],
+      pendingMilestoneJournals: new Set(),
       setGuardianTrust: store.setGuardianTrust,
       addJournalEntry: store.addJournalEntry,
+      updateJournalEntry: store.updateJournalEntry,
+      deleteJournalEntry: store.deleteJournalEntry,
       completeScene: store.completeScene,
       advanceScene: store.advanceScene,
       saveToSupabase: store.saveToSupabase,
       loadFromSupabase: store.loadFromSupabase,
       resetGame: store.resetGame,
       updateMilestone: store.updateMilestone,
+      markMilestoneJournalShown: store.markMilestoneJournalShown,
       _hasHydrated: false,
       _setHasHydrated: store._setHasHydrated,
     };

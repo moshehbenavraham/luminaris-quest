@@ -1,4 +1,3 @@
-
 import { useSupabase } from '@/lib/providers/supabase-provider';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Spinner } from '@/components/ui/spinner';
@@ -13,7 +12,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <Spinner />
       </div>
     );

@@ -26,16 +26,21 @@ export function SupabaseProvider({ children }: PropsWithChildren) {
       try {
         setLoading(true);
         // Check initial session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
-        
+
         if (mounted) {
           setUser(session?.user ?? null);
           setLoading(false);
         }
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((_, session) => {
           if (mounted) {
             setUser(session?.user ?? null);
             setLoading(false);
@@ -58,9 +63,7 @@ export function SupabaseProvider({ children }: PropsWithChildren) {
   }, []);
 
   return (
-    <SupabaseContext.Provider value={{ user, loading, error }}>
-      {children}
-    </SupabaseContext.Provider>
+    <SupabaseContext.Provider value={{ user, loading, error }}>{children}</SupabaseContext.Provider>
   );
 }
 

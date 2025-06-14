@@ -4,7 +4,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getScene, isLastScene, getSceneProgress, rollDice, type DiceResult } from '@/engine/scene-engine';
+import {
+  getScene,
+  isLastScene,
+  getSceneProgress,
+  rollDice,
+  type DiceResult,
+} from '@/engine/scene-engine';
 import { DiceRollOverlay } from './DiceRollOverlay';
 import { useGameStore } from '@/store/game-store';
 import { Sword, Users, Wrench, BookOpen, Map } from 'lucide-react';
@@ -13,11 +19,17 @@ interface ChoiceListProps {
   guardianTrust: number;
   setGuardianTrust: (trust: number) => void;
   setGuardianMessage: (message: string) => void;
-  onSceneComplete?: () => void;
+  onSceneComplete?: (sceneId: string, success: boolean) => void;
   onLearningMoment?: () => void;
 }
 
-export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage, onSceneComplete, onLearningMoment }: ChoiceListProps) {
+export function ChoiceList({
+  guardianTrust,
+  setGuardianTrust,
+  setGuardianMessage,
+  onSceneComplete,
+  onLearningMoment,
+}: ChoiceListProps) {
   const { completeScene, resetGame, currentSceneIndex, advanceScene } = useGameStore();
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
@@ -28,29 +40,41 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
 
   const getSceneIcon = (type: string) => {
     switch (type) {
-      case 'social': return <Users className="h-4 w-4" />;
-      case 'skill': return <Wrench className="h-4 w-4" />;
-      case 'combat': return <Sword className="h-4 w-4" />;
-      case 'journal': return <BookOpen className="h-4 w-4" />;
-      case 'exploration': return <Map className="h-4 w-4" />;
-      default: return <Map className="h-4 w-4" />;
+      case 'social':
+        return <Users className="h-4 w-4" />;
+      case 'skill':
+        return <Wrench className="h-4 w-4" />;
+      case 'combat':
+        return <Sword className="h-4 w-4" />;
+      case 'journal':
+        return <BookOpen className="h-4 w-4" />;
+      case 'exploration':
+        return <Map className="h-4 w-4" />;
+      default:
+        return <Map className="h-4 w-4" />;
     }
   };
 
   const getSceneColor = (type: string) => {
     switch (type) {
-      case 'social': return 'bg-blue-100 text-blue-800';
-      case 'skill': return 'bg-green-100 text-green-800';
-      case 'combat': return 'bg-red-100 text-red-800';
-      case 'journal': return 'bg-purple-100 text-purple-800';
-      case 'exploration': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'social':
+        return 'bg-blue-100 text-blue-800';
+      case 'skill':
+        return 'bg-green-100 text-green-800';
+      case 'combat':
+        return 'bg-red-100 text-red-800';
+      case 'journal':
+        return 'bg-purple-100 text-purple-800';
+      case 'exploration':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const handleChoice = () => {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
     const result = rollDice(currentScene.dc);
     setDiceResult(result);
@@ -61,14 +85,14 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
     if (!diceResult) return;
 
     setShowDiceRoll(false);
-    
+
     // Update guardian trust and message based on result
     const scene = getScene(currentSceneIndex);
     const trustChange = diceResult.success ? 5 : -5;
     const newTrust = Math.min(100, Math.max(0, guardianTrust + trustChange));
-    
+
     setGuardianTrust(newTrust);
-    
+
     if (diceResult.success) {
       setGuardianMessage(scene.successText);
     } else {
@@ -87,16 +111,16 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
       trustChange,
       completedAt: Date.now(),
     });
-    
+
     if (!isLastScene(currentSceneIndex)) {
       advanceScene();
     }
-    
+
     setIsProcessing(false);
     setDiceResult(null);
-    
+
     if (onSceneComplete) {
-      onSceneComplete();
+      onSceneComplete(scene.id, diceResult.success);
     }
 
     if (onLearningMoment && !diceResult.success) {
@@ -106,27 +130,27 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
 
   const handleNewJourney = () => {
     resetGame();
-    setGuardianMessage("I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward.");
+    setGuardianMessage(
+      'I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward.',
+    );
   };
 
   if (isLastScene(currentSceneIndex) && !showDiceRoll) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <CardTitle>Journey Complete</CardTitle>
           <CardDescription>
-            You have completed this chapter of your adventure. Your guardian spirit has learned much about your choices and growth through {progress.total} meaningful encounters.
+            You have completed this chapter of your adventure. Your guardian spirit has learned much
+            about your choices and growth through {progress.total} meaningful encounters.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-center p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Final Trust Level</p>
+          <div className="rounded-lg bg-muted p-4 text-center">
+            <p className="mb-2 text-sm text-muted-foreground">Final Trust Level</p>
             <p className="text-2xl font-bold">{guardianTrust}/100</p>
           </div>
-          <Button 
-            onClick={handleNewJourney} 
-            className="w-full"
-          >
+          <Button onClick={handleNewJourney} className="w-full">
             Begin New Journey
           </Button>
         </CardContent>
@@ -136,7 +160,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
 
   return (
     <>
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="mx-auto w-full max-w-2xl">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -156,45 +180,37 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="prose prose-sm max-w-none">
-            <p className="text-foreground leading-relaxed">
-              {currentScene.text}
-            </p>
+            <p className="leading-relaxed text-foreground">{currentScene.text}</p>
           </div>
-          
+
           <div className="space-y-4">
-            <div className="text-center space-y-1 py-2 border-t border-b border-muted">
+            <div className="space-y-1 border-b border-t border-muted py-2 text-center">
               <p className="text-sm font-medium text-muted-foreground">
                 Difficulty: {currentScene.dc}
               </p>
-              <p className="text-xs text-muted-foreground">
-                Your choice will be tested by fate
-              </p>
+              <p className="text-xs text-muted-foreground">Your choice will be tested by fate</p>
             </div>
-            
+
             <div className="space-y-3">
               <Button
                 onClick={handleChoice}
                 disabled={isProcessing}
-                className="w-full justify-start h-auto p-4 text-left"
+                className="h-auto w-full justify-start p-4 text-left"
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="font-medium text-base">
-                    {currentScene.choices.bold}
-                  </div>
+                  <div className="text-base font-medium">{currentScene.choices.bold}</div>
                 </div>
               </Button>
-              
+
               <Button
                 onClick={handleChoice}
                 disabled={isProcessing}
-                className="w-full justify-start h-auto p-4 text-left"
+                className="h-auto w-full justify-start p-4 text-left"
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="font-medium text-base">
-                    {currentScene.choices.cautious}
-                  </div>
+                  <div className="text-base font-medium">{currentScene.choices.cautious}</div>
                 </div>
               </Button>
             </div>
@@ -203,10 +219,7 @@ export function ChoiceList({ guardianTrust, setGuardianTrust, setGuardianMessage
       </Card>
 
       {showDiceRoll && diceResult && (
-        <DiceRollOverlay
-          result={diceResult}
-          onClose={handleDiceRollClose}
-        />
+        <DiceRollOverlay result={diceResult} onClose={handleDiceRollClose} />
       )}
     </>
   );

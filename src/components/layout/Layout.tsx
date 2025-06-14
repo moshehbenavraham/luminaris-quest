@@ -13,9 +13,9 @@ export function Layout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-neutral-100">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-neutral-100">
         <div className="glass rounded-2xl p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-muted-foreground">Loading your adventure...</p>
         </div>
       </div>
@@ -24,20 +24,17 @@ export function Layout() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-neutral-100">
-        <div className="max-w-md w-full p-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-neutral-100">
+        <div className="w-full max-w-md p-6 text-center">
           <div className="glass rounded-2xl p-8">
-            <div className="p-4 rounded-full bg-destructive/10 mx-auto mb-4 w-fit">
+            <div className="bg-destructive/10 mx-auto mb-4 w-fit rounded-full p-4">
               <Sparkles className="h-8 w-8 text-destructive" />
             </div>
-            <h2 className="text-2xl font-heading font-bold mb-4">Authentication Error</h2>
-            <p className="text-muted-foreground mb-6">
+            <h2 className="mb-4 font-heading text-2xl font-bold">Authentication Error</h2>
+            <p className="mb-6 text-muted-foreground">
               {error.message || 'Failed to initialize authentication'}
             </p>
-            <Button
-              onClick={() => window.location.reload()}
-              className="btn-primary"
-            >
+            <Button onClick={() => window.location.reload()} className="btn-primary">
               Try Again
             </Button>
           </div>
@@ -47,23 +44,23 @@ export function Layout() {
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-background via-neutral-100 to-background">
+    <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-background via-neutral-100 to-background">
       <header>
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
       </header>
-      
+
       <div className="flex flex-1">
         <nav aria-label="Main navigation">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         </nav>
-        
+
         <main className="flex-1 overflow-y-auto" id="main-content">
-          <div className="container py-8 px-4 md:px-6">
+          <div className="container px-4 py-8 md:px-6">
             <Outlet />
           </div>
         </main>
       </div>
-      
+
       <footer>
         <Footer />
       </footer>

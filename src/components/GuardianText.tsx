@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Sparkles } from 'lucide-react';
@@ -14,7 +13,7 @@ export function GuardianText({ trust, message, className }: GuardianTextProps) {
 
   useEffect(() => {
     // Check if this is the initial guardian introduction
-    const isIntroMessage = message.includes("I am your guardian spirit");
+    const isIntroMessage = message.includes('I am your guardian spirit');
     if (isIntroMessage && !hasShownIntro) {
       setHasShownIntro(true);
     }
@@ -40,7 +39,7 @@ export function GuardianText({ trust, message, className }: GuardianTextProps) {
   const normalizedTrust = Math.max(0, Math.min(100, trust));
 
   // Only show intro message once, then show scene outcomes
-  const isIntroMessage = message.includes("I am your guardian spirit");
+  const isIntroMessage = message.includes('I am your guardian spirit');
   const shouldShowMessage = !isIntroMessage || !hasShownIntro;
 
   return (
@@ -53,32 +52,30 @@ export function GuardianText({ trust, message, className }: GuardianTextProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {shouldShowMessage && message && (
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 p-4 rounded-lg border-l-4 border-purple-400">
-            <blockquote className="text-lg leading-relaxed italic text-foreground font-medium">
+          <div className="rounded-lg border-l-4 border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 p-4 dark:from-purple-950/20 dark:to-blue-950/20">
+            <blockquote className="text-lg font-medium italic leading-relaxed text-foreground">
               "{message}"
             </blockquote>
           </div>
         )}
-        
-        <div className="space-y-3 pt-2 border-t border-muted">
+
+        <div className="space-y-3 border-t border-muted pt-2">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 font-medium">
               <Heart className="h-4 w-4 text-red-500" />
               <span>Trust Bond</span>
             </div>
-            <span className="font-semibold text-base">
-              {getTrustLabel(normalizedTrust)}
-            </span>
+            <span className="text-base font-semibold">{getTrustLabel(normalizedTrust)}</span>
           </div>
-          
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
-            <div 
+
+          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 shadow-inner dark:bg-gray-700">
+            <div
               className={`h-full transition-all duration-700 ease-out ${getTrustColor(normalizedTrust)} shadow-sm`}
               style={{ width: `${normalizedTrust}%` }}
             />
           </div>
-          
-          <div className="text-sm text-muted-foreground text-center font-medium">
+
+          <div className="text-center text-sm font-medium text-muted-foreground">
             {normalizedTrust}/100
           </div>
         </div>

@@ -1,143 +1,218 @@
 # Contributing to Luminari's Quest
 
-Welcome! 🎉 We're excited you want to contribute to **Luminari's Quest**, a therapeutic, AI-powered RPG adventure **built primarily with Bolt.new** for the World's Largest AI Hackathon.
+Welcome to Luminari's Quest! This therapeutic RPG was built primarily using Bolt.new and follows specific architectural patterns and development standards.
 
-This guide will help you get started, set expectations for quality and collaboration, and ensure your contribution experience is positive and productive.
+## 🏗️ Project Architecture
+
+### Recent Architecture Updates (December 2024)
+
+The project has undergone significant refactoring to improve maintainability and code organization:
+
+**Component Structure**
+- **Page Components**: Extracted from `App.tsx` into dedicated files in `src/pages/`
+  - `Home.tsx` - Landing page with authentication
+  - `Adventure.tsx` - Main gameplay interface  
+  - `Progress.tsx` - Progress tracking and journal display
+  - `Profile.tsx` - User profile management
+  - `Legal.tsx` - Legal information and compliance
+
+**Enhanced Journal System**
+- **JournalEntryCard Component**: Full CRUD functionality with:
+  - Inline editing with save/cancel
+  - Delete confirmation dialogs
+  - Visual distinction between milestone and learning entries
+  - Edit history tracking with timestamps
+
+**Code Quality Improvements**
+- All TypeScript compilation errors resolved
+- ESLint configuration updated with browser globals
+- Consistent Prettier formatting applied across codebase
+- Proper component prop interfaces and type safety
+
+## 🛠️ Development Standards
+
+### Code Quality Requirements
+
+- **TypeScript**: Strict typing required for all components
+- **Component Size**: Keep all files under 500 lines; split into subcomponents if necessary
+- **Prop Interfaces**: Define prop interfaces or types for each component
+- **Error Handling**: Implement graceful error handling and fallbacks
+
+### Component Guidelines
+
+- **Atomic Design**: Follow atoms → molecules → organisms pattern
+- **Single Responsibility**: Each component should have one clear purpose
+- **Accessibility**: Use semantic HTML, ARIA labels, and keyboard navigation
+- **Responsive Design**: Ensure functionality across mobile, tablet, and desktop
+
+### File Organization
+
+```
+src/
+├── components/
+│   ├── ui/           # Shadcn/UI base components
+│   ├── layout/       # Layout components (Navbar, Sidebar, Footer)
+│   ├── auth/         # Authentication components
+│   └── *.tsx         # Feature-specific components
+├── pages/            # Page components (extracted from App.tsx)
+├── store/            # Zustand state management
+├── engine/           # Game logic and scene engine
+├── lib/              # Utilities and providers
+└── integrations/     # External service integrations
+```
+
+## 🎯 Development Workflow
+
+### Before Starting Work
+
+1. **Check Current Status**: Review `docs/COMPONENT_MAP.md` for completed features
+2. **TypeScript Check**: Ensure `npm run build` passes without errors
+3. **Code Quality**: Run `npm run lint` and `npm run format`
+
+### Making Changes
+
+1. **Component Development**:
+   - Use existing Shadcn/UI components where possible
+   - Follow TypeScript strict typing
+   - Implement proper error boundaries
+   - Add appropriate ARIA labels for accessibility
+
+2. **State Management**:
+   - Use Zustand store for game state
+   - Maintain hydration safety for SSR compatibility
+   - Implement proper persistence patterns
+
+3. **Testing**:
+   - Test across different screen sizes
+   - Verify keyboard navigation works
+   - Check error states and edge cases
+
+### Code Style
+
+- **Formatting**: Use Prettier (configured in `.prettierrc`)
+- **Linting**: Follow ESLint rules (see `eslint.config.js`)
+- **Icons**: Use Lucide icons consistently
+- **Styling**: Tailwind CSS utility classes only
+
+## 🔧 Technical Guidelines
+
+### State Management
+
+The project uses Zustand with persistence:
+
+```typescript
+// Example store pattern
+interface GameState {
+  // State properties
+  guardianTrust: number;
+  journalEntries: JournalEntry[];
+  
+  // Actions
+  setGuardianTrust: (trust: number) => void;
+  addJournalEntry: (entry: JournalEntry) => void;
+}
+```
+
+### Component Patterns
+
+```typescript
+// Component interface pattern
+interface ComponentProps {
+  // Required props
+  data: DataType;
+  onAction: (value: string) => void;
+  
+  // Optional props
+  className?: string;
+  disabled?: boolean;
+}
+
+export function Component({ data, onAction, className, disabled = false }: ComponentProps) {
+  // Component implementation
+}
+```
+
+### Error Handling
+
+```typescript
+// Error boundary pattern
+try {
+  // Risky operation
+} catch (error) {
+  console.error('Descriptive error message:', error);
+  // Graceful fallback
+}
+```
+
+## 🚀 Deployment Standards
+
+### Pre-Deployment Checklist
+
+- [ ] TypeScript compilation passes (`npm run build`)
+- [ ] All tests pass (`npm run test`)
+- [ ] Code is properly formatted (`npm run format`)
+- [ ] No ESLint errors (`npm run lint`)
+- [ ] Environment variables are properly configured
+- [ ] All new components are documented
+
+### Performance Considerations
+
+- **Bundle Size**: Keep main chunk under 1MB when possible
+- **Code Splitting**: Use dynamic imports for large features
+- **Image Optimization**: Optimize images and use appropriate formats
+- **Lazy Loading**: Implement for non-critical components
+
+## 🎮 Game Development Guidelines
+
+### Therapeutic Content
+
+- **Sensitivity**: All content should be appropriate for trauma recovery
+- **Positive Messaging**: Focus on growth, healing, and resilience
+- **Choice Consequences**: Ensure choices lead to meaningful outcomes
+- **Progress Tracking**: Maintain clear progress indicators
+
+### RPG Mechanics
+
+- **OGL Compliance**: Use only Open Gaming License content
+- **Dice System**: Follow d20 system conventions
+- **Character Progression**: Implement meaningful advancement
+- **Narrative Flow**: Maintain engaging story progression
+
+## 📝 Documentation
+
+### Required Documentation
+
+- **Component Documentation**: JSDoc comments for complex components
+- **API Documentation**: Document all external integrations
+- **State Documentation**: Document store patterns and data flow
+- **Setup Instructions**: Keep README.md current
+
+### Commit Standards
+
+- **Conventional Commits**: Use conventional commit format
+- **Descriptive Messages**: Clearly describe what changed and why
+- **Atomic Commits**: One logical change per commit
+- **Testing**: Ensure commits don't break the build
+
+## 🤝 Getting Help
+
+- **Documentation**: Check `docs/` directory for detailed guides
+- **Component Map**: Review `docs/COMPONENT_MAP.md` for architecture overview
+- **Code Standards**: Reference `eslint.config.js` and `tsconfig.*.json`
+- **Legal Compliance**: See `LICENSE` and `licenses/` directory
+
+## 🎯 Current Priorities
+
+Based on the recent refactoring work, current development priorities include:
+
+1. **Supabase Integration**: Complete journal entry persistence
+2. **AI Features**: Implement OpenAI narrative generation
+3. **Enhanced UX**: Improve journal search and filtering
+4. **Performance**: Optimize bundle size and loading times
+5. **Testing**: Expand test coverage for new components
 
 ---
 
-## 🛠 Project Setup
-
-**Built With:**  
-- [Bolt.new](https://bolt.new/) (main development, code generation, and UI composition)
-- React, TypeScript, Tailwind CSS, Shadcn/UI
-- Supabase, Netlify Functions
-- OpenAI, Leonardo.AI, ElevenLabs, Suno (integrations)
-
-**Quickstart:**
-1. **Clone the repo:**  
-   ```bash
-   git clone https://github.com/YOUR_ORG/luminari-quest.git
-   cd luminari-quest
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables:**
-   - Copy `.env.example` to `.env`
-   - Fill in required API keys and configuration
-
-4. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 📝 Contributing Guidelines
-
-1. **Fork & Branch:**
-   - Fork the repository
-   - Create a feature branch: `feature/your-feature-name`
-
-2. **Code Style:**
-   - Follow TypeScript strict mode (see `tsconfig.*.json`)
-   - Use Tailwind classes (no separate CSS, see `tailwind.config.ts`)
-   - Follow atomic design principles (detailed in `.bolt/prompt`)
-   - Keep components small and focused (<250 lines)
-   - Use ESLint/Prettier standards (see `eslint.config.js`, `.prettierrc`)
-   - Reference `.cursor/rules/` for IDE-specific component guidelines
-
-3. **Testing:**
-   - Write tests for new features
-   - Ensure existing tests pass
-   - Test accessibility (a11y)
-
-4. **Commit Messages:**
-   - Use clear, descriptive messages
-   - Reference issue numbers
-   - Keep commits atomic and focused
-
-5. **Documentation:**
-   - Update README.md if needed
-   - Add JSDoc comments
-   - Document new features
-   - Reference `docs/COMPONENT_MAP.md` for component relationships
-   - Check `licenses/third-party.md` when adding dependencies
-
-6. **Pull Requests:**
-   - Create PR against `main`
-   - Fill out PR template
-   - Request review
-   - Address feedback promptly
-
----
-
-## 🎯 Focus Areas
-
-We especially welcome contributions in these areas:
-
-1. **Accessibility Improvements**
-   - Screen reader support
-   - Keyboard navigation
-   - Color contrast
-   - ARIA attributes
-
-2. **Performance Optimization**
-   - Bundle size reduction
-   - Load time improvements
-   - Memory usage optimization
-
-3. **Documentation**
-   - Code comments
-   - Setup guides
-   - Architecture docs
-
-4. **Testing**
-   - Unit tests
-   - Integration tests
-   - E2E tests
-   - Performance benchmarks
-
----
-
-## 🚫 Out of Scope
-
-Please note that some areas are currently not accepting contributions:
-
-- Core game narrative/story changes
-- Major architectural changes
-- New AI service integrations
-- Changes to therapeutic content (requires expert review)
-
----
-
-## 📜 License & Legal
-
-- Code is MIT Licensed
-- Game mechanics use OGL/ORC
-- See LICENSE file for details
-
----
-
-## 🤝 Code of Conduct
-
-All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md). We're committed to providing a welcoming, inclusive, and harassment-free experience for everyone.
-
----
-
-## 🙋‍♀️ Getting Help
-
-- Create an issue for bugs/features
-- Join our Skool community: https://www.skool.com/ai-with-apex/about
-- Check existing documentation
-- Read our [FAQ](docs/FAQ.md)
-
----
-
-Thank you for contributing to Luminari's Quest! Together, we're building something meaningful that can help people heal and grow. 💫
+Thank you for contributing to Luminari's Quest! Your work helps create a meaningful therapeutic experience for users on their healing journey.
 
 *Built with [Bolt.new](https://bolt.new/)*

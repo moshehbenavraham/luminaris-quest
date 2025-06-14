@@ -17,7 +17,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
 
   useEffect(() => {
     setIsVisible(true);
-    
+
     const resultTimer = setTimeout(() => {
       setShowResult(true);
     }, 800);
@@ -38,30 +38,28 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
   };
 
   return (
-    <div 
-      className={`fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300 ${
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={handleClose}
     >
-      <Card 
-        className={`w-96 mx-4 transform transition-all duration-300 bg-background/95 backdrop-blur-sm border border-border/50 shadow-2xl ${
+      <Card
+        className={`bg-background/95 border-border/50 mx-4 w-96 transform border shadow-2xl backdrop-blur-sm transition-all duration-300 ${
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <CardHeader className="text-center pb-2">
+        <CardHeader className="pb-2 text-center">
           <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-white">
             <Dice6 className={`h-7 w-7 ${!showResult ? 'animate-spin' : ''} text-white`} />
             Fate's Decision
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center space-y-6 py-6">
+        <CardContent className="space-y-6 py-6 text-center">
           {!showResult ? (
             <div className="space-y-3">
-              <div className="text-3xl font-bold animate-pulse text-foreground">
-                Rolling...
-              </div>
+              <div className="animate-pulse text-3xl font-bold text-foreground">Rolling...</div>
               <div className="text-base text-muted-foreground">
                 Target: <span className="font-medium text-foreground">{result.dc}</span>
               </div>
@@ -69,30 +67,30 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
           ) : (
             <div className="space-y-6">
               <div className="space-y-1">
-                <div className="text-7xl font-extrabold bg-gradient-to-b from-white to-gray-200 bg-clip-text text-transparent">
+                <div className="bg-gradient-to-b from-white to-gray-200 bg-clip-text text-7xl font-extrabold text-transparent">
                   {result.roll}
                 </div>
                 <div className="text-base text-white/80">
                   vs <span className="font-medium text-white">DC {result.dc}</span>
                 </div>
               </div>
-              
-              <div className={`text-2xl font-bold ${
-                result.success 
-                  ? 'text-primary' 
-                  : 'text-amber-500 dark:text-amber-400'
-              }`}>
+
+              <div
+                className={`text-2xl font-bold ${
+                  result.success ? 'text-primary' : 'text-amber-500 dark:text-amber-400'
+                }`}
+              >
                 {result.success ? '✨ Success!' : '💡 Try Again'}
               </div>
-              
-              <Button 
+
+              <Button
                 onClick={handleClose}
                 variant={result.success ? 'default' : 'outline'}
                 size="lg"
-                className={`mt-2 px-8 text-base h-11 rounded-full ${
-                  result.success 
-                    ? 'bg-primary hover:bg-primary/90' 
-                    : 'border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10'
+                className={`mt-2 h-11 rounded-full px-8 text-base ${
+                  result.success
+                    ? 'bg-primary hover:bg-primary/90'
+                    : 'border-amber-500/30 text-amber-600 hover:bg-amber-500/10 dark:text-amber-400'
                 }`}
               >
                 Continue

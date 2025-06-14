@@ -1,9 +1,15 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { useSupabase } from '@/lib/providers/supabase-provider';
 import { supabase } from '@/integrations/supabase/client';
 import { Spinner } from '@/components/ui/spinner';
@@ -20,7 +26,7 @@ export function AuthForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset states
     setIsLoading(true);
     setError(null);
@@ -96,18 +102,13 @@ export function AuthForm() {
 
   if (user) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="mx-auto w-full max-w-md">
         <CardHeader>
           <CardTitle>Welcome!</CardTitle>
           <CardDescription>You are currently signed in as {user.email}</CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button 
-            onClick={handleSignOut} 
-            variant="outline" 
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button onClick={handleSignOut} variant="outline" className="w-full" disabled={isLoading}>
             {isLoading ? <Spinner /> : 'Sign Out'}
           </Button>
         </CardFooter>
@@ -117,7 +118,7 @@ export function AuthForm() {
 
   if (signUpSuccess) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="mx-auto w-full max-w-md">
         <CardHeader>
           <CardTitle>Account Created!</CardTitle>
           <CardDescription>
@@ -125,11 +126,14 @@ export function AuthForm() {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button onClick={() => {
-            setMode('login');
-            setSignUpSuccess(false);
-            setError(null);
-          }} className="w-full">
+          <Button
+            onClick={() => {
+              setMode('login');
+              setSignUpSuccess(false);
+              setError(null);
+            }}
+            className="w-full"
+          >
             Return to Sign In
           </Button>
         </CardFooter>
@@ -138,7 +142,7 @@ export function AuthForm() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader>
         <CardTitle>{mode === 'login' ? 'Sign In' : 'Create Account'}</CardTitle>
         <CardDescription>
@@ -178,7 +182,7 @@ export function AuthForm() {
             )}
           </div>
           {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-2 rounded border border-destructive/20">
+            <div className="bg-destructive/10 border-destructive/20 rounded border p-2 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -198,7 +202,9 @@ export function AuthForm() {
             }}
             disabled={isLoading}
           >
-            {mode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+            {mode === 'login'
+              ? "Don't have an account? Sign Up"
+              : 'Already have an account? Sign In'}
           </Button>
         </CardFooter>
       </form>

@@ -1,4 +1,3 @@
-
 @custom-variant dark (&:is(.dark *));
 
 @tailwind base;
@@ -11,18 +10,18 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  
+
   /* Brand Color System */
-  --primary: #865DFF;
+  --primary: #865dff;
   --primary-rgb: 134, 93, 255;
-  --accent: #00FFD0;
+  --accent: #00ffd0;
   --accent-rgb: 0, 255, 208;
-  --neutral-50: #F7F8FA;
-  --neutral-100: #ECECFF;
-  --neutral-200: #D6DBF5;
-  --neutral-400: #9196B3;
+  --neutral-50: #f7f8fa;
+  --neutral-100: #ececff;
+  --neutral-200: #d6dbf5;
+  --neutral-400: #9196b3;
   --neutral-800: #272940;
-  
+
   /* Design System Variables */
   --radius: 0.75rem;
   --background: var(--neutral-50);
@@ -39,11 +38,11 @@
   --muted-foreground: var(--neutral-400);
   --accent-color: var(--accent);
   --accent-foreground: var(--neutral-800);
-  --destructive: #EF4444;
+  --destructive: #ef4444;
   --border: rgba(134, 93, 255, 0.2);
   --input: rgba(255, 255, 255, 0.1);
   --ring: var(--primary);
-  
+
   /* Glassmorphism Variables */
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.2);
@@ -51,7 +50,7 @@
 }
 
 .dark {
-  --background: #0A0B14;
+  --background: #0a0b14;
   --foreground: var(--neutral-100);
   --card: rgba(39, 41, 64, 0.3);
   --card-foreground: var(--neutral-100);
@@ -63,7 +62,7 @@
   --muted-foreground: var(--neutral-400);
   --border: rgba(134, 93, 255, 0.3);
   --input: rgba(255, 255, 255, 0.05);
-  
+
   /* Dark Mode Glassmorphism */
   --glass-bg: rgba(39, 41, 64, 0.2);
   --glass-border: rgba(134, 93, 255, 0.2);
@@ -71,15 +70,26 @@
 }
 
 /* Typography System */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Roboto', Arial, sans-serif;
   font-weight: 700;
   line-height: 1.2;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.5rem;
+}
 
 body {
   margin: 0;
@@ -91,7 +101,7 @@ body {
 }
 
 .dark body {
-  background: linear-gradient(135deg, #0A0B14 0%, var(--neutral-800) 100%);
+  background: linear-gradient(135deg, #0a0b14 0%, var(--neutral-800) 100%);
 }
 
 /* Glassmorphism Utilities */
@@ -103,47 +113,47 @@ body {
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
   }
-  
+
   .glass-hover {
     transition: all 0.2s ease-in-out;
   }
-  
+
   .glass-hover:hover {
     background: rgba(134, 93, 255, 0.1);
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(134, 93, 255, 0.2);
   }
-  
+
   .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, #A855F7 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
     color: var(--primary-foreground);
     transition: all 0.2s ease-in-out;
     border: none;
     box-shadow: 0 4px 15px rgba(134, 93, 255, 0.3);
   }
-  
+
   .btn-primary:hover {
     filter: brightness(1.1);
     transform: translateY(-2px) scale(1.02);
     box-shadow: 0 8px 25px rgba(134, 93, 255, 0.4);
   }
-  
+
   .btn-secondary {
     background: var(--secondary);
     color: var(--secondary-foreground);
     border: 1px solid var(--border);
     transition: all 0.2s ease-in-out;
   }
-  
+
   .btn-secondary:hover {
     background: var(--muted);
     transform: translateY(-1px);
   }
-  
+
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
-  
+
   @keyframes glow {
     from {
       box-shadow: 0 0 20px rgba(134, 93, 255, 0.3);
@@ -168,7 +178,8 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-input, textarea {
+input,
+textarea {
   border: none;
   border-bottom: 2px solid var(--border);
   background: transparent;
@@ -176,7 +187,8 @@ input, textarea {
   font-family: inherit;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   outline: none;
   border-bottom-color: var(--primary);
 }
@@ -209,9 +221,15 @@ input:focus, textarea:focus {
 
 /* Responsive Typography */
 @media (max-width: 768px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.25rem; }
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+    font-size: 1.75rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
 }
 
 @layer base {

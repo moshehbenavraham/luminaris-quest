@@ -11,12 +11,12 @@ interface StatsBarProps {
   className?: string;
 }
 
-export function StatsBar({ 
-  trust, 
-  health = 100, 
-  energy = 100, 
-  experience = 0, 
-  className 
+export function StatsBar({
+  trust,
+  health = 100,
+  energy = 100,
+  experience = 0,
+  className,
 }: StatsBarProps) {
   const getTrustColor = (trustLevel: number) => {
     if (trustLevel >= 80) return 'bg-green-500';
@@ -36,10 +36,10 @@ export function StatsBar({
 
   return (
     <Card className={className}>
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="space-y-4 p-4">
         {/* Trust Bond - Visually Separated */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 p-3 rounded-lg border border-purple-200 dark:border-purple-800">
-          <div className="flex items-center justify-between mb-2">
+        <div className="rounded-lg border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 p-3 dark:border-purple-800 dark:from-purple-950/20 dark:to-pink-950/20">
+          <div className="mb-2 flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-semibold text-purple-700 dark:text-purple-300">
               <Heart className="h-4 w-4" />
               Trust Bond
@@ -48,15 +48,15 @@ export function StatsBar({
               {getTrustLabel(trust)}
             </span>
           </div>
-          
-          <div className="w-full bg-purple-100 dark:bg-purple-900/30 rounded-full h-2.5 overflow-hidden">
-            <div 
+
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-purple-100 dark:bg-purple-900/30">
+            <div
               className={`h-full transition-all duration-700 ease-out ${getTrustColor(trust)}`}
               style={{ width: `${trust}%` }}
             />
           </div>
-          
-          <div className="text-xs text-purple-600 dark:text-purple-400 text-center mt-1 font-medium">
+
+          <div className="mt-1 text-center text-xs font-medium text-purple-600 dark:text-purple-400">
             {trust}/100
           </div>
         </div>
@@ -72,13 +72,13 @@ export function StatsBar({
               Health
             </span>
             <div className="flex items-center gap-2">
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="h-full bg-green-500 rounded-full transition-all duration-300"
+              <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-full rounded-full bg-green-500 transition-all duration-300"
                   style={{ width: `${health}%` }}
                 />
               </div>
-              <span className="text-xs font-medium w-8 text-right">{health}</span>
+              <span className="w-8 text-right text-xs font-medium">{health}</span>
             </div>
           </div>
 
@@ -88,13 +88,13 @@ export function StatsBar({
               Energy
             </span>
             <div className="flex items-center gap-2">
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="h-full bg-blue-500 rounded-full transition-all duration-300"
+              <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-full rounded-full bg-blue-500 transition-all duration-300"
                   style={{ width: `${energy}%` }}
                 />
               </div>
-              <span className="text-xs font-medium w-8 text-right">{energy}</span>
+              <span className="w-8 text-right text-xs font-medium">{energy}</span>
             </div>
           </div>
 
@@ -104,13 +104,13 @@ export function StatsBar({
               Experience
             </span>
             <div className="flex items-center gap-2">
-              <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div 
-                  className="h-full bg-yellow-500 rounded-full transition-all duration-300"
+              <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-full rounded-full bg-yellow-500 transition-all duration-300"
                   style={{ width: `${Math.min(100, experience)}%` }}
                 />
               </div>
-              <span className="text-xs font-medium w-8 text-right">{experience}</span>
+              <span className="w-8 text-right text-xs font-medium">{experience}</span>
             </div>
           </div>
         </div>
