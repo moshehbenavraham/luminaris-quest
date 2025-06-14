@@ -2,7 +2,7 @@
 
 ## Current Environment Setup
 
-**Primary Development Environment:**
+**CURRENT Development Environment:**
 - **Platform**: Local Cursor IDE, WSL 2 PC Windows 10/11
 - **Database**: Supabase Cloud (Project ID: lxjetnrmjyazegwnymkk)
 - **Status**: Currently has zero database tables (needs schema creation)
@@ -10,17 +10,17 @@
 ## Planned Environment Structure
 
 ### 1. **Local Development**
-- **Purpose**: Primary development and testing
-- **Platform**: WSL 2 / Windows 10/11
+- **Purpose**: Assistant to Bolt.new: development and testing
+- **Platform**: WSL 2 / Windows 10/11 + Cursor IDE
 - **Supabase Project**: Current project (lxjetnrmjyazegwnymkk)
 - **Database URL**: https://lxjetnrmjyazegwnymkk.supabase.co
-- **Migration Strategy**: All migrations tested here first
+- **Migration Strategy**: migrations tested here
 - **Testing**: Unit tests, integration tests, manual testing
 
 ### 2. **Development (Shared/Team)**  
 - **Purpose**: Integration testing with team members
-- **Platform**: Cloud deployment (Netlify/Vercel)
-- **Supabase Project**: TBD (separate project recommended)
+- **Platform**: Bolt.new and Cloud deployment (Netlify)
+- **Supabase Project**: Current project (lxjetnrmjyazegwnymkk)
 - **Database**: Separate Supabase instance
 - **Migration Strategy**: Deploy after local validation
 - **Testing**: Integration testing, team collaboration
