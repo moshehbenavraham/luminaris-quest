@@ -14,9 +14,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run test:coverage` - Run tests with coverage report
 - `npm run preview` - Preview production build locally
 
+## Project Document "Library"
+- **README.md**
+- **Code Generation Rules:** See `.bolt/prompt` for Bolt.new guidance
+- **Cursor IDE Integration:** .cursorignore for files that Cursor should not include in context.
+  Reference `.cursor/` for Cursor IDE component and layout guidelines
+    - *Note not a document, but part of Cursor config for background agents: environment.json
+    - `.cursor/rules/`
+      - layout-integration.mdc
+      - project-context.mdc
+      - sidebar-navigation.mdc
+- **Roo Code Orchestration Modes:** `.roomodes` defines per-project AI task orchestration settings for Roo Code and Cursor. It enables custom multi-agent workflows (e.g., Boomerang Mode) to be scoped and run only within this project.
+- **Component Roadmap:** Check `docs/COMPONENT_MAP.md` for build priorities and component relationships
+- **Change Log:** CHANGELOG.md - document all notable changes to Luminari's Quest
+- **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
+- **Legal Compliance:** Reference `LICENSE` and `licenses/` directory for OGL/ORC licensing requirements
+- **Configuration Standards:** Follow `eslint.config.js`, `.prettierrc`, and `tsconfig.*.json` for code quality
+- **OTHER Documentation:**:
+  - CODE_OF_CONDUCT.md
+  - FAQ.md
+
 ## Project Architecture
 
-**Luminari's Quest** is a therapeutic AI-powered RPG built with React, TypeScript, and Supabase. The application helps young adults process trauma through interactive storytelling and journaling.
+**Luminari's Quest** is a therapeutic AI-powered RPG built with React, TypeScript, and Supabase. The application helps young adults process trauma through interactive storytelling and journaling.  The primary tool required for building this project is the "Bolt.new" platform.
 
 ### Core Architecture
 

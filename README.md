@@ -31,6 +31,7 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
       - sidebar-navigation.mdc
 - **Claude Code - Agentic AI Coder:** See `CLAUDE.md` for Claude Code's guidance
   `.claude/settings.local.json` - Settings for Claude Code
+- **Roo Code Orchestration Modes:** `.roomodes` defines per-project AI task orchestration settings for Roo Code and Cursor. It enables custom multi-agent workflows (e.g., Boomerang Mode) to be scoped and run only within this project.
 - **Component Roadmap:** Check `docs/COMPONENT_MAP.md` for build priorities and component relationships
 - **Change Log:** CHANGELOG.md - document all notable changes to Luminari's Quest
 - **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
