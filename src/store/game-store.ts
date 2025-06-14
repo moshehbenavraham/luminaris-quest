@@ -136,10 +136,12 @@ const useGameStoreBase = create<GameState>()(
 
       updateMilestone: (trustLevel: number) => {
         set((state) => {
+          const newPendingJournals = new Set(state.pendingMilestoneJournals);
+          
           const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
-              // Mark milestone as achieved and add to pending journals
-              state.pendingMilestoneJournals.add(milestone.level);
+              // Mark milestone as achieved and add to pending journals immutably
+              newPendingJournals.add(milestone.level);
               return {
                 ...milestone,
                 achieved: true,
@@ -154,14 +156,18 @@ const useGameStoreBase = create<GameState>()(
             (milestone, index, self) => index === self.findIndex((m) => m.id === milestone.id),
           );
 
-          return { milestones: uniqueMilestones };
+          return {
+            milestones: uniqueMilestones,
+            pendingMilestoneJournals: newPendingJournals
+          };
         });
       },
 
       markMilestoneJournalShown: (level: number) => {
         set((state) => {
-          state.pendingMilestoneJournals.delete(level);
-          return { pendingMilestoneJournals: new Set(state.pendingMilestoneJournals) };
+          const newPendingJournals = new Set(state.pendingMilestoneJournals);
+          newPendingJournals.delete(level);
+          return { pendingMilestoneJournals: newPendingJournals };
         });
       },
 
