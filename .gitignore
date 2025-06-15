@@ -24,3 +24,8 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .env
+
+# Supabase local development files
+supabase/.branches/
+supabase/.temp/
+supabase/logs/

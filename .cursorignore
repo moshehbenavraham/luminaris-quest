@@ -10,12 +10,15 @@ build/
 .vite/
 .turbo/
 
-# Environment files
+# Environment files (actual secrets)
 .env
 .env.local
-.env.*.local
-.env.production
-.env.development
+.env.development.local
+.env.production.local
+.env.staging.local
+
+# Keep .env.example files visible - they're documentation!
+# Don't ignore: .env.example, .env.development.example, etc.
 
 # Logs
 *.log
@@ -71,7 +74,6 @@ temp/
 # Large data files (common patterns)
 *.csv
 *.json.gz
-*.sql
 *.dump
 *.backup
 
