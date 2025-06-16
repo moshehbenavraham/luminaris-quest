@@ -32,6 +32,11 @@ export function Adventure() {
 
   // Function to check for new milestones
   const checkForNewMilestones = useCallback(() => {
+    console.log(`🎯 [ADVENTURE] checkForNewMilestones called`);
+    console.log(`🎯 [ADVENTURE] isCheckingMilestones.current:`, isCheckingMilestones.current);
+    console.log(`🎯 [ADVENTURE] showJournalModal:`, showJournalModal);
+    console.log(`🎯 [ADVENTURE] pendingMilestoneJournals:`, pendingMilestoneJournals);
+    
     if (isCheckingMilestones.current || showJournalModal) return;
     
     isCheckingMilestones.current = true;
@@ -53,6 +58,14 @@ export function Adventure() {
         isCheckingMilestones.current = false;
       }, 1000);
     }
+  }, [showJournalModal, pendingMilestoneJournals]);
+
+  // Log when useCallback dependencies change
+  useEffect(() => {
+    console.log(`🔄 [ADVENTURE] checkForNewMilestones dependencies changed!`);
+    console.log(`🔄 [ADVENTURE] - showJournalModal:`, showJournalModal);
+    console.log(`🔄 [ADVENTURE] - pendingMilestoneJournals:`, pendingMilestoneJournals);
+    console.log(`🔄 [ADVENTURE] - pendingMilestoneJournals reference:`, pendingMilestoneJournals);
   }, [showJournalModal, pendingMilestoneJournals]);
 
   // Only check for milestones when trust level changes
@@ -146,10 +159,14 @@ export function Adventure() {
         <JournalModal
           isOpen={showJournalModal}
           onClose={() => {
+            console.log(`🚪 [ADVENTURE] Modal closing - setting up setTimeout`);
             setShowJournalModal(false);
             setCurrentMilestoneLevel(null);
             // Check for more milestones after closing
-            setTimeout(checkForNewMilestones, 100);
+            setTimeout(() => {
+              console.log(`⏰ [ADVENTURE] setTimeout fired - calling checkForNewMilestones`);
+              checkForNewMilestones();
+            }, 100);
           }}
           trustLevel={guardianTrust}
           triggerType={journalTrigger}

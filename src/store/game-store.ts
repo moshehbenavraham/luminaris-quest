@@ -4,6 +4,117 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useEffect, useState } from 'react';
 import type { JournalEntry } from '@/components/JournalModal';
+import type { DatabaseHealthStatus, DatabaseHealthCheckResult } from '@/lib/database-health';
+import {
+  performHealthCheck,
+  performEnhancedHealthCheck,
+  getCurrentHealthStatus,
+  detectEnvironment
+} from '@/lib/database-health';
+import { createLogger as createEnvLogger, environment, performanceMonitor } from '@/lib/environment';
+
+// Save operation status types
+export type SaveStatus = 'idle' | 'saving' | 'success' | 'error';
+
+export interface SaveState {
+  status: SaveStatus;
+  lastSaveTimestamp?: number;
+  lastError?: string;
+  retryCount: number;
+  hasUnsavedChanges: boolean;
+}
+
+// Error types for better error handling
+export enum SaveErrorType {
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  PERMISSION_ERROR = 'PERMISSION_ERROR',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+}
+
+export interface SaveError {
+  type: SaveErrorType;
+  message: string;
+  originalError?: any;
+  timestamp: number;
+}
+
+// Retry configuration
+const RETRY_CONFIG = {
+  maxAttempts: 3,
+  baseDelay: 1000, // 1 second
+  maxDelay: 10000, // 10 seconds
+  backoffMultiplier: 2
+};
+
+// Use shared environment detection
+const getEnvironment = environment.current;
+
+// Use shared environment-aware logger
+const logger = createEnvLogger('GameStore');
+
+// Error classification utility
+const classifyError = (error: any): SaveErrorType => {
+  if (!error) return SaveErrorType.UNKNOWN_ERROR;
+  
+  const message = error.message?.toLowerCase() || '';
+  const code = error.code?.toLowerCase() || '';
+  
+  // Network-related errors
+  if (message.includes('network') ||
+      message.includes('timeout') ||
+      message.includes('connection') ||
+      message.includes('fetch') ||
+      code.includes('network')) {
+    return SaveErrorType.NETWORK_ERROR;
+  }
+  
+  // Authentication errors
+  if (message.includes('auth') ||
+      message.includes('unauthorized') ||
+      message.includes('forbidden') ||
+      code === 'unauthorized' ||
+      code === 'forbidden') {
+    return SaveErrorType.AUTHENTICATION_ERROR;
+  }
+  
+  // Permission errors
+  if (message.includes('permission') ||
+      message.includes('access denied') ||
+      code.includes('permission')) {
+    return SaveErrorType.PERMISSION_ERROR;
+  }
+  
+  // Validation errors
+  if (message.includes('validation') ||
+      message.includes('constraint') ||
+      message.includes('invalid') ||
+      code.includes('constraint') ||
+      code.includes('check')) {
+    return SaveErrorType.VALIDATION_ERROR;
+  }
+  
+  return SaveErrorType.UNKNOWN_ERROR;
+};
+
+// Determine if an error type is retryable
+const isRetryableError = (errorType: SaveErrorType): boolean => {
+  switch (errorType) {
+    case SaveErrorType.NETWORK_ERROR:
+      return true; // Network issues are often temporary
+    case SaveErrorType.AUTHENTICATION_ERROR:
+      return false; // Auth issues need user intervention
+    case SaveErrorType.PERMISSION_ERROR:
+      return false; // Permission issues need admin intervention
+    case SaveErrorType.VALIDATION_ERROR:
+      return false; // Data validation errors won't fix themselves
+    case SaveErrorType.UNKNOWN_ERROR:
+      return true; // Retry unknown errors in case they're transient
+    default:
+      return false;
+  }
+};
 
 export interface Milestone {
   id: string;
@@ -33,6 +144,14 @@ export interface GameState {
   milestones: Milestone[];
   sceneHistory: CompletedScene[];
   pendingMilestoneJournals: Set<number>;
+  
+  // Save operation state
+  saveState: SaveState;
+  
+  // Database health check state
+  healthStatus: DatabaseHealthStatus;
+  
+  // Actions
   setGuardianTrust: (trust: number) => void;
   addJournalEntry: (entry: JournalEntry) => void;
   updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => void;
@@ -44,6 +163,16 @@ export interface GameState {
   resetGame: () => void;
   updateMilestone: (level: number) => void;
   markMilestoneJournalShown: (level: number) => void;
+  
+  // Save state utilities
+  checkUnsavedChanges: () => boolean;
+  clearSaveError: () => void;
+  
+  // Health check actions
+  performHealthCheck: () => Promise<void>;
+  startHealthMonitoring: () => void;
+  stopHealthMonitoring: () => void;
+  
   _hasHydrated: boolean;
   _setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -65,12 +194,31 @@ const useGameStoreBase = create<GameState>()(
       milestones: initialMilestones,
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
+      
+      // Save operation state
+      saveState: {
+        status: 'idle',
+        retryCount: 0,
+        hasUnsavedChanges: false
+      },
+      
+      // Database health check state
+      healthStatus: {
+        isConnected: false,
+        responseTime: 0,
+        lastChecked: 0,
+        environment: detectEnvironment()
+      },
+      
       _hasHydrated: false,
 
       // Actions
       setGuardianTrust: (trust: number) => {
         const clampedTrust = Math.max(0, Math.min(100, trust));
-        set({ guardianTrust: clampedTrust });
+        set((state) => ({
+          guardianTrust: clampedTrust,
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
+        }));
 
         // Check for milestone achievements
         get().updateMilestone(clampedTrust);
@@ -93,6 +241,7 @@ const useGameStoreBase = create<GameState>()(
           // No limit on journal entries - store them all
           return {
             journalEntries: newEntries,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
           };
         });
 
@@ -107,6 +256,7 @@ const useGameStoreBase = create<GameState>()(
               ? { ...entry, ...updates, isEdited: true, editedAt: new Date() }
               : entry,
           ),
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
 
         // Auto-save to Supabase after update
@@ -116,6 +266,7 @@ const useGameStoreBase = create<GameState>()(
       deleteJournalEntry: (id: string) => {
         set((state) => ({
           journalEntries: state.journalEntries.filter((entry) => entry.id !== id),
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
 
         // Auto-save to Supabase after deletion
@@ -125,18 +276,24 @@ const useGameStoreBase = create<GameState>()(
       completeScene: (scene: CompletedScene) => {
         set((state) => ({
           sceneHistory: [...state.sceneHistory, scene],
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
       },
 
       advanceScene: () => {
         set((state) => ({
           currentSceneIndex: state.currentSceneIndex + 1,
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
       },
 
       updateMilestone: (trustLevel: number) => {
+        console.log(`🔄 [STORE] updateMilestone called for trustLevel ${trustLevel}`);
         set((state) => {
+          console.log(`🔄 [STORE] Current pendingMilestoneJournals:`, state.pendingMilestoneJournals);
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
+          console.log(`🔄 [STORE] Created new Set instance:`, newPendingJournals);
+          console.log(`🔄 [STORE] Set reference changed:`, newPendingJournals !== state.pendingMilestoneJournals);
           
           const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
@@ -158,21 +315,26 @@ const useGameStoreBase = create<GameState>()(
 
           return {
             milestones: uniqueMilestones,
-            pendingMilestoneJournals: newPendingJournals
+            pendingMilestoneJournals: newPendingJournals,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
           };
         });
       },
 
       markMilestoneJournalShown: (level: number) => {
+        console.log(`✅ [STORE] markMilestoneJournalShown called for level ${level}`);
         set((state) => {
+          console.log(`✅ [STORE] Current pendingMilestoneJournals:`, state.pendingMilestoneJournals);
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
+          console.log(`✅ [STORE] Created new Set instance:`, newPendingJournals);
+          console.log(`✅ [STORE] Set reference changed:`, newPendingJournals !== state.pendingMilestoneJournals);
           newPendingJournals.delete(level);
           return { pendingMilestoneJournals: newPendingJournals };
         });
       },
 
       resetGame: () => {
-        set({
+        set((state) => ({
           guardianTrust: 50,
           playerLevel: 1,
           currentSceneIndex: 0,
@@ -184,7 +346,8 @@ const useGameStoreBase = create<GameState>()(
           })),
           sceneHistory: [],
           pendingMilestoneJournals: new Set(),
-        });
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
+        }));
         // Also clear from storage to prevent rehydration of bad state
         localStorage.removeItem('luminari-game-state');
       },
@@ -193,70 +356,206 @@ const useGameStoreBase = create<GameState>()(
         set({ _hasHydrated: hasHydrated });
       },
 
+      // Save state utilities
+      checkUnsavedChanges: () => {
+        const state = get();
+        return state.saveState.hasUnsavedChanges ||
+               state.saveState.status === 'error' ||
+               state.saveState.lastSaveTimestamp === undefined;
+      },
+
+      clearSaveError: () => {
+        set((state) => ({
+          saveState: {
+            ...state.saveState,
+            status: 'idle',
+            lastError: undefined,
+            retryCount: 0
+          }
+        }));
+      },
+
       saveToSupabase: async () => {
-        try {
-          const state = get();
-          const { supabase } = await import('@/lib/supabase');
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
+        const state = get();
+        
+        // Don't save if already saving
+        if (state.saveState.status === 'saving') {
+          logger.debug('Save already in progress, skipping');
+          return;
+        }
 
-          if (!user) {
-            console.warn('No user authenticated - skipping save');
-            return;
-          }
+        const attemptSave = async (attempt: number = 1): Promise<void> => {
+          try {
+            // Update save state to saving
+            set((state) => ({
+              saveState: {
+                ...state.saveState,
+                status: 'saving',
+                retryCount: attempt - 1
+              }
+            }));
 
-          // Save game state
-          const gameState = {
-            user_id: user.id,
-            guardian_trust: state.guardianTrust,
-            player_level: state.playerLevel,
-            current_scene_index: state.currentSceneIndex,
-            milestones: state.milestones,
-            scene_history: state.sceneHistory,
-            updated_at: new Date().toISOString(),
-          };
+            logger.debug(`Save attempt ${attempt}/${RETRY_CONFIG.maxAttempts}`);
 
-          const { error: stateError } = await supabase
-            .from('game_states')
-            .upsert(gameState, { onConflict: 'user_id' });
+            const { supabase } = await import('@/lib/supabase');
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
 
-          if (stateError) {
-            console.error('Error saving game state:', stateError);
-            throw stateError;
-          }
+            if (!user) {
+              throw {
+                type: SaveErrorType.AUTHENTICATION_ERROR,
+                message: 'No user authenticated - cannot save game state',
+                originalError: null
+              };
+            }
 
-          // Save journal entries
-          const journalEntries = state.journalEntries.map((entry) => ({
-            id: entry.id,
-            user_id: user.id,
-            type: entry.type,
-            trust_level: entry.trustLevel,
-            content: entry.content,
-            title: entry.title,
-            scene_id: entry.sceneId || null,
-            tags: entry.tags || [],
-            is_edited: entry.isEdited || false,
-            created_at: entry.timestamp.toISOString(),
-            edited_at: entry.editedAt?.toISOString() || null,
-          }));
+            const currentState = get();
+            const startTime = Date.now();
 
-          if (journalEntries.length > 0) {
-            const { error: journalError } = await supabase
-              .from('journal_entries')
-              .upsert(journalEntries, { onConflict: 'id' });
+            // Prepare game state data
+            const gameState = {
+              user_id: user.id,
+              guardian_trust: currentState.guardianTrust,
+              player_level: currentState.playerLevel,
+              current_scene_index: currentState.currentSceneIndex,
+              milestones: currentState.milestones,
+              scene_history: currentState.sceneHistory,
+              updated_at: new Date().toISOString(),
+            };
 
-            if (journalError) {
-              console.error('Error saving journal entries:', journalError);
-              throw journalError;
+            logger.debug('Saving game state', {
+              userId: user.id,
+              guardianTrust: gameState.guardian_trust,
+              journalCount: currentState.journalEntries.length
+            });
+
+            // Save game state with timeout
+            const { error: stateError } = await Promise.race([
+              supabase.from('game_states').upsert(gameState, { onConflict: 'user_id' }),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Save timeout')), 30000)
+              )
+            ]) as any;
+
+            if (stateError) {
+              throw {
+                type: classifyError(stateError),
+                message: `Failed to save game state: ${stateError.message}`,
+                originalError: stateError
+              };
+            }
+
+            // Save journal entries if any exist
+            if (currentState.journalEntries.length > 0) {
+              const journalEntries = currentState.journalEntries.map((entry) => ({
+                id: entry.id,
+                user_id: user.id,
+                type: entry.type,
+                trust_level: entry.trustLevel,
+                content: entry.content,
+                title: entry.title,
+                scene_id: entry.sceneId || null,
+                tags: entry.tags || [],
+                is_edited: entry.isEdited || false,
+                created_at: entry.timestamp.toISOString(),
+                edited_at: entry.editedAt?.toISOString() || null,
+              }));
+
+              const { error: journalError } = await Promise.race([
+                supabase.from('journal_entries').upsert(journalEntries, { onConflict: 'id' }),
+                new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error('Journal save timeout')), 30000)
+                )
+              ]) as any;
+
+              if (journalError) {
+                throw {
+                  type: classifyError(journalError),
+                  message: `Failed to save journal entries: ${journalError.message}`,
+                  originalError: journalError
+                };
+              }
+            }
+
+            const saveTime = Date.now() - startTime;
+            logger.info('Game state saved successfully', {
+              saveTime: `${saveTime}ms`,
+              attempt,
+              journalCount: currentState.journalEntries.length
+            });
+
+            // Update save state to success
+            set((state) => ({
+              saveState: {
+                ...state.saveState,
+                status: 'success',
+                lastSaveTimestamp: Date.now(),
+                lastError: undefined,
+                retryCount: 0,
+                hasUnsavedChanges: false
+              }
+            }));
+
+          } catch (error: any) {
+            const saveError: SaveError = {
+              type: error.type || SaveErrorType.UNKNOWN_ERROR,
+              message: error.message || 'Unknown save error',
+              originalError: error.originalError || error,
+              timestamp: Date.now()
+            };
+
+            const { supabase } = await import('@/lib/supabase');
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
+            
+            logger.error('Save attempt failed', saveError, {
+              attempt,
+              userId: user?.id || 'unknown'
+            });
+
+            // Determine if we should retry
+            const shouldRetry = attempt < RETRY_CONFIG.maxAttempts &&
+                              isRetryableError(saveError.type);
+
+            if (shouldRetry) {
+              const delay = Math.min(
+                RETRY_CONFIG.baseDelay * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt - 1),
+                RETRY_CONFIG.maxDelay
+              );
+              
+              logger.info(`Retrying save in ${delay}ms`, { attempt: attempt + 1 });
+              
+              // Wait before retry
+              await new Promise(resolve => setTimeout(resolve, delay));
+              
+              // Recursive retry
+              return attemptSave(attempt + 1);
+            } else {
+              // Max attempts reached or non-retryable error
+              logger.error('Save failed permanently', saveError, {
+                maxAttemptsReached: attempt >= RETRY_CONFIG.maxAttempts,
+                isRetryable: isRetryableError(saveError.type)
+              });
+
+              // Update save state to error
+              set((state) => ({
+                saveState: {
+                  ...state.saveState,
+                  status: 'error',
+                  lastError: saveError.message,
+                  retryCount: attempt,
+                  hasUnsavedChanges: true
+                }
+              }));
+
+              // Don't throw - we want the game to continue even if save fails
             }
           }
+        };
 
-          console.log('Game state saved to Supabase successfully');
-        } catch (error) {
-          console.error('Failed to save to Supabase:', error);
-          // Don't throw - we want the game to continue even if save fails
-        }
+        await attemptSave();
       },
 
       loadFromSupabase: async () => {
@@ -325,6 +624,85 @@ const useGameStoreBase = create<GameState>()(
         } catch (error) {
           console.error('Failed to load from Supabase:', error);
           // Don't throw - we want the game to continue even if load fails
+        }
+      },
+
+      // Health check methods
+      performHealthCheck: async () => {
+        try {
+          logger.debug('Performing database health check');
+          
+          const result = await performEnhancedHealthCheck();
+          const newHealthStatus = getCurrentHealthStatus(result);
+          
+          set((state) => ({
+            healthStatus: newHealthStatus
+          }));
+          
+          if (result.success) {
+            logger.debug('Health check successful', {
+              responseTime: result.responseTime,
+              environment: newHealthStatus.environment
+            });
+          } else {
+            logger.warn('Health check failed', {
+              error: result.error,
+              responseTime: result.responseTime
+            });
+          }
+        } catch (error: any) {
+          logger.error('Health check threw exception', error);
+          
+          set((state) => ({
+            healthStatus: {
+              isConnected: false,
+              responseTime: 0,
+              lastChecked: Date.now(),
+              error: error.message || 'Health check failed',
+              environment: detectEnvironment()
+            }
+          }));
+        }
+      },
+
+      startHealthMonitoring: () => {
+        const state = get();
+        
+        // Don't start monitoring if already running
+        if ((state as any)._healthCheckInterval) {
+          logger.debug('Health monitoring already running');
+          return;
+        }
+        
+        logger.info('Starting database health monitoring');
+        
+        // Perform initial health check
+        get().performHealthCheck();
+        
+        // Set up periodic health checks (every 45 seconds)
+        const interval = setInterval(() => {
+          const currentState = get();
+          
+          // Only perform health check if the app is active and user is present
+          if (document.hidden || !document.hasFocus()) {
+            logger.debug('Skipping health check - app not active');
+            return;
+          }
+          
+          currentState.performHealthCheck();
+        }, 45000); // 45 seconds
+        
+        // Store interval reference (we'll need to extend the type to include this)
+        (get() as any)._healthCheckInterval = interval;
+      },
+
+      stopHealthMonitoring: () => {
+        const state = get() as any;
+        
+        if (state._healthCheckInterval) {
+          logger.info('Stopping database health monitoring');
+          clearInterval(state._healthCheckInterval);
+          delete state._healthCheckInterval;
         }
       },
     }),
@@ -408,6 +786,17 @@ export const useGameStore = () => {
       milestones: initialMilestones,
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
+      saveState: {
+        status: 'idle',
+        retryCount: 0,
+        hasUnsavedChanges: false
+      } as SaveState,
+      healthStatus: {
+        isConnected: false,
+        responseTime: 0,
+        lastChecked: 0,
+        environment: detectEnvironment()
+      } as DatabaseHealthStatus,
       setGuardianTrust: store.setGuardianTrust,
       addJournalEntry: store.addJournalEntry,
       updateJournalEntry: store.updateJournalEntry,
@@ -419,6 +808,11 @@ export const useGameStore = () => {
       resetGame: store.resetGame,
       updateMilestone: store.updateMilestone,
       markMilestoneJournalShown: store.markMilestoneJournalShown,
+      checkUnsavedChanges: store.checkUnsavedChanges,
+      clearSaveError: store.clearSaveError,
+      performHealthCheck: store.performHealthCheck,
+      startHealthMonitoring: store.startHealthMonitoring,
+      stopHealthMonitoring: store.stopHealthMonitoring,
       _hasHydrated: false,
       _setHasHydrated: store._setHasHydrated,
     };

@@ -8,6 +8,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Database Health Check System (Phase 6.2)** - Comprehensive database connectivity monitoring
+  - Real-time Supabase connection status monitoring with 45-second intervals
+  - Automatic environment detection (local/dev/staging/prod)
+  - Health status UI components with compact and detailed display modes
+  - Integration with navbar (compact indicator) and profile page (detailed panel)
+  - Manual health check triggers for on-demand testing
+- **Health Check Infrastructure**
+  - `src/lib/database-health.ts` - Core health check utilities and environment detection
+  - `src/components/HealthStatus.tsx` - Flexible UI component with multiple display modes
+  - `src/hooks/use-health-monitoring.ts` - React hooks for health monitoring integration
+  - `docs/HEALTH_CHECK_IMPLEMENTATION.md` - Comprehensive implementation documentation
+- **Enhanced Game Store** - Extended Zustand store with health monitoring capabilities
+  - `DatabaseHealthStatus` state tracking connection status and response times
+  - Health check actions: `performHealthCheck()`, `startHealthMonitoring()`, `stopHealthMonitoring()`
+  - Smart monitoring that pauses when app is inactive or hidden
+  - Integration with existing Phase 6.1 error handling infrastructure
+
+### Changed
+- **Application Architecture** - Enhanced with health monitoring capabilities
+  - Modified `src/App.tsx` to initialize health monitoring on application startup
+  - Updated `src/components/layout/Navbar.tsx` with compact health status indicator
+  - Enhanced `src/pages/Profile.tsx` with detailed health status panel
+  - Extended game store interface with health check methods and state
+
+### Performance Optimizations
+- **Health Check System** - Optimized for minimal performance impact
+  - Lightweight database queries using simple connectivity tests
+  - Activity-aware monitoring that pauses when browser tab is inactive
+  - Configurable timeouts to prevent hanging requests
+  - 45-second check intervals balancing monitoring frequency with performance
+
+### Technical Improvements
+- **Error Handling Integration** - Health checks leverage existing Phase 6.1 infrastructure
+  - Network error classification and handling
+  - Authentication error detection and reporting
+  - Timeout protection for all health check operations
+  - Graceful degradation ensuring app continues working during connectivity issues
+- **Status Indicator System** - Visual feedback for connection quality
+  - Green: Healthy connection (< 2s response time)
+  - Yellow: Slow connection (2-5s response time) or degraded performance
+  - Red: Connection failed or error occurred
+  - Tooltip and detailed status information with timestamps and error messages
+
+### Added
 - **Database Schema Foundation** - Complete Supabase database migration system
   - Created `game_states` table with user progress tracking
   - Created `journal_entries` table with therapeutic journal functionality

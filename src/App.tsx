@@ -8,8 +8,12 @@ import { Adventure } from '@/pages/Adventure';
 import { Progress } from '@/pages/Progress';
 import { Profile } from '@/pages/Profile';
 import { Legal } from '@/pages/Legal';
+import { useHealthMonitoring } from '@/hooks/use-health-monitoring';
 
 function App() {
+  // Initialize database health monitoring
+  useHealthMonitoring();
+  
   return (
     <QueryProvider>
       <SupabaseProvider>

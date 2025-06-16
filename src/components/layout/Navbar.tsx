@@ -1,6 +1,7 @@
 import { Menu, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { HealthStatus } from '@/components/HealthStatus';
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -41,6 +42,9 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="hidden md:block">
+            <HealthStatus compact />
+          </div>
           <Button
             variant="ghost"
             className="glass-hover p-2 md:hidden"
