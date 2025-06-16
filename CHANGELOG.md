@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Infinite Loop Debugging (2025-06-16)** - Partial resolution of React "Maximum update depth exceeded" crash
+  - Added comprehensive diagnostic logging to [`game-store.ts`](src/store/game-store.ts) and [`Adventure.tsx`](src/pages/Adventure.tsx)
+  - Implemented conditional Set reference stability in `updateMilestone()` and `markMilestoneJournalShown()` methods
+  - Only creates new Set instances when actual milestone changes occur, preserving reference equality otherwise
+  - Confirmed multi-part feedback loop diagnosis: Set recreation + setTimeout chain + useCallback dependencies
+  - **Status**: Partial fix implemented - crash persists due to additional feedback loops requiring architectural changes
+
+### Debugging & Analysis
+- **Root Cause Identification** - Traced infinite re-render loop to multiple interconnected sources
+  - Set reference recreation in game store methods triggering useCallback dependency changes
+  - setTimeout chain in modal close handler creating infinite callback execution cycles
+  - Modal state dependencies (`showJournalModal`) also triggering useCallback recreation
+  - Duplicate milestone checking logic in both useCallback and useEffect creating race conditions
+- **Diagnostic Logging Added** - Comprehensive logging system for tracking state changes
+  - Store method logging: Set creation, reference changes, milestone achievement tracking
+  - Adventure component logging: useCallback recreation, setTimeout execution, dependency changes
+  - Console output validates exact infinite loop pattern predicted in analysis
+
 ### Added
 - **Database Health Check System (Phase 6.2)** - Comprehensive database connectivity monitoring
   - Real-time Supabase connection status monitoring with 45-second intervals

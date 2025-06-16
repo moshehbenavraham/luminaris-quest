@@ -4,14 +4,16 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useEffect, useState } from 'react';
 import type { JournalEntry } from '@/components/JournalModal';
-import type { DatabaseHealthStatus, DatabaseHealthCheckResult } from '@/lib/database-health';
+import type { DatabaseHealthStatus /* , DatabaseHealthCheckResult */ } from '@/lib/database-health';
+// TEMPORARILY COMMENTED OUT FOR BUILD: DatabaseHealthCheckResult import temporarily commented to fix TS6196 build error
 import {
-  performHealthCheck,
+  // performHealthCheck, // TEMPORARILY COMMENTED OUT FOR BUILD: performHealthCheck import temporarily commented to fix TS6133 build error
   performEnhancedHealthCheck,
   getCurrentHealthStatus,
   detectEnvironment
 } from '@/lib/database-health';
-import { createLogger as createEnvLogger, environment, performanceMonitor } from '@/lib/environment';
+import { createLogger as createEnvLogger, /* environment, */ /* , performanceMonitor */ } from '@/lib/environment';
+// TEMPORARILY COMMENTED OUT FOR BUILD: environment and performanceMonitor imports temporarily commented to fix TS6133 build error
 
 // Save operation status types
 export type SaveStatus = 'idle' | 'saving' | 'success' | 'error';
@@ -49,7 +51,7 @@ const RETRY_CONFIG = {
 };
 
 // Use shared environment detection
-const getEnvironment = environment.current;
+// const getEnvironment = environment.current; // TEMPORARILY COMMENTED OUT FOR BUILD: getEnvironment variable temporarily commented to fix TS6133 build error
 
 // Use shared environment-aware logger
 const logger = createEnvLogger('GameStore');
@@ -291,6 +293,19 @@ const useGameStoreBase = create<GameState>()(
         console.log(`🔄 [STORE] updateMilestone called for trustLevel ${trustLevel}`);
         set((state) => {
           console.log(`🔄 [STORE] Current pendingMilestoneJournals:`, state.pendingMilestoneJournals);
+          
+          // Check if any milestones will actually be achieved
+          const milestonesToAchieve = state.milestones.filter(
+            (milestone) => trustLevel >= milestone.level && !milestone.achieved
+          );
+          
+          // If no milestones to achieve, return unchanged state to maintain reference stability
+          if (milestonesToAchieve.length === 0) {
+            console.log(`🔄 [STORE] No milestones to achieve - maintaining reference stability`);
+            return {}; // No state change = same reference
+          }
+          
+          // Only create new Set if we're actually adding milestones
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
           console.log(`🔄 [STORE] Created new Set instance:`, newPendingJournals);
           console.log(`🔄 [STORE] Set reference changed:`, newPendingJournals !== state.pendingMilestoneJournals);
@@ -325,6 +340,14 @@ const useGameStoreBase = create<GameState>()(
         console.log(`✅ [STORE] markMilestoneJournalShown called for level ${level}`);
         set((state) => {
           console.log(`✅ [STORE] Current pendingMilestoneJournals:`, state.pendingMilestoneJournals);
+          
+          // Only create new Set if the level actually exists in the pending set
+          if (!state.pendingMilestoneJournals.has(level)) {
+            console.log(`✅ [STORE] Level ${level} not in pending set - maintaining reference stability`);
+            return {}; // No state change = same reference
+          }
+          
+          // Only create new Set when we're actually removing something
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
           console.log(`✅ [STORE] Created new Set instance:`, newPendingJournals);
           console.log(`✅ [STORE] Set reference changed:`, newPendingJournals !== state.pendingMilestoneJournals);
@@ -635,7 +658,8 @@ const useGameStoreBase = create<GameState>()(
           const result = await performEnhancedHealthCheck();
           const newHealthStatus = getCurrentHealthStatus(result);
           
-          set((state) => ({
+          set((_state) => ({
+            // TEMPORARILY COMMENTED OUT FOR BUILD: state parameter renamed to _state to fix TS6133 build error
             healthStatus: newHealthStatus
           }));
           
@@ -653,7 +677,8 @@ const useGameStoreBase = create<GameState>()(
         } catch (error: any) {
           logger.error('Health check threw exception', error);
           
-          set((state) => ({
+          set((_state) => ({
+            // TEMPORARILY COMMENTED OUT FOR BUILD: state parameter renamed to _state to fix TS6133 build error
             healthStatus: {
               isConnected: false,
               responseTime: 0,

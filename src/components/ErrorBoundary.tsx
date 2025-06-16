@@ -297,7 +297,9 @@ export const DatabaseErrorBoundary: React.FC<PropsWithChildren<{
     <ErrorBoundary
       enableRetry={true}
       maxRetries={2}
-      onError={(error, errorInfo) => {
+      onError={(error, /* errorInfo */) => {
+        // TEMPORARILY COMMENTED OUT FOR BUILD: errorInfo parameter temporarily commented to fix TS6133 build error
+        // errorInfo
         // Log database-specific errors
         console.error('[DatabaseErrorBoundary] Database operation failed:', {
           error: error.message,

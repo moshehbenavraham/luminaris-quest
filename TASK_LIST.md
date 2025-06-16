@@ -50,32 +50,35 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 🔥 CRITICAL - Infinite Loop Causing Application Crashes
 
-**Status:** DIAGNOSED - Infinite re-render loop in Adventure.tsx
-**Root Cause:** Set reference recreation in game store methods triggers useCallback dependency chain reaction
+**Status:** PARTIALLY FIXED - Partial Set stability implemented, but crash persists
+**Root Cause:** Multi-part feedback loop: Set reference recreation + setTimeout chain + modal state dependencies
 **Impact:** Application becomes unresponsive, "Maximum update depth exceeded" React error
 
-- [ ] **C1: Fix Set Reference Recreation in Game Store**
-  - [ ] **C1.1**: Review [`game-store.ts`](src/store/game-store.ts) `updateMilestone()` function (line ~290-318)
+- [x] **C1: Fix Set Reference Recreation in Game Store** ⚠️ PARTIALLY COMPLETED 2025-06-16 19:30
+  - [x] **C1.1**: Review [`game-store.ts`](src/store/game-store.ts) `updateMilestone()` function (line ~290-318) ✅
     - Issue: `new Set(state.pendingMilestoneJournals)` creates unstable reference every call
-    - Fix: Preserve reference equality when Set contents haven't changed
-  - [ ] **C1.2**: Review [`game-store.ts`](src/store/game-store.ts) `markMilestoneJournalShown()` function (line ~320-326)
+    - Fix: Added conditional Set creation - only creates new Set when milestones will actually be achieved
+  - [x] **C1.2**: Review [`game-store.ts`](src/store/game-store.ts) `markMilestoneJournalShown()` function (line ~324-334) ✅
     - Issue: `new Set(state.pendingMilestoneJournals)` creates unstable reference every call
-    - Fix: Preserve reference equality when Set contents haven't changed
-  - [ ] **C1.3**: Implement stable Set update pattern
-    - Use deep equality check before creating new Set
-    - Return existing Set reference if no changes needed
-    - Add comprehensive logging for validation
+    - Fix: Added conditional Set creation - only creates new Set when level exists in pending set
+  - [x] **C1.3**: Implement stable Set update pattern ✅
+    - Returns empty object (no state change) when no actual changes needed
+    - Preserves Set reference stability when contents unchanged
+    - Added comprehensive diagnostic logging for validation
+  - **RESULT**: Partial fix implemented but insufficient - crash persists due to additional feedback loops
 
-- [ ] **C2: Fix Adventure.tsx useCallback Dependency Chain**
-  - [ ] **C2.1**: Review [`Adventure.tsx`](src/pages/Adventure.tsx) `checkForNewMilestones` useCallback (line ~56)
-    - Issue: Depends on `pendingMilestoneJournals` which changes reference frequently
-    - Fix: Use stable dependency pattern or memoization
-  - [ ] **C2.2**: Review setTimeout chain in modal onClose (line ~152)
+- [ ] **C2: Fix Adventure.tsx useCallback Dependency Chain** ⚠️ IDENTIFIED BUT NOT FIXED
+  - [x] **C2.1**: Review [`Adventure.tsx`](src/pages/Adventure.tsx) `checkForNewMilestones` useCallback (line ~61) ✅
+    - Issue: Depends on `[showJournalModal, pendingMilestoneJournals]` - both can trigger recreation
+    - Analysis: Even with Set stability, modal state changes still trigger callback recreation
+  - [x] **C2.2**: Review setTimeout chain in modal onClose (line ~166-169) ✅
     - Issue: `setTimeout(checkForNewMilestones, 100)` creates infinite feedback loop
-    - Fix: Add condition checks to prevent unnecessary re-execution
-  - [ ] **C2.3**: Add dependency stabilization
-    - Consider using useRef for stable references
-    - Add conditional execution guards
+    - Analysis: setTimeout fires with recreated callback reference, perpetuating the cycle
+  - [ ] **C2.3**: Add dependency stabilization **REQUIRED FOR COMPLETE FIX**
+    - Remove setTimeout chain or break feedback loop
+    - Stabilize useCallback dependencies
+    - Consolidate duplicate milestone checking logic (duplicate useEffect on line ~72-100)
+  - **RESULT**: Root cause fully identified - requires architectural changes to break feedback loops
 
 ### 🚨 HIGH PRIORITY - Database & Network Errors
 
@@ -136,10 +139,13 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 ### 🧪 VALIDATION & TESTING CHECKLIST
 
 - [ ] **V1: Crash Fix Validation**
-  - [ ] **V1.1**: Remove diagnostic logs after fix is confirmed
-  - [ ] **V1.2**: Test Adventure page interaction without crashes
-  - [ ] **V1.3**: Verify no "Maximum update depth exceeded" errors
-  - [ ] **V1.4**: Confirm modal open/close cycles work properly
+  - [x] **V1.1**: Add diagnostic logs to validate infinite loop theory ✅ 2025-06-16 19:30
+    - Added comprehensive logging to both `game-store.ts` and `Adventure.tsx`
+    - Confirmed exact infinite loop pattern: Set recreation → callback recreation → setTimeout chain
+  - [ ] **V1.2**: Test Adventure page interaction without crashes **FAILS - Still crashes**
+  - [ ] **V1.3**: Verify no "Maximum update depth exceeded" errors **FAILS - Error persists**
+  - [ ] **V1.4**: Confirm modal open/close cycles work properly **FAILS - Triggers infinite loop**
+  - **STATUS**: Diagnostic phase complete, but full fix still required
 
 - [ ] **V2: Database Operation Testing**
   - [ ] **V2.1**: Test game state saving/loading
@@ -154,12 +160,23 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 📊 CRASH FIX PRIORITY ORDER
 
-1. **IMMEDIATE (30 min)**: Fix Set reference recreation (C1) - Stops crashes
-2. **NEXT (1 hour)**: Fix game_states 404 errors (H1) - Enables data persistence
-3. **FOLLOWING (1 hour)**: Add accessibility fixes (M1) - Improves UX
-4. **CLEANUP (30 min)**: Address warnings and future compatibility (L1, L2)
+1. **IMMEDIATE (30 min)**: ⚠️ Fix Set reference recreation (C1) - PARTIAL ✅ Implemented but insufficient
+2. **URGENT (1-2 hours)**: Complete useCallback dependency chain fix (C2) - **REQUIRED TO STOP CRASHES**
+3. **NEXT (1 hour)**: Fix game_states 404 errors (H1) - Enables data persistence
+4. **FOLLOWING (1 hour)**: Add accessibility fixes (M1) - Improves UX
+5. **CLEANUP (30 min)**: Address warnings and future compatibility (L1, L2)
 
-**ESTIMATED TOTAL TIME**: 3 hours to resolve all crash-related issues
+**ESTIMATED TOTAL TIME**: 4-5 hours to resolve all crash-related issues (increased due to complexity)
+
+### 🔍 CRASH FIX STATUS UPDATE (2025-06-16 19:30 UTC+3)
+
+**WORK COMPLETED TODAY:**
+- ✅ Added comprehensive diagnostic logging to validate infinite loop theory
+- ✅ Implemented partial Set reference stability fix in `updateMilestone` and `markMilestoneJournalShown`
+- ✅ Confirmed multi-part feedback loop: Set recreation + setTimeout chain + modal dependencies
+
+**CURRENT STATUS:** Crash persists - partial fix insufficient
+**NEXT REQUIRED:** Complete architectural fix of useCallback dependency chain and setTimeout feedback loop
 
 ---
 

@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import { createLogger, performanceMonitor, environment, type Environment } from '@/lib/environment';
+import { createLogger, /* performanceMonitor, */ environment, type Environment } from '@/lib/environment';
+// TEMPORARILY COMMENTED OUT FOR BUILD: performanceMonitor import temporarily commented to fix TS6133 build error
 
 export interface DatabaseHealthStatus {
   isConnected: boolean;
