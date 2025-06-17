@@ -21,9 +21,10 @@ export const useHealthMonitoring = () => {
     
     // Cleanup function to stop monitoring when the app unmounts
     return () => {
-      stopHealthMonitoring();
+      // We don't stop monitoring here as it's handled at the store level
+      // This prevents multiple stop/start cycles
     };
-  }, [startHealthMonitoring, stopHealthMonitoring]);
+  }, []); // Empty deps to run only once on mount
 
   // Return the health check function in case components need to trigger manual checks
   return {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useGameStore } from '@/store/game-store';
 import { getConnectionStatusIndicator, formatResponseTime } from '@/lib/database-health';
 import { Badge } from '@/components/ui/badge';
@@ -16,24 +16,16 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
   showDetails = false,
   className = '' 
 }) => {
-  const { healthStatus, performHealthCheck, startHealthMonitoring } = useGameStore();
+  const { healthStatus, performHealthCheck } = useGameStore();
   
-  // Auto-start health monitoring when component mounts
-  useEffect(() => {
-    startHealthMonitoring();
-    
-    // Cleanup on unmount
-    return () => {
-      // Note: We don't stop monitoring on unmount because other components might need it
-      // The monitoring will be cleaned up when the store is destroyed
-    };
-  }, [startHealthMonitoring]);
+  // Note: Health monitoring is started at the app level in App.tsx
+  // This component only displays the status
 
   const indicator = getConnectionStatusIndicator(healthStatus);
   
   if (compact) {
     return (
-      <TooltipProvider>
+      <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger>
             <div className={`flex items-center gap-2 ${className}`}>

@@ -32,10 +32,10 @@ export const performHealthCheck = async (timeoutMs?: number): Promise<DatabaseHe
     logger.debug('Starting basic health check', { timeout: effectiveTimeout });
     
     // Use a simple, lightweight query that should work in all environments
+    // Using count instead of select to avoid issues with empty tables
     const healthCheckQuery = supabase
       .from('game_states')
-      .select('user_id')
-      .limit(1);
+      .select('*', { count: 'exact', head: true });
     
     // Create a timeout promise
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -114,9 +114,8 @@ export const performEnhancedHealthCheck = async (): Promise<DatabaseHealthCheckR
         // Try to access user-specific data
         const { error: userDataError } = await supabase
           .from('game_states')
-          .select('user_id')
-          .eq('user_id', session.session.user.id)
-          .limit(1);
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', session.session.user.id);
         
         if (userDataError && userDataError.code !== 'PGRST116') {
           throw new Error(`User data access failed: ${userDataError.message}`);

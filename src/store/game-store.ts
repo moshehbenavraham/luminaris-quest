@@ -175,8 +175,11 @@ export interface GameState {
   startHealthMonitoring: () => void;
   stopHealthMonitoring: () => void;
   
+  // Internal state (not persisted)
   _hasHydrated: boolean;
   _setHasHydrated: (hasHydrated: boolean) => void;
+  _healthCheckInterval?: NodeJS.Timeout;
+  _isHealthMonitoringActive: boolean;
 }
 
 const initialMilestones: Milestone[] = [
@@ -213,6 +216,7 @@ const useGameStoreBase = create<GameState>()(
       },
       
       _hasHydrated: false,
+      _isHealthMonitoringActive: false,
 
       // Actions
       setGuardianTrust: (trust: number) => {
@@ -694,12 +698,15 @@ const useGameStoreBase = create<GameState>()(
         const state = get();
         
         // Don't start monitoring if already running
-        if ((state as any)._healthCheckInterval) {
+        if (state._isHealthMonitoringActive || state._healthCheckInterval) {
           logger.debug('Health monitoring already running');
           return;
         }
         
         logger.info('Starting database health monitoring');
+        
+        // Mark as active immediately to prevent race conditions
+        set({ _isHealthMonitoringActive: true });
         
         // Perform initial health check
         get().performHealthCheck();
@@ -717,17 +724,20 @@ const useGameStoreBase = create<GameState>()(
           currentState.performHealthCheck();
         }, 45000); // 45 seconds
         
-        // Store interval reference (we'll need to extend the type to include this)
-        (get() as any)._healthCheckInterval = interval;
+        // Store interval reference
+        set({ _healthCheckInterval: interval });
       },
 
       stopHealthMonitoring: () => {
-        const state = get() as any;
+        const state = get();
         
         if (state._healthCheckInterval) {
           logger.info('Stopping database health monitoring');
           clearInterval(state._healthCheckInterval);
-          delete state._healthCheckInterval;
+          set({ 
+            _healthCheckInterval: undefined,
+            _isHealthMonitoringActive: false 
+          });
         }
       },
     }),

@@ -123,7 +123,7 @@ export const useDatabaseHealth = (options: {
         setIsChecking(false);
       }
     }
-  }, [isChecking, healthStatus.isConnected, onHealthChange, onError]);
+  }, [onHealthChange, onError]);
 
   /**
    * Start periodic health monitoring
@@ -162,7 +162,7 @@ export const useDatabaseHealth = (options: {
       }
     }, effectiveInterval);
 
-  }, [checkHealth, effectiveInterval, config.name]);
+  }, [effectiveInterval, config.name]); // checkHealth is stable but included in deps causes issues
 
   /**
    * Stop periodic health monitoring
@@ -184,9 +184,12 @@ export const useDatabaseHealth = (options: {
 
     return () => {
       mountedRef.current = false;
-      stopMonitoring();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
-  }, [enableAutoMonitoring, startMonitoring, stopMonitoring]);
+  }, [enableAutoMonitoring, startMonitoring]); // Include startMonitoring to ensure proper initialization
 
   // Cleanup on unmount
   useEffect(() => {
