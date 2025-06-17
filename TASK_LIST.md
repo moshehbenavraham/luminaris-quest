@@ -116,7 +116,7 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 - [x] **H1: Fix game_states Endpoint 404 Errors** ✅ SOLUTION PROVIDED 2025-06-17 14:00
   - [x] **H1.1**: Created production migration guide ✅
-    - Created `PRODUCTION_MIGRATION.sql` with complete database schema
+    - Created `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` with complete database schema
     - Created `PRODUCTION_DEPLOYMENT.md` with step-by-step instructions
     - Tables need to be created in production Supabase instance
   - [x] **H1.2**: Updated API configuration to use environment variables ✅
@@ -251,7 +251,7 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
   - [x] Added post-deployment verification checklist
 
 - [x] **P3: Prepare Database Migration** ✅ COMPLETED 2025-06-17 14:00
-  - [x] Created `PRODUCTION_MIGRATION.sql` for easy execution
+  - [x] Created `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` for easy execution
   - [x] Included all tables, policies, and indexes
   - [x] Added verification queries
 

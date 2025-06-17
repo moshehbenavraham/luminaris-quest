@@ -104,42 +104,82 @@ The app follows a component-based architecture with recent improvements:
 
 ## 📚 Documentation & Platform Integration
 
-WHile being primarily developed on Bolt.new, this project integrates multiple AI development platforms and tools.  We try to maintain comprehensive documentation covering all aspects of development, architecture, and deployment.
+While being primarily developed on Bolt.new, this project integrates multiple AI development platforms and tools. We maintain comprehensive documentation covering all aspects of development, architecture, and deployment.
 
-#### 📋 **Core Documentation**
-- **[README.md](README.md)** - Project overview and getting started guide
-- **[FAQ](docs/FAQ.md)** - Frequently asked questions and setup guidance
-- **[Contributing](CONTRIBUTING.md)** - Development guidelines and standards
-- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community guidelines
-- **[Changelog](CHANGELOG.md)** - Version history and notable changes
+### 📋 **Core Project Documentation**
+- **[README.md](README.md)** - Project overview, getting started guide, and feature documentation
+- **[FAQ.md](docs/FAQ.md)** - Frequently asked questions, troubleshooting, and setup guidance
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development guidelines, coding standards, and contribution workflows
+- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community guidelines and behavioral expectations
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history, notable changes, and release notes
 
-#### 🏗️ **Architecture & Development**
-- **[Component Map](docs/COMPONENT_MAP.md)** - Architecture overview and build priorities
-- **[Database Schema](docs/DATABASE_SCHEMA.md)** - Database table structures and relationships
-- **[Environment Architecture](docs/ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup and deployment strategy
+### 🏗️ **Architecture & Technical Documentation**
+- **[COMPONENT_MAP.md](docs/COMPONENT_MAP.md)** - Architecture overview, component relationships, and build priorities
+- **[DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)** - Database table structures, relationships, and RLS policies
+- **[ENVIRONMENT_ARCHITECTURE.md](docs/ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup and deployment strategy
+- **[TASK_LIST.md](TASK_LIST.md)** - Comprehensive development roadmap and project management
 
-#### 🤖 **AI Development Platform Integration**
-- **[Code Generation Rules](.bolt/prompt)** - Bolt.new guidance and build standards
-- **[Claude Code Guidelines](CLAUDE.md)** - Claude Code's development guidance
-  - `.claude/settings.local.json` - Settings for Claude Code
-- **[Cursor IDE Integration](.cursor/rules/)** - Component and layout guidelines
-  - `layout-integration.mdc` - Layout integration standards
-  - `project-context.mdc` - Project context rules
+### 🚀 **Deployment & Operations**
+- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Step-by-step production deployment guide for Bolt.new
+- **[docs/migrations/](docs/migrations/)** - Database migration files and execution history
+  - `PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` - Production database schema
+- **[netlify.toml](netlify.toml)** - Netlify deployment configuration
+
+### 🧪 **Testing & Quality Assurance**
+- **[MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md)** - Browser testing procedures and validation checklists
+- **[MILESTONE_FIX_SUMMARY.md](MILESTONE_FIX_SUMMARY.md)** - Critical bug fix documentation and lessons learned
+
+### 🤖 **AI Development Platform Integration**
+
+#### Bolt.new Integration
+- **[.bolt/prompt](.bolt/prompt)** - Comprehensive code generation rules and build standards
+- **[.bolt/](.bolt/)** - Bolt.new project configuration and settings
+
+#### Claude Code Integration  
+- **[CLAUDE.md](CLAUDE.md)** - Claude Code development guidance and project context
+- **[CLAUDE.local.md](CLAUDE.local.md)** - Local Claude Code notes and configurations
+- **[.claude/settings.local.json](.claude/settings.local.json)** - Claude Code IDE settings and preferences
+
+#### Cursor IDE Integration
+- **[.cursor/rules/](.cursor/rules/)** - Cursor IDE component and layout guidelines
+  - `layout-integration.mdc` - Layout integration standards and best practices
+  - `project-context.mdc` - Project context rules and conventions
   - `sidebar-navigation.mdc` - Navigation component guidelines
-- **[Roo Code Orchestration](.roomodes)** - Multi-agent workflow configurations
+- **[.cursorignore](.cursorignore)** - Files excluded from Cursor context
 
-#### ⚖️ **Legal & Licensing**
-- **[License](LICENSE)** - MIT License for code
-- **[Third-Party Licenses](licenses/)** - OGL/ORC and dependency attributions
-  - `OGL.txt` - Open Game License
+#### Multi-Agent Orchestration
+- **[.roomodes](.roomodes)** - Roo Code multi-agent workflow configurations and task orchestration
+
+### ⚖️ **Legal & Licensing Documentation**
+- **[LICENSE](LICENSE)** - MIT License for codebase
+- **[licenses/](licenses/)** - Comprehensive licensing documentation
+  - `OGL.txt` - Open Game License for RPG content
   - `third-party.md` - External dependencies and attributions
 
-#### ⚙️ **Configuration Standards**
-- **[ESLint Config](eslint.config.js)** - Code quality and linting rules
-- **[TypeScript Config](tsconfig.json)** - TypeScript compilation settings
-- **[Prettier Config](.prettierrc)** - Code formatting standards
-- **[Tailwind Config](tailwind.config.ts)** - Styling configuration
-- **[Shadcn/UI Config](components.json)** - Component library configuration
+### ⚙️ **Configuration & Standards**
+
+#### Code Quality & Formatting
+- **[eslint.config.js](eslint.config.js)** - ESLint rules and code quality standards
+- **[.prettierrc](.prettierrc)** - Prettier code formatting configuration
+- **[.prettierignore](.prettierignore)** - Files excluded from Prettier formatting
+
+#### TypeScript Configuration
+- **[tsconfig.json](tsconfig.json)** - Main TypeScript configuration
+- **[tsconfig.app.json](tsconfig.app.json)** - Application-specific TypeScript settings
+- **[tsconfig.node.json](tsconfig.node.json)** - Node.js TypeScript configuration
+
+#### Build & Styling
+- **[vite.config.ts](vite.config.ts)** - Vite build tool configuration
+- **[tailwind.config.ts](tailwind.config.ts)** - Tailwind CSS styling configuration
+- **[postcss.config.js](postcss.config.js)** - PostCSS processing configuration
+- **[components.json](components.json)** - Shadcn/UI component library configuration
+
+#### Package Management
+- **[package.json](package.json)** - Dependencies, scripts, and project metadata
+
+### 📊 **Documentation Organization**
+
+The documentation follows a hierarchical structure:
 
 ## 🎯 Why Bolt.new?
 

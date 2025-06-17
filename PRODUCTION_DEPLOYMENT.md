@@ -14,6 +14,8 @@ Run this SQL in your production Supabase SQL editor:
 
 ```sql
 -- Copy the entire contents of:
+-- docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql
+-- OR use the original migration file:
 -- supabase/migrations/20250615182947_initial_game_database_schema.sql
 ```
 

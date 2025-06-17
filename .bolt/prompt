@@ -17,10 +17,14 @@ DEPLOY_TARGET          = Netlify
 FILE_STRUCTURE_ROOT    = src/
   • src/pages/         = route entry points (Home, Adventure, Progress, Profile, Legal)
   • src/components/    = atomic UI pieces (including JournalEntryCard with CRUD)
-  • src/hooks/         = reusable logic
-  • src/services/      = API wrappers & helpers
-  • src/store/         = Zustand state management
+    • src/components/layout/ = Layout components (Navbar, Sidebar, Footer, Layout)
+    • src/components/ui/    = Shadcn/UI base components
+    • src/components/auth/  = Authentication components (AuthForm, ProtectedRoute)
+  • src/hooks/         = reusable logic (use-toast, use-mobile, use-database-health, etc.)
+  • src/lib/           = utilities and providers (supabase client, environment config)
+  • src/store/         = Zustand state management (game-store with health monitoring)
   • src/engine/        = game logic and scene engine
+  • src/integrations/  = external service integrations (Supabase types and client)
 ENV_PLACEHOLDERS_FILE  = .env.example
 
 ## 1. Scope & Safety Rules  (highest priority)
@@ -84,8 +88,12 @@ ENV_PLACEHOLDERS_FILE  = .env.example
   - ✅ Journal system enhanced with full CRUD operations
   - ✅ TypeScript compilation errors resolved
   - ✅ Code quality improvements with ESLint and Prettier
+  - ✅ Database schema implemented with migrations
+  - ✅ Health monitoring system integrated
+  - ✅ Production deployment documentation created
 • Follow component priority in docs/COMPONENT_MAP.md for new features
-• Track current focus through GitHub Issues/PRs and CHANGELOG.md
+• Track current focus through TASK_LIST.md, GitHub Issues/PRs and CHANGELOG.md
+• Reference PRODUCTION_DEPLOYMENT.md for deployment procedures
 
 ## 4. Prompt Format Expectations
 • The incoming prompt must follow the SPECS-E pattern  
@@ -108,12 +116,13 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 
 ## 6. Environment & API Requirements
 • Required environment variables (reference .env.example):
-  - VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
-  - VITE_OPENAI_API_KEY, VITE_LEONARDO_API_KEY, VITE_ELEVENLABS_API_KEY (planned)
-• Read runtime secrets exclusively from `process.env.*`; never hard-code keys.  
-• If a required env var is missing, leave a TODO and reference `.env.example`.  
+  - VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (REQUIRED)
+  - VITE_OPENAI_API_KEY (REQUIRED for narrative generation)
+  - VITE_LEONARDO_API_KEY, VITE_ELEVENLABS_API_KEY (OPTIONAL - planned features)
+• Read runtime secrets exclusively from `import.meta.env.*` in Vite projects; never hard-code keys.  
+• If a required env var is missing, validate and show error (see src/lib/supabase.ts for pattern).
 • Do not alter `.env.example` unless the prompt specifies new placeholders.
-• Use proper error handling for missing env vars.
+• Use proper error handling for missing env vars with clear user messages.
 
 ## 7. Narrative & IP Constraints
 • Respect established lore: protagonist **Luminari** journeys through **Lumina**,
@@ -142,26 +151,100 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 ### 9.1 Document Library
 While this project is primarily built using the 'Bolt.new' platform, it also integrates multiple other development platforms and tools. For documentation and comprehensive development guidelines:
 
-- **README.md**
-- **Cursor IDE Integration:** .cursorignore for files that Cursor should not include in context.
-  Reference `.cursor/` for Cursor IDE component and layout guidelines
-    - *Note not a document, but part of Cursor config for background agents: environment.json
-    - `.cursor/rules/`
-      - layout-integration.mdc
-      - project-context.mdc
-      - sidebar-navigation.mdc
-- **Claude Code - Agentic AI Coder:** See `CLAUDE.md` for Claude Code's guidance
-  `.claude/settings.local.json` - Settings for Claude Code
-- **Roo Code Orchestration Modes:** `.roomodes` defines per-project AI task orchestration settings for Roo Code and Cursor. It enables custom multi-agent workflows (e.g., Boomerang Mode) to be scoped and run only within this project.
-- **Component Roadmap:** Check `docs/COMPONENT_MAP.md` for build priorities and component relationships
-- **Change Log:** CHANGELOG.md - document all notable changes to Luminari's Quest
-- **Contributing Guidelines:** See `CONTRIBUTING.md` for code quality, testing, and commit standards
-- **Legal Compliance:** Reference `LICENSE` and `licenses/` directory for OGL/ORC licensing requirements
-- **Configuration Standards:** Follow `eslint.config.js`, `.prettierrc`, and `tsconfig.*.json` for code quality
-- **[Environment Architecture](docs/ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup and deployment strategy
-- **OTHER Documentation:**:
-  - CODE_OF_CONDUCT.md
-  - FAQ.md
+#### 📋 Core Project Documentation
+- **README.md** - Project overview, getting started guide, and feature documentation
+- **FAQ.md** (docs/) - Frequently asked questions, troubleshooting, and setup guidance
+- **CONTRIBUTING.md** - Development guidelines, coding standards, and contribution workflows
+- **CODE_OF_CONDUCT.md** - Community guidelines and behavioral expectations
+- **CHANGELOG.md** - Version history, notable changes, and release notes
+
+#### 🏗️ Architecture & Technical Documentation
+- **COMPONENT_MAP.md** (docs/) - Architecture overview, component relationships, and build priorities
+- **DATABASE_SCHEMA.md** (docs/) - Database table structures, relationships, and RLS policies
+- **ENVIRONMENT_ARCHITECTURE.md** (docs/) - Multi-environment setup and deployment strategy
+- **TASK_LIST.md** - Comprehensive development roadmap and project management
+
+#### 🚀 Deployment & Operations
+- **PRODUCTION_DEPLOYMENT.md** - Step-by-step production deployment guide for Bolt.new
+- **docs/migrations/** - Database migration files and execution history
+  - PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql - Production database schema
+- **netlify.toml** - Netlify deployment configuration
+
+#### 🧪 Testing & Quality Assurance
+- **MANUAL_TESTING_GUIDE.md** - Browser testing procedures and validation checklists
+- **MILESTONE_FIX_SUMMARY.md** - Critical bug fix documentation and lessons learned
+
+#### 🤖 AI Development Platform Integration
+
+##### Bolt.new Integration
+- **.bolt/prompt** - Comprehensive code generation rules and build standards (THIS FILE)
+- **.bolt/** - Bolt.new project configuration and settings
+
+##### Claude Code Integration
+- **CLAUDE.md** - Claude Code development guidance and project context
+- **CLAUDE.local.md** - Local Claude Code notes and configurations
+- **.claude/settings.local.json** - Claude Code IDE settings and preferences
+
+##### Cursor IDE Integration
+- **.cursor/rules/** - Cursor IDE component and layout guidelines
+  - layout-integration.mdc - Layout integration standards and best practices
+  - project-context.mdc - Project context rules and conventions
+  - sidebar-navigation.mdc - Navigation component guidelines
+- **.cursorignore** - Files excluded from Cursor context
+
+##### Multi-Agent Orchestration
+- **.roomodes** - Roo Code multi-agent workflow configurations and task orchestration
+
+#### ⚖️ Legal & Licensing Documentation
+- **LICENSE** - MIT License for codebase
+- **licenses/** - Comprehensive licensing documentation
+  - OGL.txt - Open Game License for RPG content
+  - third-party.md - External dependencies and attributions
+
+#### ⚙️ Configuration & Standards
+
+##### Code Quality & Formatting
+- **eslint.config.js** - ESLint rules and code quality standards
+- **.prettierrc** - Prettier code formatting configuration
+- **.prettierignore** - Files excluded from Prettier formatting
+
+##### TypeScript Configuration
+- **tsconfig.json** - Main TypeScript configuration
+- **tsconfig.app.json** - Application-specific TypeScript settings
+- **tsconfig.node.json** - Node.js TypeScript configuration
+
+##### Build & Styling
+- **vite.config.ts** - Vite build tool configuration
+- **tailwind.config.ts** - Tailwind CSS styling configuration
+- **postcss.config.js** - PostCSS processing configuration
+- **components.json** - Shadcn/UI component library configuration
+
+##### Package Management
+- **package.json** - Dependencies, scripts, and project metadata
+
+#### 📊 Documentation Organization Structure
+```
+📁 Root Level (Quick Access)
+├── README.md (Project overview)
+├── CONTRIBUTING.md (Development guide)
+├── CHANGELOG.md (Version history)
+├── PRODUCTION_DEPLOYMENT.md (Deployment)
+├── TASK_LIST.md (Project management)
+└── MANUAL_TESTING_GUIDE.md (QA procedures)
+
+📁 docs/ (Detailed Documentation)
+├── FAQ.md (User guidance)
+├── COMPONENT_MAP.md (Architecture)
+├── DATABASE_SCHEMA.md (Database design)
+├── ENVIRONMENT_ARCHITECTURE.md (Infrastructure)
+└── migrations/ (Database migrations)
+
+📁 Platform Integration
+├── .bolt/ (Bolt.new configuration)
+├── .claude/ (Claude Code settings)
+├── .cursor/ (Cursor IDE rules)
+└── licenses/ (Legal documentation)
+```
 
 ## 10. Output Etiquette
 • Respond with **code blocks only** when generating files. No extra commentary.  
@@ -187,7 +270,7 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
 • ❌ Breaking existing functionality while adding new features
 • ❌ Deploying code that doesn't compile or has TypeScript errors
 
-## 13. Current Project Status
+## 13. Current Project Status (Updated: June 17th 2025)
 • ✅ Page components properly extracted to src/pages/
 • ✅ Journal system enhanced with JournalEntryCard CRUD functionality
 • ✅ TypeScript compilation errors resolved
@@ -195,8 +278,29 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
 • ✅ Prettier formatting applied consistently
 • ✅ Component prop interfaces properly typed
 • ✅ Zustand store with hydration safety implemented
-• 🚧 Supabase journal persistence (planned)
+• ✅ Database schema created and migrated (game_states, journal_entries tables)
+• ✅ TypeScript types generated from Supabase schema
+• ✅ Row Level Security (RLS) policies implemented (8 policies)
+• ✅ Database health monitoring system implemented
+• ✅ Infinite loop issues in JournalModal resolved
+• ✅ Production deployment guide created with migration scripts
+• ✅ Environment variable configuration using VITE_ prefix
+• 🚧 Supabase journal persistence (database ready, integration pending)
 • 🚧 AI integrations (OpenAI, Leonardo.AI, ElevenLabs) (planned)
+
+## 14. Recent Critical Fixes & Lessons Learned
+• ✅ **Infinite Loop Fix in JournalModal** (see MILESTONE_FIX_SUMMARY.md)
+  - Always include ALL dependencies in useEffect arrays
+  - Use state guards (like `savedForThisOpen`) for one-time effects
+  - Keep modal logic simple - avoid complex state management
+• ✅ **Health Monitoring Architecture**
+  - Centralized monitoring in game store, not in UI components
+  - Use flags to prevent multiple monitoring instances
+  - Pause monitoring when browser tab is inactive
+• ✅ **Database Migration Strategy**
+  - Migration files moved to docs/migrations/ after execution
+  - Always include verification queries in migration scripts
+  - Document rollback procedures for each environment
 
 # ────────────────────────────────────────────────────────────
 #  End of .bolt/prompt

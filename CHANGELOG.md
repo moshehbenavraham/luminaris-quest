@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Database 404 Errors Solution (2025-06-17)** - Resolved missing tables issue
   - Root cause: Database tables not created in Supabase instance
   - Solution: Created migration guides and SQL files for production deployment
-  - `PRODUCTION_MIGRATION.sql` contains complete schema ready to execute
+  - `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` contains complete schema ready to execute
   - Once migration is run, all 404 errors will be resolved
 
 - **Infinite Loop Resolution (2025-06-17)** - Critical fixes for React "Maximum update depth exceeded" crash
@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Production Deployment Preparation (2025-06-17)** - Ready for bolt.new deployment
   - Created `PRODUCTION_DEPLOYMENT.md` with comprehensive deployment guide
-  - Created `PRODUCTION_MIGRATION.sql` for easy database setup
+  - Created `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` for easy database setup
   - Updated `src/lib/supabase.ts` to use environment variables instead of hardcoded credentials
   - Enhanced `.env.example` with production configuration guidance
   - Added validation for missing environment variables
