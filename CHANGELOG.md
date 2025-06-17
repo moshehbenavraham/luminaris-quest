@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Infinite Loop Resolution (2025-06-17)** - Critical fixes for React "Maximum update depth exceeded" crash
-  - **Root Cause**: Multiple health monitoring instances and unstable React hook dependencies
+  - **JournalModal Fix (Final Solution)**: Fixed useEffect infinite loop in JournalModal component
+    - Added `savedForThisOpen` state to prevent multiple saves per modal open
+    - Properly included all dependencies in useEffect hook
+    - Reset save state on modal close for proper reuse
+    - This was the actual cause of the "Duplicate milestone journal entry prevented" spam
   - **HealthStatus Component Fix**: Removed `startHealthMonitoring()` call from useEffect to prevent duplicate instances
   - **Game Store Improvements**: 
     - Added `_isHealthMonitoringActive` flag for proper state tracking
@@ -21,12 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Performance Optimizations**:
     - Updated health check queries to use `head: true` for minimal data transfer
     - Reduced unnecessary database calls during health monitoring
-  - **Previous Fixes Applied**:
+  - **Previous Attempted Fixes**:
     - Removed setTimeout chains in modal handlers
     - Stabilized useCallback dependencies with ref pattern
-    - Added circuit breaker and throttling protection
+    - Added circuit breaker and throttling protection (removed as unnecessary)
     - Implemented performance monitoring
-  - **Status**: ✅ RESOLVED - All infinite loop issues fixed, application stable
+  - **Status**: ✅ FULLY RESOLVED - JournalModal no longer triggers infinite save loops
 
 ### Debugging & Analysis
 - **Root Cause Identification** - Traced infinite re-render loop to multiple interconnected sources

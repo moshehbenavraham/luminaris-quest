@@ -97,6 +97,18 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
     - Improved performance of health check operations
   - **RESULT**: Health monitoring properly centralized, infinite loop completely resolved
 
+- [x] **C4: Fix JournalModal useEffect Infinite Loop** ✅ COMPLETED 2025-06-17 13:30
+  - [x] **C4.1**: Identify missing dependencies in JournalModal useEffect ✅
+    - Issue: useEffect only had [isOpen] dependency, missing other variables it used
+    - This caused React to not properly track when to re-run the effect
+  - [x] **C4.2**: Add save guard to prevent multiple saves per modal open ✅
+    - Added `savedForThisOpen` state to track if entry already saved
+    - Prevents re-saving on every re-render while modal is open
+  - [x] **C4.3**: Reset save state when modal closes ✅
+    - Ensures next modal open will save properly
+    - Clean state management for repeated use
+  - **RESULT**: JournalModal no longer triggers infinite save loops
+
 ### 🚨 HIGH PRIORITY - Database & Network Errors
 
 **Status:** ACTIVE ERRORS - 404 responses causing repeated failures
@@ -191,7 +203,7 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 **ESTIMATED TOTAL TIME**: 4-5 hours to resolve all crash-related issues (increased due to complexity)
 
-### 🔍 CRASH FIX STATUS UPDATE (2025-06-17 09:30 UTC+3)
+### 🔍 CRASH FIX STATUS UPDATE (2025-06-17 13:30 UTC+3)
 
 **WORK COMPLETED:**
 - ✅ Added comprehensive diagnostic logging to validate infinite loop theory
@@ -202,18 +214,23 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 - ✅ **Phase 3**: Consolidated duplicate milestone checking logic
 - ✅ **Phase 4**: Added circuit breaker and throttling protection
 - ✅ **Phase 5**: Added performance monitoring and state transition logging
-- ✅ **Phase 6**: Fixed health monitoring multiple instance issue (2025-06-17)
+- ✅ **Phase 6**: Fixed health monitoring multiple instance issue (2025-06-17 09:30)
   - Removed health monitoring from HealthStatus component
   - Added proper state tracking with `_isHealthMonitoringActive` flag
   - Fixed React hook dependencies to prevent infinite re-renders
   - Optimized health check queries for better performance
+- ✅ **Phase 7**: Fixed JournalModal useEffect infinite loop (2025-06-17 13:30)
+  - Added `savedForThisOpen` guard to prevent multiple saves
+  - Properly included all dependencies in useEffect
+  - Reset save state on modal close for proper reuse
 
-**CURRENT STATUS:** ✅ RESOLVED - All infinite loop issues fixed
+**CURRENT STATUS:** ✅ FULLY RESOLVED - All infinite loop issues fixed
 **ROOT CAUSES IDENTIFIED AND FIXED:**
-1. Multiple health monitoring instances running concurrently
-2. Unstable React hook dependencies in health monitoring hooks
-3. Set reference recreation in game store methods
-4. setTimeout chain in modal close handlers
+1. JournalModal useEffect missing dependencies and save guard
+2. Multiple health monitoring instances running concurrently
+3. Unstable React hook dependencies in health monitoring hooks
+4. Set reference recreation in game store methods
+5. setTimeout chain in modal close handlers
 
 ---
 
