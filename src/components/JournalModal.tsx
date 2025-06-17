@@ -75,36 +75,34 @@ export function JournalModal({
   onSaveEntry,
 }: JournalModalProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [hasBeenSaved, setHasBeenSaved] = useState(false);
+  const [savedForThisOpen, setSavedForThisOpen] = useState(false);
   const journalContent = getJournalContent(trustLevel, triggerType);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !savedForThisOpen) {
       setIsVisible(true);
-
-      // Only auto-save once per modal opening
-      if (!hasBeenSaved) {
-        const entry: JournalEntry = {
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          type: triggerType,
-          trustLevel,
-          content: journalContent.content,
-          timestamp: new Date(),
-          title: journalContent.title,
-        };
-
-        onSaveEntry(entry);
-        setHasBeenSaved(true);
-      }
-    } else {
-      // Reset saved state when modal closes
-      setHasBeenSaved(false);
+      setSavedForThisOpen(true);
+      
+      // Save the journal entry when modal opens
+      const entry: JournalEntry = {
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: triggerType,
+        trustLevel,
+        content: journalContent.content,
+        timestamp: new Date(),
+        title: journalContent.title,
+      };
+      
+      onSaveEntry(entry);
+    } else if (!isOpen && savedForThisOpen) {
+      // Reset for next open
+      setSavedForThisOpen(false);
     }
-  }, [isOpen, trustLevel, triggerType, journalContent, onSaveEntry, hasBeenSaved]);
+  }, [isOpen, savedForThisOpen, triggerType, trustLevel, journalContent.content, journalContent.title, onSaveEntry]);
 
   const handleClose = () => {
     setIsVisible(false);
-    setTimeout(onClose, 200);
+    onClose();
   };
 
   return (

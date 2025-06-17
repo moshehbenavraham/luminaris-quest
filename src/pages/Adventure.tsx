@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';
 import { JournalModal, type JournalEntry } from '@/components/JournalModal';
@@ -23,81 +23,25 @@ export function Adventure() {
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalTrigger, setJournalTrigger] = useState<'milestone' | 'learning'>('milestone');
   const [currentMilestoneLevel, setCurrentMilestoneLevel] = useState<number | null>(null);
-  const isCheckingMilestones = useRef(false);
 
   // Set isClient to true after mount
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Function to check for new milestones
-  const checkForNewMilestones = useCallback(() => {
-    console.log(`🎯 [ADVENTURE] checkForNewMilestones called`);
-    console.log(`🎯 [ADVENTURE] isCheckingMilestones.current:`, isCheckingMilestones.current);
-    console.log(`🎯 [ADVENTURE] showJournalModal:`, showJournalModal);
-    console.log(`🎯 [ADVENTURE] pendingMilestoneJournals:`, pendingMilestoneJournals);
+  // Simple milestone check when pendingMilestoneJournals changes
+  useEffect(() => {
+    if (!_hasHydrated || !isClient || showJournalModal) return;
     
-    if (isCheckingMilestones.current || showJournalModal) return;
-    
-    isCheckingMilestones.current = true;
-    
-    try {
-      if (pendingMilestoneJournals && pendingMilestoneJournals.size > 0) {
-        const pendingLevels = Array.from(pendingMilestoneJournals) as number[];
-        if (pendingLevels.length > 0) {
-          const levelToShow = pendingLevels[0];
-          setCurrentMilestoneLevel(levelToShow);
-          setJournalTrigger('milestone');
-          setShowJournalModal(true);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking pending milestones:', error);
-    } finally {
-      setTimeout(() => {
-        isCheckingMilestones.current = false;
-      }, 1000);
+    if (pendingMilestoneJournals && pendingMilestoneJournals.size > 0) {
+      const pendingLevels = Array.from(pendingMilestoneJournals) as number[];
+      const levelToShow = pendingLevels[0];
+      
+      setCurrentMilestoneLevel(levelToShow);
+      setJournalTrigger('milestone');
+      setShowJournalModal(true);
     }
-  }, [showJournalModal, pendingMilestoneJournals]);
-
-  // Log when useCallback dependencies change
-  useEffect(() => {
-    console.log(`🔄 [ADVENTURE] checkForNewMilestones dependencies changed!`);
-    console.log(`🔄 [ADVENTURE] - showJournalModal:`, showJournalModal);
-    console.log(`🔄 [ADVENTURE] - pendingMilestoneJournals:`, pendingMilestoneJournals);
-    console.log(`🔄 [ADVENTURE] - pendingMilestoneJournals reference:`, pendingMilestoneJournals);
-  }, [showJournalModal, pendingMilestoneJournals]);
-
-  // Only check for milestones when trust level changes
-  useEffect(() => {
-    if (!_hasHydrated || !isClient) return;
-
-    const timeoutId = setTimeout(() => {
-      if (isCheckingMilestones.current || showJournalModal) return;
-      
-      isCheckingMilestones.current = true;
-      
-      try {
-        if (pendingMilestoneJournals && pendingMilestoneJournals.size > 0) {
-          const pendingLevels = Array.from(pendingMilestoneJournals) as number[];
-          if (pendingLevels.length > 0) {
-            const levelToShow = pendingLevels[0];
-            setCurrentMilestoneLevel(levelToShow);
-            setJournalTrigger('milestone');
-            setShowJournalModal(true);
-          }
-        }
-      } catch (error) {
-        console.error('Error checking pending milestones:', error);
-      } finally {
-        setTimeout(() => {
-          isCheckingMilestones.current = false;
-        }, 1000);
-      }
-    }, 500);
-    
-    return () => clearTimeout(timeoutId);
-  }, [guardianTrust]); // Only depend on trust level, nothing else
+  }, [pendingMilestoneJournals, _hasHydrated, isClient, showJournalModal]);
 
   const handleSaveJournalEntry = useCallback(
     (entry: JournalEntry) => {
@@ -159,14 +103,8 @@ export function Adventure() {
         <JournalModal
           isOpen={showJournalModal}
           onClose={() => {
-            console.log(`🚪 [ADVENTURE] Modal closing - setting up setTimeout`);
             setShowJournalModal(false);
             setCurrentMilestoneLevel(null);
-            // Check for more milestones after closing
-            setTimeout(() => {
-              console.log(`⏰ [ADVENTURE] setTimeout fired - calling checkForNewMilestones`);
-              checkForNewMilestones();
-            }, 100);
           }}
           trustLevel={guardianTrust}
           triggerType={journalTrigger}

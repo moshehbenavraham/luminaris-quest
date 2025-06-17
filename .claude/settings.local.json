@@ -8,7 +8,10 @@
       "Bash(npm run dev:*)",
       "Bash(npm run lint)",
       "Bash(npx eslint:*)",
-      "Bash(npm run format:*)"
+      "Bash(npm run format:*)",
+      "Bash(git reset:*)",
+      "Bash(rg:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

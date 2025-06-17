@@ -238,7 +238,6 @@ const useGameStoreBase = create<GameState>()(
               (e) => e.type === 'milestone' && e.trustLevel === entry.trustLevel,
             );
             if (existingMilestone) {
-              console.warn('Duplicate milestone journal entry prevented');
               return state;
             }
           }
@@ -251,8 +250,7 @@ const useGameStoreBase = create<GameState>()(
           };
         });
 
-        // Auto-save to Supabase after adding entry
-        get().saveToSupabase();
+        // Don't auto-save - let the app decide when to save
       },
 
       updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => {
@@ -265,8 +263,7 @@ const useGameStoreBase = create<GameState>()(
           saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
 
-        // Auto-save to Supabase after update
-        get().saveToSupabase();
+        // Don't auto-save - let the app decide when to save
       },
 
       deleteJournalEntry: (id: string) => {
@@ -275,8 +272,7 @@ const useGameStoreBase = create<GameState>()(
           saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
 
-        // Auto-save to Supabase after deletion
-        get().saveToSupabase();
+        // Don't auto-save - let the app decide when to save
       },
 
       completeScene: (scene: CompletedScene) => {
@@ -294,30 +290,47 @@ const useGameStoreBase = create<GameState>()(
       },
 
       updateMilestone: (trustLevel: number) => {
-        console.log(`🔄 [STORE] updateMilestone called for trustLevel ${trustLevel}`);
         set((state) => {
-          console.log(`🔄 [STORE] Current pendingMilestoneJournals:`, state.pendingMilestoneJournals);
-          
-          // Check if any milestones will actually be achieved
+          // Check which milestones need to be achieved
           const milestonesToAchieve = state.milestones.filter(
             (milestone) => trustLevel >= milestone.level && !milestone.achieved
           );
           
-          // If no milestones to achieve, return unchanged state to maintain reference stability
+          // If no milestones to achieve, return unchanged state
           if (milestonesToAchieve.length === 0) {
-            console.log(`🔄 [STORE] No milestones to achieve - maintaining reference stability`);
-            return {}; // No state change = same reference
+            return state; // Return same state reference - no change
           }
           
-          // Only create new Set if we're actually adding milestones
+          // Check if we actually need to add new pending journals
+          const levelsToAdd = milestonesToAchieve
+            .map(m => m.level)
+            .filter(level => !state.pendingMilestoneJournals.has(level));
+          
+          // If nothing new to add to pending journals, just update milestones
+          if (levelsToAdd.length === 0) {
+            const updatedMilestones = state.milestones.map((milestone) => {
+              if (trustLevel >= milestone.level && !milestone.achieved) {
+                return {
+                  ...milestone,
+                  achieved: true,
+                  achievedAt: Date.now(),
+                };
+              }
+              return milestone;
+            });
+            
+            return {
+              milestones: updatedMilestones,
+              saveState: { ...state.saveState, hasUnsavedChanges: true }
+            };
+          }
+          
+          // Only create new Set if we're actually adding new levels
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
-          console.log(`🔄 [STORE] Created new Set instance:`, newPendingJournals);
-          console.log(`🔄 [STORE] Set reference changed:`, newPendingJournals !== state.pendingMilestoneJournals);
+          levelsToAdd.forEach(level => newPendingJournals.add(level));
           
           const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
-              // Mark milestone as achieved and add to pending journals immutably
-              newPendingJournals.add(milestone.level);
               return {
                 ...milestone,
                 achieved: true,
@@ -327,13 +340,8 @@ const useGameStoreBase = create<GameState>()(
             return milestone;
           });
 
-          // Deduplicate milestones to prevent runaway state growth from old bugs
-          const uniqueMilestones = updatedMilestones.filter(
-            (milestone, index, self) => index === self.findIndex((m) => m.id === milestone.id),
-          );
-
           return {
-            milestones: uniqueMilestones,
+            milestones: updatedMilestones,
             pendingMilestoneJournals: newPendingJournals,
             saveState: { ...state.saveState, hasUnsavedChanges: true }
           };
@@ -341,20 +349,14 @@ const useGameStoreBase = create<GameState>()(
       },
 
       markMilestoneJournalShown: (level: number) => {
-        console.log(`✅ [STORE] markMilestoneJournalShown called for level ${level}`);
         set((state) => {
-          console.log(`✅ [STORE] Current pendingMilestoneJournals:`, state.pendingMilestoneJournals);
-          
-          // Only create new Set if the level actually exists in the pending set
+          // Only update if the level exists in the pending set
           if (!state.pendingMilestoneJournals.has(level)) {
-            console.log(`✅ [STORE] Level ${level} not in pending set - maintaining reference stability`);
-            return {}; // No state change = same reference
+            return state; // Return same state reference - no change
           }
           
-          // Only create new Set when we're actually removing something
+          // Create new Set and remove the level
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
-          console.log(`✅ [STORE] Created new Set instance:`, newPendingJournals);
-          console.log(`✅ [STORE] Set reference changed:`, newPendingJournals !== state.pendingMilestoneJournals);
           newPendingJournals.delete(level);
           return { pendingMilestoneJournals: newPendingJournals };
         });

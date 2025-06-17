@@ -7,7 +7,7 @@ import { useGameStore } from '@/store/game-store';
  * starts when the application initializes
  */
 export const useHealthMonitoring = () => {
-  const { startHealthMonitoring, stopHealthMonitoring, performHealthCheck } = useGameStore();
+  const { startHealthMonitoring, performHealthCheck } = useGameStore();
   const initialized = useRef(false);
 
   useEffect(() => {
