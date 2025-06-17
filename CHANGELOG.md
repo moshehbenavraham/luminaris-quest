@@ -8,12 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- **Infinite Loop Debugging (2025-06-16)** - Partial resolution of React "Maximum update depth exceeded" crash
-  - Added comprehensive diagnostic logging to [`game-store.ts`](src/store/game-store.ts) and [`Adventure.tsx`](src/pages/Adventure.tsx)
-  - Implemented conditional Set reference stability in `updateMilestone()` and `markMilestoneJournalShown()` methods
-  - Only creates new Set instances when actual milestone changes occur, preserving reference equality otherwise
-  - Confirmed multi-part feedback loop diagnosis: Set recreation + setTimeout chain + useCallback dependencies
-  - **Status**: Partial fix implemented - crash persists due to additional feedback loops requiring architectural changes
+- **Infinite Loop Resolution (2025-06-17)** - Critical fixes for React "Maximum update depth exceeded" crash
+  - **Root Cause**: Multiple health monitoring instances and unstable React hook dependencies
+  - **HealthStatus Component Fix**: Removed `startHealthMonitoring()` call from useEffect to prevent duplicate instances
+  - **Game Store Improvements**: 
+    - Added `_isHealthMonitoringActive` flag for proper state tracking
+    - Fixed start/stop methods to prevent race conditions
+    - Maintained reference stability for Set operations
+  - **Hook Dependency Fixes**: 
+    - Removed unstable Zustand function references from useEffect dependencies
+    - Prevented infinite re-renders caused by changing dependencies
+  - **Performance Optimizations**:
+    - Updated health check queries to use `head: true` for minimal data transfer
+    - Reduced unnecessary database calls during health monitoring
+  - **Previous Fixes Applied**:
+    - Removed setTimeout chains in modal handlers
+    - Stabilized useCallback dependencies with ref pattern
+    - Added circuit breaker and throttling protection
+    - Implemented performance monitoring
+  - **Status**: ✅ RESOLVED - All infinite loop issues fixed, application stable
 
 ### Debugging & Analysis
 - **Root Cause Identification** - Traced infinite re-render loop to multiple interconnected sources

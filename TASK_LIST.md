@@ -50,8 +50,8 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 🔥 CRITICAL - Infinite Loop Causing Application Crashes
 
-**Status:** PARTIALLY FIXED - Partial Set stability implemented, but crash persists
-**Root Cause:** Multi-part feedback loop: Set reference recreation + setTimeout chain + modal state dependencies
+**Status:** ✅ FIXED - Infinite loop resolved (2025-06-17 09:30 UTC+3)
+**Root Cause:** Multiple health monitoring instances and unstable React dependencies
 **Impact:** Application becomes unresponsive, "Maximum update depth exceeded" React error
 
 - [x] **C1: Fix Set Reference Recreation in Game Store** ⚠️ PARTIALLY COMPLETED 2025-06-16 19:30
@@ -67,18 +67,35 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
     - Added comprehensive diagnostic logging for validation
   - **RESULT**: Partial fix implemented but insufficient - crash persists due to additional feedback loops
 
-- [ ] **C2: Fix Adventure.tsx useCallback Dependency Chain** ⚠️ IDENTIFIED BUT NOT FIXED
-  - [x] **C2.1**: Review [`Adventure.tsx`](src/pages/Adventure.tsx) `checkForNewMilestones` useCallback (line ~61) ✅
+- [x] **C2: Fix Adventure.tsx useCallback Dependency Chain** ✅ COMPLETED 2025-06-16 20:30
+  - [x] **C2.1**: Review [`Adventure.tsx`](src/pages/Adventure.tsx) `checkForNewMilestones` useCallback ✅
     - Issue: Depends on `[showJournalModal, pendingMilestoneJournals]` - both can trigger recreation
     - Analysis: Even with Set stability, modal state changes still trigger callback recreation
-  - [x] **C2.2**: Review setTimeout chain in modal onClose (line ~166-169) ✅
+  - [x] **C2.2**: Remove setTimeout chain in modal onClose ✅ FIXED 2025-06-16 20:15
     - Issue: `setTimeout(checkForNewMilestones, 100)` creates infinite feedback loop
-    - Analysis: setTimeout fires with recreated callback reference, perpetuating the cycle
-  - [ ] **C2.3**: Add dependency stabilization **REQUIRED FOR COMPLETE FIX**
-    - Remove setTimeout chain or break feedback loop
-    - Stabilize useCallback dependencies
-    - Consolidate duplicate milestone checking logic (duplicate useEffect on line ~72-100)
-  - **RESULT**: Root cause fully identified - requires architectural changes to break feedback loops
+    - Fix: Removed setTimeout chain entirely - modal now closes without triggering recursive checks
+  - [x] **C2.3**: Add dependency stabilization ✅ COMPLETED 2025-06-16 20:30
+    - [x] Remove setTimeout chain ✅ Phase 1
+    - [x] Stabilize useCallback dependencies with ref pattern ✅ Phase 2
+    - [x] Consolidate duplicate milestone checking logic ✅ Phase 3
+    - [x] Add circuit breaker and throttling protection ✅ Phase 4
+    - [x] Add performance monitoring and logging ✅ Phase 5
+  - **RESULT**: All phases complete - infinite loop eliminated with multiple layers of protection
+
+- [x] **C3: Fix Health Monitoring Multiple Instance Issue** ✅ COMPLETED 2025-06-17 09:30
+  - [x] **C3.1**: Remove health monitoring from HealthStatus component ✅
+    - Issue: Multiple components starting health monitoring concurrently
+    - Fix: Removed `startHealthMonitoring()` call from HealthStatus useEffect
+  - [x] **C3.2**: Add proper state tracking in game store ✅
+    - Added `_isHealthMonitoringActive` flag to prevent duplicate instances
+    - Fixed start/stop methods to use proper state management
+  - [x] **C3.3**: Fix React hook dependencies ✅
+    - Removed unstable Zustand functions from useEffect dependencies
+    - Prevented infinite re-renders from dependency changes
+  - [x] **C3.4**: Optimize health check queries ✅
+    - Updated to use `head: true` for minimal data transfer
+    - Improved performance of health check operations
+  - **RESULT**: Health monitoring properly centralized, infinite loop completely resolved
 
 ### 🚨 HIGH PRIORITY - Database & Network Errors
 
@@ -138,14 +155,20 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 🧪 VALIDATION & TESTING CHECKLIST
 
-- [ ] **V1: Crash Fix Validation**
+- [x] **V1: Crash Fix Validation** ✅ COMPLETED 2025-06-17 09:30
   - [x] **V1.1**: Add diagnostic logs to validate infinite loop theory ✅ 2025-06-16 19:30
     - Added comprehensive logging to both `game-store.ts` and `Adventure.tsx`
     - Confirmed exact infinite loop pattern: Set recreation → callback recreation → setTimeout chain
-  - [ ] **V1.2**: Test Adventure page interaction without crashes **FAILS - Still crashes**
-  - [ ] **V1.3**: Verify no "Maximum update depth exceeded" errors **FAILS - Error persists**
-  - [ ] **V1.4**: Confirm modal open/close cycles work properly **FAILS - Triggers infinite loop**
-  - **STATUS**: Diagnostic phase complete, but full fix still required
+  - [x] **V1.2**: Implement complete architectural fix ✅ 2025-06-16 20:30
+    - Removed setTimeout chain in modal onClose
+    - Stabilized useCallback with ref pattern
+    - Consolidated duplicate milestone checking
+    - Added circuit breaker and throttling
+  - [x] **V1.3**: Test Adventure page interaction without crashes ✅ 2025-06-17 09:30
+  - [x] **V1.4**: Verify no "Maximum update depth exceeded" errors ✅ 2025-06-17 09:30
+  - [x] **V1.5**: Confirm modal open/close cycles work properly ✅ 2025-06-17 09:30
+  - [x] **V1.6**: Fix health monitoring multiple instances ✅ 2025-06-17 09:30
+  - **STATUS**: All fixes implemented and validated - infinite loop completely resolved
 
 - [ ] **V2: Database Operation Testing**
   - [ ] **V2.1**: Test game state saving/loading
@@ -168,15 +191,29 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 **ESTIMATED TOTAL TIME**: 4-5 hours to resolve all crash-related issues (increased due to complexity)
 
-### 🔍 CRASH FIX STATUS UPDATE (2025-06-16 19:30 UTC+3)
+### 🔍 CRASH FIX STATUS UPDATE (2025-06-17 09:30 UTC+3)
 
-**WORK COMPLETED TODAY:**
+**WORK COMPLETED:**
 - ✅ Added comprehensive diagnostic logging to validate infinite loop theory
 - ✅ Implemented partial Set reference stability fix in `updateMilestone` and `markMilestoneJournalShown`
 - ✅ Confirmed multi-part feedback loop: Set recreation + setTimeout chain + modal dependencies
+- ✅ **Phase 1**: Removed setTimeout chain in JournalModal onClose handler
+- ✅ **Phase 2**: Stabilized useCallback dependencies with ref pattern
+- ✅ **Phase 3**: Consolidated duplicate milestone checking logic
+- ✅ **Phase 4**: Added circuit breaker and throttling protection
+- ✅ **Phase 5**: Added performance monitoring and state transition logging
+- ✅ **Phase 6**: Fixed health monitoring multiple instance issue (2025-06-17)
+  - Removed health monitoring from HealthStatus component
+  - Added proper state tracking with `_isHealthMonitoringActive` flag
+  - Fixed React hook dependencies to prevent infinite re-renders
+  - Optimized health check queries for better performance
 
-**CURRENT STATUS:** Crash persists - partial fix insufficient
-**NEXT REQUIRED:** Complete architectural fix of useCallback dependency chain and setTimeout feedback loop
+**CURRENT STATUS:** ✅ RESOLVED - All infinite loop issues fixed
+**ROOT CAUSES IDENTIFIED AND FIXED:**
+1. Multiple health monitoring instances running concurrently
+2. Unstable React hook dependencies in health monitoring hooks
+3. Set reference recreation in game store methods
+4. setTimeout chain in modal close handlers
 
 ---
 
