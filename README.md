@@ -146,6 +146,30 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
   - `project-context.mdc` - Project context rules and conventions
   - `sidebar-navigation.mdc` - Navigation component guidelines
 - **[.cursorignore](.cursorignore)** - Files excluded from Cursor context
+- **[.augmentignore](.augmentignore)** - Files excluded from Augment Code AI indexing
+
+#### Augment Code Integration
+- **[.augment-guidelines](.augment-guidelines)** - Project guidelines and standards for Augment Code extension
+- **[.augmentignore](.augmentignore)** - Files excluded from Augment Code AI indexing
+
+#### Windsurf IDE Integration
+- **[.windsurf/rules/](.windsurf/rules/)** - Windsurf IDE component and layout guidelines
+  - `layout-integration.md` - Layout integration standards (⚠️ **Not mapped** - should match Cursor equivalent)
+  - `project-context.md` - Project context rules (⚠️ **Not mapped** - should match Cursor equivalent)
+  - `sidebar-navigation.md` - Navigation component guidelines (⚠️ **Not mapped** - should match Cursor equivalent)
+  - `.windsurfrules` - Windsurf-specific configuration file
+
+#### IDE Configuration Maintenance
+⚠️ **Important**: The `.windsurf` and `.cursor` folders contain similar configuration files that should be kept in sync to maintain consistent development standards across IDEs:
+
+| Purpose | Cursor File | Windsurf File | Status |
+|---------|-------------|---------------|---------|
+| Layout Integration | `.cursor/rules/layout-integration.mdc` | `.windsurf/rules/layout-integration.md` | ⚠️ **Not Mapped** |
+| Project Context | `.cursor/rules/project-context.mdc` | `.windsurf/rules/project-context.md` | ⚠️ **Not Mapped** |
+| Sidebar Navigation | `.cursor/rules/sidebar-navigation.mdc` | `.windsurf/rules/sidebar-navigation.md` | ⚠️ **Not Mapped** |
+| Guidelines | `.augment-guidelines` | `.windsurf/rules/.windsurfrules` | ⚠️ **Not Mapped** |
+
+**Action Required**: Windsurf configuration files need to be updated to match their Cursor counterparts to ensure consistent development experience across different AI-powered IDEs.
 
 #### Multi-Agent Orchestration
 - **[.roomodes](.roomodes)** - Roo Code multi-agent workflow configurations and task orchestration

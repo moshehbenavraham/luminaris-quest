@@ -1,0 +1,1759 @@
+# Augment Code - Project Guidelines for Luminari's Quest - Rules and Standards
+
+## 📋 Project Overview
+
+**Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure designed to help young adults process trauma from losing parents and experiencing homelessness during their teenage years. The game combines fantasy storytelling with evidence-based therapeutic techniques to create a safe space for healing and growth.
+
+### Target Audience
+- Young adults (18-25) who have experienced parental loss and homelessness during their teenage years
+- **Important**: This is a supplemental tool, NOT a replacement for professional mental health care
+
+## 🛠️ Tech Stack & Dependencies
+
+### Core Technologies
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + Shadcn/UI components
+- **State Management**: Zustand with persistence
+- **Backend**: Supabase (authentication & database)
+- **Deployment**: Netlify
+
+### Planned AI Services
+- **OpenAI**: Narrative generation (planned)
+- **Leonardo.AI**: Dynamic visual art generation (planned)
+- **ElevenLabs**: Voice synthesis for narration (planned)
+- **Suno**: Music generation (manually curated) (planned)
+
+### Development Tools
+- **Primary Development**: Built with [Bolt.new](https://bolt.new/)
+- **Additional Tools**: OpenAI Project features, Cursor (local debugging), Windsurf (limited usage)
+
+## 📁 Project Structure
+
+```
+src/
+├── components/       # React components organized by feature
+│   ├── ui/          # Shadcn/UI base components
+│   ├── layout/      # Layout components (Navbar, Sidebar, Footer)
+│   ├── auth/        # Authentication components
+│   └── *.tsx        # Feature-specific components
+├── pages/           # Route components (extracted from App.tsx)
+│   ├── Home.tsx     # Landing page with authentication
+│   ├── Adventure.tsx # Main gameplay interface
+│   ├── Progress.tsx  # Progress tracking and journal display
+│   ├── Profile.tsx   # User profile management
+│   └── Legal.tsx     # Legal information and compliance
+├── hooks/           # Custom React hooks
+├── lib/             # Utility functions and providers
+├── store/           # State management (Zustand)
+├── engine/          # Game logic and scene engine
+└── integrations/    # External service integrations
+```
+
+## 🎯 Core Features
+
+### Guardian Trust System
+- Core mechanic tracking player's bond with guardian spirit (0-100)
+
+### Therapeutic Journaling System
+- **Full CRUD operations**: Create, read, update, and delete journal entries
+- **Inline editing**: Edit entries without leaving the page
+- **Visual distinction**: Different styles for milestone vs. learning entries
+- **Edit history**: Track when entries were modified
+- **Confirmation dialogs**: Prevent accidental deletions
+- **Automatic prompts**: Journal entries triggered by milestones and learning moments
+
+### Scene-based Gameplay
+- Social, skill, combat, journal, and exploration scenarios
+
+### Milestone Achievements
+- Progress tracking with meaningful rewards
+
+### Responsive Design
+- Works seamlessly on desktop, tablet, and mobile
+
+## 💻 Development Standards
+
+### Code Quality Standards
+- **TypeScript**: Strict mode required for all components
+- **Component Guidelines**: Follow atomic design principles (atoms → molecules → organisms)
+- **File Size**: Keep components under 500 lines; split into subcomponents if necessary
+- **Accessibility**: WCAG compliance with semantic HTML and keyboard navigation
+- **Testing**: Vitest for unit and integration tests
+
+### Styling Standards
+- **Primary**: Tailwind CSS only (no separate CSS files)
+- **UI Components**: Use Shadcn/UI components built on Radix UI primitives
+- **Configuration**: Check `components.json` for Shadcn/UI configuration
+
+### Code Formatting & Linting
+- **ESLint**: Configuration in `eslint.config.js`
+- **Prettier**: Configuration in `.prettierrc`
+- **Documentation**: Add JSDoc comments for complex functions
+
+## 🔧 Environment Configuration
+
+### Required Environment Variables
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- Additional AI service keys (planned for future features)
+
+### Environment Setup
+1. Copy `.env.example` to `.env`
+2. Fill in actual API keys
+3. Restart development server after editing `.env`
+4. Use `VITE_` prefix for frontend environment variables
+
+## 🚀 Build & Development Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm run test` - Run tests with Vitest
+
+## 📋 Architecture Patterns
+
+### Component Architecture
+- **Page Component Extraction**: Moved from monolithic App.tsx to dedicated page files
+- **Enhanced Journal System**: Full CRUD functionality with visual distinction between entry types
+- **TypeScript Improvements**: All compilation errors resolved with proper type safety
+- **Code Quality**: ESLint configuration updated, Prettier formatting applied consistently
+
+### State Management
+- **Zustand**: Primary state management with persistence and hydration safety
+- **Store Organization**: Separate stores for different feature domains
+
+## 🛡️ Legal & Licensing
+
+### Licensing Structure
+- **Code**: MIT License
+- **Game Content**: Open Game License (OGL) / Open RPG Creative (ORC)
+- **Pathfinder 2e**: Used under ORC License (excludes Product Identity)
+- **Third-party**: All third-party licenses documented in `licenses/third-party.md`
+
+## 📚 Documentation Files Processed
+
+**Chunk 1 - Core Documentation (2 files processed):**
+- ✅ `README.md` - Project overview, tech stack, features, architecture
+- ✅ `docs/FAQ.md` - Development setup, troubleshooting, coding standards
+
+**Key Information Extracted:**
+- Project purpose and target audience
+- Complete tech stack and dependencies
+- Project structure and component organization
+- Development standards and coding conventions
+- Environment configuration requirements
+- Build scripts and development workflow
+- Legal and licensing information
+- Core game features and therapeutic design principles
+## 🏗️ Component Architecture & Patterns
+
+### Recent Architecture Updates (December 2024)
+- **Page Component Extraction**: Moved from monolithic [`App.tsx`](src/App.tsx:1) to dedicated page files
+- **Enhanced Journal System**: Full CRUD functionality with [`JournalEntryCard`](src/components/JournalEntryCard.tsx:1) component
+- **Code Quality Improvements**: All TypeScript compilation errors resolved
+
+### Component Structure Requirements
+- **Atomic Design Pattern**: Follow atoms → molecules → organisms structure
+- **Single Responsibility**: Each component should have one clear purpose
+- **File Size Limit**: Keep all components under 500 lines; split into subcomponents if necessary
+- **Prop Interfaces**: Define TypeScript interfaces for all component props
+- **Error Handling**: Implement graceful error handling and fallbacks
+
+### Component Patterns
+```typescript
+// Required component interface pattern
+interface ComponentProps {
+  // Required props
+  data: DataType;
+  onAction: (value: string) => void;
+  
+  // Optional props
+  className?: string;
+  disabled?: boolean;
+}
+
+export function Component({ data, onAction, className, disabled = false }: ComponentProps) {
+  // Component implementation with proper error handling
+}
+```
+
+### Error Handling Pattern
+```typescript
+// Required error boundary pattern
+try {
+  // Risky operation
+} catch (error) {
+  console.error('Descriptive error message:', error);
+  // Graceful fallback required
+}
+```
+
+## 🎯 State Management Patterns
+
+### Zustand Store Requirements
+- **Persistence**: All stores must implement persistence with hydration safety
+- **Store Organization**: Separate stores for different feature domains
+- **SSR Compatibility**: Maintain hydration safety for server-side rendering
+
+### Store Pattern Template
+```typescript
+interface GameState {
+  // State properties
+  guardianTrust: number;
+  journalEntries: JournalEntry[];
+  
+  // Actions
+  setGuardianTrust: (trust: number) => void;
+  addJournalEntry: (entry: JournalEntry) => void;
+}
+```
+
+## 🎮 Game Design & Content Standards
+
+### Therapeutic Content Guidelines
+- **Sensitivity**: All content must be appropriate for trauma recovery
+- **Positive Messaging**: Focus on growth, healing, and resilience
+- **Choice Consequences**: Ensure all choices lead to meaningful outcomes
+- **Progress Tracking**: Maintain clear progress indicators
+
+### RPG Mechanics Requirements
+- **OGL Compliance**: Use only Open Gaming License content
+- **Dice System**: Follow d20 system conventions
+- **Character Progression**: Implement meaningful advancement
+- **Narrative Flow**: Maintain engaging story progression
+
+## 🚀 Development Workflow Standards
+
+### Pre-Development Checklist
+1. **Architecture Review**: Check [`docs/COMPONENT_MAP.md`](docs/COMPONENT_MAP.md:1) for completed features
+2. **TypeScript Check**: Ensure `npm run build` passes without errors
+3. **Code Quality**: Run `npm run lint` and `npm run format`
+
+### Code Style Requirements
+- **Formatting**: Use Prettier (configured in [`.prettierrc`](.prettierrc:1))
+- **Linting**: Follow ESLint rules (see [`eslint.config.js`](eslint.config.js:1))
+- **Icons**: Use Lucide icons consistently
+- **Styling**: Tailwind CSS utility classes only
+
+### Accessibility Requirements
+- **Semantic HTML**: Use appropriate HTML elements
+- **ARIA Labels**: Add proper ARIA labels for screen readers
+- **Keyboard Navigation**: Ensure all interactive elements are keyboard accessible
+- **WCAG Compliance**: Follow WCAG guidelines for accessibility
+
+## 🔧 Performance Standards
+
+### Bundle Size Requirements
+- **Main Chunk**: Keep under 1MB when possible
+- **Code Splitting**: Use dynamic imports for large features
+- **Image Optimization**: Optimize images and use appropriate formats
+- **Lazy Loading**: Implement for non-critical components
+
+### Performance Considerations
+- **Health Check System**: Optimized with 45-second intervals
+- **Database Queries**: Use minimal data transfer with `head: true` for health checks
+- **Activity-Aware Monitoring**: Pause monitoring when browser tab is inactive
+
+## 🗄️ Database & Infrastructure
+
+### Database Health Check System
+- **Real-time Monitoring**: Supabase connection status with 45-second intervals
+- **Environment Detection**: Automatic detection (local/dev/staging/prod)
+- **Health Status UI**: Components with compact and detailed display modes
+- **Manual Triggers**: On-demand health check functionality
+
+### Database Schema Standards
+- **Row Level Security (RLS)**: All tables must implement comprehensive RLS policies
+- **Performance Indexes**: Add appropriate indexes for query optimization
+- **Foreign Key Relationships**: Proper relationships with `auth.users`
+- **JSONB Support**: Use JSONB for complex game state data
+
+## 🐛 Bug Fix History & Lessons
+
+### Critical Bug Resolutions (2025-06-17)
+- **Infinite Loop Resolution**: Fixed React "Maximum update depth exceeded" crash
+  - **Root Cause**: [`JournalModal`](src/components/JournalModal.tsx:1) useEffect infinite loop
+  - **Solution**: Added `savedForThisOpen` state to prevent multiple saves per modal open
+  - **Pattern**: Avoid unstable Zustand function references in useEffect dependencies
+
+### Database 404 Errors Solution
+- **Root Cause**: Missing database tables in Supabase instance
+- **Solution**: Created migration files in [`docs/migrations/`](docs/migrations/:1)
+- **Prevention**: Always validate database schema deployment
+
+## 🤝 Community Standards
+
+### Code of Conduct
+- **Contact**: Violations reported to MAX@AIWITHAPEX.COM
+- **Standards**: Based on Contributor Covenant v2.1
+- **Scope**: Applies to all project spaces and community interactions
+- **Enforcement**: Fair corrective action with confidentiality maintained
+
+### Contribution Requirements
+- **Behavior Standards**: Welcoming, inclusive, respectful, and empathetic
+- **Commit Standards**: Use conventional commit format with descriptive messages
+- **Testing**: Ensure commits don't break the build
+- **Documentation**: JSDoc comments required for complex components
+
+## 📋 Current Development Priorities
+
+### High Priority
+1. **Supabase Integration**: Complete journal entry persistence
+2. **AI Features**: Implement OpenAI narrative generation
+3. **Enhanced UX**: Improve journal search and filtering
+4. **Performance**: Optimize bundle size and loading times
+5. **Testing**: Expand test coverage for new components
+
+### Areas NOT Accepting Contributions
+- Core game narrative/story changes
+- Major architectural changes without discussion
+- New AI service integrations without approval
+- Therapeutic content (requires expert review)
+
+## 📚 Documentation Files Processed
+
+**Chunk 2 - Contributing & Standards (3 files processed):**
+- ✅ `CONTRIBUTING.md` - Development workflow, component patterns, technical guidelines
+- ✅ `CODE_OF_CONDUCT.md` - Community standards and behavioral expectations
+- ✅ `CHANGELOG.md` - Version history, bug fixes, architectural decisions
+
+**Key Information Extracted:**
+- Detailed component architecture patterns and requirements
+- State management standards with Zustand
+- Performance optimization guidelines
+- Database health monitoring system implementation
+- Critical bug fix history and lessons learned
+- Community standards and contribution guidelines
+- Current development priorities and roadmap
+## 🏭 Component Architecture Map
+
+### Completed Components & Features Status
+| Component/Feature | Status | Implementation |
+|-------------------|--------|----------------|
+| **Project Scaffold** | ✅ Complete | React + TS via Vite, Tailwind, Shadcn/UI, [`.bolt/prompt`](.bolt/prompt:1), [`.env.example`](.env.example:1), MIT+OGL licenses |
+| **Core Layout Shell** | ✅ Complete | [`Navbar`](src/components/layout/Navbar.tsx:1), [`Sidebar`](src/components/layout/Sidebar.tsx:1), [`Footer`](src/components/layout/Footer.tsx:1) with responsive design |
+| **Page Component Architecture** | ✅ Complete | Extracted from [`App.tsx`](src/App.tsx:1): [`Home.tsx`](src/pages/Home.tsx:1), [`Adventure.tsx`](src/pages/Adventure.tsx:1), [`Progress.tsx`](src/pages/Progress.tsx:1), [`Profile.tsx`](src/pages/Profile.tsx:1) |
+| **Auth Module** | ✅ Complete | Login & signup routes with Supabase integration and protected routes |
+| **Supabase Client Setup** | ✅ Complete | Full client configuration in [`src/integrations/supabase/`](src/integrations/supabase/:1) with TypeScript types |
+| **Game State Store** | ✅ Complete | Zustand with persistence, hydration safety, and milestone tracking |
+| **Journal System** | ✅ Enhanced | Full CRUD operations with [`JournalEntryCard`](src/components/JournalEntryCard.tsx:1) component |
+| **Guardian Trust System** | ✅ Complete | Core mechanic with milestone achievements and progress tracking |
+| **Scene Engine** | ✅ Complete | Therapeutic gameplay with dice mechanics and choice system |
+| **Legal Compliance** | ✅ Complete | Comprehensive legal pages with tabbed interface |
+
+### Component Hierarchy Structure
+```
+App.tsx
+├── Layout.tsx
+│   ├── Navbar.tsx
+│   ├── Sidebar.tsx (Navigation to all pages)
+│   └── Footer.tsx
+├── Pages/
+│   ├── Home.tsx (Auth integration)
+│   ├── Adventure.tsx
+│   │   ├── ChoiceList.tsx
+│   │   ├── GuardianText.tsx
+│   │   └── JournalModal.tsx
+│   ├── Progress.tsx
+│   │   └── JournalEntryCard.tsx ✨ (Enhanced CRUD functionality)
+│   ├── Profile.tsx
+│   └── Legal.tsx
+└── Store/
+    └── game-store.ts (Zustand with persistence)
+```
+
+### Development Standards Achievement
+- ✅ **TypeScript**: Strict typing with proper interfaces
+- ✅ **Component Size**: All components under 250 lines (target: 500 lines max)
+- ✅ **Atomic Design**: Clear separation of atoms, molecules, organisms
+- ✅ **Accessibility**: Semantic HTML, ARIA labels, keyboard navigation
+- ✅ **Responsive Design**: Mobile-first approach with Tailwind breakpoints
+- ✅ **Error Handling**: Graceful fallbacks and error boundaries
+- ✅ **Code Quality**: ESLint + Prettier configuration enforced
+
+### Planned Features Pipeline
+| Feature | Priority | Status | Implementation Notes |
+|---------|----------|--------|---------------------|
+| **Supabase Journal Sync** | High | Planned | Save/load journal entries to user profile |
+| **AI Narrative Generation** | Medium | Planned | OpenAI integration for dynamic storytelling |
+| **Leonardo Image Integration** | Medium | Planned | Dynamic art generation for story moments |
+| **ElevenLabs Voice** | Low | Planned | TTS for immersive narration |
+| **Music Player** | Low | Planned | Suno-generated background music |
+| **Advanced Journal Features** | Medium | Planned | Tags, search, categories, export |
+
+## 🗄️ Database Schema & Architecture
+
+### Core Tables Structure
+
+#### `game_states` Table
+**Purpose**: Stores player's game progress with one record per user
+```sql
+-- Column Structure
+user_id             UUID PRIMARY KEY FOREIGN KEY to auth.users(id)
+guardian_trust      INTEGER -- player's trust level (0-100)
+player_level        INTEGER -- player's current level
+current_scene_index INTEGER -- current scene in progression
+milestones          JSONB   -- array of milestone objects
+scene_history       JSONB   -- array of completed scene objects
+updated_at          TIMESTAMP -- last update time
+
+-- Constraints
+UNIQUE CONSTRAINT on user_id (one save per user)
+Upsert conflicts resolved on user_id
+```
+
+#### `journal_entries` Table
+**Purpose**: Stores player's therapeutic journal entries
+```sql
+-- Column Structure
+id          TEXT PRIMARY KEY    -- unique identifier for each entry
+user_id     UUID FOREIGN KEY    -- to auth.users(id)
+type        TEXT               -- entry type ('milestone' | 'learning')
+trust_level INTEGER            -- trust level when entry was created
+content     TEXT               -- journal entry content
+title       TEXT               -- entry title
+scene_id    TEXT NULLABLE      -- associated scene identifier
+tags        JSONB              -- array of tags (can be empty array)
+is_edited   BOOLEAN            -- whether entry has been edited
+created_at  TIMESTAMP          -- entry creation time
+edited_at   TIMESTAMP NULLABLE -- last edit time
+
+-- Constraints
+Upsert conflicts resolved on id
+```
+
+### Row Level Security (RLS) Policies
+**Security Requirement**: Both tables require comprehensive RLS policies
+
+**For `game_states` table:**
+```sql
+ALTER TABLE game_states ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own game state" ON game_states
+  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own game state" ON game_states
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own game state" ON game_states
+  FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own game state" ON game_states
+  FOR DELETE USING (auth.uid() = user_id);
+```
+
+**For `journal_entries` table:**
+```sql
+ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own journal entries" ON journal_entries
+  FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own journal entries" ON journal_entries
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own journal entries" ON journal_entries
+  FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own journal entries" ON journal_entries
+  FOR DELETE USING (auth.uid() = user_id);
+```
+
+### Performance Indexes
+**Required for optimal query performance:**
+```sql
+-- game_states table
+CREATE INDEX idx_game_states_updated_at ON game_states(updated_at);
+
+-- journal_entries table
+CREATE INDEX idx_journal_entries_user_id ON journal_entries(user_id);
+CREATE INDEX idx_journal_entries_user_created ON journal_entries(user_id, created_at DESC);
+CREATE INDEX idx_journal_entries_type ON journal_entries(type);
+CREATE INDEX idx_journal_entries_scene_id ON journal_entries(scene_id) WHERE scene_id IS NOT NULL;
+```
+
+### Data Type Standards
+**Milestone Object Structure:**
+```typescript
+interface Milestone {
+  id: string;
+  level: number;
+  label: string;
+  achieved: boolean;
+  achievedAt: number; // timestamp
+}
+```
+
+**CompletedScene Object Structure:**
+```typescript
+interface CompletedScene {
+  id: string;
+  sceneId: string;
+  type: 'social' | 'skill' | 'combat' | 'journal' | 'exploration';
+  title: string;
+  success: boolean;
+  roll: number;
+  dc: number;
+  trustChange: number;
+  completedAt: number; // timestamp
+}
+```
+
+## 🌍 Environment Architecture
+
+### Current Environment Status
+- **Primary Platform**: Local Cursor IDE, WSL 2 PC Windows 10/11
+- **Database**: Supabase Cloud (Project ID: lxjetnrmjyazegwnymkk)
+- **Current Status**: Service connected, but database schema missing (zero tables)
+
+### Environment Structure Plan
+
+#### 1. Local Development Environment
+- **Purpose**: Assistant to Bolt.new for development and testing
+- **Platform**: WSL 2 / Windows 10/11 + Cursor IDE
+- **Supabase Project**: Current project (lxjetnrmjyazegwnymkk)
+- **Database URL**: https://lxjetnrmjyazegwnymkk.supabase.co
+- **Testing**: Unit tests, integration tests, manual testing
+
+#### 2. Development (Shared/Team) Environment
+- **Purpose**: Integration testing with team members
+- **Platform**: Bolt.new and Cloud deployment (Netlify)
+- **Database**: Separate Supabase instance (requires creation)
+- **Testing**: Integration testing, team collaboration
+
+#### 3. Staging Environment
+- **Purpose**: Pre-production validation
+- **Platform**: Production-like cloud deployment
+- **Database**: Production-like data volume
+- **Testing**: Full regression testing, performance testing
+
+#### 4. Production Environment
+- **Purpose**: Live application for end users
+- **Platform**: Production cloud deployment (Netlify/Vercel)
+- **Database**: Production data with backups
+- **Testing**: Production monitoring, health checks
+
+### Supabase Configuration Files
+- [`supabase/config.toml`](supabase/config.toml:1) - Contains project_id
+- [`src/lib/supabase.ts`](src/lib/supabase.ts:1) - Hard-coded connection (temporary)
+- [`src/integrations/supabase/client.ts`](src/integrations/supabase/client.ts:1) - Generated client
+- [`src/integrations/supabase/types.ts`](src/integrations/supabase/types.ts:1) - Empty types (needs regeneration)
+
+### Migration Deployment Strategy
+**Required Deployment Order:**
+1. **Local** → Develop and test all migrations locally
+2. **Development** → Deploy to shared dev environment for team testing
+3. **Staging** → Deploy to staging for pre-production validation
+4. **Production** → Final deployment with monitoring and rollback plan
+
+**Safety Measures:**
+- Database backups before each migration
+- Migration rollback procedures documented
+- Environment-specific validation checks
+- Gradual rollout with monitoring
+
+### Environment Setup Checklist
+- ✅ Local development environment configured
+- ✅ Supabase service connection established
+- ❌ Database schema missing (zero tables) - **CRITICAL**
+- ❌ Separate environments not yet configured
+- ❌ CI/CD pipeline not configured
+- ❌ Production environment not configured
+
+## 📚 Documentation Files Processed
+
+**Chunk 3 - Architecture & Technical Documentation (3 files processed):**
+- ✅ `docs/COMPONENT_MAP.md` - Component status, relationships, development standards
+- ✅ `docs/DATABASE_SCHEMA.md` - Database tables, RLS policies, performance indexes
+- ✅ `docs/ENVIRONMENT_ARCHITECTURE.md` - Environment setup, Supabase configuration
+
+**Key Information Extracted:**
+- Complete component architecture and status mapping
+- Detailed database schema with RLS security policies
+- Performance optimization indexes and data structures
+- Multi-environment deployment strategy
+- Current technical debt identification (missing database schema)
+- Comprehensive component hierarchy and relationships
+## 📋 Project Management & Development Roadmap
+
+### Development Phase Status
+
+#### ✅ Completed Phases
+1. **Phase 1 (100%)**: Database Schema Analysis & Planning ✅ 2025-06-15
+   - All documentation created and comprehensive
+   - Schema design fully specified in [`docs/DATABASE_SCHEMA.md`](docs/DATABASE_SCHEMA.md:1)
+   - Environment architecture documented in [`docs/ENVIRONMENT_ARCHITECTURE.md`](docs/ENVIRONMENT_ARCHITECTURE.md:1)
+   - Deployment strategy defined
+
+2. **Phase 2 (100%)**: Database Migration Setup ✅ 2025-06-15
+   - Migration structure initialized
+   - Migration file created: [`supabase/migrations/20250615182947_initial_game_database_schema.sql`](supabase/migrations/20250615182947_initial_game_database_schema.sql:1)
+   - Complete SQL DDL statements implemented
+
+3. **Phase 3 (100%)**: Create Database Tables ✅ 2025-06-15
+   - Complete `game_states` table created
+   - Complete `journal_entries` table created
+   - All 8 RLS policies implemented and verified
+   - All 7 indexes created and validated
+
+4. **Phase 4.1 (100%)**: Local Environment Deployment ✅ 2025-06-15
+   - Migration applied successfully to local database
+   - Tables, policies, and indexes verified
+   - Database schema matches expected design
+
+5. **Phase 5 (100%)**: TypeScript Types ✅ 2025-06-16
+   - TypeScript types generated for local environment
+   - Types updated in [`src/integrations/supabase/types.ts`](src/integrations/supabase/types.ts:1)
+   - Application type imports verified with successful compilation
+
+6. **Phase 7.1 (100%)**: Local Environment Testing ✅ 2025-06-16
+   - Game state saving/loading operations tested and verified
+   - Journal entry creation tested and verified
+   - Error scenarios tested
+   - React error #185 resolution confirmed
+
+#### 🔄 In Progress / Planned Phases
+- **Phase 4.2**: Development Environment Deployment
+- **Phase 6**: Application Integration improvements (error handling, health checks)
+- **Phase 7.2**: Development Environment Testing
+- **Phase 8**: Documentation & Cleanup
+- **Phase 9**: Monitoring & Maintenance (Environment-Specific)
+
+### Current Environment Status
+- **Local Environment**: ✅ Fully operational with validated database operations
+- **Development Environment**: ❌ Not yet configured
+- **Staging Environment**: ❌ Not yet configured
+- **Production Environment**: ✅ Ready for deployment (migration guide created)
+
+## 🚨 Critical Bug Fix History
+
+### ✅ RESOLVED: Infinite Loop Application Crashes (2025-06-17)
+**Status**: ✅ FULLY RESOLVED - All infinite loop issues fixed
+**Impact**: Application was becoming unresponsive with "Maximum update depth exceeded" React error
+
+#### Root Causes Identified and Fixed:
+1. **JournalModal useEffect Infinite Loop** ✅ FIXED
+   - **Issue**: useEffect missing dependencies and save guard
+   - **Fix**: Added `savedForThisOpen` state to prevent multiple saves per modal open
+   - **Implementation**: Reset save state on modal close for proper reuse
+
+2. **Multiple Health Monitoring Instances** ✅ FIXED
+   - **Issue**: Multiple components starting health monitoring concurrently
+   - **Fix**: Removed health monitoring from [`HealthStatus`](src/components/HealthStatus.tsx:1) component
+   - **Implementation**: Added `_isHealthMonitoringActive` flag in game store
+
+3. **Set Reference Recreation in Game Store** ✅ FIXED
+   - **Issue**: `new Set(state.pendingMilestoneJournals)` creating unstable references
+   - **Fix**: Conditional Set creation - only creates new Set when changes needed
+   - **Implementation**: Preserves Set reference stability when contents unchanged
+
+4. **Adventure.tsx useCallback Dependency Chain** ✅ FIXED
+   - **Issue**: setTimeout chain creating infinite feedback loop
+   - **Fix**: Removed setTimeout chain entirely from modal close handlers
+   - **Implementation**: Added circuit breaker and throttling protection
+
+#### Bug Fix Validation Completed:
+- [x] No "Maximum update depth exceeded" errors
+- [x] Modal open/close cycles work properly
+- [x] Health monitoring properly centralized
+- [x] Application runs without crashes
+
+### ✅ RESOLVED: Database 404 Errors (2025-06-17)
+**Status**: ✅ SOLUTION PROVIDED - Ready for production deployment
+**Root Cause**: Missing database tables in Supabase instance
+**Solution**: Created comprehensive migration guide
+
+#### Solutions Implemented:
+1. **Production Migration Guide** ✅ CREATED
+   - Created [`docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql`](docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql:1)
+   - Created [`PRODUCTION_DEPLOYMENT.md`](PRODUCTION_DEPLOYMENT.md:1) with step-by-step instructions
+   - Tables ready to be created in production Supabase instance
+
+2. **API Configuration Security** ✅ UPDATED
+   - Removed hardcoded Supabase credentials from [`src/lib/supabase.ts`](src/lib/supabase.ts:1)
+   - Now uses `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` environment variables
+   - Added validation for missing environment variables
+
+3. **RLS Policies Prepared** ✅ READY
+   - 8 policies (4 per table) ready to deploy
+   - Ensures users can only access their own data
+   - Policies included in migration SQL
+
+## 🚀 Production Deployment Standards
+
+### Pre-Deployment Requirements
+- Production Supabase project created
+- Access to bolt.new deployment settings
+- Production API keys ready
+
+### Database Migration Process
+```sql
+-- Execute in production Supabase SQL editor:
+-- Contents of: docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql
+-- OR original: supabase/migrations/20250615182947_initial_game_database_schema.sql
+```
+
+**Alternative using Supabase CLI:**
+```bash
+supabase db push --db-url "your-production-database-url"
+```
+
+### Required Environment Variables
+```env
+# Supabase Configuration (REQUIRED)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# OpenAI API (REQUIRED - for narrative generation)
+VITE_OPENAI_API_KEY=your-openai-api-key
+```
+
+### Optional Environment Variables
+```env
+# Leonardo.AI (OPTIONAL - for image generation) 
+VITE_LEONARDO_API_KEY=your-leonardo-api-key
+
+# ElevenLabs (OPTIONAL - for voice narration)
+VITE_ELEVENLABS_API_KEY=your-elevenlabs-api-key
+VITE_ELEVENLABS_VOICE_ID=your-voice-id
+
+# Application URLs
+VITE_APP_URL=https://your-app-domain.com
+```
+
+### Deployment Process on Bolt.new
+1. **Push latest code** to bolt.new project
+2. **Configure environment variables** in bolt.new settings
+3. **Run build commands**: `npm install` && `npm run build`
+4. **Deploy** using bolt.new's deployment process
+
+### Post-Deployment Verification Checklist
+#### Authentication Testing
+- [ ] Sign up with email
+- [ ] Sign in
+- [ ] Sign out
+- [ ] Password reset email
+
+#### Core Game Functionality
+- [ ] Start new game
+- [ ] Make choices in adventure
+- [ ] Guardian trust updates correctly
+- [ ] Scene progression works
+
+#### Milestone Journal System
+- [ ] Trust level 25 milestone journal modal
+- [ ] Trust level 50 milestone journal modal
+- [ ] Trust level 75 milestone journal modal
+- [ ] Journal entries save without infinite loops
+
+#### Progress Persistence
+- [ ] Game state saves to database
+- [ ] Progress persists after refresh
+- [ ] Journal entries are retained
+
+#### Database Health Monitoring
+- [ ] Health indicator in navbar shows green
+- [ ] No 404 errors in console
+- [ ] Database operations work correctly
+
+### Production Troubleshooting Guide
+
+#### Issue: 404 errors for game_states table
+**Solution**: Database migration didn't run - re-execute migration SQL
+
+#### Issue: Authentication not working
+**Solution**: Check Supabase project settings:
+- Email auth enabled
+- Site URL configured correctly
+- Redirect URLs include production domain
+
+#### Issue: Infinite loop on milestone journals
+**Solution**: Should be fixed, but if occurs:
+- Clear browser cache
+- Check browser console for errors
+- Ensure latest code deployed
+
+#### Issue: API features not working
+**Solution**: Verify environment variables:
+- OpenAI key valid with credits
+- Optional API keys correct if used
+
+### Production Monitoring Requirements
+1. **Supabase Dashboard Monitoring**:
+   - Monitor active users
+   - Check database size
+   - Review auth logs
+
+2. **Application Logs**:
+   - Watch for client-side errors
+   - Monitor API usage (especially OpenAI)
+
+3. **User Experience Validation**:
+   - Test signup/signin flow
+   - Verify game saves properly
+   - Ensure journals work correctly
+
+## 🔧 Development Workflow Phases
+
+### Multi-Environment Deployment Strategy
+**Required Deployment Order:**
+1. **Local** → Develop and test migrations
+2. **Development** → Integration testing with team
+3. **Staging** → Pre-production validation
+4. **Production** → Final deployment with monitoring
+
+### Safety Measures per Environment
+- Database backups before each migration
+- Migration rollback procedures documented
+- Environment-specific validation checks
+- Gradual rollout with monitoring
+
+### Current Priority Options
+**Next Steps (choose based on project needs):**
+1. **Phase 4.2**: Deploy to development environment
+2. **Phase 6**: Enhance application integration (error handling, health checks)
+3. **Phase 7.2**: Development environment testing
+
+## 📚 Documentation Files Processed
+
+**Chunk 4 - Project Management & Deployment (2 files processed):**
+- ✅ `TASK_LIST.md` - Comprehensive development roadmap, phase tracking, bug fix history
+- ✅ `PRODUCTION_DEPLOYMENT.md` - Step-by-step production deployment guide
+
+**Key Information Extracted:**
+- Complete development phase status and roadmap
+- Critical bug fix history with root cause analysis
+- Production-ready deployment procedures
+- Environment configuration standards
+- Post-deployment verification procedures
+- Comprehensive troubleshooting guide
+- Multi-environment deployment strategy
+- Database migration execution procedures
+## 🧪 Testing & Quality Assurance Standards
+
+### Automated Testing Status
+**All automated database tests ✅ PASSED successfully:**
+- ✅ Basic database connection and operations
+- ✅ Game state saving and loading
+- ✅ Journal entry creation, updating, and deletion
+- ✅ Data persistence across sessions
+- ✅ Error handling and RLS policies
+- ✅ Complete application workflow simulation
+- ✅ Milestone achievements and journal triggers
+
+### Manual Testing Requirements
+
+#### Prerequisites for Testing
+- ✅ Local Supabase instance running (`supabase status` shows running)
+- ✅ Development server running (`npm run dev` on http://localhost:8081/)
+- ✅ Database operations tests passed (all programmatic tests successful)
+
+#### Core Manual Testing Checklist
+
+### 1. Game State Persistence Testing
+**Test Location**: http://localhost:8081/adventure
+
+**Test Steps:**
+- [ ] Navigate to adventure page and note initial Guardian Trust level (should be 50)
+- [ ] Make choices to trigger state changes and progress through 3-4 scenes
+- [ ] Observe Guardian Trust level changes and scene index increases
+- [ ] Refresh browser page (F5) and verify state persistence
+- [ ] Verify game continues from exact position
+
+**Success Criteria**: Game state persists across browser refreshes with no data loss
+
+### 2. Journal Entry System Testing
+
+**Milestone Journal Testing:**
+- [ ] Progress until Guardian Trust reaches 25, 50, or 75
+- [ ] Verify journal modal appears automatically
+- [ ] Fill out and save journal entry
+- [ ] Verify entry saves and modal closes properly
+
+**Learning Journal Testing:**
+- [ ] Make choices that result in failure/setback
+- [ ] Verify learning journal modal appears
+- [ ] Complete and save journal entry
+
+**Manual Journal Creation:**
+- [ ] Create journal entry manually using interface
+- [ ] Save and verify persistence
+
+**Journal Persistence Validation:**
+- [ ] Navigate to `/progress` or journal view page
+- [ ] Verify all created journal entries are displayed
+- [ ] Refresh page and confirm entries persist
+
+### 3. Journal Entry Editing Testing
+- [ ] Navigate to progress/journal view and find existing entry
+- [ ] Click edit button and modify content
+- [ ] Save changes and verify immediate reflection
+- [ ] Refresh page and verify edited content persists
+- [ ] Check if "edited" indicator is properly shown
+
+### 4. Error Scenario Testing
+
+**Network Issues Simulation:**
+- [ ] Open browser developer tools (F12) → Network tab
+- [ ] Throttle network to "Slow 3G" or "Offline"
+- [ ] Attempt to save game state or journal entry
+- [ ] Verify graceful error handling (no crashes)
+- [ ] Restore network and verify sync functionality
+
+**Invalid Data Testing:**
+- [ ] Try creating journal entries with empty content
+- [ ] Test extreme values for trust levels (if input available)
+- [ ] Verify validation and appropriate error messages
+
+**Success Criteria**: Application handles errors gracefully with no crashes or white screens
+
+### 5. React Error #185 Monitoring (Critical)
+
+**Console Monitoring:**
+- [ ] Open browser developer tools (F12) → Console tab
+- [ ] Clear console before testing
+- [ ] Perform various actions (choices, journals, navigation)
+- [ ] Monitor specifically for React error #185
+
+**Rapid Interaction Testing:**
+- [ ] Rapidly click buttons and navigate between pages
+- [ ] Quickly open and close journal modals
+- [ ] Fast navigation between `/adventure` and `/progress`
+- [ ] Monitor console for any React errors
+
+**State Change Testing:**
+- [ ] Make multiple rapid choices
+- [ ] Trigger multiple journal modals in succession
+- [ ] Monitor for state-related React errors
+
+**Success Criteria**: No React error #185 or other React errors; UI remains stable during rapid interactions
+
+### 6. Cross-Browser Compatibility Testing
+- [ ] Test in Chrome (primary browser)
+- [ ] Test in Firefox
+- [ ] Test in Edge
+- [ ] Verify consistent behavior across all browsers
+
+### Database Verification Commands
+```bash
+# Connect to local Supabase database
+supabase db psql
+
+# Check game states
+SELECT * FROM game_states;
+
+# Check journal entries  
+SELECT * FROM journal_entries ORDER BY created_at DESC;
+
+# Exit psql
+\q
+```
+
+### Testing Troubleshooting Guide
+
+#### Common Issues & Solutions:
+1. **Supabase not running**: Execute `supabase start`
+2. **Dev server not running**: Execute `npm run dev`
+3. **Auth issues**: Verify authentication functionality
+4. **Console errors**: Check browser console for specific error messages
+
+#### Complete Success Criteria:
+- ✅ Game state saves and persists correctly
+- ✅ Journal entries create, update, and persist correctly
+- ✅ No data loss on page refresh
+- ✅ Error handling works gracefully
+- ✅ No React error #185 in console
+- ✅ UI remains stable during all interactions
+- ✅ Cross-browser compatibility maintained
+
+## 🐛 Critical Bug Fix Case Study: Milestone Journal Infinite Loop
+
+### Problem Description
+The milestone journal feature was causing "Maximum update depth exceeded" errors and application crashes due to infinite loop.
+
+### Root Cause Analysis
+**Issue**: [`JournalModal`](src/components/JournalModal.tsx:1) component had useEffect missing dependencies
+
+**Infinite Loop Pattern:**
+1. Modal opens → useEffect runs → saves journal entry
+2. Saving triggers store update → component re-renders
+3. useEffect sees `isOpen` is still true → saves again
+4. Creates infinite loop of saves → application crash
+
+### Solution Implementation
+**Fix**: Added `savedForThisOpen` state guard to prevent multiple saves per modal open
+
+```typescript
+const [savedForThisOpen, setSavedForThisOpen] = useState(false);
+
+useEffect(() => {
+  if (isOpen && !savedForThisOpen) {
+    // Save once per modal open
+    setSavedForThisOpen(true);
+    onSaveEntry(entry);
+  } else if (!isOpen && savedForThisOpen) {
+    // Reset for next open
+    setSavedForThisOpen(false);
+  }
+}, [dependencies...]);
+```
+
+### Key Lessons Learned
+
+#### Critical Development Principles:
+1. **Always include all dependencies in useEffect** - Missing dependencies cause unpredictable re-render behavior
+2. **Use guards for single-execution effects** - When effects should only run once per state change, implement proper guards
+3. **Keep state management simple** - Complex state management for simple features is a red flag
+4. **React re-render awareness** - Understanding React's re-render lifecycle is crucial for preventing infinite loops
+
+#### Testing Implications:
+- **Manual testing cannot catch all React lifecycle issues** - Automated testing and console monitoring essential
+- **Rapid interaction testing is critical** - Users may trigger edge cases through fast interactions
+- **State transition logging** - Comprehensive logging helps identify infinite loops during development
+
+#### Prevention Strategies:
+- **useEffect dependency validation** - Use ESLint rules to enforce complete dependencies
+- **State update guards** - Implement guards when effects should only run once per condition
+- **React DevTools monitoring** - Regular monitoring during development prevents production issues
+
+## 📊 Testing Automation Status
+
+### Current Test Coverage
+- **Database Operations**: ✅ Fully automated and validated
+- **State Management**: ✅ Automated tests passing
+- **UI Interactions**: Manual testing required (comprehensive checklist provided)
+- **Cross-browser**: Manual testing required
+- **Error Scenarios**: Partially automated, manual verification needed
+
+### Testing Strategy
+- **Automated Tests**: Handle data layer, business logic, and API interactions
+- **Manual Tests**: Focus on UI behavior, browser-specific issues, and user experience
+- **Continuous Monitoring**: React error monitoring and console validation during development
+
+## 📚 Documentation Files Processed
+
+**Chunk 5 - Testing & Quality Assurance (2 files processed):**
+- ✅ `MANUAL_TESTING_GUIDE.md` - Comprehensive manual testing procedures and checklists
+- ✅ `MILESTONE_FIX_SUMMARY.md` - Critical bug fix case study with lessons learned
+
+**Key Information Extracted:**
+- Complete manual testing procedures and success criteria
+- Database verification commands and troubleshooting
+- Critical React Error #185 monitoring requirements
+- Cross-browser compatibility testing standards
+- Detailed bug fix case study with prevention strategies
+- Testing automation status and coverage analysis
+- Error scenario testing procedures
+- State persistence validation methods
+## ⚙️ Configuration & Technical Standards
+
+### Package Dependencies & Version Control
+
+#### Core Dependencies (Production)
+```json
+{
+  "name": "luminaris-quest",
+  "version": "0.1.1",
+  "description": "Therapeutic AI-powered RPG adventure. Built with Bolt.new."
+}
+```
+
+#### Framework Stack
+- **React**: `^18.2.0` with `react-dom@^18.2.0`
+- **TypeScript**: `^5.3.3` (strict mode enabled)
+- **Vite**: `^6.3.5` (build tool and dev server)
+- **React Router**: `^6.22.1` (client-side routing)
+
+#### UI Component Library
+- **Radix UI**: Complete primitive component set (`@radix-ui/react-*`)
+- **Shadcn/UI**: Built on Radix UI primitives
+- **Tailwind CSS**: `^3.4.1` with custom theme configuration
+- **Lucide React**: `^0.344.0` (icon library)
+- **Class Variance Authority**: `^0.7.1` (component variants)
+
+#### State Management & Data
+- **Zustand**: `^5.0.2` (primary state management)
+- **TanStack Query**: `^5.24.1` (server state management)
+- **Supabase**: `^2.39.7` (backend and authentication)
+
+#### AI & External Services
+- **OpenAI**: `^4.28.0` (narrative generation)
+- **Future Integrations**: Leonardo.AI, ElevenLabs (referenced in environment variables)
+
+#### Form & Interaction Libraries
+- **React Hook Form**: `^7.57.0` (form management)
+- **React Day Picker**: `^9.7.0` (date selection)
+- **Input OTP**: `^1.4.2` (one-time password inputs)
+- **Recharts**: `^2.15.3` (data visualization)
+
+#### Development Dependencies
+- **Testing**: `@testing-library/react@^14.2.1`, `vitest@^3.2.2`, `jsdom@^24.0.0`
+- **TypeScript**: `@typescript-eslint/*` ecosystem
+- **Linting**: `eslint@^8.56.0` with React and TypeScript plugins
+- **Formatting**: `prettier@^3.2.5` with Tailwind plugin
+- **Build Tools**: PostCSS, Autoprefixer
+
+#### Optional Dependencies (Platform Support)
+```json
+"optionalDependencies": {
+  "@rollup/rollup-linux-x64-gnu": "^4.43.0",
+  "@rollup/rollup-win32-x64-msvc": "^4.42.0", 
+  "@rollup/rollup-darwin-x64": "^4.43.0",
+  "@rollup/rollup-darwin-arm64": "^4.43.0"
+}
+```
+
+### Build Scripts & Development Workflow
+
+#### Core Development Commands
+```bash
+# Primary development workflow
+npm run dev              # Start development server on port 8080
+npm run build           # Production build with TypeScript compilation
+npm run build:dev       # Development mode build
+npm run build:deploy    # Full deployment build with dependencies
+npm run preview         # Preview production build locally
+
+# Code quality commands
+npm run lint            # ESLint with TypeScript rules
+npm run format          # Prettier formatting for all source files
+npm run test            # Vitest test runner
+npm run test:coverage   # Coverage reports
+```
+
+#### Script Execution Standards
+- **Development Server**: Runs on `http://localhost:8080` with HMR
+- **Build Process**: TypeScript compilation + Vite bundling
+- **Linting**: Zero warnings policy (`--max-warnings 0`)
+- **Formatting**: Auto-format on save recommended
+
+### TypeScript Configuration Standards
+
+#### Base Configuration ([`tsconfig.json`](tsconfig.json:1))
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]  // Path alias for clean imports
+    }
+  }
+}
+```
+
+#### Application Configuration ([`tsconfig.app.json`](tsconfig.app.json:1))
+**Strict Mode Requirements:**
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    
+    /* Strict Linting - REQUIRED */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Bundler Mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true
+  }
+}
+```
+
+**Key Requirements:**
+- **Strict Mode**: Enabled for all TypeScript compilation
+- **No Unused Variables**: Enforced at compile time
+- **Path Aliases**: Use `@/` prefix for src imports
+- **JSX**: React JSX transform (no React import needed)
+
+### ESLint Configuration Standards ([`eslint.config.js`](eslint.config.js:1))
+
+#### Core Rules & Plugins
+```javascript
+// Required plugins
+'@typescript-eslint': tseslint,
+'react': react,
+'react-hooks': reactHooks,
+'react-refresh': reactRefresh
+```
+
+#### Browser Environment Setup
+```javascript
+globals: {
+  // DOM APIs
+  window: 'readonly',
+  document: 'readonly',
+  console: 'readonly',
+  localStorage: 'readonly',
+  
+  // HTML Elements (extensive list for type safety)
+  HTMLDivElement: 'readonly',
+  HTMLElement: 'readonly',
+  HTMLTextAreaElement: 'readonly',
+  HTMLInputElement: 'readonly',
+  HTMLButtonElement: 'readonly',
+  // ... additional HTML element types
+}
+```
+
+#### Critical Rules
+```javascript
+rules: {
+  '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+  '@typescript-eslint/no-explicit-any': 'warn',
+  'react/react-in-jsx-scope': 'off',        // React 18 JSX transform
+  'react/jsx-uses-react': 'off',
+  'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
+}
+```
+
+### Vite Build Configuration ([`vite.config.ts`](vite.config.ts:1))
+
+#### Development Server Settings
+```typescript
+server: {
+  host: "::",           // Listen on all interfaces
+  port: 8080,          // Standard development port
+  hmr: {
+    clientPort: 8080   // Hot module replacement
+  }
+}
+```
+
+#### Build Optimization
+```typescript
+build: {
+  sourcemap: true,     // Debug support in production
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        'ui-vendor': ['class-variance-authority', 'clsx', 'tailwind-merge']
+      }
+    }
+  }
+}
+```
+
+#### Performance Optimizations
+- **Code Splitting**: Manual chunks for vendor libraries
+- **Tree Shaking**: Automatic unused code elimination
+- **Source Maps**: Enabled for production debugging
+- **Dependency Optimization**: React ecosystem pre-bundling
+
+### Tailwind CSS Theme Configuration ([`tailwind.config.ts`](tailwind.config.ts:1))
+
+#### Brand Color System
+```typescript
+colors: {
+  // Primary Brand Colors
+  primary: {
+    DEFAULT: '#865DFF',    // Main brand purple
+    50: '#F3F0FF',
+    100: '#E6DCFF', 
+    500: '#865DFF',
+    600: '#7C4DFF',
+    700: '#6B46C1',
+    foreground: '#F7F8FA'
+  },
+  // Accent Colors
+  accent: {
+    DEFAULT: '#00FFD0',    // Therapeutic turquoise
+    50: '#E6FFFA',
+    100: '#B3FFF0',
+    500: '#00FFD0',
+    600: '#00E6BB',
+    foreground: '#272940'
+  },
+  // Neutral Palette
+  neutral: {
+    50: '#F7F8FA',        // Light backgrounds
+    100: '#ECECFF',
+    200: '#D6DBF5',
+    400: '#9196B3',       // Muted text
+    800: '#272940'        // Dark text
+  }
+}
+```
+
+#### Typography Standards
+```typescript
+fontFamily: {
+  'heading': ['Roboto', 'Arial', 'sans-serif'],
+  'body': ['Arial', 'system-ui', 'sans-serif']
+}
+```
+
+#### Custom Animations & Effects
+```typescript
+keyframes: {
+  "fade-in": {
+    "0%": { opacity: "0", transform: "translateY(10px)" },
+    "100%": { opacity: "1", transform: "translateY(0)" }
+  },
+  "glow": {
+    "0%": { boxShadow: "0 0 20px rgba(134, 93, 255, 0.3)" },
+    "100%": { boxShadow: "0 0 30px rgba(134, 93, 255, 0.6)" }
+  }
+}
+```
+
+#### Shadow System
+```typescript
+boxShadow: {
+  'glass': '0 8px 32px rgba(134, 93, 255, 0.1)',
+  'glass-hover': '0 12px 40px rgba(134, 93, 255, 0.2)',
+  'primary': '0 4px 15px rgba(134, 93, 255, 0.3)',
+  'primary-hover': '0 8px 25px rgba(134, 93, 255, 0.4)'
+}
+```
+
+### Configuration Cross-References
+
+#### File Relationships
+- **ESLint**: References [`.bolt/prompt`](.bolt/prompt:1), [`.cursor/rules/`](.cursor/rules/:1), [`CONTRIBUTING.md`](CONTRIBUTING.md:1), [`tsconfig.*.json`](tsconfig.json:1)
+- **Package.json**: References [`README.md`](README.md:1), [`.bolt/prompt`](.bolt/prompt:1), [`.cursor/rules/`](.cursor/rules/:1)
+- **TypeScript**: Uses path aliases configured across all config files
+- **Vite**: Integrates with TypeScript paths and build optimizations
+
+#### Development Standards Enforcement
+- **Zero Warnings Policy**: ESLint configured with `--max-warnings 0`
+- **Strict TypeScript**: All compilation must pass strict mode checks
+- **Format on Save**: Prettier integration required
+- **Path Aliases**: Mandatory use of `@/` prefix for src imports
+- **Code Splitting**: Manual chunks for performance optimization
+
+### Environment Variable Standards
+
+#### Required Variables (from previous analysis)
+```env
+# Supabase Configuration (REQUIRED)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# OpenAI API (REQUIRED)
+VITE_OPENAI_API_KEY=your-openai-api-key
+```
+
+#### Development Server Requirements
+- **Port**: 8080 (configured in vite.config.ts)
+- **Host**: Listens on all interfaces ("::")
+- **HMR**: Hot module replacement enabled
+- **Source Maps**: Generated for debugging
+
+## 📚 Documentation Files Processed
+
+**Chunk 6 - Configuration & Technical Standards (5 files processed):**
+- ✅ `package.json` - Dependencies, scripts, and project metadata
+- ✅ `eslint.config.js` - Code quality rules and browser environment setup
+- ✅ `tsconfig.json` & `tsconfig.app.json` - TypeScript strict mode configuration
+- ✅ `vite.config.ts` - Build tool configuration and performance optimization
+- ✅ `tailwind.config.ts` - Custom theme, brand colors, and animation system
+
+**Key Information Extracted:**
+- Complete dependency management with version constraints
+- TypeScript strict mode requirements and path aliases
+- ESLint rules with comprehensive browser globals
+- Vite build optimizations and code splitting strategy
+- Custom Tailwind theme with therapeutic brand colors
+- Performance optimization settings and manual chunks
+- Development workflow scripts and commands
+- Cross-platform build support configuration
+## 🤖 AI Development Platform Integration
+
+### Bolt.new Platform Integration ([`.bolt/prompt`](.bolt/prompt:1))
+
+#### Core Platform Configuration
+**Primary Development Platform**: Built with [Bolt.new](https://bolt.new/) - AI-powered development environment
+
+#### Technology Stack Snapshot
+```
+TECH_FRONTEND          = React 18 + TypeScript 5 (Vite)
+STYLING                = Tailwind CSS (JIT) + Shadcn/UI components
+STATE_MANAGEMENT       = Zustand with persistence and hydration safety
+BACKEND_API            = Supabase JS client (only calls, no schema edits)
+AI_SERVICES            = OpenAI (narrative) · Leonardo.AI (visuals) · ElevenLabs (voice)
+DEPLOY_TARGET          = Netlify
+```
+
+#### Critical Build Safety Rules (MUST FOLLOW)
+1. **Scope & Safety**:
+   - ONLY edit files explicitly targeted in current build run
+   - NEVER create, rename, or delete files unless prompt says "add ___"
+   - Keep every build idempotent and compilable
+   - Verify before claiming - imports must actually exist in code
+
+2. **Import Validation**:
+   - NEVER create circular imports (e.g., `src/components/ui/use-toast.ts`)
+   - Import hooks directly from `@/hooks/` not from UI components
+   - Always verify imports exist before using them
+   - Never import without updating destructuring: `const { completeScene, resetGame } = useGameStore()`
+
+3. **State Management Requirements**:
+   - Zustand store changes require updating BOTH interface AND destructuring
+   - When adding store actions, update ALL components that need them
+   - Store updates must update interface, implementation, AND all consuming components
+
+4. **TypeScript Compilation Standards**:
+   - Every change must be TypeScript valid
+   - Undefined variables are BUILD FAILURES
+   - Missing dependencies in useEffect arrays must be included
+   - No phantom changes - every claimed change must exist in actual code
+
+#### Component Design Principles (Atomic Design)
+```
+Atoms: Basic UI elements (Button, Input, Card)
+Molecules: Composite components (AuthForm, NavItem, JournalEntryCard)
+Organisms: Complex components (Layout, Sidebar, Adventure, Progress)
+```
+
+**Component Requirements**:
+- Use TypeScript with strict mode; no `any` unless explicitly allowed
+- Keep under 500 lines (split into subcomponents if needed)
+- Use Tailwind CSS only—no separate CSS/Sass files
+- Use Shadcn/UI components: `import { Button } from "@/components/ui/button"`
+- Include proper accessibility attributes (ARIA, keyboard nav, screen reader support)
+
+#### Environment & API Standards
+**Required Environment Variables**:
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co         # REQUIRED
+VITE_SUPABASE_ANON_KEY=your-anon-key                      # REQUIRED
+VITE_OPENAI_API_KEY=your-openai-api-key                   # REQUIRED
+VITE_LEONARDO_API_KEY=your-leonardo-api-key               # OPTIONAL
+VITE_ELEVENLABS_API_KEY=your-elevenlabs-api-key           # OPTIONAL
+```
+
+#### Quality Gates & Error Handling
+- Code **must compile** (`npm run build`) and **lint clean** (`npm run lint`)
+- No ESLint warnings acceptable unless waived in prompt
+- Handle API errors gracefully; validate environment variables
+- Test in production mode before deploying
+
+#### Critical Anti-Patterns (NEVER DO THESE)
+- ❌ Creating `src/components/ui/use-*.ts` files (causes circular imports)
+- ❌ Claiming to add imports without updating destructuring assignments
+- ❌ Using undefined variables (breaks TypeScript compilation)
+- ❌ Modifying store interfaces without updating consuming components
+- ❌ Saying changes are complete when they're not actually implemented
+- ❌ Breaking existing functionality while adding new features
+
+#### Recent Critical Fixes & Lessons Learned
+- **Infinite Loop Fix in JournalModal**: Always include ALL dependencies in useEffect arrays
+- **Health Monitoring Architecture**: Centralized monitoring in game store, not UI components
+- **Database Migration Strategy**: Migration files moved to docs/migrations/ after execution
+
+### Claude Code Integration ([`CLAUDE.md`](CLAUDE.md:1))
+
+#### Platform Purpose
+Provides guidance to Claude Code (claude.ai/code) when working with repository code
+
+#### Development Commands Reference
+```bash
+npm run dev           # Start development server with Vite
+npm run build         # Production build (TypeScript + Vite)
+npm run build:dev     # Development mode build
+npm run build:deploy  # Production deployment build
+npm run lint          # ESLint with TypeScript support
+npm run format        # Prettier code formatting
+npm run test          # Vitest test runner
+npm run test:coverage # Coverage reports
+npm run preview       # Preview production build locally
+```
+
+#### Key Application Structure
+**Single-page application pattern with main routes**:
+- `/` - Home/landing page with authentication
+- `/adventure` - Main gameplay interface (protected)
+- `/progress` - Progress tracking and journal entries (protected)
+- `/profile` - User account management (protected)
+- `/legal` - Legal information and compliance
+
+#### Game State Management Architecture
+**Managed through [`src/store/game-store.ts`](src/store/game-store.ts:1) using Zustand**:
+- **Guardian Trust System**: Core mechanic (0-100)
+- **Journal Entries**: Therapeutic reflections triggered by milestones
+- **Milestones**: Achievement system (trust levels 25, 50, 75)
+- **Scene History**: Completed gameplay scenarios with outcomes
+- **Hydration Safety**: `_hasHydrated` flag prevents SSR/client mismatches
+
+#### Scene Engine Architecture
+**Therapeutic gameplay driven by [`src/engine/scene-engine.ts`](src/engine/scene-engine.ts:1)**:
+- **Scene Types**: social, skill, combat, journal, exploration
+- **Dice Mechanics**: d20 system with difficulty classes (DC)
+- **Choice System**: Bold vs cautious decision-making paths
+- **Trust Modulation**: Outcomes affect guardian trust levels
+
+#### Data Flow Pattern
+1. **Authentication**: Supabase handles user auth and session management
+2. **Game State**: Zustand store persists locally and syncs with Supabase
+3. **Scene Progression**: Linear progression with persistent choice outcomes
+4. **Trust System**: Player choices modify guardian trust, triggering milestones
+5. **Journaling**: Milestone achievements prompt reflective writing
+
+### Multi-Agent Orchestration ([`.roomodes`](.roomodes:1))
+
+#### Roo Code Integration
+**Custom Project Modes Definition**:
+```json
+{
+  "customModes": [
+    {
+      "slug": "boomerang",
+      "name": "Boomerang Mode", 
+      "roleDefinition": "Task orchestrator. Break user requests into subtasks and delegate them using new_task.",
+      "customInstructions": "Decompose into logical subtasks, use new_task for each subtask, aggregate results",
+      "groups": ["read", "edit", "command"]
+    }
+  ]
+}
+```
+
+#### Multi-Agent Workflow Capabilities
+- **Task Decomposition**: Break complex requests into logical subtasks
+- **Mode Delegation**: Delegate to appropriate specialized modes (code, debug, architect)
+- **Result Aggregation**: Collect and unify results from multiple agents
+- **Tool Permissions**: Controlled access to read, edit, and command operations
+
+### Platform Cross-References & Integration
+
+#### Document Library Integration
+**Cross-platform documentation system**:
+- **Bolt.new**: [`.bolt/prompt`](.bolt/prompt:1) - Comprehensive build standards
+- **Claude Code**: [`CLAUDE.md`](CLAUDE.md:1) - Development guidance
+- **Cursor IDE**: [`.cursor/rules/`](.cursor/rules/:1) - Component and layout guidelines
+- **Roo Code**: [`.roomodes`](.roomodes:1) - Multi-agent workflow configurations
+
+#### Configuration Standards Alignment
+- **Code Quality**: [`eslint.config.js`](eslint.config.js:1), [`.prettierrc`](.prettierrc:1), [`tsconfig.*.json`](tsconfig.json:1)
+- **Component Architecture**: [`docs/COMPONENT_MAP.md`](docs/COMPONENT_MAP.md:1)
+- **Legal Compliance**: [`LICENSE`](LICENSE:1) and [`licenses/`](licenses/:1) directory
+- **Environment Setup**: [`.env.example`](.env.example:1) with VITE_ prefix standards
+
+#### Narrative & IP Constraints
+- **Established Lore**: Protagonist **Luminari** journeys through **Lumina**
+- **Therapeutic Purpose**: RPG adventure for healing trauma from parental loss & homelessness
+- **OGL/ORC Licensing**: Use only Open Gaming License content
+- **Content Rating**: All generated text must remain PG-13
+- **Attribution**: Maintain "Built with Bolt.new" attribution in Footer
+
+#### Output Standards
+- **Code Generation**: Prepend with `// GENERATED BY BOLT.NEW – DO NOT EDIT MANUALLY`
+- **Truth in Reporting**: Only claim changes actually implemented in code
+- **Build Verification**: Changes must be syntactically valid TypeScript
+- **Import Safety**: All imports must resolve to existing files/exports
+
+## 📚 Documentation Files Processed
+
+**Chunk 7 - AI Development Platform Integration (3 files processed):**
+- ✅ `.bolt/prompt` - Comprehensive Bolt.new build rules, safety standards, and anti-patterns
+- ✅ `CLAUDE.md` - Claude Code development guidance and architecture overview
+- ✅ `.roomodes` - Multi-agent orchestration configuration for task delegation
+
+**Key Information Extracted:**
+- Bolt.new platform configuration with critical build safety rules
+- AI development platform integration standards and workflows
+- Multi-agent orchestration capabilities with custom modes
+- Cross-platform documentation system integration
+- Critical anti-patterns and lessons learned from production fixes
+- Environment variable standards and API integration requirements
+- Component design principles following atomic design patterns
+- Quality gates and error handling requirements
+## ⚖️ Legal & Licensing Framework
+
+### Multi-License Structure ([`LICENSE`](LICENSE:1))
+
+#### Section A: MIT License (Source Code)
+**Applies to**: All original source code, configuration files, and build scripts
+**Copyright**: © 2025 AIwithApex.com
+
+**Key Permissions**:
+- Use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+- Include in proprietary projects
+- Commercial and private use allowed
+
+**Requirements**:
+- Include copyright notice and permission notice in all copies
+- No warranty provided - software is "AS IS"
+
+#### Section B: Open Game License (OGL) / Open RPG Creative (ORC)
+**Location**: [`licenses/OGL.txt`](licenses/OGL.txt:1)
+**Applies to**: Game mechanics, rules, and RPG content derived from Pathfinder 2e and other OGL/ORC sources
+
+**Critical OGL Requirements**:
+1. **Product Identity Exclusion**: Never use third-party RPG IP or "Product Identity"
+2. **OGL/Pathfinder Mechanics Allowed**: But never name "Pathfinder" in code or text
+3. **Attribution Required**: Must include COPYRIGHT NOTICE for any Open Game Content used
+4. **Distribution**: Must include copy of OGL license with every copy of Open Game Content
+5. **Identification**: Must clearly indicate which portions are Open Game Content
+
+**OGL Terms Summary**:
+- **Open Game Content**: Game mechanics, procedures, processes, and routines (excluding Product Identity)
+- **Product Identity**: Names, logos, characters, stories, artwork, symbols, designs (EXCLUDED)
+- **Compatibility**: Cannot indicate compatibility with trademarks without separate agreement
+- **Updates**: May use any authorized version of the license
+- **Termination**: License terminates if compliance fails for 30+ days
+
+#### Section C: Third-Party Dependencies & Attributions
+**Location**: [`licenses/third-party.md`](licenses/third-party.md:1)
+**Applies to**: All external libraries, frameworks, fonts, icons, and other third-party assets
+
+### Third-Party License Compliance
+
+#### Core Dependencies (MIT Licensed)
+- **React 18**: MIT - Core UI framework
+- **Vite**: MIT - Development and build tooling
+- **Tailwind CSS**: MIT - Utility-first CSS framework
+- **Shadcn/UI**: MIT - Component library built on Radix UI
+- **Radix UI**: MIT - Accessible component primitives
+- **Zustand**: MIT - Lightweight state management solution
+- **React Router**: MIT - Client-side routing
+
+#### Backend & Authentication
+- **Supabase JS**: Apache-2.0 - Backend, auth, and database
+- **@tanstack/react-query**: MIT - Server state management
+
+#### UI Components & Styling
+- **Lucide React**: ISC - Icon set used throughout the app
+- **@fontsource/inter**: SIL OFL 1.1 - Inter font family
+- **class-variance-authority**: Apache-2.0 - Component variant management
+- **clsx**: MIT - Class name construction
+- **tailwind-merge**: MIT - Tailwind class merging
+- **tailwindcss-animate**: MIT - Animation utilities
+
+#### Form & Input Handling
+- **react-hook-form**: MIT - Form state management
+- **cmdk**: MIT - Command palette component
+- **input-otp**: MIT - One-time password input
+
+#### Development Tools
+- **ESLint**: MIT - Code quality
+- **Prettier**: MIT - Code formatting
+- **Vitest**: MIT - Unit testing framework
+- **@testing-library**: MIT - React testing utilities
+- **TypeScript**: Apache-2.0 - Type safety and development experience
+
+#### Build Dependencies
+- **@rollup/rollup-***: MIT - Platform-specific build dependencies
+- **autoprefixer**: MIT - CSS vendor prefixing
+- **postcss**: MIT - CSS transformation
+
+#### Planned AI Integrations (Not Yet Implemented)
+- **OpenAI SDK**: MIT - For narrative generation (planned)
+- **Leonardo.AI**: Leonardo TOS - For image generation (planned)
+- **ElevenLabs**: ElevenLabs TOS - For voice synthesis (planned)
+
+### License Management Standards
+
+#### Attribution Requirements
+**When using this project**:
+1. **For Code**: Include MIT license notice from [`LICENSE`](LICENSE:1)
+2. **For Game Content**: Follow OGL/ORC attribution requirements in [`licenses/OGL.txt`](licenses/OGL.txt:1)
+3. **For Dependencies**: Respect individual third-party license terms in [`licenses/third-party.md`](licenses/third-party.md:1)
+
+#### Dependency Addition Process
+**When adding new dependencies**:
+1. Identify exact package/asset name
+2. Record license (check `npm info <pkg> license` or repository)
+3. Provide URL to source or Terms of Service if not obvious
+4. Add usage constraint notes (e.g., "credit required in About page")
+5. Update [`licenses/third-party.md`](licenses/third-party.md:1)
+
+#### Legal Compliance Cross-References
+- **Main License**: [`LICENSE`](LICENSE:1)
+- **OGL Compliance**: [`licenses/OGL.txt`](licenses/OGL.txt:1)
+- **Dependency Management**: [`package.json`](package.json:1)
+- **Legal Requirements**: [`.bolt/prompt`](.bolt/prompt:1) and [`.cursor/rules/project-context.mdc`](.cursor/rules/project-context.mdc:1)
+
+### Content & IP Constraints
+
+#### Narrative Requirements
+- **Established Lore**: Protagonist **Luminari** journeys through **Lumina**
+- **Therapeutic Purpose**: RPG adventure for healing trauma from parental loss & homelessness
+- **Content Rating**: All generated text, variables, and comments must remain PG-13
+- **Attribution**: Maintain "Built with Bolt.new" attribution in Footer
+
+#### Game Content Standards
+- **OGL/ORC Compliance**: Use only Open Gaming License content
+- **Product Identity Exclusion**: Never use third-party RPG IP or branded content
+- **Pathfinder Mechanics**: Allowed under ORC License but exclude Product Identity
+- **No Brand Names**: Never reference "Pathfinder" in code or text
+
+#### Legal Documentation Maintenance
+- **Update Requirement**: Maintain [`licenses/third-party.md`](licenses/third-party.md:1) when adding dependencies
+- **Cross-Platform Standards**: Reference across [`.bolt/prompt`](.bolt/prompt:1), [`CONTRIBUTING.md`](CONTRIBUTING.md:1), and [`README.md`](README.md:1)
+- **Version Control**: Track all licensing changes in [`CHANGELOG.md`](CHANGELOG.md:1)
+
+### License Summary Reference
+```
+Source Code:     MIT License (LICENSE file)
+Game Content:    OGL/ORC License (licenses/OGL.txt)  
+Dependencies:    Various licenses (licenses/third-party.md)
+Attribution:     Built with Bolt.new (required in Footer)
+```
+
+## 📚 Documentation Files Processed - COMPLETE ANALYSIS
+
+**Chunk 8 - Legal & Licensing Documentation (3 files processed):**
+- ✅ `LICENSE` - Multi-license structure with MIT, OGL, and third-party sections
+- ✅ `licenses/third-party.md` - Comprehensive dependency attribution and license tracking
+- ✅ `licenses/OGL.txt` - Open Game License compliance for RPG content
+
+**FINAL SUMMARY - All 8 Chunks Completed (29 total files processed):**
+
+### **Core Documentation (2 files)**
+- ✅ `README.md` - Project overview, tech stack, features, architecture
+- ✅ `docs/FAQ.md` - Development setup, troubleshooting, coding standards
+
+### **Contributing & Standards (3 files)**
+- ✅ `CONTRIBUTING.md` - Development workflow, component patterns, technical guidelines
+- ✅ `CODE_OF_CONDUCT.md` - Community standards and behavioral expectations
+- ✅ `CHANGELOG.md` - Version history, bug fixes, architectural decisions
+
+### **Architecture & Technical Documentation (3 files)**
+- ✅ `docs/COMPONENT_MAP.md` - Component status, relationships, development standards
+- ✅ `docs/DATABASE_SCHEMA.md` - Database tables, RLS policies, performance indexes
+- ✅ `docs/ENVIRONMENT_ARCHITECTURE.md` - Environment setup, Supabase configuration
+
+### **Project Management & Deployment (2 files)**
+- ✅ `TASK_LIST.md` - Comprehensive development roadmap, phase tracking, bug fix history
+- ✅ `PRODUCTION_DEPLOYMENT.md` - Step-by-step production deployment guide
+
+### **Testing & Quality Assurance (2 files)**
+- ✅ `MANUAL_TESTING_GUIDE.md` - Comprehensive manual testing procedures and checklists
+- ✅ `MILESTONE_FIX_SUMMARY.md` - Critical bug fix case study with lessons learned
+
+### **Configuration & Technical Standards (5 files)**
+- ✅ `package.json` - Dependencies, scripts, and project metadata
+- ✅ `eslint.config.js` - Code quality rules and browser environment setup
+- ✅ `tsconfig.json` & `tsconfig.app.json` - TypeScript strict mode configuration
+- ✅ `vite.config.ts` - Build tool configuration and performance optimization
+- ✅ `tailwind.config.ts` - Custom theme, brand colors, and animation system
+
+### **AI Development Platform Integration (3 files)**
+- ✅ `.bolt/prompt` - Comprehensive Bolt.new build rules, safety standards, and anti-patterns
+- ✅ `CLAUDE.md` - Claude Code development guidance and architecture overview
+- ✅ `.roomodes` - Multi-agent orchestration configuration for task delegation
+
+### **Legal & Licensing Documentation (3 files)**
+- ✅ `LICENSE` - Multi-license structure with MIT, OGL, and third-party sections
+- ✅ `licenses/third-party.md` - Comprehensive dependency attribution and license tracking
+- ✅ `licenses/OGL.txt` - Open Game License compliance for RPG content
+
+### **Complete Project Rules Extracted:**
+- Project purpose and target audience
+- Complete tech stack and dependencies with version constraints
+- Component architecture patterns and requirements
+- Database schema with RLS security policies
+- Multi-environment deployment strategy
+- Critical bug fix history and prevention strategies
+- Testing procedures and quality assurance standards
+- AI platform integration workflows and standards
+- Legal compliance framework and licensing requirements
+- Development workflow and contribution guidelines
+- Configuration standards and build optimization
+- Performance requirements and monitoring systems
+
+**ANALYSIS STATUS: ✅ COMPLETE - All discoverable project files systematically reviewed and documented**

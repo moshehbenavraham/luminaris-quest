@@ -4,6 +4,11 @@ import { GuardianText } from '@/components/GuardianText';
 import { JournalModal, type JournalEntry } from '@/components/JournalModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useGameStore } from '@/store/game-store';
+import AudioPlayer from '@/components/organisms/AudioPlayer';
+import { audioPlaylist } from '@/data/audioPlaylist';
+
+// Feature flag for AudioPlayer integration
+const ENABLE_AUDIO_PLAYER = true;
 
 export function Adventure() {
   const {
@@ -93,6 +98,11 @@ export function Adventure() {
     <ErrorBoundary>
       <div className="space-y-6">
         <GuardianText trust={guardianTrust} message={guardianMessage} />
+        {ENABLE_AUDIO_PLAYER && (
+          <div className="mb-4">
+            <AudioPlayer tracks={audioPlaylist} />
+          </div>
+        )}
         <ChoiceList
           guardianTrust={guardianTrust}
           setGuardianTrust={setGuardianTrust}

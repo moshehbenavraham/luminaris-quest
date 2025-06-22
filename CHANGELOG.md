@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Audio Player Implementation (2025-06-22)** - Complete MP3 playlist functionality
+  - ✅ **Step 1 & 2 Complete**: Basic AudioPlayer component with track navigation
+  - ✅ **Step 3 Complete**: Applied Tailwind CSS styling with project design system
+  - ✅ **Step 4 Complete**: Added comprehensive accessibility features
+  - ✅ **Step 5 Complete**: Integrated AudioPlayer on Adventure page with feature flag
+  - ✅ **Playlist Expansion**: Updated to include all 16 Luminari's Quest soundtrack files
+  - Integrated `react-h5-audio-player` and created `src/components/organisms/AudioPlayer.tsx`
+  - Implemented automatic next-track functionality via `onEnded` event
+  - Added optional `onTrackChange` callback prop for parent component integration
+  - Applied glass morphism design with card-enhanced styling and hover effects
+  - Customized audio player controls to match project's primary/accent color scheme
+  - **Accessibility Features**: Keyboard shortcuts (Space/K=Play/Pause, ←/J=Previous, →/L=Next)
+  - **Screen Reader Support**: ARIA labels, live regions, and semantic roles
+  - **Keyboard Navigation**: Full keyboard control with visual shortcuts guide
+  - **Adventure Page Integration**: Feature flag controlled rendering with centralized playlist
+  - **Complete Soundtrack**: All 16 themed audio files with user's favorite track prioritized
+  - **Randomized Playlist**: Tracks arranged in random order for variety and replayability
+  - **Clean Track Titles**: Readable names without technical suffixes for better UX
+  - **Non-breaking Integration**: Preserves all existing Adventure page functionality
+  - Full unit test coverage with 11 passing tests (5 AudioPlayer + 6 Adventure integration)
+  - Component accepts `tracks` prop array and displays current track title
+- **Testing Infrastructure Updates (2025-06-22)**
+  - Added `vitest.config.ts` with jsdom environment and `vitest.setup.ts` for jest-dom matchers and cleanup.
+  - Installed `@testing-library/jest-dom` and set up custom matchers.
+- **Documentation & Tooling (2025-06-22)**
+  - Introduced `.augmentignore` for Augment Code extension and documented it in `README.md` under IDE integration sections.
+
 ### Fixed
 - **Database 404 Errors Solution (2025-06-17)** - Resolved missing tables issue
   - Root cause: Database tables not created in Supabase instance
