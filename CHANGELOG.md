@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **🔍 Database Persistence Investigation (2025-06-23)** - Identified and documented issues with Supabase data persistence
+  - ✅ **Root Cause Analysis**: Identified potential issues with database connectivity and table existence
+  - ✅ **Troubleshooting Guide**: Created step-by-step process for diagnosing Supabase connection issues
+  - ✅ **Documentation Updates**: Updated TASK_LIST.md with detailed database persistence tasks
+  - ✅ **Network Request Inspection**: Added guidance for checking browser network requests to Supabase
+  - ✅ **Environment Variable Verification**: Added steps to verify Supabase configuration
+  - **Impact**: Improved understanding of database persistence issues for faster resolution
+  - **Next Steps**: Debug and fix identified issues to enable proper data persistence
+
+### Added
+
 - **🔧 Home Page Image Overlap Fix (2025-06-22)** - Applied proven Progress page overlap solution to Home page
   - ✅ **Root Cause Prevention**: Applied same systematic fix that resolved Progress page AspectRatio component conflicts
   - ✅ **Natural Image Sizing**: Removed `ratio` and `forceAspectRatio` props, allowing natural image sizing with `className="w-full h-auto rounded-lg shadow-lg"`
