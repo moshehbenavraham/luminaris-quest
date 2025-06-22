@@ -1,6 +1,10 @@
 import { HealthStatus } from '@/components/HealthStatus';
+import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
+import { imageRegistry } from '@/data/imageRegistry';
 
 export function Profile() {
+  const profileHeroImage = imageRegistry.profileHero;
+
   return (
     <div className="space-y-6">
       <div>
@@ -8,6 +12,19 @@ export function Profile() {
           Profile
         </h1>
         <p className="text-xl text-muted-foreground">Manage your account and preferences.</p>
+      </div>
+
+      {/* Profile Hero Image - Mobile-first at logical top-of-fold position */}
+      <div className="mb-6">
+        <ImpactfulImage
+          data-testid="impactful-image"
+          src={profileHeroImage.avif || profileHeroImage.src}
+          alt={profileHeroImage.alt}
+          ratio={profileHeroImage.aspectRatio}
+          priority={profileHeroImage.priority}
+          fallback={profileHeroImage.fallback}
+          className="md:rounded-full md:max-w-[280px] mx-auto"
+        />
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">

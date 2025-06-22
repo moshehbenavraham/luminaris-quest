@@ -6,9 +6,10 @@ interface GuardianTextProps {
   trust: number;
   message: string;
   className?: string;
+  'data-testid'?: string;
 }
 
-export function GuardianText({ trust, message, className }: GuardianTextProps) {
+export function GuardianText({ trust, message, className, 'data-testid': testId }: GuardianTextProps) {
   const [hasShownIntro, setHasShownIntro] = useState(false);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export function GuardianText({ trust, message, className }: GuardianTextProps) {
   const shouldShowMessage = !isIntroMessage || !hasShownIntro;
 
   return (
-    <Card className={className}>
+    <Card className={className} data-testid={testId}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Sparkles className="h-5 w-5 text-purple-500" />

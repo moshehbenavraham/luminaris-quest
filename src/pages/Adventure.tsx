@@ -6,6 +6,8 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useGameStore } from '@/store/game-store';
 import AudioPlayer from '@/components/organisms/AudioPlayer';
 import { audioPlaylist } from '@/data/audioPlaylist';
+import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
+import { imageRegistry } from '@/data/imageRegistry';
 
 // Feature flag for AudioPlayer integration
 const ENABLE_AUDIO_PLAYER = true;
@@ -94,32 +96,55 @@ export function Adventure() {
     );
   }
 
+  const adventureHeroImage = imageRegistry.adventureHero;
+
   return (
     <ErrorBoundary>
-      <div className="space-y-6">
-        <GuardianText trust={guardianTrust} message={guardianMessage} />
-        {ENABLE_AUDIO_PLAYER && (
-          <div className="mb-4">
+      {/* Mobile-first container with generous spacing and proper padding */}
+      <div className="px-4 py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto max-w-4xl space-y-8 lg:space-y-10">
+          {/* Adventure Hero Image - Mobile-first at top-of-fold position */}
+          <ImpactfulImage
+            data-testid="impactful-image"
+            src={adventureHeroImage.avif || adventureHeroImage.src}
+            alt={adventureHeroImage.alt}
+            ratio={adventureHeroImage.aspectRatio}
+            priority={adventureHeroImage.priority}
+            fallback={adventureHeroImage.fallback}
+            className="md:rounded-xl md:max-h-[420px]"
+          />
+
+          {/* Guardian Text with clear visual separation */}
+          <GuardianText trust={guardianTrust} message={guardianMessage} data-testid="guardian-text" />
+
+          {/* Audio Player with consistent spacing */}
+          {ENABLE_AUDIO_PLAYER && (
             <AudioPlayer tracks={audioPlaylist} />
-          </div>
-        )}
-        <ChoiceList
-          guardianTrust={guardianTrust}
-          setGuardianTrust={setGuardianTrust}
-          setGuardianMessage={setGuardianMessage}
-          onSceneComplete={handleSceneComplete}
-          onLearningMoment={handleLearningMoment}
-        />
-        <JournalModal
-          isOpen={showJournalModal}
-          onClose={() => {
-            setShowJournalModal(false);
-            setCurrentMilestoneLevel(null);
-          }}
-          trustLevel={guardianTrust}
-          triggerType={journalTrigger}
-          onSaveEntry={handleSaveJournalEntry}
-        />
+          )}
+
+          {/* Choice List with adequate spacing for touch targets */}
+          <ChoiceList
+            guardianTrust={guardianTrust}
+            setGuardianTrust={setGuardianTrust}
+            setGuardianMessage={setGuardianMessage}
+            onSceneComplete={handleSceneComplete}
+            onLearningMoment={handleLearningMoment}
+            data-testid="choice-list"
+          />
+
+          {/* Journal Modal - positioned outside main flow */}
+          <JournalModal
+            isOpen={showJournalModal}
+            onClose={() => {
+              setShowJournalModal(false);
+              setCurrentMilestoneLevel(null);
+            }}
+            trustLevel={guardianTrust}
+            triggerType={journalTrigger}
+            onSaveEntry={handleSaveJournalEntry}
+            data-testid="journal-modal"
+          />
+        </div>
       </div>
     </ErrorBoundary>
   );

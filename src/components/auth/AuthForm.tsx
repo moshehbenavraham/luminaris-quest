@@ -142,7 +142,7 @@ export function AuthForm() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-md">
+    <Card className="mx-auto w-full max-w-md !bg-background/95 !backdrop-filter-none !border-border" data-testid="auth-form">
       <CardHeader>
         <CardTitle>{mode === 'login' ? 'Sign In' : 'Create Account'}</CardTitle>
         <CardDescription>

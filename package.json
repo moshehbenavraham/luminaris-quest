@@ -6,14 +6,15 @@
   "description": "Therapeutic AI-powered RPG adventure. Built with Bolt.new. See README.md, .bolt/prompt, and .cursor/rules/ for development standards.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --project tsconfig.app.json --noEmit && vite build",
     "build:dev": "vite build --mode development",
     "build:deploy": "npm ci --include=optional && tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "optimize-images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "@fontsource/inter": "^5.0.16",
@@ -87,6 +88,7 @@
     "postcss": "^8.4.35",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
+    "sharp": "^0.34.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^6.3.5",

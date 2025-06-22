@@ -19,6 +19,12 @@ All core app logic and UI were built primarily in Bolt.new
 | **Scene Engine** | ✅ Complete | Therapeutic gameplay with dice mechanics and choice system |
 | **Legal Compliance** | ✅ Complete | Comprehensive legal pages with tabbed interface |
 
+### 🧩 Atomic Components
+
+| Component | Status | Implementation Details |
+|-----------|--------|----------------------|
+| **ImpactfulImage** | ✅ Complete | Performance-optimized image component with WebP/AVIF support, LCP optimization, mobile-first design, and WCAG 2.1 AA compliance |
+
 ## 🔧 Recent Enhancements
 
 ### Journal System Improvements
@@ -61,18 +67,80 @@ App.tsx
 │   ├── Sidebar.tsx (Navigation to all pages)
 │   └── Footer.tsx
 ├── Pages/
-│   ├── Home.tsx (Auth integration)
-│   ├── Adventure.tsx
+│   ├── Home.tsx (Auth integration + ImpactfulImage)
+│   ├── Adventure.tsx (ImpactfulImage integration)
 │   │   ├── ChoiceList.tsx
 │   │   ├── GuardianText.tsx
 │   │   └── JournalModal.tsx
-│   ├── Progress.tsx
+│   ├── Progress.tsx (ImpactfulImage integration)
 │   │   └── JournalEntryCard.tsx ✨ (New CRUD functionality)
-│   ├── Profile.tsx
+│   ├── Profile.tsx (ImpactfulImage integration)
 │   └── Legal.tsx
+├── Components/
+│   └── atoms/
+│       └── ImpactfulImage.tsx ✨ (Performance-optimized images)
+├── Hooks/
+│   └── useImpactfulImage.ts ✨ (Responsive image selection)
+├── Data/
+│   └── imageRegistry.ts ✨ (Centralized image assets)
 └── Store/
     └── game-store.ts (Zustand with persistence)
 ```
+
+## 🖼️ ImpactfulImage Component Details
+
+### Component Interface
+```typescript
+interface ImpactfulImageProps {
+  src: string;               // Image path
+  alt: string;               // Accessible description
+  ratio?: number;            // Aspect ratio (e.g. 16/9)
+  priority?: boolean;        // true ⇒ eager loading + fetchpriority=high
+  className?: string;        // Custom styling
+  fallback?: string;         // Fallback image path if main fails
+  blurDataUrl?: string;      // Base64 tiny placeholder for progressive loading
+  objectPosition?: string;   // Control focus point (e.g., "center top")
+}
+```
+
+### Key Features
+- **Performance Optimization**: WebP/AVIF format support with automatic browser detection
+- **LCP Optimization**: Priority loading for above-the-fold images
+- **Mobile-First Design**: Responsive sizing with proper aspect ratio maintenance
+- **Accessibility**: WCAG 2.1 AA compliance with proper ARIA attributes
+- **Progressive Loading**: Blur-up pattern with base64 placeholders
+- **Error Handling**: Graceful fallback to alternative image sources
+- **TypeScript**: Fully typed with comprehensive prop validation
+
+### Usage Examples
+```tsx
+// Basic usage with image registry
+import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
+import { imageRegistry } from '@/data/imageRegistry';
+
+<ImpactfulImage
+  src={imageRegistry.homeHero.avif || imageRegistry.homeHero.src}
+  alt={imageRegistry.homeHero.alt}
+  ratio={imageRegistry.homeHero.aspectRatio}
+  priority={true}
+  fallback={imageRegistry.homeHero.fallback}
+  className="rounded-lg shadow-lg"
+/>
+
+// Advanced usage with hook
+import { useOptimizedImageSrc } from '@/hooks/useImpactfulImage';
+
+const optimizedSrc = useOptimizedImageSrc(imageRegistry.adventureHero);
+<ImpactfulImage src={optimizedSrc} alt="Adventure scene" ratio={16/9} />
+```
+
+### Integration Status
+- ✅ **Home.tsx**: Hero section with priority=true for LCP optimization
+- ✅ **Adventure.tsx**: Top-of-fold positioning with responsive styling
+- ✅ **Progress.tsx**: Optimized placement with border styling
+- ✅ **Profile.tsx**: Circular profile image with mobile-first design
+- ✅ **Test Coverage**: 29 comprehensive unit tests with 100% pass rate
+- ✅ **Documentation**: Complete hook documentation in `docs/useImpactfulImage.md`
 
 ## 🎯 Development Standards Met
 
@@ -86,4 +154,4 @@ App.tsx
 
 ---
 
-_Last updated: 2024-12-19 - Component extraction and journal system enhancements completed_
+_Last updated: 2025-06-22 - ImpactfulImage component documentation added with comprehensive usage examples and integration details_

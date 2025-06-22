@@ -68,7 +68,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8"
+                    className="min-h-[44px] min-w-[44px]"
                     onClick={() => setIsEditing(true)}
                     aria-label="Edit journal entry"
                   >
@@ -77,7 +77,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    className="min-h-[44px] min-w-[44px] text-destructive hover:text-destructive"
                     onClick={() => setShowDeleteDialog(true)}
                     aria-label="Delete journal entry"
                   >
@@ -105,7 +105,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
                 autoFocus
               />
               <div className="flex justify-end gap-2">
-                <Button size="sm" variant="outline" onClick={handleCancel}>
+                <Button size="sm" variant="outline" onClick={handleCancel} className="min-h-[44px]">
                   <X className="mr-1 h-4 w-4" />
                   Cancel
                 </Button>
@@ -113,6 +113,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
                   size="sm"
                   onClick={handleSave}
                   disabled={!editedContent.trim() || editedContent === entry.content}
+                  className="min-h-[44px]"
                 >
                   <Save className="mr-1 h-4 w-4" />
                   Save
@@ -145,10 +146,10 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="min-h-[44px]">
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" onClick={handleDelete} className="min-h-[44px]">
               Delete
             </Button>
           </DialogFooter>

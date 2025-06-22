@@ -1,0 +1,123 @@
+{
+  "budget": [
+    {
+      "path": "/*",
+      "timings": [
+        {
+          "metric": "first-contentful-paint",
+          "budget": 1800
+        },
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 2500
+        },
+        {
+          "metric": "speed-index",
+          "budget": 3000
+        },
+        {
+          "metric": "cumulative-layout-shift",
+          "budget": 0.1
+        },
+        {
+          "metric": "total-blocking-time",
+          "budget": 300
+        }
+      ],
+      "resourceSizes": [
+        {
+          "resourceType": "total",
+          "budget": 1600
+        },
+        {
+          "resourceType": "image",
+          "budget": 800
+        },
+        {
+          "resourceType": "script",
+          "budget": 400
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 100
+        },
+        {
+          "resourceType": "font",
+          "budget": 100
+        },
+        {
+          "resourceType": "document",
+          "budget": 50
+        },
+        {
+          "resourceType": "other",
+          "budget": 150
+        }
+      ],
+      "resourceCounts": [
+        {
+          "resourceType": "total",
+          "budget": 100
+        },
+        {
+          "resourceType": "image",
+          "budget": 20
+        },
+        {
+          "resourceType": "script",
+          "budget": 15
+        },
+        {
+          "resourceType": "stylesheet",
+          "budget": 5
+        },
+        {
+          "resourceType": "font",
+          "budget": 5
+        }
+      ]
+    },
+    {
+      "path": "/",
+      "timings": [
+        {
+          "metric": "largest-contentful-paint",
+          "budget": 2000
+        }
+      ],
+      "resourceSizes": [
+        {
+          "resourceType": "image",
+          "budget": 600
+        }
+      ]
+    },
+    {
+      "path": "/adventure",
+      "resourceSizes": [
+        {
+          "resourceType": "image",
+          "budget": 400
+        }
+      ]
+    },
+    {
+      "path": "/progress",
+      "resourceSizes": [
+        {
+          "resourceType": "image",
+          "budget": 300
+        }
+      ]
+    },
+    {
+      "path": "/profile",
+      "resourceSizes": [
+        {
+          "resourceType": "image",
+          "budget": 300
+        }
+      ]
+    }
+  ]
+}

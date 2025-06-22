@@ -99,6 +99,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
       role="region"
       aria-label={`Audio player - ${currentTrack.title} (${currentIdx + 1} of ${tracks.length})`}
       tabIndex={0}
+      data-testid="audio-player"
     >
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         Now playing: {currentTrack.title}, track {currentIdx + 1} of {tracks.length}

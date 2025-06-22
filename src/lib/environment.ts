@@ -23,13 +23,13 @@ export interface EnvironmentConfig {
 export const detectEnvironment = (): Environment => {
   // Server-side rendering defaults to production
   if (typeof window === 'undefined') return 'prod';
-  
-  const hostname = window.location.hostname;
-  const url = window.location.href;
-  
+
+  const hostname = window.location?.hostname || '';
+  const url = window.location?.href || '';
+
   // Check for local development
-  if (hostname === 'localhost' || 
-      hostname === '127.0.0.1' || 
+  if (hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
       hostname.startsWith('192.168.') ||
       hostname.startsWith('10.') ||
       hostname.endsWith('.local')) {

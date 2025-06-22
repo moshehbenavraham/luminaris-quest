@@ -69,7 +69,7 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
 
   if (showDetails) {
     return (
-      <Card className={`${className}`}>
+      <Card className={`${className}`} data-testid="health-status">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold">Database Connection</h3>

@@ -21,6 +21,7 @@ interface ChoiceListProps {
   setGuardianMessage: (message: string) => void;
   onSceneComplete?: (sceneId: string, success: boolean) => void;
   onLearningMoment?: () => void;
+  'data-testid'?: string;
 }
 
 export function ChoiceList({
@@ -29,6 +30,7 @@ export function ChoiceList({
   setGuardianMessage,
   onSceneComplete,
   onLearningMoment,
+  'data-testid': testId,
 }: ChoiceListProps) {
   const { completeScene, resetGame, currentSceneIndex, advanceScene } = useGameStore();
   const [showDiceRoll, setShowDiceRoll] = useState(false);
@@ -150,7 +152,7 @@ export function ChoiceList({
             <p className="mb-2 text-sm text-muted-foreground">Final Trust Level</p>
             <p className="text-2xl font-bold">{guardianTrust}/100</p>
           </div>
-          <Button onClick={handleNewJourney} className="w-full">
+          <Button onClick={handleNewJourney} className="min-h-[44px] w-full py-3">
             Begin New Journey
           </Button>
         </CardContent>
@@ -160,7 +162,7 @@ export function ChoiceList({
 
   return (
     <>
-      <Card className="mx-auto w-full max-w-2xl">
+      <Card className="mx-auto w-full max-w-2xl" data-testid={testId}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -191,26 +193,26 @@ export function ChoiceList({
               <p className="text-xs text-muted-foreground">Your choice will be tested by fate</p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Button
                 onClick={handleChoice}
                 disabled={isProcessing}
-                className="h-auto w-full justify-start p-4 text-left"
+                className="h-auto min-h-[44px] w-full justify-start p-4 text-left"
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="text-base font-medium">{currentScene.choices.bold}</div>
+                  <div className="text-base font-medium leading-relaxed">{currentScene.choices.bold}</div>
                 </div>
               </Button>
 
               <Button
                 onClick={handleChoice}
                 disabled={isProcessing}
-                className="h-auto w-full justify-start p-4 text-left"
+                className="h-auto min-h-[44px] w-full justify-start p-4 text-left"
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="text-base font-medium">{currentScene.choices.cautious}</div>
+                  <div className="text-base font-medium leading-relaxed">{currentScene.choices.cautious}</div>
                 </div>
               </Button>
             </div>

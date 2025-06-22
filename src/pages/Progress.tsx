@@ -3,10 +3,13 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, BookOpen, Calendar, Award } from 'lucide-react';
 import { JournalEntryCard } from '@/components/JournalEntryCard';
 import { useGameStore } from '@/store/game-store';
+import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
+import { imageRegistry } from '@/data/imageRegistry';
 
 export function Progress() {
   const { guardianTrust, journalEntries, milestones, updateJournalEntry, deleteJournalEntry } =
     useGameStore();
+  const progressHeroImage = imageRegistry.progressHero;
 
   const getTrustLabel = (trust: number): string => {
     if (trust >= 75) return 'Unbreakable Bond';
@@ -23,16 +26,27 @@ export function Progress() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="mb-4 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          Progress
-        </h1>
-        <p className="text-xl text-muted-foreground">Track your journey and achievements.</p>
-      </div>
+    <div className="px-4 py-6 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-4xl space-y-8 lg:space-y-10">
+        <div>
+          <h1 className="mb-4 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+            Progress
+          </h1>
+          <p className="text-xl text-muted-foreground">Track your journey and achievements.</p>
+        </div>
 
-      {/* Trust Level Progress */}
-      <Card>
+        {/* Progress Hero Image - Natural sizing for proper layout flow */}
+        <ImpactfulImage
+          data-testid="impactful-image"
+          src={progressHeroImage.avif || progressHeroImage.src}
+          alt={progressHeroImage.alt}
+          priority={progressHeroImage.priority}
+          fallback={progressHeroImage.fallback}
+          className="w-full h-auto md:rounded-xl"
+        />
+
+        {/* Trust Level Progress */}
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-red-500" />
@@ -60,10 +74,10 @@ export function Progress() {
             <span className="text-muted-foreground">/100</span>
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
-      {/* Milestone Badges */}
-      <Card>
+        {/* Milestone Badges */}
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Award className="h-5 w-5 text-yellow-500" />
@@ -83,7 +97,7 @@ export function Progress() {
               .map((milestone) => (
                 <div
                   key={milestone.id}
-                  className={`rounded-lg border-2 p-4 transition-all duration-300 ${
+                  className={`min-h-[44px] rounded-lg border-2 p-4 transition-all duration-300 ${
                     milestone.achieved
                       ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20'
                       : 'border-gray-200 bg-gray-50 dark:bg-gray-900/20'
@@ -104,10 +118,10 @@ export function Progress() {
               ))}
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
-      {/* Journal Entries */}
-      <Card>
+        {/* Journal Entries */}
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-purple-500" />
@@ -150,7 +164,8 @@ export function Progress() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

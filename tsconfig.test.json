@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": [
+    "src/__tests__/**/*",
+    "vitest.setup.ts",
+    "vitest.config.ts"
+  ]
+}
