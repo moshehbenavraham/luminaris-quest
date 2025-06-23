@@ -662,7 +662,7 @@ const useGameStoreBase = create<GameState>()(
 
           logger.debug('Game state loaded', { 
             found: !!gameState,
-            guardianTrust: gameState?.guardian_trust
+            guardianTrust: gameState?.guardian_trust || 0
           });
 
           // Load journal entries
@@ -678,7 +678,7 @@ const useGameStoreBase = create<GameState>()(
           }
 
           logger.debug('Journal entries loaded', { 
-            count: journalEntries?.length || 0 
+            count: journalEntries?.length || 0
           });
 
           if (gameState || journalEntries) {
@@ -725,7 +725,7 @@ const useGameStoreBase = create<GameState>()(
             });
 
             logger.info('Game state loaded from Supabase successfully', {
-              guardianTrust: gameState?.guardian_trust,
+              guardianTrust: gameState?.guardian_trust || 0,
               journalCount: journalEntries?.length || 0
             });
           }
