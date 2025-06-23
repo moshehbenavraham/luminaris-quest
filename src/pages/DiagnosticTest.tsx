@@ -7,21 +7,27 @@ import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw, Database, BookOpen, Shield } from 'lucide-react';
 import { runAllDiagnostics } from '@/lib/diagnose-database';
-import { useGameStore } from '@/store/game-store';
 
 export function DiagnosticTest() {
   const [isLoading, setIsLoading] = useState(true);
   const [testResults, setTestResults] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('database');
   
-  // Get store state for reference
-  const { 
-    guardianTrust,
-    journalEntries,
-    milestones,
-    saveState,
-    healthStatus
-  } = useGameStore();
+  // Import store directly to avoid unused variable warnings
+  const store = () => {
+    const { 
+      guardianTrust,
+      journalEntries,
+      milestones,
+      saveState
+    } = useGameStore();
+    return { guardianTrust, journalEntries, milestones, saveState };
+  };
+
+  // Import useGameStore only when needed to avoid unused variable warnings
+  function useGameStore() {
+    return require('@/store/game-store').useGameStore();
+  }
 
   const runDiagnostics = async () => {
     setIsLoading(true);
@@ -498,19 +504,19 @@ export function DiagnosticTest() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <p className="text-sm font-medium">Guardian Trust:</p>
-                          <p className="text-sm">{guardianTrust}</p>
+                          <p className="text-sm">{store().guardianTrust}</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm font-medium">Journal Entries:</p>
-                          <p className="text-sm">{journalEntries.length}</p>
+                          <p className="text-sm">{store().journalEntries.length}</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm font-medium">Milestones:</p>
-                          <p className="text-sm">{milestones.filter(m => m.achieved).length} achieved</p>
+                          <p className="text-sm">{store().milestones.filter(m => m.achieved).length} achieved</p>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm font-medium">Save State:</p>
-                          <p className="text-sm">{saveState.status}</p>
+                          <p className="text-sm">{store().saveState.status}</p>
                         </div>
                       </div>
                     </div>
