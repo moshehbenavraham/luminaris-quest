@@ -10,6 +10,7 @@ import { Profile } from '@/pages/Profile';
 import { Legal } from '@/pages/Legal';
 import { DatabaseTest } from '@/pages/DatabaseTest';
 import { JournalTest } from '@/pages/JournalTest';
+import { DiagnosticTest } from '@/pages/DiagnosticTest';
 import { useHealthMonitoring } from '@/hooks/use-health-monitoring';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
               <Route path="/auth/callback" element={<Home />} />
               <Route path="/database-test" element={<DatabaseTest />} />
               <Route path="/journal-test" element={<JournalTest />} />
+              <Route path="/diagnostic-test" element={<DiagnosticTest />} />
             </Route>
           </Routes>
         </Router>

@@ -407,9 +407,31 @@ const useGameStoreBase = create<GameState>()(
       saveToSupabase: async () => {
         const state = get();
         
-        // Don't save if already saving
+        // Don't save if already saving or no user is authenticated
         if (state.saveState.status === 'saving') {
           logger.debug('Save already in progress, skipping');
+          return;
+        }
+
+        // Get current user before starting save process
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          
+          if (userError || !user) {
+            logger.warn('No authenticated user, skipping save', userError);
+            set((state) => ({
+              saveState: {
+                ...state.saveState,
+                status: 'error',
+                lastError: userError?.message || 'No authenticated user',
+                hasUnsavedChanges: true
+              }
+            }));
+            return;
+          }
+        } catch (error) {
+          logger.error('Error checking authentication before save', error);
           return;
         }
 
@@ -427,15 +449,14 @@ const useGameStoreBase = create<GameState>()(
             logger.debug(`Save attempt ${attempt}/${RETRY_CONFIG.maxAttempts}`);
 
             const { supabase } = await import('@/lib/supabase');
-            const {
-              data: { user },
-            } = await supabase.auth.getUser();
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-            if (!user) {
+            if (userError || !user) {
+              logger.error('Authentication error during save', userError);
               throw {
                 type: SaveErrorType.AUTHENTICATION_ERROR,
-                message: 'No user authenticated - cannot save game state',
-                originalError: null
+                message: userError?.message || 'No user authenticated - cannot save game state',
+                originalError: userError
               };
             }
 
@@ -443,13 +464,14 @@ const useGameStoreBase = create<GameState>()(
             const startTime = Date.now();
 
             // Prepare game state data
-            const gameState = {
+            // Ensure all data is properly formatted for database
+            const gameState: any = {
               user_id: user.id,
               guardian_trust: currentState.guardianTrust,
               player_level: currentState.playerLevel,
               current_scene_index: currentState.currentSceneIndex,
-              milestones: currentState.milestones,
-              scene_history: currentState.sceneHistory,
+              milestones: JSON.stringify(currentState.milestones),
+              scene_history: JSON.stringify(currentState.sceneHistory),
               updated_at: new Date().toISOString(),
             };
 
@@ -457,27 +479,42 @@ const useGameStoreBase = create<GameState>()(
               userId: user.id,
               guardianTrust: gameState.guardian_trust,
               journalCount: currentState.journalEntries.length
-            });
+            }, gameState);
 
             // Save game state with timeout
-            const { error: stateError } = await Promise.race([
-              supabase.from('game_states').upsert(gameState, { onConflict: 'user_id' }),
+            const { data: savedState, error: stateError } = await Promise.race([
+              supabase.from('game_states').upsert(gameState, { onConflict: 'user_id' }).select(),
               new Promise((_, reject) =>
                 setTimeout(() => reject(new Error('Save timeout')), 30000)
               )
             ]) as any;
 
             if (stateError) {
+              logger.error('Failed to save game state', stateError);
               throw {
                 type: classifyError(stateError),
                 message: `Failed to save game state: ${stateError.message}`,
                 originalError: stateError
               };
             }
+            
+            logger.debug('Game state saved successfully', savedState);
 
             // Save journal entries if any exist
             if (currentState.journalEntries.length > 0) {
-              const journalEntries = currentState.journalEntries.map((entry) => ({
+              // Format journal entries for database
+              const journalEntries = currentState.journalEntries.map((entry) => {
+                // Ensure timestamp is an ISO string
+                const timestamp = entry.timestamp instanceof Date 
+                  ? entry.timestamp.toISOString() 
+                  : entry.timestamp;
+                
+                // Ensure editedAt is an ISO string if it exists
+                const editedAt = entry.editedAt instanceof Date 
+                  ? entry.editedAt.toISOString() 
+                  : entry.editedAt;
+                
+                return {
                 id: entry.id,
                 user_id: user.id,
                 type: entry.type,
@@ -485,26 +522,37 @@ const useGameStoreBase = create<GameState>()(
                 content: entry.content,
                 title: entry.title,
                 scene_id: entry.sceneId || null,
-                tags: entry.tags || [],
+                tags: Array.isArray(entry.tags) ? entry.tags : [],
                 is_edited: entry.isEdited || false,
-                created_at: entry.timestamp.toISOString(),
-                edited_at: entry.editedAt?.toISOString() || null,
-              }));
+                created_at: timestamp,
+                edited_at: editedAt || null,
+                };
+              });
 
-              const { error: journalError } = await Promise.race([
-                supabase.from('journal_entries').upsert(journalEntries, { onConflict: 'id' }),
+              logger.debug('Saving journal entries', { 
+                count: journalEntries.length,
+                firstEntry: journalEntries[0]?.id
+              });
+
+              const { data: savedEntries, error: journalError } = await Promise.race([
+                supabase.from('journal_entries').upsert(journalEntries, { onConflict: 'id' }).select(),
                 new Promise((_, reject) =>
                   setTimeout(() => reject(new Error('Journal save timeout')), 30000)
                 )
               ]) as any;
 
               if (journalError) {
+                logger.error('Failed to save journal entries', journalError);
                 throw {
                   type: classifyError(journalError),
                   message: `Failed to save journal entries: ${journalError.message}`,
                   originalError: journalError
                 };
               }
+              
+              logger.debug('Journal entries saved successfully', { 
+                count: savedEntries?.length || 0 
+              });
             }
 
             const saveTime = Date.now() - startTime;
@@ -590,14 +638,14 @@ const useGameStoreBase = create<GameState>()(
       loadFromSupabase: async () => {
         try {
           const { supabase } = await import('@/lib/supabase');
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
+          const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-          if (!user) {
-            console.warn('No user authenticated - skipping load');
+          if (userError || !user) {
+            logger.warn('No user authenticated - skipping load', userError);
             return;
           }
+
+          logger.debug('Loading game state for user', { userId: user.id });
 
           // Load game state
           const { data: gameState, error: stateError } = await supabase
@@ -608,9 +656,14 @@ const useGameStoreBase = create<GameState>()(
 
           if (stateError && stateError.code !== 'PGRST116') {
             // PGRST116 = no rows
-            console.error('Error loading game state:', stateError);
+            logger.error('Error loading game state:', stateError);
             throw stateError;
           }
+
+          logger.debug('Game state loaded', { 
+            found: !!gameState,
+            guardianTrust: gameState?.guardian_trust
+          });
 
           // Load journal entries
           const { data: journalEntries, error: journalError } = await supabase
@@ -620,18 +673,35 @@ const useGameStoreBase = create<GameState>()(
             .order('created_at', { ascending: false });
 
           if (journalError) {
-            console.error('Error loading journal entries:', journalError);
+            logger.error('Error loading journal entries:', journalError);
             throw journalError;
           }
 
+          logger.debug('Journal entries loaded', { 
+            count: journalEntries?.length || 0 
+          });
+
           if (gameState || journalEntries) {
+            // Parse JSON fields from database
+            const parsedMilestones = gameState?.milestones 
+              ? (typeof gameState.milestones === 'string' 
+                  ? JSON.parse(gameState.milestones) 
+                  : gameState.milestones)
+              : initialMilestones;
+              
+            const parsedSceneHistory = gameState?.scene_history
+              ? (typeof gameState.scene_history === 'string'
+                  ? JSON.parse(gameState.scene_history)
+                  : gameState.scene_history)
+              : [];
+
             set({
               ...(gameState && {
                 guardianTrust: gameState.guardian_trust,
                 playerLevel: gameState.player_level,
                 currentSceneIndex: gameState.current_scene_index,
-                milestones: gameState.milestones || initialMilestones,
-                sceneHistory: gameState.scene_history || [],
+                milestones: parsedMilestones,
+                sceneHistory: parsedSceneHistory,
               }),
               journalEntries:
                 journalEntries?.map((entry) => ({
@@ -640,18 +710,38 @@ const useGameStoreBase = create<GameState>()(
                   trustLevel: entry.trust_level,
                   content: entry.content,
                   title: entry.title,
-                  timestamp: new Date(entry.created_at),
+                  timestamp: entry.created_at ? new Date(entry.created_at) : new Date(),
                   sceneId: entry.scene_id || undefined,
-                  tags: entry.tags || undefined,
+                  tags: Array.isArray(entry.tags) ? entry.tags : [],
                   isEdited: entry.is_edited || false,
                   editedAt: entry.edited_at ? new Date(entry.edited_at) : undefined,
                 })) || [],
+                saveState: {
+                  status: 'success',
+                  lastSaveTimestamp: Date.now(),
+                  retryCount: 0,
+                  hasUnsavedChanges: false
+                }
             });
 
-            console.log('Game state loaded from Supabase successfully');
+            logger.info('Game state loaded from Supabase successfully', {
+              guardianTrust: gameState?.guardian_trust,
+              journalCount: journalEntries?.length || 0
+            });
           }
         } catch (error) {
-          console.error('Failed to load from Supabase:', error);
+          logger.error('Failed to load from Supabase:', error);
+          
+          // Update save state to reflect error
+          set((state) => ({
+            saveState: {
+              ...state.saveState,
+              status: 'error',
+              lastError: error instanceof Error ? error.message : 'Unknown error loading from Supabase',
+              hasUnsavedChanges: true
+            }
+          }));
+          
           // Don't throw - we want the game to continue even if load fails
         }
       },
