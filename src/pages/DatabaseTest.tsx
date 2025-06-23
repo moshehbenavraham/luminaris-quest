@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { runDatabaseTests, testDatabaseConnection, testTableAccess } from '@/lib/test-database';
+import { runDatabaseTests } from '@/lib/test-database';
 import { supabase } from '@/lib/supabase';
 
 export function DatabaseTest() {

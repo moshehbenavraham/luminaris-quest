@@ -7,10 +7,8 @@ import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw, Database, BookOpen } from 'lucide-react';
 import type { JournalEntry } from '@/components/JournalModal';
-import { 
-  testJournalPersistence, 
-  getJournalEntries, 
-  testDirectJournalCreation,
+import {
+  getJournalEntries,
   runJournalPersistenceTests
 } from '@/lib/test-journal-persistence';
 import { useGameStore } from '@/store/game-store';
@@ -24,7 +22,6 @@ export function JournalTest() {
   // Get store actions for testing
   const { 
     addJournalEntry, 
-    updateJournalEntry, 
     deleteJournalEntry, 
     journalEntries: storeEntries,
     saveToSupabase,
