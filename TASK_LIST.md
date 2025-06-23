@@ -12,6 +12,7 @@
 - **Subtasks**:
   - [x] Create database schema migration files
   - [x] Deploy schema to Supabase instance
+  - [x] Create database testing pages and utilities
   - [x] Implement game state save/load functions in game-store.ts
   - [ ] Debug Supabase data persistence issues
   - [ ] Add error handling for network/database failures
@@ -26,6 +27,8 @@
 - **Subtasks**:
   - [x] Verify database schema migration execution
   - [x] Check Supabase project configuration
+  - [x] Create database connection test page
+  - [x] Add SQL functions for database testing
   - [ ] Verify RLS policies are correctly applied
   - [ ] Test database access with Supabase client
   - [ ] Update environment variables if needed
@@ -37,6 +40,8 @@
 - **Dependencies**: Database persistence implementation
 - **Subtasks**:
   - [x] Implement journal entry save/load functions
+  - [x] Create journal persistence test page
+  - [x] Add SQL functions for journal testing
   - [ ] Add optimistic updates for better UX
   - [ ] Implement offline journal capability with sync
   - [ ] Add conflict resolution for edited entries
@@ -120,6 +125,18 @@
   - [ ] Implement journal export (PDF, Markdown)
 
 ## Completed Tasks
+
+### ✅ Database Testing Tools
+- **Status**: Completed (June 23, 2025)
+- **Priority**: High
+- **Subtasks**:
+  - [x] Create database connection test page
+  - [x] Create journal persistence test page
+  - [x] Add SQL functions for database testing
+  - [x] Create troubleshooting documentation
+  - [x] Implement test utilities
+  - [x] Add authentication verification
+  - [x] Create direct database testing functions
 
 ### ✅ Database Schema Foundation
 - **Status**: Completed (June 17, 2025)
