@@ -479,7 +479,7 @@ const useGameStoreBase = create<GameState>()(
               userId: user.id,
               guardianTrust: gameState.guardian_trust,
               journalCount: currentState.journalEntries.length
-            }, gameState);
+            });
 
             // Save game state with timeout
             const { data: savedState, error: stateError } = await Promise.race([
