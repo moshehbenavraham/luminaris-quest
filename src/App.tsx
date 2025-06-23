@@ -9,6 +9,7 @@ import { Progress } from '@/pages/Progress';
 import { Profile } from '@/pages/Profile';
 import { Legal } from '@/pages/Legal';
 import { DatabaseTest } from '@/pages/DatabaseTest';
+import { JournalTest } from '@/pages/JournalTest';
 import { useHealthMonitoring } from '@/hooks/use-health-monitoring';
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
               <Route path="/legal" element={<Legal />} />
               <Route path="/auth/callback" element={<Home />} />
               <Route path="/database-test" element={<DatabaseTest />} />
+              <Route path="/journal-test" element={<JournalTest />} />
             </Route>
           </Routes>
         </Router>
