@@ -8,6 +8,7 @@ import { Adventure } from '@/pages/Adventure';
 import { Progress } from '@/pages/Progress';
 import { Profile } from '@/pages/Profile';
 import { Legal } from '@/pages/Legal';
+import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute';
 import { DatabaseTest } from '@/pages/DatabaseTest';
 import { JournalTest } from '@/pages/JournalTest';
 import { DiagnosticTest } from '@/pages/DiagnosticTest';
@@ -50,9 +51,30 @@ function App() {
               />
               <Route path="/legal" element={<Legal />} />
               <Route path="/auth/callback" element={<Home />} />
-              <Route path="/database-test" element={<DatabaseTest />} />
-              <Route path="/journal-test" element={<JournalTest />} />
-              <Route path="/diagnostic-test" element={<DiagnosticTest />} />
+              <Route
+                path="/database-test"
+                element={
+                  <AdminProtectedRoute>
+                    <DatabaseTest />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="/journal-test"
+                element={
+                  <AdminProtectedRoute>
+                    <JournalTest />
+                  </AdminProtectedRoute>
+                }
+              />
+              <Route
+                path="/diagnostic-test"
+                element={
+                  <AdminProtectedRoute>
+                    <DiagnosticTest />
+                  </AdminProtectedRoute>
+                }
+              />
             </Route>
           </Routes>
         </Router>
