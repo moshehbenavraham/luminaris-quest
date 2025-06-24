@@ -11,16 +11,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Create a simple supabase client specifically for diagnostic RPC calls
+// This bypasses the strict typing that prevents RPC calls in the enhanced client
+export const supabaseDiagnostics = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
 });
-
-// Export validation function for runtime checks
-export const isSupabaseConfigured = () => {
-  return Boolean(supabaseUrl && supabaseAnonKey);
-};

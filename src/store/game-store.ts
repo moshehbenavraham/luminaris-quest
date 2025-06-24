@@ -12,6 +12,7 @@ import {
   getCurrentHealthStatus,
   detectEnvironment
 } from '@/lib/database-health';
+import { supabase } from '@/integrations/supabase/client';
 import { createLogger as createEnvLogger, /* environment, */ /* , performanceMonitor */ } from '@/lib/environment';
 // TEMPORARILY COMMENTED OUT FOR BUILD: environment and performanceMonitor imports temporarily commented to fix TS6133 build error
 
@@ -138,6 +139,69 @@ export interface CompletedScene {
   completedAt: number; // Use timestamp instead of Date
 }
 
+// Light & Shadow Combat System Types
+export interface LightShadowResources {
+  lp: number;  // Light Points - Positive emotional resources
+  sp: number;  // Shadow Points - Challenges that can become growth
+}
+
+export type CombatAction = 'ILLUMINATE' | 'REFLECT' | 'ENDURE' | 'EMBRACE';
+
+export interface ShadowManifestation {
+  id: string;
+  name: string;
+  type: 'doubt' | 'isolation' | 'overwhelm' | 'past-pain';
+  description: string;
+  currentHP: number;
+  maxHP: number;
+  abilities: ShadowAbility[];
+  therapeuticInsight: string;
+  victoryReward: {
+    lpBonus: number;
+    growthMessage: string;
+    permanentBenefit: string;
+  };
+}
+
+export interface ShadowAbility {
+  id: string;
+  name: string;
+  cooldown: number;
+  currentCooldown: number;
+  effect: (state: CombatState) => void;
+  description: string;
+}
+
+export interface CombatLogEntry {
+  turn: number;
+  actor: 'PLAYER' | 'SHADOW';
+  action: string;
+  effect: string;
+  resourceChange: Partial<LightShadowResources> & { enemyHP?: number };
+  message: string;
+}
+
+export interface CombatState {
+  inCombat: boolean;
+  currentEnemy: ShadowManifestation | null;
+  resources: LightShadowResources;
+  turn: number;
+  log: CombatLogEntry[];
+
+  // Status effects
+  damageMultiplier: number;
+  damageReduction: number;
+  healingBlocked: number;
+  lpGenerationBlocked: number;
+  skipNextTurn: boolean;
+  consecutiveEndures: number;
+
+  // Therapeutic tracking
+  preferredActions: Record<CombatAction, number>;
+  growthInsights: string[];
+  combatReflections: JournalEntry[];
+}
+
 export interface GameState {
   guardianTrust: number;
   playerLevel: number;
@@ -146,10 +210,17 @@ export interface GameState {
   milestones: Milestone[];
   sceneHistory: CompletedScene[];
   pendingMilestoneJournals: Set<number>;
-  
+
+  // Light & Shadow Combat Resources
+  lightPoints: number;
+  shadowPoints: number;
+
+  // Combat System State
+  combat: CombatState;
+
   // Save operation state
   saveState: SaveState;
-  
+
   // Database health check state
   healthStatus: DatabaseHealthStatus;
   
@@ -165,6 +236,16 @@ export interface GameState {
   resetGame: () => void;
   updateMilestone: (level: number) => void;
   markMilestoneJournalShown: (level: number) => void;
+  
+  // Light & Shadow Combat Actions
+  modifyLightPoints: (delta: number) => void;
+  modifyShadowPoints: (delta: number) => void;
+  convertShadowToLight: (amount: number) => void;
+
+  // Combat System Actions
+  startCombat: (enemyId: string) => void;
+  executeCombatAction: (action: CombatAction) => void;
+  endCombat: (victory: boolean) => void;
   
   // Save state utilities
   checkUnsavedChanges: () => boolean;
@@ -199,6 +280,37 @@ const useGameStoreBase = create<GameState>()(
       milestones: initialMilestones,
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
+      
+      // Light & Shadow Combat Resources
+      lightPoints: 0,
+      shadowPoints: 0,
+
+      // Combat System State
+      combat: {
+        inCombat: false,
+        currentEnemy: null,
+        resources: { lp: 0, sp: 0 },
+        turn: 0,
+        log: [],
+
+        // Status effects
+        damageMultiplier: 1,
+        damageReduction: 1,
+        healingBlocked: 0,
+        lpGenerationBlocked: 0,
+        skipNextTurn: false,
+        consecutiveEndures: 0,
+
+        // Therapeutic tracking
+        preferredActions: {
+          ILLUMINATE: 0,
+          REFLECT: 0,
+          ENDURE: 0,
+          EMBRACE: 0
+        },
+        growthInsights: [],
+        combatReflections: []
+      },
       
       // Save operation state
       saveState: {
@@ -375,10 +487,236 @@ const useGameStoreBase = create<GameState>()(
           })),
           sceneHistory: [],
           pendingMilestoneJournals: new Set(),
+          lightPoints: 0,
+          shadowPoints: 0,
+          // Reset combat state
+          combat: {
+            inCombat: false,
+            currentEnemy: null,
+            resources: { lp: 0, sp: 0 },
+            turn: 0,
+            log: [],
+
+            // Status effects
+            damageMultiplier: 1,
+            damageReduction: 1,
+            healingBlocked: 0,
+            lpGenerationBlocked: 0,
+            skipNextTurn: false,
+            consecutiveEndures: 0,
+
+            // Therapeutic tracking
+            preferredActions: {
+              ILLUMINATE: 0,
+              REFLECT: 0,
+              ENDURE: 0,
+              EMBRACE: 0
+            },
+            growthInsights: [],
+            combatReflections: []
+          },
           saveState: { ...state.saveState, hasUnsavedChanges: true }
         }));
         // Also clear from storage to prevent rehydration of bad state
         localStorage.removeItem('luminari-game-state');
+      },
+
+      // Light & Shadow Combat Resource Management
+      modifyLightPoints: (delta: number) => {
+        set((state) => {
+          const newLightPoints = Math.max(0, state.lightPoints + delta);
+          logger.debug('Modified light points', { 
+            previous: state.lightPoints, 
+            delta, 
+            new: newLightPoints 
+          });
+          return {
+            lightPoints: newLightPoints,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      modifyShadowPoints: (delta: number) => {
+        set((state) => {
+          const newShadowPoints = Math.max(0, state.shadowPoints + delta);
+          logger.debug('Modified shadow points', { 
+            previous: state.shadowPoints, 
+            delta, 
+            new: newShadowPoints 
+          });
+          return {
+            shadowPoints: newShadowPoints,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      convertShadowToLight: (amount: number) => {
+        set((state) => {
+          const shadowToConvert = Math.min(amount, state.shadowPoints);
+          if (shadowToConvert === 0) {
+            logger.warn('No shadow points to convert', {
+              requested: amount,
+              available: state.shadowPoints
+            });
+            return state;
+          }
+
+          const newShadowPoints = state.shadowPoints - shadowToConvert;
+          const newLightPoints = state.lightPoints + shadowToConvert;
+
+          logger.info('Converted shadow points to light', {
+            converted: shadowToConvert,
+            shadowPoints: { from: state.shadowPoints, to: newShadowPoints },
+            lightPoints: { from: state.lightPoints, to: newLightPoints }
+          });
+
+          return {
+            shadowPoints: newShadowPoints,
+            lightPoints: newLightPoints,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      // Combat System Actions
+      startCombat: (enemyId: string) => {
+        set((state) => {
+          logger.info('Starting combat', { enemyId });
+
+          // For now, we'll create a placeholder enemy until shadowManifestations.ts is implemented
+          const placeholderEnemy: ShadowManifestation = {
+            id: enemyId,
+            name: 'Shadow Manifestation',
+            type: 'doubt',
+            description: 'A manifestation of inner struggle',
+            currentHP: 15,
+            maxHP: 15,
+            abilities: [],
+            therapeuticInsight: 'Every shadow teaches us something about ourselves.',
+            victoryReward: {
+              lpBonus: 5,
+              growthMessage: 'You have grown stronger through this challenge.',
+              permanentBenefit: 'Increased self-awareness'
+            }
+          };
+
+          return {
+            combat: {
+              ...state.combat,
+              inCombat: true,
+              currentEnemy: placeholderEnemy,
+              resources: { lp: state.lightPoints, sp: state.shadowPoints },
+              turn: 1,
+              log: [{
+                turn: 0,
+                actor: 'SHADOW',
+                action: 'MANIFEST',
+                effect: 'Combat begins',
+                resourceChange: {},
+                message: `${placeholderEnemy.name} emerges from the shadows of your mind...`
+              }]
+            },
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      executeCombatAction: (action: CombatAction) => {
+        set((state) => {
+          if (!state.combat.inCombat || !state.combat.currentEnemy) {
+            logger.warn('Attempted combat action outside of combat', { action });
+            return state;
+          }
+
+          logger.info('Executing combat action', { action, turn: state.combat.turn });
+
+          // Update preferred actions tracking
+          const newPreferredActions = {
+            ...state.combat.preferredActions,
+            [action]: state.combat.preferredActions[action] + 1
+          };
+
+          // Create combat log entry
+          const logEntry: CombatLogEntry = {
+            turn: state.combat.turn,
+            actor: 'PLAYER',
+            action,
+            effect: `Used ${action}`,
+            resourceChange: {},
+            message: `You use ${action} against the shadow...`
+          };
+
+          return {
+            combat: {
+              ...state.combat,
+              turn: state.combat.turn + 1,
+              preferredActions: newPreferredActions,
+              log: [...state.combat.log, logEntry]
+            },
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      endCombat: (victory: boolean) => {
+        set((state) => {
+          if (!state.combat.inCombat) {
+            logger.warn('Attempted to end combat when not in combat');
+            return state;
+          }
+
+          logger.info('Ending combat', { victory, turns: state.combat.turn });
+
+          // Sync combat resources back to main game state
+          const finalLightPoints = state.combat.resources.lp;
+          const finalShadowPoints = state.combat.resources.sp;
+
+          // Add victory rewards if applicable
+          let bonusLP = 0;
+          if (victory && state.combat.currentEnemy) {
+            bonusLP = state.combat.currentEnemy.victoryReward.lpBonus;
+          }
+
+          // Create final combat log entry
+          const finalLogEntry: CombatLogEntry = {
+            turn: state.combat.turn,
+            actor: victory ? 'PLAYER' : 'SHADOW',
+            action: victory ? 'VICTORY' : 'DEFEAT',
+            effect: victory ? 'Combat won' : 'Combat lost',
+            resourceChange: { lp: bonusLP },
+            message: victory
+              ? 'You have overcome this shadow and grown stronger!'
+              : 'Though defeated, you have learned valuable lessons...'
+          };
+
+          return {
+            lightPoints: finalLightPoints + bonusLP,
+            shadowPoints: finalShadowPoints,
+            combat: {
+              inCombat: false,
+              currentEnemy: null,
+              resources: { lp: 0, sp: 0 },
+              turn: 0,
+              log: [...state.combat.log, finalLogEntry],
+
+              // Reset status effects
+              damageMultiplier: 1,
+              damageReduction: 1,
+              healingBlocked: 0,
+              lpGenerationBlocked: 0,
+              skipNextTurn: false,
+              consecutiveEndures: 0,
+
+              // Keep therapeutic tracking
+              preferredActions: state.combat.preferredActions,
+              growthInsights: state.combat.growthInsights,
+              combatReflections: state.combat.combatReflections
+            },
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
       },
 
       _setHasHydrated: (hasHydrated: boolean) => {
@@ -415,7 +753,6 @@ const useGameStoreBase = create<GameState>()(
 
         // Get current user before starting save process
         try {
-          const { supabase } = await import('@/lib/supabase');
           const { data: { user }, error: userError } = await supabase.auth.getUser();
           
           if (userError || !user) {
@@ -448,7 +785,6 @@ const useGameStoreBase = create<GameState>()(
 
             logger.debug(`Save attempt ${attempt}/${RETRY_CONFIG.maxAttempts}`);
 
-            const { supabase } = await import('@/lib/supabase');
             const { data: { user }, error: userError } = await supabase.auth.getUser();
 
             if (userError || !user) {
@@ -582,7 +918,6 @@ const useGameStoreBase = create<GameState>()(
               timestamp: Date.now()
             };
 
-            const { supabase } = await import('@/lib/supabase');
             const {
               data: { user },
             } = await supabase.auth.getUser();
@@ -637,7 +972,6 @@ const useGameStoreBase = create<GameState>()(
 
       loadFromSupabase: async () => {
         try {
-          const { supabase } = await import('@/lib/supabase');
           const { data: { user }, error: userError } = await supabase.auth.getUser();
 
           if (userError || !user) {
@@ -712,10 +1046,10 @@ const useGameStoreBase = create<GameState>()(
                   title: entry.title,
                   timestamp: entry.created_at ? new Date(entry.created_at) : new Date(),
                   sceneId: entry.scene_id || undefined,
-                  tags: Array.isArray(entry.tags) ? entry.tags : [],
+                  tags: Array.isArray(entry.tags) ? entry.tags.filter((tag): tag is string => typeof tag === 'string') : [],
                   isEdited: entry.is_edited || false,
                   editedAt: entry.edited_at ? new Date(entry.edited_at) : undefined,
-                })) || [],
+                } as JournalEntry)) || [],
                 saveState: {
                   status: 'success',
                   lastSaveTimestamp: Date.now(),
@@ -913,6 +1247,38 @@ export const useGameStore = () => {
       milestones: initialMilestones,
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
+
+      // Light & Shadow Combat Resources
+      lightPoints: 0,
+      shadowPoints: 0,
+
+      // Combat System State
+      combat: {
+        inCombat: false,
+        currentEnemy: null,
+        resources: { lp: 0, sp: 0 },
+        turn: 0,
+        log: [],
+
+        // Status effects
+        damageMultiplier: 1,
+        damageReduction: 1,
+        healingBlocked: 0,
+        lpGenerationBlocked: 0,
+        skipNextTurn: false,
+        consecutiveEndures: 0,
+
+        // Therapeutic tracking
+        preferredActions: {
+          ILLUMINATE: 0,
+          REFLECT: 0,
+          ENDURE: 0,
+          EMBRACE: 0
+        },
+        growthInsights: [],
+        combatReflections: []
+      },
+
       saveState: {
         status: 'idle',
         retryCount: 0,
@@ -935,6 +1301,17 @@ export const useGameStore = () => {
       resetGame: store.resetGame,
       updateMilestone: store.updateMilestone,
       markMilestoneJournalShown: store.markMilestoneJournalShown,
+
+      // Light & Shadow Combat Actions
+      modifyLightPoints: store.modifyLightPoints,
+      modifyShadowPoints: store.modifyShadowPoints,
+      convertShadowToLight: store.convertShadowToLight,
+
+      // Combat System Actions
+      startCombat: store.startCombat,
+      executeCombatAction: store.executeCombatAction,
+      endCombat: store.endCombat,
+
       checkUnsavedChanges: store.checkUnsavedChanges,
       clearSaveError: store.clearSaveError,
       performHealthCheck: store.performHealthCheck,

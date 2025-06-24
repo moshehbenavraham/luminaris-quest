@@ -9,7 +9,7 @@
  * - Authentication status and permissions checking
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabaseDiagnostics as supabase } from '@/lib/supabase-diagnostics';
 import { createLogger } from '@/lib/environment';
 
 const logger = createLogger('DatabaseDiagnostics');
@@ -28,7 +28,7 @@ export async function runDatabaseDiagnostics(): Promise<{
     logger.debug('Running comprehensive database diagnostics');
     
     // Call the diagnose_database_connection function
-    const { data, error } = await supabase.rpc('diagnose_database_connection');
+    const { data, error } = await (supabase as any).rpc('diagnose_database_connection');
     
     if (error) {
       logger.error('Database diagnostics failed', error);
@@ -73,7 +73,7 @@ export async function diagnoseJournalSave(testId?: string): Promise<{
     logger.debug('Diagnosing journal save issues');
     
     // Call the diagnose_journal_save function
-    const { data, error } = await supabase.rpc('diagnose_journal_save', {
+    const { data, error } = await (supabase as any).rpc('diagnose_journal_save', {
       test_id: testId
     });
     
@@ -131,7 +131,7 @@ export async function checkAuthStatus(): Promise<{
     logger.debug('Checking authentication status');
     
     // Call the diagnose_auth_status function
-    const { data, error } = await supabase.rpc('diagnose_auth_status');
+    const { data, error } = await (supabase as any).rpc('diagnose_auth_status');
     
     if (error) {
       logger.error('Auth status check failed', error);

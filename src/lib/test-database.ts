@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabaseDiagnostics as supabase } from '@/lib/supabase-diagnostics';
 import { createLogger } from '@/lib/environment';
 
 const logger = createLogger('DatabaseTest');
@@ -18,7 +18,7 @@ export async function testDatabaseConnection(): Promise<{
     logger.debug('Testing database connection via RPC');
     
     // Call the test_database_connection function
-    const { data, error } = await supabase.rpc('test_database_connection');
+    const { data, error } = await (supabase as any).rpc('test_database_connection');
     
     if (error) {
       logger.error('Database RPC test failed', error);

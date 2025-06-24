@@ -9,11 +9,13 @@ import {
   isLastScene,
   getSceneProgress,
   rollDice,
+  handleSceneOutcome,
   type DiceResult,
 } from '@/engine/scene-engine';
 import { DiceRollOverlay } from './DiceRollOverlay';
+import { CombatOverlay } from './combat/CombatOverlay';
 import { useGameStore } from '@/store/game-store';
-import { Sword, Users, Wrench, BookOpen, Map } from 'lucide-react';
+import { Sword, Users, Wrench, BookOpen, Map, Sparkles, Zap } from 'lucide-react';
 
 interface ChoiceListProps {
   guardianTrust: number;
@@ -32,7 +34,16 @@ export function ChoiceList({
   onLearningMoment,
   'data-testid': testId,
 }: ChoiceListProps) {
-  const { completeScene, resetGame, currentSceneIndex, advanceScene } = useGameStore();
+  const {
+    completeScene,
+    resetGame,
+    currentSceneIndex,
+    advanceScene,
+    modifyLightPoints,
+    modifyShadowPoints,
+    startCombat,
+    combat: combatState
+  } = useGameStore();
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -88,11 +99,13 @@ export function ChoiceList({
 
     setShowDiceRoll(false);
 
-    // Update guardian trust and message based on result
+    // Handle scene outcome with new integration system
     const scene = getScene(currentSceneIndex);
+    const outcome = handleSceneOutcome(scene, diceResult.success, diceResult.roll);
+
+    // Update guardian trust and message based on result
     const trustChange = diceResult.success ? 5 : -5;
     const newTrust = Math.min(100, Math.max(0, guardianTrust + trustChange));
-
     setGuardianTrust(newTrust);
 
     if (diceResult.success) {
@@ -100,6 +113,26 @@ export function ChoiceList({
     } else {
       setGuardianMessage(scene.failureText);
     }
+
+    // Apply resource changes if not triggering combat
+    if (!outcome.triggeredCombat && outcome.resourceChanges) {
+      if (outcome.resourceChanges.lpChange) {
+        console.log('Applying LP change:', outcome.resourceChanges.lpChange);
+        modifyLightPoints(outcome.resourceChanges.lpChange);
+      }
+      if (outcome.resourceChanges.spChange) {
+        console.log('Applying SP change:', outcome.resourceChanges.spChange);
+        modifyShadowPoints(outcome.resourceChanges.spChange);
+      }
+    }
+
+    // Debug logging for resource application
+    console.log('Scene outcome:', {
+      sceneType: scene.type,
+      success: diceResult.success,
+      triggeredCombat: outcome.triggeredCombat,
+      resourceChanges: outcome.resourceChanges
+    });
 
     // Record the completed scene
     completeScene({
@@ -114,8 +147,14 @@ export function ChoiceList({
       completedAt: Date.now(),
     });
 
-    if (!isLastScene(currentSceneIndex)) {
-      advanceScene();
+    // Trigger combat if needed
+    if (outcome.triggeredCombat && outcome.shadowType) {
+      startCombat(outcome.shadowType);
+    } else {
+      // Only advance scene if not entering combat
+      if (!isLastScene(currentSceneIndex)) {
+        advanceScene();
+      }
     }
 
     setIsProcessing(false);
@@ -136,6 +175,8 @@ export function ChoiceList({
       'I am your guardian spirit, here to guide and support you on this journey. Your choices shape our bond and your path forward.',
     );
   };
+
+
 
   if (isLastScene(currentSceneIndex) && !showDiceRoll) {
     return (
@@ -191,6 +232,28 @@ export function ChoiceList({
                 Difficulty: {currentScene.dc}
               </p>
               <p className="text-xs text-muted-foreground">Your choice will be tested by fate</p>
+
+              {/* Show resource rewards/penalties */}
+              <div className="flex justify-center gap-4 pt-1">
+                {(currentScene.lpReward || currentScene.type !== 'combat') && (
+                  <div className="flex items-center gap-1 text-xs text-amber-600">
+                    <Sparkles className="h-3 w-3" />
+                    <span>+{currentScene.lpReward || (currentScene.type === 'social' ? 3 : currentScene.type === 'skill' ? 2 : currentScene.type === 'exploration' ? 3 : 2)} LP on success</span>
+                  </div>
+                )}
+                {currentScene.type === 'combat' && (
+                  <div className="flex items-center gap-1 text-xs text-red-600">
+                    <Sword className="h-3 w-3" />
+                    <span>Combat on failure</span>
+                  </div>
+                )}
+                {currentScene.type !== 'combat' && (
+                  <div className="flex items-center gap-1 text-xs text-purple-600">
+                    <Zap className="h-3 w-3" />
+                    <span>+{currentScene.spPenalty || (currentScene.type === 'social' ? 2 : currentScene.type === 'skill' ? 1 : currentScene.type === 'exploration' ? 2 : 1)} SP on failure</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -222,6 +285,13 @@ export function ChoiceList({
 
       {showDiceRoll && diceResult && (
         <DiceRollOverlay result={diceResult} onClose={handleDiceRollClose} />
+      )}
+
+      {/* Combat Overlay */}
+      {combatState?.inCombat && (
+        <CombatOverlay
+          data-testid="combat-overlay"
+        />
       )}
     </>
   );

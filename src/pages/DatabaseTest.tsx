@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import { runDatabaseTests } from '@/lib/test-database';
-import { supabase } from '@/lib/supabase';
+import { supabaseDiagnostics as supabase } from '@/lib/supabase-diagnostics';
 
 export function DatabaseTest() {
   const [isLoading, setIsLoading] = useState(true);

@@ -9,7 +9,7 @@
  * - RPC function calls for testing without UI
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabaseDiagnostics as supabase } from '@/lib/supabase-diagnostics';
 import { createLogger } from '@/lib/environment';
 
 const logger = createLogger('JournalPersistenceTest');
@@ -31,7 +31,7 @@ export async function testJournalPersistence(
     logger.debug('Testing journal persistence via RPC');
     
     // Call the test_journal_persistence function
-    const { data, error } = await supabase.rpc('test_journal_persistence', {
+    const { data, error } = await (supabase as any).rpc('test_journal_persistence', {
       test_content: testContent,
       test_title: testTitle
     });
@@ -78,7 +78,7 @@ export async function getJournalEntries(
     logger.debug('Getting journal entries via RPC');
     
     // Call the get_journal_entries_for_user function
-    const { data, error } = await supabase.rpc('get_journal_entries_for_user', {
+    const { data, error } = await (supabase as any).rpc('get_journal_entries_for_user', {
       limit_count: limit
     });
     
