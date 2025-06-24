@@ -54,18 +54,18 @@ vi.mock('../store/game-store', () => ({
 
 vi.mock('../engine/combat-engine', () => ({
   canPerformAction: vi.fn((action, state, trust) => {
-    // Mock validation logic
+    // Mock validation logic - return object with canPerform property
     switch (action) {
       case 'ILLUMINATE':
-        return state.resources.lp >= 2;
+        return { canPerform: state.resources.lp >= 2 };
       case 'REFLECT':
-        return state.resources.sp >= 2;
+        return { canPerform: state.resources.sp >= 2 };
       case 'ENDURE':
-        return true;
+        return { canPerform: true };
       case 'EMBRACE':
-        return state.resources.sp > 0;
+        return { canPerform: state.resources.sp > 0 };
       default:
-        return false;
+        return { canPerform: false };
     }
   }),
   checkCombatEnd: vi.fn((state) => {

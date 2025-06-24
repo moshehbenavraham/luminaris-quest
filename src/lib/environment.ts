@@ -67,7 +67,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     enableDebugLogging: environment !== 'prod',
     enableVerboseLogging: environment === 'local' || environment === 'dev',
     enableErrorReporting: true,
-    healthCheckInterval: 45000, // 45 seconds
+    healthCheckInterval: 120000, // 2 minutes - reduced from 45 seconds for better performance
     retryAttempts: 3,
     timeoutMs: 30000 // 30 seconds
   };
@@ -77,7 +77,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     case 'local':
       return {
         ...baseConfig,
-        healthCheckInterval: 30000, // 30 seconds - more frequent for local dev
+        healthCheckInterval: 90000, // 90 seconds - reduced from 30 seconds for better performance
         retryAttempts: 2, // Fewer retries for local development
         timeoutMs: 15000, // Shorter timeout for local development
         enableDebugLogging: true,
@@ -87,7 +87,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     case 'dev':
       return {
         ...baseConfig,
-        healthCheckInterval: 45000, // 45 seconds
+        healthCheckInterval: 120000, // 2 minutes - same as base config
         retryAttempts: 3,
         timeoutMs: 20000, // 20 seconds
         enableDebugLogging: true,
@@ -97,7 +97,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     case 'staging':
       return {
         ...baseConfig,
-        healthCheckInterval: 60000, // 60 seconds
+        healthCheckInterval: 180000, // 3 minutes - increased from 60 seconds
         retryAttempts: 3,
         timeoutMs: 30000, // 30 seconds
         enableDebugLogging: false,
@@ -108,7 +108,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     default:
       return {
         ...baseConfig,
-        healthCheckInterval: 90000, // 90 seconds - less frequent for production
+        healthCheckInterval: 300000, // 5 minutes - increased from 90 seconds for production
         retryAttempts: 5, // More retries for production
         timeoutMs: 45000, // 45 seconds - longer timeout for production
         enableDebugLogging: false,

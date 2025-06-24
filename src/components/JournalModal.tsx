@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart, BookOpen, Sparkles, TrendingUp } from 'lucide-react';
@@ -117,18 +117,16 @@ export function JournalModal({
           className={`transition-all duration-300 sm:max-w-md ${
             isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
-          aria-labelledby="journal-title"
-          aria-describedby="journal-description"
         >
-        <div className="flex flex-col space-y-1.5 text-center sm:text-left">
-          <DialogTitle id="journal-title" className="flex items-center gap-2 text-xl">
-            {journalContent.icon}
-            Journal Entry
-          </DialogTitle>
-          <DialogDescription id="journal-description">
-            A moment of reflection on your healing journey
-          </DialogDescription>
-        </div>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              {journalContent.icon}
+              Journal Entry
+            </DialogTitle>
+            <DialogDescription>
+              A moment of reflection on your healing journey
+            </DialogDescription>
+          </DialogHeader>
 
         <Card className="border-none shadow-none">
           <CardContent className="space-y-4 p-0">

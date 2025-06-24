@@ -164,7 +164,7 @@ export const CombatReflectionModal = React.memo(function CombatReflectionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         className="max-w-4xl max-h-[90vh] overflow-y-auto"
         data-testid={testId}
       >
@@ -177,7 +177,7 @@ export const CombatReflectionModal = React.memo(function CombatReflectionModal({
             )}
             Combat Reflection
           </DialogTitle>
-          <DialogDescription id="reflection-description">
+          <DialogDescription>
             Take a moment to reflect on your encounter with {reflectionData.enemy.name}
           </DialogDescription>
         </DialogHeader>

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   handleSceneOutcome,
   mapSceneToShadowType,
@@ -6,9 +6,29 @@ import {
   type Scene,
   type SceneOutcome
 } from '../engine/scene-engine';
-import { SHADOW_IDS } from '../data/shadowManifestations';
+import { SHADOW_IDS, createShadowManifestation } from '../data/shadowManifestations';
+import { useGameStore } from '../store/game-store';
+
+// Mock the game store
+const mockGameStore = {
+  startCombat: vi.fn(),
+  combat: {
+    inCombat: false,
+    currentEnemy: null,
+    resources: { lp: 0, sp: 0 },
+    turn: 0,
+    log: []
+  }
+};
+
+vi.mock('../store/game-store', () => ({
+  useGameStore: () => mockGameStore
+}));
 
 describe('Scene Engine Combat Integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
   describe('handleSceneOutcome', () => {
     it('should trigger combat for failed combat scenes', () => {
       const combatScene = getScene(2); // combat-encounter
@@ -157,10 +177,63 @@ describe('Scene Engine Combat Integration', () => {
       expect(outcome).toHaveProperty('roll');
       expect(outcome).toHaveProperty('triggeredCombat');
       expect(outcome).toHaveProperty('resourceChanges');
-      
+
       expect(typeof outcome.success).toBe('boolean');
       expect(typeof outcome.triggeredCombat).toBe('boolean');
       expect(typeof outcome.resourceChanges).toBe('object');
+    });
+  });
+
+  describe('Combat Trigger Integration Fix', () => {
+    it('should create valid shadow manifestation for combat trigger', () => {
+      // Test that createShadowManifestation works with the shadow ID from combat scenes
+      const combatScene = getScene(2); // combat-encounter
+      const shadowId = combatScene.shadowType || SHADOW_IDS.WHISPER_OF_DOUBT;
+
+      const shadowManifestation = createShadowManifestation(shadowId);
+
+      expect(shadowManifestation).toBeDefined();
+      expect(shadowManifestation).not.toBeNull();
+      expect(shadowManifestation!.id).toBe(shadowId);
+      expect(shadowManifestation!.name).toBe('The Whisper of Doubt');
+      expect(shadowManifestation!.currentHP).toBe(shadowManifestation!.maxHP);
+      expect(shadowManifestation!.abilities).toHaveLength(2);
+      expect(shadowManifestation!.therapeuticInsight).toContain('doubt');
+    });
+
+    it('should properly trigger combat with valid shadow data', () => {
+      const combatScene = getScene(2); // combat-encounter
+      const outcome = handleSceneOutcome(combatScene, false); // Failed combat scene
+
+      expect(outcome.triggeredCombat).toBe(true);
+      expect(outcome.shadowType).toBe(SHADOW_IDS.WHISPER_OF_DOUBT);
+
+      // Verify the shadow can be created with this ID
+      const shadow = createShadowManifestation(outcome.shadowType!);
+      expect(shadow).toBeDefined();
+      expect(shadow!.name).toBe('The Whisper of Doubt');
+    });
+
+    it('should validate all shadow IDs used in combat scenes can create valid manifestations', () => {
+      // Test all shadow IDs that might be used in combat scenes
+      const shadowIds = [
+        SHADOW_IDS.WHISPER_OF_DOUBT,
+        SHADOW_IDS.VEIL_OF_ISOLATION,
+        SHADOW_IDS.STORM_OF_OVERWHELM,
+        SHADOW_IDS.ECHO_OF_PAST_PAIN
+      ];
+
+      shadowIds.forEach(shadowId => {
+        const shadow = createShadowManifestation(shadowId);
+        expect(shadow).toBeDefined();
+        expect(shadow).not.toBeNull();
+        expect(shadow!.id).toBe(shadowId);
+        expect(shadow!.currentHP).toBeGreaterThan(0);
+        expect(shadow!.maxHP).toBeGreaterThan(0);
+        expect(shadow!.abilities.length).toBeGreaterThan(0);
+        expect(shadow!.therapeuticInsight).toBeTruthy();
+        expect(shadow!.victoryReward.lpBonus).toBeGreaterThan(0);
+      });
     });
   });
 });

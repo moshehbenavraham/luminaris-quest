@@ -942,50 +942,25 @@ interface CombatStats {
 
 ## Combat System Testing Checklist
 
-**MAJOR FINDINGS SUMMARY:**
-- ❌ **Combat UI completely missing** - No CombatOverlay, action buttons, or turn-based gameplay
-- ❌ **LP/SP rewards not working** - Promised rewards (+4 LP, +1 SP) not being applied
-- ❌ **Stats bar not appearing** - No resource display even after earning LP/SP
-- ⚠️ **Auto-combat simulation** - System simulates combat results without player interaction
-- ✅ **Reflection system working** - Journal entries created successfully
-- ✅ **Adventure progression working** - Success advances, failure allows retry (Combat) or advances (Journal)
-
-### Pre-Combat Setup
-- [x] Navigate to an Adventure scene with a combat encounter ✅
-- [⚠️] Verify your current LP and SP resources are visible in the stats bar
-  - **ISSUE**: Stats bar only appears when you have LP/SP > 0. Currently no stats bar visible.
-  - **FINDING**: Choice shows "+4 LP on success" indicating LP system is working but no current resources
-- [x] Confirm the "Face Shadow" or similar CTA button is visible ✅
-  - **FOUND**: "Face the wolf with courage and determination" button visible
-  - **FOUND**: "Seek to understand what the wolf represents" button visible
-  - **FOUND**: Combat encounter shows "Shadow Wolf" with difficulty 14
-  - **FOUND**: Shows "+4 LP on success" and "Combat on failure"
-- [⚠️] Check that clicking this button triggers the combat system
-  - **ISSUE**: Combat system bypassed - went directly to reflection screen
-  - **FINDING**: Failed dice roll (10 vs DC 14) triggered "Combat on failure"
-  - **FINDING**: Victory sound played (incorrect for failure scenario)
-  - **FINDING**: Reflection shows "Shadow Manifestation" encounter completed in 1 turn
-  - **FINDING**: Shows "Most Used Action: EMBRACE" but no combat UI was shown
-  - **FINDING**: No LP/SP gained (+0/+0)
-  - **PROBLEM**: Missing the actual combat overlay/interface entirely
+- [ ] **RESET CHECKLIST** - Navigate to an Adventure scene with a combat encounter
+- [ ] Verify your current LP and SP resources are visible in the stats bar
+  - **EXPECTED**: Stats bar should appear when LP/SP > 0
+  - **CURRENT ISSUE**: Stats bar not displaying resources
+- [ ] Confirm the "Face Shadow" or similar CTA button is visible
+  - **EXPECTED**: Combat encounter shows shadow type and resource rewards/penalties
+- [ ] Check that clicking this button triggers the combat system
+  - **EXPECTED**: CombatOverlay should appear with fade-in animation
+  - **CURRENT ISSUE**: Combat UI missing, skips directly to reflection
 
 ### Combat Initialization
-- [❌] Verify the CombatOverlay appears with a smooth fade-in animation
-  - **FAILED**: No CombatOverlay appeared - skipped directly to reflection
-- [❌] Confirm the Shadow manifestation appears with proper visuals
-  - **FAILED**: No shadow visuals shown during combat
-- [❌] Check that the Shadow's name and type are displayed correctly
-  - **FAILED**: No combat UI displayed
-- [❌] Verify the Shadow's HP bar is visible and full
-  - **FAILED**: No HP bar shown
-- [❌] Confirm your LP (gold) and SP (purple) counters are visible and accurate
-  - **FAILED**: No resource counters during combat
-- [❌] Check that all four action buttons are present: Illuminate, Reflect, Endure, Embrace
-  - **FAILED**: No action buttons shown
-- [❌] Verify the turn log panel appears on the right side
-  - **FAILED**: No turn log panel
-- [❌] Confirm the Guardian Spirit provides an initial message
-  - **FAILED**: No guardian message during combat
+- [ ] Verify the CombatOverlay appears with a smooth fade-in animation
+- [ ] Confirm the Shadow manifestation appears with proper visuals
+- [ ] Check that the Shadow's name and type are displayed correctly
+- [ ] Verify the Shadow's HP bar is visible and full
+- [ ] Confirm your LP (gold) and SP (purple) counters are visible and accurate
+- [ ] Check that all four action buttons are present: Illuminate, Reflect, Endure, Embrace
+- [ ] Verify the turn log panel appears showing initial combat message
+- [ ] Confirm the Guardian Spirit provides an initial message
 
 ### Player Turn Actions
 - [ ] **Illuminate Action**
@@ -1053,23 +1028,18 @@ interface CombatStats {
 - [ ] Verify returning to Adventure works correctly
 
 ### Reflection System
-- [x] Confirm Reflection Modal has shadow-specific prompts ✅
-  - **FOUND**: Multiple therapeutic prompts about self-doubt, uncertainty, inner critic
-  - **FOUND**: "Skip prompts and write freely" option available
-- [x] Verify you can type your reflection response ✅
-  - **TESTED**: Successfully entered "testing custom reflection"
-- [x] Check that submitting creates a journal entry ✅
-  - **CONFIRMED**: Journal entry created with custom reflection
-  - **CONFIRMED**: Entry appears in Progress page journal list
-  - **FOUND**: Shows "A Learning Moment" with Trust Level 0/100
-- [x] Confirm returning to Adventure after submission ✅
-  - **CONFIRMED**: Successful dice rolls advance to next scene properly
-  - **ISSUE**: Failed dice rolls return to same encounter (retry mechanism)
-  - **BEHAVIOR**: This appears to be intentional retry logic, not a bug
-- [❌] Verify resources are updated in the Adventure HUD
-  - **FAILED**: No stats bar visible even after successful encounter (+4 LP should have been granted)
-  - **CONFIRMED**: Journal encounter failure (+1 SP promised) also shows no stats bar
-  - **MAJOR ISSUE**: LP/SP rewards not being applied or stats bar not displaying properly
+- [ ] Confirm Reflection Modal has shadow-specific prompts
+- [ ] Verify you can type your reflection response
+- [ ] Check that submitting creates a journal entry
+- [ ] Confirm returning to Adventure after submission
+- [ ] Verify resources are updated in the Adventure HUD after combat
+
+### Resource Management
+- [ ] Verify LP/SP are properly synchronized between combat and main game state
+- [ ] Check that scene rewards (+4 LP on success) are applied correctly
+- [ ] Confirm scene penalties (+1 SP on failure) are applied correctly
+- [ ] Verify stats bar displays current LP/SP when > 0
+- [ ] Check that combat victory bonuses are added to main resources
 
 ### Accessibility Checks
 - [ ] Confirm all combat elements have proper contrast
@@ -1084,7 +1054,13 @@ interface CombatStats {
 - [ ] Check that resource animations don't lag
 - [ ] Confirm combat system is responsive on different screen sizes
 
-This checklist covers the complete user experience of the Light & Shadow combat system. Use it to verify that all aspects of combat are functioning correctly and providing the intended therapeutic experience.
+### Integration Checks
+- [ ] Verify CombatOverlay renders when combat.inCombat is true
+- [ ] Check that combat state is properly initialized with enemy data
+- [ ] Confirm scene engine properly triggers startCombat() on failed combat encounters
+- [ ] Verify combat end properly syncs resources back to main game state
+- [ ] Check that Adventure page continues normal flow after combat resolution
+
 
 ---
 

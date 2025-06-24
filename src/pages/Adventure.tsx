@@ -3,6 +3,7 @@ import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';
 import { JournalModal, type JournalEntry } from '@/components/JournalModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { StatsBar } from '@/components/StatsBar';
 import { useGameStore } from '@/store/game-store';
 import AudioPlayer from '@/components/organisms/AudioPlayer';
 import { audioPlaylist } from '@/data/audioPlaylist';
@@ -116,6 +117,13 @@ export function Adventure() {
 
           {/* Guardian Text with clear visual separation */}
           <GuardianText trust={guardianTrust} message={guardianMessage} data-testid="guardian-text" />
+
+          {/* Stats Bar - Shows LP/SP resources for combat awareness */}
+          <StatsBar
+            trust={guardianTrust}
+            className="mb-6"
+            data-testid="adventure-stats-bar"
+          />
 
           {/* Audio Player with consistent spacing */}
           {ENABLE_AUDIO_PLAYER && (

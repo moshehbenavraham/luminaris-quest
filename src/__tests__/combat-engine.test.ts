@@ -309,9 +309,36 @@ describe('Combat Engine', () => {
         mockCombatState.resources.lp = 5;
         mockCombatState.resources.sp = 3;
         mockCombatState.currentEnemy!.currentHP = 10;
-        
+        mockCombatState.turn = 5; // Well below turn limit
+
         const result = checkCombatEnd(mockCombatState);
-        
+
+        expect(result.isEnded).toBe(false);
+        expect(result.victory).toBeUndefined();
+      });
+
+      it('should detect defeat when turn limit is reached', () => {
+        mockCombatState.resources.lp = 5;
+        mockCombatState.resources.sp = 3;
+        mockCombatState.currentEnemy!.currentHP = 10;
+        mockCombatState.turn = 20; // At turn limit
+
+        const result = checkCombatEnd(mockCombatState);
+
+        expect(result.isEnded).toBe(true);
+        expect(result.victory).toBe(false);
+        expect(result.reason).toContain('outlasted');
+        expect(result.reason).toContain('20 turns');
+      });
+
+      it('should continue combat when turn limit is not yet reached', () => {
+        mockCombatState.resources.lp = 5;
+        mockCombatState.resources.sp = 3;
+        mockCombatState.currentEnemy!.currentHP = 10;
+        mockCombatState.turn = 19; // One turn before limit
+
+        const result = checkCombatEnd(mockCombatState);
+
         expect(result.isEnded).toBe(false);
         expect(result.victory).toBeUndefined();
       });

@@ -20,24 +20,27 @@ export const COMBAT_BALANCE = {
   // Base damage values
   ILLUMINATE_BASE_DAMAGE: 3,
   ILLUMINATE_TRUST_SCALING: 4, // damage = base + floor(trust / scaling)
-  
+
   // Resource costs
   ILLUMINATE_LP_COST: 2,
   REFLECT_SP_COST: 2,
   ENDURE_LP_THRESHOLD: 0.5, // 50% of max LP
-  
+
   // Healing amounts
   REFLECT_HEAL_AMOUNT: 1,
   ENDURE_DAMAGE_REDUCTION: 0.5, // 50% damage reduction
-  
+
   // Shadow AI thresholds
   SHADOW_AGGRESSIVE_HP_THRESHOLD: 0.3, // 30% HP
   SHADOW_DEFENSIVE_LP_THRESHOLD: 5,
-  
+
   // Status effect durations
   DAMAGE_MULTIPLIER_DURATION: 3,
   HEALING_BLOCK_DURATION: 2,
   LP_GENERATION_BLOCK_DURATION: 2,
+
+  // Combat limits
+  MAX_COMBAT_TURNS: 20, // Maximum turns before automatic resolution
 } as const;
 
 /**
@@ -359,6 +362,15 @@ export function checkCombatEnd(state: CombatState): {
       isEnded: true,
       victory: false,
       reason: 'You have been overwhelmed by the shadow...'
+    };
+  }
+
+  // Turn limit reached: Shadow wins by default
+  if (state.turn >= COMBAT_BALANCE.MAX_COMBAT_TURNS) {
+    return {
+      isEnded: true,
+      victory: false,
+      reason: `The shadow has outlasted your efforts. Combat ended after ${COMBAT_BALANCE.MAX_COMBAT_TURNS} turns.`
     };
   }
 

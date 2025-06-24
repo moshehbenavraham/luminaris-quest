@@ -13,7 +13,16 @@ import {
   detectEnvironment
 } from '@/lib/database-health';
 import { supabase } from '@/integrations/supabase/client';
-import { createLogger as createEnvLogger, /* environment, */ /* , performanceMonitor */ } from '@/lib/environment';
+import { createLogger as createEnvLogger, getEnvironmentConfig, /* environment, */ /* , performanceMonitor */ } from '@/lib/environment';
+import { createShadowManifestation } from '@/data/shadowManifestations';
+import { isLastScene } from '@/engine/scene-engine';
+import {
+  executePlayerAction,
+  executeShadowAction,
+  decideShadowAction,
+  checkCombatEnd,
+  canPerformAction
+} from '@/engine/combat-engine';
 // TEMPORARILY COMMENTED OUT FOR BUILD: environment and performanceMonitor imports temporarily commented to fix TS6133 build error
 
 // Save operation status types
@@ -269,7 +278,7 @@ const initialMilestones: Milestone[] = [
   { id: 'milestone-75', level: 75, label: 'Deep Connection', achieved: false },
 ];
 
-const useGameStoreBase = create<GameState>()(
+export const useGameStoreBase = create<GameState>()(
   persist(
     (set, get) => ({
       // Initial state
@@ -282,8 +291,9 @@ const useGameStoreBase = create<GameState>()(
       pendingMilestoneJournals: new Set(),
       
       // Light & Shadow Combat Resources
-      lightPoints: 0,
-      shadowPoints: 0,
+      // Players start with some resources to enable combat functionality
+      lightPoints: 10,
+      shadowPoints: 5,
 
       // Combat System State
       combat: {
@@ -585,28 +595,27 @@ const useGameStoreBase = create<GameState>()(
         set((state) => {
           logger.info('Starting combat', { enemyId });
 
-          // For now, we'll create a placeholder enemy until shadowManifestations.ts is implemented
-          const placeholderEnemy: ShadowManifestation = {
-            id: enemyId,
-            name: 'Shadow Manifestation',
-            type: 'doubt',
-            description: 'A manifestation of inner struggle',
-            currentHP: 15,
-            maxHP: 15,
-            abilities: [],
-            therapeuticInsight: 'Every shadow teaches us something about ourselves.',
-            victoryReward: {
-              lpBonus: 5,
-              growthMessage: 'You have grown stronger through this challenge.',
-              permanentBenefit: 'Increased self-awareness'
-            }
-          };
+          // Create actual shadow manifestation using the shadow data system
+          const shadowEnemy = createShadowManifestation(enemyId);
+
+          if (!shadowEnemy) {
+            logger.error('Failed to create shadow manifestation', { enemyId });
+            // Fallback to prevent crash - this should not happen in normal gameplay
+            return state;
+          }
+
+          logger.info('Shadow manifestation created', {
+            shadowId: shadowEnemy.id,
+            shadowName: shadowEnemy.name,
+            shadowHP: shadowEnemy.maxHP
+          });
 
           return {
+            ...state,
             combat: {
               ...state.combat,
               inCombat: true,
-              currentEnemy: placeholderEnemy,
+              currentEnemy: shadowEnemy,
               resources: { lp: state.lightPoints, sp: state.shadowPoints },
               turn: 1,
               log: [{
@@ -615,7 +624,7 @@ const useGameStoreBase = create<GameState>()(
                 action: 'MANIFEST',
                 effect: 'Combat begins',
                 resourceChange: {},
-                message: `${placeholderEnemy.name} emerges from the shadows of your mind...`
+                message: `${shadowEnemy.name} emerges from the shadows of your mind...`
               }]
             },
             saveState: { ...state.saveState, hasUnsavedChanges: true }
@@ -632,28 +641,67 @@ const useGameStoreBase = create<GameState>()(
 
           logger.info('Executing combat action', { action, turn: state.combat.turn });
 
-          // Update preferred actions tracking
+          // Validate action can be performed
+          const validation = canPerformAction(action, state.combat, state.guardianTrust);
+          if (!validation.canPerform) {
+            logger.warn('Cannot perform combat action', { action, reason: validation.reason });
+            return state;
+          }
+
+          // Execute player action using combat engine
+          const playerResult = executePlayerAction(action, state.combat, state.guardianTrust);
+          let newCombatState = { ...playerResult.newState };
+
+          // Update preferred actions tracking (ensure immutability)
           const newPreferredActions = {
-            ...state.combat.preferredActions,
-            [action]: state.combat.preferredActions[action] + 1
+            ...newCombatState.preferredActions,
+            [action]: newCombatState.preferredActions[action] + 1
+          };
+          newCombatState = {
+            ...newCombatState,
+            preferredActions: newPreferredActions
           };
 
-          // Create combat log entry
-          const logEntry: CombatLogEntry = {
-            turn: state.combat.turn,
-            actor: 'PLAYER',
-            action,
-            effect: `Used ${action}`,
-            resourceChange: {},
-            message: `You use ${action} against the shadow...`
+          // Add player action to combat log
+          const combatLog = [...newCombatState.log, playerResult.logEntry];
+
+          // Check if combat ended after player action
+          let combatEndStatus = checkCombatEnd(newCombatState);
+          if (combatEndStatus.isEnded) {
+            return {
+              ...state,
+              combat: {
+                ...newCombatState,
+                log: combatLog
+              },
+              saveState: { ...state.saveState, hasUnsavedChanges: true }
+            };
+          }
+
+          // Execute shadow action if combat continues
+          if (newCombatState.currentEnemy && newCombatState.currentEnemy.currentHP > 0) {
+            const shadowAction = decideShadowAction(newCombatState.currentEnemy, newCombatState);
+            if (shadowAction) {
+              const shadowResult = executeShadowAction(shadowAction, newCombatState);
+              newCombatState = { ...shadowResult.newState };
+              combatLog.push(shadowResult.logEntry);
+            }
+          }
+
+          // Increment turn counter (ensure immutability)
+          newCombatState = {
+            ...newCombatState,
+            turn: newCombatState.turn + 1
           };
+
+          // Final combat end check after shadow action
+          combatEndStatus = checkCombatEnd(newCombatState);
 
           return {
+            ...state,
             combat: {
-              ...state.combat,
-              turn: state.combat.turn + 1,
-              preferredActions: newPreferredActions,
-              log: [...state.combat.log, logEntry]
+              ...newCombatState,
+              log: combatLog
             },
             saveState: { ...state.saveState, hasUnsavedChanges: true }
           };
@@ -691,9 +739,16 @@ const useGameStoreBase = create<GameState>()(
               : 'Though defeated, you have learned valuable lessons...'
           };
 
+          // Advance scene after successful combat (victory or learning from defeat)
+          const shouldAdvanceScene = victory || !victory; // Always advance after combat
+          const newSceneIndex = shouldAdvanceScene && !isLastScene(state.currentSceneIndex)
+            ? state.currentSceneIndex + 1
+            : state.currentSceneIndex;
+
           return {
             lightPoints: finalLightPoints + bonusLP,
             shadowPoints: finalShadowPoints,
+            currentSceneIndex: newSceneIndex,
             combat: {
               inCombat: false,
               currentEnemy: null,
@@ -1137,18 +1192,19 @@ const useGameStoreBase = create<GameState>()(
         // Perform initial health check
         get().performHealthCheck();
         
-        // Set up periodic health checks (every 45 seconds)
+        // Set up periodic health checks using environment-specific interval
+        const config = getEnvironmentConfig();
         const interval = setInterval(() => {
           const currentState = get();
-          
+
           // Only perform health check if the app is active and user is present
           if (document.hidden || !document.hasFocus()) {
             logger.debug('Skipping health check - app not active');
             return;
           }
-          
+
           currentState.performHealthCheck();
-        }, 45000); // 45 seconds
+        }, config.healthCheckInterval);
         
         // Store interval reference
         set({ _healthCheckInterval: interval });
@@ -1238,6 +1294,7 @@ export const useGameStore = () => {
   }, []);
 
   // Return initial values during SSR/hydration to prevent mismatches
+  // BUT allow real-time resource values to show through for combat system
   if (!hasMounted || !store._hasHydrated) {
     return {
       guardianTrust: 50,
@@ -1248,36 +1305,12 @@ export const useGameStore = () => {
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
 
-      // Light & Shadow Combat Resources
-      lightPoints: 0,
-      shadowPoints: 0,
+      // Light & Shadow Combat Resources - Use actual store values for real-time updates
+      lightPoints: store.lightPoints,
+      shadowPoints: store.shadowPoints,
 
-      // Combat System State
-      combat: {
-        inCombat: false,
-        currentEnemy: null,
-        resources: { lp: 0, sp: 0 },
-        turn: 0,
-        log: [],
-
-        // Status effects
-        damageMultiplier: 1,
-        damageReduction: 1,
-        healingBlocked: 0,
-        lpGenerationBlocked: 0,
-        skipNextTurn: false,
-        consecutiveEndures: 0,
-
-        // Therapeutic tracking
-        preferredActions: {
-          ILLUMINATE: 0,
-          REFLECT: 0,
-          ENDURE: 0,
-          EMBRACE: 0
-        },
-        growthInsights: [],
-        combatReflections: []
-      },
+      // Combat System State - Use actual store values for real-time updates
+      combat: store.combat,
 
       saveState: {
         status: 'idle',

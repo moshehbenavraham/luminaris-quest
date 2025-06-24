@@ -20,48 +20,47 @@ describe('StatsBar Component', () => {
   });
 
   describe('Basic Rendering', () => {
-    it('renders trust bond section correctly', () => {
-      render(<StatsBar trust={50} />);
-      
-      expect(screen.getByText('Trust Bond')).toBeInTheDocument();
-      expect(screen.getByText('Growing Bond')).toBeInTheDocument();
-      expect(screen.getByText('50/100')).toBeInTheDocument();
-    });
-
     it('renders default stats (health, energy, experience)', () => {
       render(<StatsBar trust={50} />);
-      
+
       expect(screen.getByText('Health')).toBeInTheDocument();
       expect(screen.getByText('Energy')).toBeInTheDocument();
       expect(screen.getByText('Experience')).toBeInTheDocument();
+
+      // Trust bond is NOT displayed in StatsBar - it's handled by GuardianText
+      expect(screen.queryByText('Trust Bond')).not.toBeInTheDocument();
     });
 
     it('renders custom stat values when provided', () => {
       render(<StatsBar trust={75} health={80} energy={60} experience={25} />);
-      
-      expect(screen.getByText('Strong Trust')).toBeInTheDocument();
+
       expect(screen.getByText('80')).toBeInTheDocument();
       expect(screen.getByText('60')).toBeInTheDocument();
       expect(screen.getByText('25')).toBeInTheDocument();
+
+      // Trust bond is NOT displayed in StatsBar
+      expect(screen.queryByText('Strong Trust')).not.toBeInTheDocument();
+      expect(screen.queryByText('Trust Bond')).not.toBeInTheDocument();
     });
   });
 
-  describe('Trust Level Labels and Colors', () => {
-    it('shows correct trust labels for different levels', () => {
+  describe('Trust Handling', () => {
+    it('does not display trust bond (handled by GuardianText component)', () => {
       const { rerender } = render(<StatsBar trust={10} />);
-      expect(screen.getByText('Fragile Bond')).toBeInTheDocument();
+      expect(screen.queryByText('Fragile Bond')).not.toBeInTheDocument();
+      expect(screen.queryByText('Trust Bond')).not.toBeInTheDocument();
 
       rerender(<StatsBar trust={30} />);
-      expect(screen.getByText('Cautious Trust')).toBeInTheDocument();
+      expect(screen.queryByText('Cautious Trust')).not.toBeInTheDocument();
 
       rerender(<StatsBar trust={50} />);
-      expect(screen.getByText('Growing Bond')).toBeInTheDocument();
+      expect(screen.queryByText('Growing Bond')).not.toBeInTheDocument();
 
       rerender(<StatsBar trust={70} />);
-      expect(screen.getByText('Strong Trust')).toBeInTheDocument();
+      expect(screen.queryByText('Strong Trust')).not.toBeInTheDocument();
 
       rerender(<StatsBar trust={90} />);
-      expect(screen.getByText('Deep Bond')).toBeInTheDocument();
+      expect(screen.queryByText('Deep Bond')).not.toBeInTheDocument();
     });
   });
 
@@ -138,12 +137,32 @@ describe('StatsBar Component', () => {
     it('hides combat resources when explicitly disabled even with resources', () => {
       mockGameStore.lightPoints = 5;
       mockGameStore.shadowPoints = 3;
-      
+
       render(<StatsBar trust={50} showCombatResources={false} />);
-      
+
       expect(screen.queryByText('Combat Resources')).not.toBeInTheDocument();
       expect(screen.queryByText('Light Points')).not.toBeInTheDocument();
       expect(screen.queryByText('Shadow Points')).not.toBeInTheDocument();
+    });
+
+    it('REGRESSION TEST: shows combat resources during hydration when resources exist', () => {
+      // This test verifies the fix for the hydration issue where StatsBar
+      // would show hardcoded initial values instead of actual store values
+      mockGameStore.lightPoints = 5;
+      mockGameStore.shadowPoints = 3;
+
+      // Render StatsBar - it should show the actual resource values
+      // even during the hydration phase
+      render(<StatsBar trust={50} />);
+
+      // Verify that the actual resource values are displayed
+      expect(screen.getByText('5')).toBeInTheDocument();
+      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(screen.getByText('Combat Resources')).toBeInTheDocument();
+
+      // Verify that the auto-detection logic works correctly
+      expect(screen.getByText('Light Points')).toBeInTheDocument();
+      expect(screen.getByText('Shadow Points')).toBeInTheDocument();
     });
   });
 
@@ -177,7 +196,8 @@ describe('StatsBar Component', () => {
 
       render(<StatsBar trust={100} health={0} energy={150} experience={1000} />);
 
-      expect(screen.getByText('Deep Bond')).toBeInTheDocument();
+      // Trust bond is NOT displayed in StatsBar
+      expect(screen.queryByText('Deep Bond')).not.toBeInTheDocument();
       expect(screen.getByText('999')).toBeInTheDocument(); // Large LP value
       expect(screen.getByText('150')).toBeInTheDocument(); // Over 100 energy
       expect(screen.getByText('1000')).toBeInTheDocument(); // Large experience
@@ -192,21 +212,27 @@ describe('StatsBar Component', () => {
     it('maintains proper section order with combat resources', () => {
       mockGameStore.lightPoints = 5;
       mockGameStore.shadowPoints = 3;
-      
+
       render(<StatsBar trust={50} />);
-      
+
       const sections = screen.getAllByRole('separator'); // hr elements
-      expect(sections).toHaveLength(2); // One after trust, one after combat resources
+      expect(sections).toHaveLength(1); // One after combat resources (before other stats)
     });
 
     it('maintains proper section order without combat resources', () => {
       mockGameStore.lightPoints = 0;
       mockGameStore.shadowPoints = 0;
-      
+
       render(<StatsBar trust={50} />);
-      
-      const sections = screen.getAllByRole('separator'); // hr elements
-      expect(sections).toHaveLength(1); // Only one after trust
+
+      // When no combat resources, there should be no separators
+      const sections = screen.queryAllByRole('separator'); // hr elements
+      expect(sections).toHaveLength(0); // No separators when no combat resources
+
+      // But should still show the basic stats
+      expect(screen.getByText('Health')).toBeInTheDocument();
+      expect(screen.getByText('Energy')).toBeInTheDocument();
+      expect(screen.getByText('Experience')).toBeInTheDocument();
     });
   });
 });

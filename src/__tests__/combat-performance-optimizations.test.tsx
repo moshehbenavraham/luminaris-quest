@@ -148,13 +148,28 @@ describe('Combat System Performance Optimizations', () => {
     });
 
     it('should handle auto-scroll toggle efficiently', () => {
+      // Create a longer log to trigger auto-scroll toggle visibility
+      const longLog = Array.from({ length: 5 }, (_, i) => ({
+        turn: i + 1,
+        actor: 'PLAYER' as const,
+        action: 'ILLUMINATE',
+        effect: `Dealt ${20 + i * 5} damage`,
+        message: `You illuminate the shadow with inner light (turn ${i + 1})`,
+        timestamp: new Date()
+      }));
+
+      mockUseCombat.mockReturnValue({
+        ...mockUseCombat(),
+        log: longLog
+      });
+
       render(<CombatLog />);
-      
+
       const autoScrollToggle = screen.getByTestId('auto-scroll-toggle');
       expect(autoScrollToggle).toBeInTheDocument();
-      
+
       fireEvent.click(autoScrollToggle);
-      
+
       expect(autoScrollToggle).toHaveTextContent('Auto-scroll: OFF');
     });
   });

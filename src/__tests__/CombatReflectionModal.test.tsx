@@ -164,8 +164,8 @@ describe('CombatReflectionModal', () => {
     );
 
     expect(screen.getByText('Reflection Prompts')).toBeInTheDocument();
-    expect(screen.getByText('What specific doubts did you face during this encounter?')).toBeInTheDocument();
-    expect(screen.getByText('How did you work through moments of uncertainty?')).toBeInTheDocument();
+    expect(screen.getByText('What specific self-doubts showed up during this encounter? Notice them without judgment.')).toBeInTheDocument();
+    expect(screen.getByText('When uncertainty arose, what helped you take action anyway? What inner resources did you discover?')).toBeInTheDocument();
   });
 
   it('handles prompt selection correctly', async () => {
@@ -180,11 +180,11 @@ describe('CombatReflectionModal', () => {
       />
     );
 
-    const promptButton = screen.getByText('What specific doubts did you face during this encounter?');
+    const promptButton = screen.getByText('What specific self-doubts showed up during this encounter? Notice them without judgment.');
     await user.click(promptButton);
 
     const textarea = screen.getByTestId('reflection-textarea');
-    expect(textarea).toHaveValue('What specific doubts did you face during this encounter?\n');
+    expect(textarea).toHaveValue('What specific self-doubts showed up during this encounter? Notice them without judgment.\n');
     
     // Prompts should be hidden after selection
     await waitFor(() => {
@@ -290,7 +290,7 @@ describe('CombatReflectionModal', () => {
       />
     );
 
-    expect(screen.getByText('When do you tend to withdraw from others in your daily life?')).toBeInTheDocument();
+    expect(screen.getByText('When do you notice yourself withdrawing from others? What triggers this protective response?')).toBeInTheDocument();
   });
 
   it('allows closing modal without saving', async () => {

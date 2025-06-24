@@ -127,18 +127,49 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
     // Reset state for next combat
     setCombatStartResources(null);
     setReflectionData(null);
-    // End combat after reflection is saved
-    endCombat(combatEndStatus.victory || false);
-  }, [addJournalEntry, endCombat, combatEndStatus.victory]);
+    // Only end combat if it's still active (avoid double-ending)
+    if (isActive) {
+      endCombat(combatEndStatus.victory || false);
+    }
+  }, [addJournalEntry, endCombat, combatEndStatus.victory, isActive]);
 
   const handleSkipReflection = useCallback(() => {
     setShowReflectionModal(false);
     // Reset state for next combat
     setCombatStartResources(null);
     setReflectionData(null);
-    // End combat without reflection
-    endCombat(combatEndStatus.victory || false);
-  }, [endCombat, combatEndStatus.victory]);
+    // Only end combat if it's still active (avoid double-ending)
+    if (isActive) {
+      endCombat(combatEndStatus.victory || false);
+    }
+  }, [endCombat, combatEndStatus.victory, isActive]);
+
+  // Handler for manual combat surrender
+  const handleSurrender = useCallback(() => {
+    // Only end combat if it's still active (avoid double-ending)
+    if (isActive) {
+      endCombat(false);
+    }
+  }, [endCombat, isActive]);
+
+  // Memoized shadow type color calculation to prevent recalculation on every render
+  const shadowTypeColor = useMemo(() => {
+    if (!enemy) return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+
+    switch (enemy.type) {
+      case 'doubt': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'isolation': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'overwhelm': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      case 'past-pain': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+    }
+  }, [enemy?.type]);
+
+  // Calculate HP percentage for progress bar
+  const hpPercentage = useMemo(() => {
+    if (!enemy) return 0;
+    return Math.max(0, (enemy.currentHP / enemy.maxHP) * 100);
+  }, [enemy?.currentHP, enemy?.maxHP]);
 
   // Don't render if combat is not active or no enemy
   if (!isActive || !enemy) {
@@ -190,23 +221,6 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
       </>
     );
   }
-
-
-
-  // Memoized shadow type color calculation to prevent recalculation on every render
-  const shadowTypeColor = useMemo(() => {
-    if (!enemy) return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
-
-    switch (enemy.type) {
-      case 'doubt': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'isolation': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-      case 'overwhelm': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      case 'past-pain': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
-    }
-  }, [enemy?.type]);
-
-  const hpPercentage = (enemy.currentHP / enemy.maxHP) * 100;
 
   return (
     <AnimatePresence>
@@ -325,14 +339,33 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
             </motion.div>
 
             {/* Combat Actions */}
-            <ActionSelector
-              isPlayerTurn={isPlayerTurn}
-              canUseAction={canUseAction}
-              getActionCost={getActionCost}
-              getActionDescription={getActionDescription}
-              onActionSelect={executeAction}
-              data-testid="combat-actions"
-            />
+            <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <ActionSelector
+                isPlayerTurn={isPlayerTurn}
+                canUseAction={canUseAction}
+                getActionCost={getActionCost}
+                getActionDescription={getActionDescription}
+                onActionSelect={executeAction}
+                data-testid="combat-actions"
+              />
+            </motion.div>
+
+            {/* Surrender Button */}
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSurrender}
+                className="text-muted-foreground hover:text-destructive hover:border-destructive"
+                data-testid="surrender-button"
+              >
+                Surrender
+              </Button>
+            </div>
           </div>
 
           {/* Therapeutic Insight */}
