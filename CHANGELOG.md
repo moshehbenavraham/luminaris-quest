@@ -8,6 +8,32 @@ Previous Changelog:  docs\CHANGELOG_OLD.md
 
 ## [Unreleased]
 
+### Added
+- **Scene Engine Expansion - 20 Total Scenes** (June 25, 2025) - Expanded scene engine from 5 to 20 scenes across 4 complete therapeutic cycles
+  - **Enhancement**: Added 15 new scenes in 3 phases, each following the established pattern: social → skill → combat → journal → exploration
+  - **Set 2 (Scenes 6-10)**: Added social-gathering, skill-navigation, combat-isolation, journal-crossroads, exploration-sanctuary
+    - DCs: 11-16 (progressive difficulty increase)
+    - Combat scene uses VEIL_OF_ISOLATION shadow type with higher rewards (5 LP/4 SP)
+  - **Set 3 (Scenes 11-15)**: Added social-mentor, skill-crafting, combat-overwhelm, journal-letters, exploration-library
+    - DCs: 10-14 (returned to manageable levels)
+    - Combat scene uses STORM_OF_OVERWHELM shadow type with standard rewards (4 LP/3 SP)
+  - **Set 4 (Scenes 16-20)**: Added social-reconciliation, skill-restoration, combat-past-pain, journal-legacy, exploration-summit
+    - DCs: 12-15 (slightly increased for final challenges)
+    - Combat scene uses ECHO_OF_PAST_PAIN shadow type with standard rewards (4 LP/3 SP)
+  - **Therapeutic Themes**: Each scene addresses different aspects of trauma recovery including:
+    - Social: Connection, mentorship, reconciliation, community support
+    - Skill: Problem-solving, restoration, patience, precision under pressure
+    - Combat: Confronting doubt, isolation, overwhelm, and past trauma
+    - Journal: Self-reflection, legacy, unresolved emotions, life choices
+    - Exploration: Discovery, healing spaces, perspective, personal growth
+  - **Combat Integration**: All 4 combat scenes properly mapped to their respective shadow types in scene-to-shadow mapping system
+  - **Files Modified**:
+    - `src/engine/scene-engine.ts` - Added 15 new scenes with unique IDs, therapeutic narratives, and appropriate difficulty curves
+    - Updated `mapSceneToShadowType` function to include all 4 combat scene mappings
+  - **Impact**: Players now have 4x more content with varied therapeutic challenges and a complete narrative arc from introduction to culmination
+  - **Quality**: Each scene maintains consistent structure, meaningful choices, therapeutic value, and progressive difficulty
+  - **User Experience**: Provides comprehensive therapeutic gaming experience with 20 unique scenarios addressing different aspects of healing and growth
+
 ### Fixed
 - **🔴 CRITICAL FIX: Combat Exit Mechanism - Manual Surrender Button** (June 24, 2025) - Fixed critical bug where players had no way to manually exit combat
   - **Issue**: Players could become permanently trapped in combat with no manual exit option, only able to escape through browser refresh (losing game state)

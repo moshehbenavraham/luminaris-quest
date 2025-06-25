@@ -45,7 +45,19 @@ export const COMBAT_BALANCE = {
 
 /**
  * Calculate damage for ILLUMINATE action
- * Therapeutic insight: Awareness and understanding reduce emotional pain
+ * 
+ * Therapeutic insight: Awareness and understanding reduce emotional pain.
+ * The more trust the player has built with their guardian, the more effective
+ * their ability to illuminate and understand their inner struggles becomes.
+ * 
+ * @param guardianTrust - Current guardian trust level (0-100)
+ * @returns Calculated damage amount
+ * 
+ * @example
+ * ```typescript
+ * const damage = calculateIlluminateDamage(75);
+ * console.log(damage); // 21 (3 + floor(75/4))
+ * ```
  */
 export function calculateIlluminateDamage(guardianTrust: number): number {
   const baseDamage = COMBAT_BALANCE.ILLUMINATE_BASE_DAMAGE;
@@ -55,7 +67,20 @@ export function calculateIlluminateDamage(guardianTrust: number): number {
 
 /**
  * Calculate damage for EMBRACE action
- * Therapeutic insight: Accepting difficult emotions reduces their power
+ * 
+ * Therapeutic insight: Accepting difficult emotions reduces their power.
+ * The Shadow Embrace action represents the therapeutic concept of integrating
+ * one's shadow self - acknowledging and accepting difficult emotions rather
+ * than fighting them, which paradoxically reduces their negative impact.
+ * 
+ * @param shadowPoints - Current shadow points available
+ * @returns Calculated damage amount (minimum 1)
+ * 
+ * @example
+ * ```typescript
+ * const damage = calculateEmbraceDamage(8);
+ * console.log(damage); // 4 (8/2)
+ * ```
  */
 export function calculateEmbraceDamage(shadowPoints: number): number {
   // Embrace converts shadow points to damage (1 SP = 2 damage)
@@ -65,6 +90,25 @@ export function calculateEmbraceDamage(shadowPoints: number): number {
 
 /**
  * Validate if a combat action can be performed
+ * 
+ * Checks whether the player has sufficient resources and is not blocked
+ * from performing a specific combat action. This ensures fair gameplay
+ * and prevents invalid actions that could break the combat flow.
+ * 
+ * @param action - The combat action to validate
+ * @param state - Current combat state including resources and status effects
+ * @param _guardianTrust - Guardian trust level (currently unused but reserved for future features)
+ * @returns Object containing validation result and optional reason for failure
+ * 
+ * @example
+ * ```typescript
+ * const result = canPerformAction('ILLUMINATE', combatState, 50);
+ * if (result.canPerform) {
+ *   // Execute the action
+ * } else {
+ *   console.log(result.reason); // "Not enough Light Points"
+ * }
+ * ```
  */
 export function canPerformAction(
   action: CombatAction,
@@ -108,6 +152,28 @@ export function canPerformAction(
 
 /**
  * Execute a player combat action and return the updated state
+ * 
+ * This is the core function that processes player actions in combat,
+ * applying therapeutic mechanics and updating the combat state accordingly.
+ * Each action represents a different emotional regulation strategy.
+ * 
+ * @param action - The combat action to execute ('ILLUMINATE', 'REFLECT', 'ENDURE', 'EMBRACE')
+ * @param state - Current combat state
+ * @param guardianTrust - Current guardian trust level affecting action effectiveness
+ * @returns Object containing updated state, combat log entry, and optional damage dealt
+ * 
+ * @throws {Error} When an unknown action is provided
+ * 
+ * @example
+ * ```typescript
+ * const result = executePlayerAction('ILLUMINATE', combatState, 75);
+ * console.log(result.logEntry.message); // "You illuminate the shadow's doubt..."
+ * console.log(result.damage); // 21
+ * ```
+ * 
+ * @see {@link canPerformAction} - Use this first to validate the action
+ * @see {@link calculateIlluminateDamage} - For ILLUMINATE damage calculation
+ * @see {@link calculateEmbraceDamage} - For EMBRACE damage calculation
  */
 export function executePlayerAction(
   action: CombatAction,
