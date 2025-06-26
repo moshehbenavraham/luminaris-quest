@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   calculateIlluminateRange,
   calculateEmbraceRange,
@@ -10,7 +10,6 @@ import {
   getBalanceSummary
 } from '../engine/combat-balance';
 import { shadowManifestations } from '../data/shadowManifestations';
-import type { ShadowManifestation } from '../store/game-store';
 
 describe('Combat Balance System', () => {
   describe('Damage Calculations', () => {

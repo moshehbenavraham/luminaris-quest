@@ -15,6 +15,11 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [showResult, setShowResult] = useState(false);
 
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  };
+
   useEffect(() => {
     setIsVisible(true);
 
@@ -30,12 +35,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
       clearTimeout(resultTimer);
       clearTimeout(closeTimer);
     };
-  }, []);
-
-  const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(onClose, 300);
-  };
+  }, [handleClose]);
 
   return (
     <div
@@ -51,9 +51,9 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <CardHeader className="pb-2 text-center">
-          <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-white">
+          <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold combat-text-light">
             <Dice6 className={`h-7 w-7 ${!showResult ? 'animate-spin' : ''} text-white`} />
-            Fate's Decision
+            Fate&apos;s Decision
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 py-6 text-center">
@@ -77,7 +77,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
 
               <div
                 className={`text-2xl font-bold ${
-                  result.success ? 'text-primary' : 'text-amber-500 dark:text-amber-400'
+                  result.success ? 'combat-text-heal' : 'combat-text-critical'
                 }`}
               >
                 {result.success ? '✨ Success!' : '💡 Try Again'}
@@ -90,7 +90,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
                 className={`mt-2 h-11 rounded-full px-8 text-base ${
                   result.success
                     ? 'bg-primary hover:bg-primary/90'
-                    : 'border-amber-500/30 text-amber-600 hover:bg-amber-500/10 dark:text-amber-400'
+                    : 'border-amber-500/30 combat-text-critical hover:bg-amber-500/10'
                 }`}
               >
                 Continue

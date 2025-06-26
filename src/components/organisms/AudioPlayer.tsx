@@ -16,7 +16,7 @@ export interface AudioPlayerProps {
   /** Playlist to play */
   tracks: Track[];
   /** Optional callback whenever the active track changes */
-  onTrackChange?: (index: number) => void;
+  onTrackChange?: (_index: number) => void;
 }
 
 /**
@@ -27,6 +27,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const playerRef = useRef<AudioPlayerLib>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleNext = useCallback(() => {
     setCurrentIdx((prev) => {
@@ -34,7 +35,28 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
       onTrackChange?.(next);
       return next;
     });
-  }, [tracks.length, onTrackChange]);
+
+    // Ensure the next track starts playing if the current track was playing
+    // This helps with browser autoplay policies by maintaining playback state
+    if (isPlaying && playerRef.current?.audio?.current) {
+      const audio = playerRef.current.audio.current;
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      // Small delay to allow the src to update
+      timeoutRef.current = setTimeout(() => {
+        // Safety check for play method existence (important for test environments)
+        if (audio && typeof audio.play === 'function') {
+          audio.play().catch((error) => {
+            console.warn('Autoplay prevented by browser policy:', error);
+            setIsPlaying(false);
+          });
+        }
+        timeoutRef.current = null;
+      }, 100);
+    }
+  }, [tracks.length, onTrackChange, isPlaying]);
 
   const handlePrevious = useCallback(() => {
     setCurrentIdx((prev) => {
@@ -87,6 +109,16 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [togglePlayPause, handleNext, handlePrevious]);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
+
   if (tracks.length === 0) {
     return null;
   }
@@ -111,6 +143,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
         ref={playerRef}
         className="w-full [&_.rhap_container]:!bg-transparent [&_.rhap_container]:!border-none [&_.rhap_container]:!shadow-none [&_.rhap_header]:text-foreground [&_.rhap_header]:font-medium [&_.rhap_header]:text-lg [&_.rhap_time]:text-muted-foreground [&_.rhap_progress-bar]:bg-muted [&_.rhap_progress-filled]:bg-primary [&_.rhap_progress-indicator]:bg-primary [&_.rhap_button-clear]:text-foreground [&_.rhap_button-clear:hover]:text-primary [&_.rhap_button-clear:hover]:scale-105 [&_.rhap_button-clear]:transition-all [&_.rhap_button-clear]:duration-200"
         src={currentTrack.src}
+        autoPlay={false}
+        preload="auto"
         showSkipControls
         showJumpControls={false}
         header={currentTrack.title}

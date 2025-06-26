@@ -87,7 +87,11 @@ export default [
         { allowConstantExport: true },
       ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
+      'react/prop-types': 'off', // We use TypeScript for prop validation
+      'react/no-unescaped-entities': 'error',
+      'no-useless-escape': 'error',
     },
     settings: {
       react: {

@@ -88,7 +88,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Footer info */}
           <div className="border-t border-white/10 p-6">
-            <p className="text-center text-xs text-muted-foreground">© 2024 Luminari's Quest</p>
+            <p className="text-center text-xs text-muted-foreground">© 2024 Luminari&apos;s Quest</p>
           </div>
         </div>
       </aside>

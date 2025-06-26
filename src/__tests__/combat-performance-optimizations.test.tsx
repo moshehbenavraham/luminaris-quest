@@ -1,10 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import CombatOverlay from '../components/combat/CombatOverlay';
 import ActionSelector from '../components/combat/ActionSelector';
 import CombatLog from '../components/combat/CombatLog';
-import { CombatReflectionModal } from '../components/combat/CombatReflectionModal';
 import { useCombat } from '../hooks/useCombat';
 import { useCombatSounds } from '../hooks/useCombatSounds';
 import { useGameStore } from '../store/game-store';

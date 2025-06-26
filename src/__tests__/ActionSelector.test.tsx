@@ -51,7 +51,9 @@ describe('ActionSelector', () => {
       
       expect(screen.getByTestId('custom-selector')).toBeInTheDocument();
     });
-  });
+
+
+  });""
 
   describe('Action Button Display', () => {
     it('displays action names correctly', () => {
@@ -127,7 +129,7 @@ describe('ActionSelector', () => {
 
     it('disables all actions when not player turn', () => {
       render(<ActionSelector {...mockProps} isPlayerTurn={false} />);
-      
+
       expect(screen.getByTestId('action-illuminate')).toBeDisabled();
       expect(screen.getByTestId('action-reflect')).toBeDisabled();
       expect(screen.getByTestId('action-endure')).toBeDisabled();
@@ -154,9 +156,9 @@ describe('ActionSelector', () => {
 
     it('does not call onActionSelect when not player turn', () => {
       render(<ActionSelector {...mockProps} isPlayerTurn={false} />);
-      
+
       fireEvent.click(screen.getByTestId('action-illuminate'));
-      
+
       expect(mockProps.onActionSelect).not.toHaveBeenCalled();
     });
   });
@@ -201,6 +203,8 @@ describe('ActionSelector', () => {
         expect(mockProps.onActionSelect).toHaveBeenCalledWith('EMBRACE');
       });
     });
+
+
 
     it('does not trigger actions when not player turn', async () => {
       render(<ActionSelector {...mockProps} isPlayerTurn={false} />);

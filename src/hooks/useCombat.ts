@@ -43,20 +43,23 @@ export interface CombatHookReturn {
   };
   
   // Derived state
-  canUseAction: (action: CombatAction) => boolean;
-  getActionCost: (action: CombatAction) => { lp?: number; sp?: number };
-  getActionDescription: (action: CombatAction) => string;
+  canUseAction: (_action: CombatAction) => boolean;
+  getActionCost: (_action: CombatAction) => { lp?: number; sp?: number };
+  getActionDescription: (_action: CombatAction) => string;
   isPlayerTurn: boolean;
   combatEndStatus: {
     isEnded: boolean;
     victory?: boolean;
     reason?: string;
   };
-  
+  playerHealth: number;
+  playerLevel: number;
+
   // Actions
-  executeAction: (action: CombatAction) => void;
-  startCombat: (enemyId: string) => void;
-  endCombat: (victory: boolean) => void;
+  executeAction: (_action: CombatAction) => void;
+  startCombat: (_enemyId: string) => void;
+  endTurn: () => void;
+  endCombat: (_victory: boolean) => void;
   
   // Therapeutic insights
   preferredActions: Record<CombatAction, number>;
@@ -69,8 +72,11 @@ export function useCombat(): CombatHookReturn {
   const {
     combat,
     guardianTrust,
+    playerHealth,
+    playerLevel,
     startCombat: storeStartCombat,
     executeCombatAction: storeExecuteCombatAction,
+    endTurn: storeEndTurn,
     endCombat: storeEndCombat
   } = useGameStore();
 
@@ -86,6 +92,7 @@ export function useCombat(): CombatHookReturn {
     resources: { lp: 0, sp: 0 },
     turn: 0,
     log: [],
+    sceneDC: 0,
     damageMultiplier: 1,
     damageReduction: 1,
     healingBlocked: 0,
@@ -211,6 +218,11 @@ export function useCombat(): CombatHookReturn {
     storeExecuteCombatAction(action);
   }, [canUseAction, safeCombat, guardianTrust, isPlayerTurn, storeExecuteCombatAction, playActionSound]);
 
+  const endTurn = useCallback(() => {
+    if (!safeCombat.inCombat) return;
+    storeEndTurn();
+  }, [safeCombat.inCombat, storeEndTurn]);
+
   return {
     // Combat state
     isActive: safeCombat.inCombat,
@@ -218,6 +230,8 @@ export function useCombat(): CombatHookReturn {
     resources: safeCombat.resources,
     turn: safeCombat.turn,
     log: safeCombat.log,
+    playerHealth,
+    playerLevel,
 
     // Status effects
     statusEffects,
@@ -232,6 +246,7 @@ export function useCombat(): CombatHookReturn {
     // Actions
     executeAction,
     startCombat: storeStartCombat,
+    endTurn,
     endCombat: storeEndCombat,
 
     // Therapeutic insights

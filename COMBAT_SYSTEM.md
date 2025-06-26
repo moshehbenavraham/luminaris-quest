@@ -676,6 +676,361 @@ export function ResourceDisplay({ resources }: { resources: LightShadowResources
 }
 ```
 
+## Combat Overlay Architecture
+
+### Architecture Overview
+
+The combat overlay system is built with a modular, component-based architecture that emphasizes accessibility, visual clarity, and therapeutic effectiveness. The system manages complex state interactions while maintaining smooth user experience through optimized rendering and clear visual feedback.
+
+### Component Hierarchy
+
+```typescript
+// Component Structure and Data Flow
+CombatOverlay (Main Container)
+├── Shadow Visualization
+│   ├── Enemy name and type badge
+│   ├── HP bar with accessibility labels
+│   └── Recent action display
+├── Resource Display Panel
+│   ├── Health indicator
+│   ├── Experience counter
+│   ├── Light Points (LP) meter
+│   ├── Shadow Points (SP) meter
+│   └── Status effect badges
+├── ActionSelector (Combat Actions)
+│   ├── ILLUMINATE button (key: 1)
+│   ├── REFLECT button (key: 2)
+│   ├── ENDURE button (key: 3)
+│   ├── EMBRACE button (key: 4)
+│   └── END TURN button (key: 5)
+├── Combat Controls
+│   ├── End Turn button
+│   └── Surrender button
+├── Therapeutic Insight Panel
+│   └── Context-aware guidance messages
+└── CombatReflectionModal (Post-combat)
+    ├── Victory/Defeat summary
+    ├── Reflection prompts
+    └── Journal integration
+```
+
+### Key Components
+
+#### CombatOverlay.tsx
+The main combat UI container that orchestrates all combat interactions:
+
+```typescript
+// Core responsibilities:
+- Manages combat state display and updates
+- Handles combat lifecycle (start, turn flow, end)
+- Integrates sound effects via useCombatSounds hook
+- Manages reflection modal display post-combat
+- Provides keyboard navigation support
+- Ensures accessibility compliance (ARIA labels, focus management)
+```
+
+**Key Features:**
+- Smooth animations using Framer Motion
+- Resource tracking with visual feedback
+- Turn indicator with clear player/shadow distinction
+- Status effect display for active conditions
+- Therapeutic insight panel for real-time guidance
+- Automatic transition to reflection modal on combat end
+
+#### ActionSelector.tsx
+Manages the combat action interface:
+
+```typescript
+// Core responsibilities:
+- Displays all 4 combat actions with descriptions
+- Shows resource costs and availability
+- Handles keyboard shortcuts (1-5)
+- Provides visual feedback for action states
+- Implements action validation logic
+```
+
+**Key Features:**
+- Icon-based action representation
+- Color-coded action buttons for clarity
+- Keyboard shortcut indicators
+- Disabled state management
+- Responsive design for mobile
+
+#### CombatReflectionModal.tsx
+Post-combat therapeutic reflection system:
+
+```typescript
+// Core responsibilities:
+- Presents victory/defeat outcomes therapeutically
+- Provides shadow-specific reflection prompts
+- Integrates with journal system
+- Tracks combat metrics for progress
+```
+
+### State Management Architecture
+
+The combat system uses a centralized state management approach through the `useCombat` hook:
+
+```typescript
+interface CombatState {
+  // Core combat state
+  inCombat: boolean;
+  currentEnemy: ShadowManifestation | null;
+  resources: { lp: number; sp: number };
+  turn: number;
+  
+  // Status tracking
+  statusEffects: {
+    healingBlocked: number;
+    lpGenerationBlocked: number;
+    skipNextTurn: boolean;
+    damageMultiplier: number;
+    damageReduction: number;
+  };
+  
+  // Combat flow
+  isPlayerTurn: boolean;
+  combatEndStatus: {
+    isEnded: boolean;
+    victory: boolean;
+    reason: string;
+  };
+  
+  // Action tracking
+  preferredActions: Record<CombatAction, number>;
+  combatLog: CombatLogEntry[];
+}
+```
+
+### CSS Architecture and Styling
+
+The combat system employs specialized CSS classes for optimal readability and emotional impact:
+
+```css
+/* Combat-specific text classes for enhanced visibility */
+.combat-text-light {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.combat-text-shadow {
+    color: #FFFFFF;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-weight: bold;
+}
+
+.combat-text-damage {
+    color: #FF4444; /* High contrast red */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
+.combat-text-heal {
+    color: #00FF88; /* High contrast green */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
+.combat-text-critical {
+    color: #FFD700; /* High contrast gold */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    font-weight: 900;
+    font-size: 1.2em;
+}
+
+.combat-text-mana {
+    color: #4488FF; /* High contrast blue */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+```
+
+**Design Principles:**
+- WCAG AA compliance for all text elements
+- High contrast ratios for accessibility
+- Consistent color coding for action types
+- Shadow effects for readability on varied backgrounds
+
+### Data Flow and Communication
+
+```mermaid
+graph TB
+    subgraph "User Interaction"
+        A[Player Action/Keyboard] --> B[ActionSelector]
+    end
+    
+    subgraph "State Management"
+        B --> C[useCombat Hook]
+        C --> D[Combat Engine]
+        D --> E[Game Store Update]
+    end
+    
+    subgraph "UI Updates"
+        E --> F[CombatOverlay Re-render]
+        F --> G[Resource Display]
+        F --> H[Combat Log]
+        F --> I[Status Effects]
+    end
+    
+    subgraph "Combat Resolution"
+        D --> J{Combat End?}
+        J -->|Yes| K[CombatReflectionModal]
+        K --> L[Journal Entry]
+    end
+```
+
+### Testing Architecture
+
+The combat system maintains extensive test coverage across multiple dimensions:
+
+#### Component Tests
+- **CombatOverlay.test.tsx**: Main overlay rendering and interaction
+- **ActionSelector.test.tsx**: Action button functionality and validation
+- **CombatReflectionModal.test.tsx**: Post-combat reflection flow
+
+#### Integration Tests
+- **combat-ui-interaction.test.tsx**: User interaction flows
+- **CombatReflectionIntegration.test.tsx**: Journal system integration
+- **scene-engine-integration.test.ts**: Scene-to-combat transitions
+
+#### System Tests
+- **combat-turn-flow.test.ts**: Turn sequence validation
+- **combat-health-integration.test.ts**: Health system synchronization
+- **combat-exit-mechanism.test.tsx**: Safe exit procedures
+
+#### Specialized Tests
+- **CombatTextVisibilityFix.test.tsx**: Text visibility across themes
+- **combat-accessibility.test.tsx**: WCAG compliance validation
+- **combat-performance-optimizations.test.tsx**: Performance benchmarks
+- **combat-balance.test.ts**: Mathematical balance validation
+
+### Accessibility Features
+
+1. **Keyboard Navigation**
+   - Full keyboard control (1-5 for actions)
+   - Tab navigation support
+   - Focus trap during combat
+
+2. **Screen Reader Support**
+   - ARIA labels on all interactive elements
+   - Live regions for combat updates
+   - Descriptive action announcements
+
+3. **Visual Accessibility**
+   - High contrast text with shadows
+   - Clear visual hierarchy
+   - Reduced motion options
+
+4. **Cognitive Accessibility**
+   - Clear action descriptions
+   - Consistent UI patterns
+   - Pause/exit options always available
+
+### Performance Optimizations
+
+1. **Component Memoization**
+   ```typescript
+   export const CombatOverlay = React.memo(function CombatOverlay() {
+     // Prevents unnecessary re-renders
+   });
+   ```
+
+2. **Callback Optimization**
+   ```typescript
+   const handleActionClick = useCallback((action) => {
+     // Memoized event handlers
+   }, [dependencies]);
+   ```
+
+3. **Lazy State Updates**
+   - Batched state updates in combat engine
+   - Debounced animation triggers
+   - Efficient re-render management
+
+4. **Asset Optimization**
+   - Lazy-loaded sound effects
+   - Optimized animation frames
+   - Minimal DOM manipulation
+
+### Integration Points
+
+1. **Scene Engine Integration**
+   ```typescript
+   // Failed combat scenes trigger shadow battles
+   if (scene.type === 'combat' && !success) {
+     gameStore.startCombat(shadowType);
+   }
+   ```
+
+2. **Journal System Integration**
+   - Automatic reflection prompt on combat end
+   - Combat metrics stored in journal entries
+   - Progress tracking through journal metadata
+
+3. **Stats Bar Integration**
+   - Real-time LP/SP display
+   - Combat state indicators
+   - Resource synchronization
+
+4. **Sound System Integration**
+   - Action-specific sound effects
+   - Victory/defeat audio cues
+   - Ambient combat music
+
+### Future Enhancement Considerations
+
+When extending the combat overlay system:
+
+1. **New Action Types**
+   - Add to COMBAT_ACTIONS array
+   - Implement in combat-engine.ts
+   - Add keyboard shortcut mapping
+   - Create action icon and color
+
+2. **New Status Effects**
+   - Extend statusEffects interface
+   - Add visual indicators
+   - Implement effect logic
+   - Add to combat log messaging
+
+3. **Enhanced Animations**
+   - Use Framer Motion variants
+   - Maintain performance budget
+   - Ensure accessibility compliance
+   - Test reduced motion preferences
+
+4. **Additional Shadow Types**
+   - Extend ShadowManifestation interface
+   - Add to shadowManifestations.ts
+   - Create unique abilities
+   - Design therapeutic insights
+
+### Development Guidelines
+
+1. **Component Development**
+   - Maintain single responsibility
+   - Use TypeScript strict mode
+   - Follow accessibility guidelines
+   - Write comprehensive tests
+
+2. **State Management**
+   - Use centralized combat state
+   - Avoid prop drilling
+   - Batch related updates
+   - Document state changes
+
+3. **Performance**
+   - Profile before optimizing
+   - Use React DevTools
+   - Monitor re-render counts
+   - Lazy load when possible
+
+4. **Testing**
+   - Test user interactions
+   - Validate accessibility
+   - Check edge cases
+   - Measure performance
+
 ## Integration with Existing Systems
 
 ### Scene Engine Integration

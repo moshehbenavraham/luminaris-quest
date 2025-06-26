@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { Footer } from './Footer';
-import { useSupabase } from '@/lib/providers/supabase-provider';
+import { useSupabase } from '@/lib/providers/supabase-context';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
 

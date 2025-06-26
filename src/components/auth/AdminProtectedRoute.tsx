@@ -1,4 +1,4 @@
-import { useSupabase } from '@/lib/providers/supabase-provider';
+import { useSupabase } from '@/lib/providers/supabase-context';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Spinner } from '@/components/ui/spinner';
 

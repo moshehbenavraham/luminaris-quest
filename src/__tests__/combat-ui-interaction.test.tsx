@@ -130,6 +130,42 @@ describe('Combat UI Interaction Test', () => {
     });
   });
 
+  it('should apply correct responsive classes to the combat overlay', () => {
+    mockUseCombat.mockReturnValue({
+      isActive: true,
+      enemy: createShadowManifestation(SHADOW_IDS.WHISPER_OF_DOUBT),
+      resources: { lp: 10, sp: 5 },
+      turn: 1,
+      log: [],
+      statusEffects: {
+        damageMultiplier: 1,
+        damageReduction: 1,
+        healingBlocked: false,
+        lpGenerationBlocked: false,
+        skipNextTurn: false,
+        consecutiveEndures: 0
+      },
+      canUseAction: vi.fn(() => true),
+      getActionCost: vi.fn(() => ({})),
+      getActionDescription: vi.fn(() => ''),
+      isPlayerTurn: true,
+      combatEndStatus: { isEnded: false },
+      executeAction: mockExecuteAction,
+      startCombat: vi.fn(),
+      endCombat: mockEndCombat,
+      preferredActions: { ILLUMINATE: 0, REFLECT: 0, ENDURE: 0, EMBRACE: 0 },
+      growthInsights: [],
+      getMostUsedAction: vi.fn(() => null),
+      getTherapeuticInsight: vi.fn(() => 'Test therapeutic insight')
+    });
+
+    const { container } = render(<CombatOverlay />);
+
+    // Check for the presence of the correct width and margin classes
+    const overlayContent = container.querySelector('.w-full.max-w-3xl.mx-auto.space-y-2');
+    expect(overlayContent).toBeInTheDocument();
+  });
+
   it('should handle combat end and show reflection modal', async () => {
     // Mock combat end state
     mockUseCombat.mockReturnValue({

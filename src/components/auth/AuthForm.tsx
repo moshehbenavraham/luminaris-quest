@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useSupabase } from '@/lib/providers/supabase-provider';
+import { useSupabase } from '@/lib/providers/supabase-context';
 import { supabase } from '@/integrations/supabase/client';
 import { Spinner } from '@/components/ui/spinner';
 

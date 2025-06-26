@@ -41,6 +41,12 @@ export const COMBAT_BALANCE = {
 
   // Combat limits
   MAX_COMBAT_TURNS: 20, // Maximum turns before automatic resolution
+
+  // Shadow damage calculation
+  SHADOW_BASE_DAMAGE: 8, // Base damage shadows deal to player health
+  DEFENSE_FROM_LP: 0.5, // Each LP provides 0.5 defense
+  DEFENSE_FROM_TRUST: 0.1, // Each trust point provides 0.1 defense
+  MIN_SHADOW_DAMAGE: 1, // Minimum damage shadows can deal
 } as const;
 
 /**
@@ -67,15 +73,15 @@ export function calculateIlluminateDamage(guardianTrust: number): number {
 
 /**
  * Calculate damage for EMBRACE action
- * 
+ *
  * Therapeutic insight: Accepting difficult emotions reduces their power.
  * The Shadow Embrace action represents the therapeutic concept of integrating
  * one's shadow self - acknowledging and accepting difficult emotions rather
  * than fighting them, which paradoxically reduces their negative impact.
- * 
+ *
  * @param shadowPoints - Current shadow points available
  * @returns Calculated damage amount (minimum 1)
- * 
+ *
  * @example
  * ```typescript
  * const damage = calculateEmbraceDamage(8);
@@ -86,6 +92,89 @@ export function calculateEmbraceDamage(shadowPoints: number): number {
   // Embrace converts shadow points to damage (1 SP = 2 damage)
   // Minimum 1 damage even with 0 SP
   return Math.max(1, Math.floor(shadowPoints / 2));
+}
+
+/**
+ * Calculate player's total defense value
+ *
+ * Defense reduces incoming shadow damage. It's calculated from:
+ * - Light Points: Each LP provides defensive energy
+ * - Guardian Trust: Higher trust provides spiritual protection
+ * - Damage Reduction status effects: Temporary defensive bonuses
+ *
+ * @param state - Current combat state
+ * @param guardianTrust - Current guardian trust level
+ * @returns Total defense value
+ *
+ * @example
+ * ```typescript
+ * const defense = calculatePlayerDefense(combatState, 75);
+ * console.log(defense); // 12.5 (10 LP * 0.5 + 75 trust * 0.1)
+ * ```
+ */
+export function calculatePlayerDefense(state: CombatState, guardianTrust: number): number {
+  const lpDefense = state.resources.lp * COMBAT_BALANCE.DEFENSE_FROM_LP;
+  const trustDefense = guardianTrust * COMBAT_BALANCE.DEFENSE_FROM_TRUST;
+  const statusDefense = state.damageReduction > 1 ? (state.damageReduction - 1) * 5 : 0;
+  const totalDefense = lpDefense + trustDefense + statusDefense;
+
+  // Debug logging for defense calculation
+  console.log('Player Defense Calculation:', {
+    lp: state.resources.lp,
+    lpDefense,
+    guardianTrust,
+    trustDefense,
+    damageReduction: state.damageReduction,
+    statusDefense,
+    totalDefense
+  });
+
+  return totalDefense;
+}
+
+/**
+ * Calculate shadow damage to player health based on scene DC minus defenses
+ *
+ * This implements the core mechanic where shadows deal health damage each round.
+ * The damage is based on the scene's difficulty check (representing the shadow's power)
+ * minus the player's current defenses.
+ *
+ * @param sceneDC - The difficulty check of the current scene (shadow's base power)
+ * @param state - Current combat state
+ * @param guardianTrust - Current guardian trust level
+ * @returns Final damage amount (minimum 1)
+ *
+ * @example
+ * ```typescript
+ * const damage = calculateShadowHealthDamage(14, combatState, 60);
+ * console.log(damage); // 8 (14 base - 6 defense = 8 damage)
+ * ```
+ */
+export function calculateShadowHealthDamage(
+  sceneDC: number,
+  state: CombatState,
+  guardianTrust: number
+): number {
+  const baseDamage = sceneDC || COMBAT_BALANCE.SHADOW_BASE_DAMAGE;
+  const playerDefense = calculatePlayerDefense(state, guardianTrust);
+  const finalDamage = Math.max(COMBAT_BALANCE.MIN_SHADOW_DAMAGE, baseDamage - playerDefense);
+
+  // Apply damage multiplier if active
+  const result = Math.floor(finalDamage * state.damageMultiplier);
+
+  // Debug logging for health damage calculation
+  console.log('Shadow Health Damage Calculation:', {
+    sceneDC,
+    baseDamage,
+    playerDefense,
+    finalDamage,
+    damageMultiplier: state.damageMultiplier,
+    result,
+    guardianTrust,
+    resources: state.resources
+  });
+
+  return result;
 }
 
 /**
@@ -267,14 +356,24 @@ export function decideShadowAction(
   enemy: ShadowManifestation,
   state: CombatState
 ): ShadowAbility | null {
+  console.log('Shadow Action Decision:', {
+    enemyName: enemy.name,
+    totalAbilities: enemy.abilities?.length || 0,
+    abilities: enemy.abilities?.map(a => ({ name: a.name, cooldown: a.currentCooldown }))
+  });
+
   if (!enemy.abilities || enemy.abilities.length === 0) {
+    console.log('No abilities available for shadow');
     return null;
   }
 
   // Filter abilities that are off cooldown
   const availableAbilities = enemy.abilities.filter(ability => ability.currentCooldown === 0);
 
+  console.log('Available abilities:', availableAbilities.map(a => a.name));
+
   if (availableAbilities.length === 0) {
+    console.log('All abilities on cooldown');
     return null; // No abilities available
   }
 
@@ -327,18 +426,26 @@ export function decideShadowAction(
   }
 
   // Default: Use random available ability
-  return availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
+  const selectedAbility = availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
+  console.log('Shadow selected ability:', selectedAbility?.name || 'none');
+  return selectedAbility;
 }
 
 /**
  * Execute shadow action and return updated state
+ *
+ * This function now includes the critical health damage mechanic where
+ * shadows deal damage to player health based on scene DC minus defenses
+ * after each shadow ability is used.
  */
 export function executeShadowAction(
   ability: ShadowAbility,
-  state: CombatState
+  state: CombatState,
+  guardianTrust: number
 ): {
   newState: CombatState;
   logEntry: CombatLogEntry;
+  healthDamage: number;
 } {
   const newState = { ...state };
 
@@ -353,16 +460,19 @@ export function executeShadowAction(
     }
   }
 
+  // Calculate health damage based on scene DC minus player defenses
+  const healthDamage = calculateShadowHealthDamage(newState.sceneDC, newState, guardianTrust);
+
   const logEntry: CombatLogEntry = {
     turn: state.turn,
     actor: 'SHADOW',
     action: ability.name,
     effect: ability.description,
-    resourceChange: {},
-    message: `The shadow uses ${ability.name}: ${ability.description}`
+    resourceChange: { healthDamage }, // Track health damage in log
+    message: `The shadow uses ${ability.name}: ${ability.description}. You take ${healthDamage} health damage!`
   };
 
-  return { newState, logEntry };
+  return { newState, logEntry, healthDamage };
 }
 
 /**

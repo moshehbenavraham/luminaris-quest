@@ -16,8 +16,8 @@ import type { JournalEntry } from './JournalModal';
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
-  onUpdate: (id: string, updates: Partial<JournalEntry>) => void;
-  onDelete: (id: string) => void;
+  onUpdate: (_id: string, _updates: Partial<JournalEntry>) => void;
+  onDelete: (_id: string) => void;
 }
 
 export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCardProps) {
@@ -122,7 +122,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
             </div>
           ) : (
             <blockquote className="border-l-4 border-purple-400 pl-4 italic text-foreground">
-              "{entry.content}"
+              "              &ldquo;{entry.content}&rdquo;"
             </blockquote>
           )}
           {entry.tags && entry.tags.length > 0 && (

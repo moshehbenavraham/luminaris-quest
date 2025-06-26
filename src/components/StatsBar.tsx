@@ -17,15 +17,18 @@ interface StatsBarProps {
 }
 
 export function StatsBar({
-  trust,
-  health = 100,
+  trust: _trust,
+  health, // Optional override - if not provided, uses store value
   energy = 100,
   experience = 0,
   className,
   showCombatResources,
   ...props
 }: StatsBarProps) {
-  const { lightPoints, shadowPoints } = useGameStore();
+  const { lightPoints, shadowPoints, playerHealth } = useGameStore();
+
+  // Use store health if no override provided
+  const displayHealth = health ?? playerHealth;
 
   // Auto-detect if combat resources should be shown
   // Show if explicitly requested, or if player has any combat resources
@@ -42,7 +45,7 @@ export function StatsBar({
             {/* Combat Resources */}
             <div className="rounded-lg border border-amber-200 bg-gradient-to-r from-amber-50 to-purple-50 p-3 dark:border-amber-800 dark:from-amber-950/20 dark:to-purple-950/20">
               <div className="mb-3">
-                <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                <span className="text-sm font-semibold combat-text-critical">
                   Combat Resources
                 </span>
               </div>
@@ -55,7 +58,7 @@ export function StatsBar({
                   </div>
                   <div>
                     <p className="text-xs font-medium text-muted-foreground">Light Points</p>
-                    <p className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                    <p className="text-lg font-bold combat-text-critical">
                       {lightPoints}
                     </p>
                   </div>
@@ -68,7 +71,7 @@ export function StatsBar({
                   </div>
                   <div>
                     <p className="text-xs font-medium text-muted-foreground">Shadow Points</p>
-                    <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    <p className="text-lg font-bold combat-text-mana">
                       {shadowPoints}
                     </p>
                   </div>
@@ -84,23 +87,23 @@ export function StatsBar({
         <div className="grid grid-cols-1 gap-3">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-medium">
-              <Shield className="h-4 w-4 text-green-600" />
+              <Shield className="h-4 w-4 combat-text-heal" />
               Health
             </span>
             <div className="flex items-center gap-2">
               <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
                 <div
                   className="h-full rounded-full bg-green-500 transition-all duration-300"
-                  style={{ width: `${health}%` }}
+                  style={{ width: `${displayHealth}%` }}
                 />
               </div>
-              <span className="w-8 text-right text-xs font-medium">{health}</span>
+              <span className="w-8 text-right text-xs font-medium">{displayHealth}</span>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-medium">
-              <Zap className="h-4 w-4 text-blue-600" />
+              <Zap className="h-4 w-4 combat-text-mana" />
               Energy
             </span>
             <div className="flex items-center gap-2">
@@ -116,7 +119,7 @@ export function StatsBar({
 
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-medium">
-              <Star className="h-4 w-4 text-yellow-600" />
+              <Star className="h-4 w-4 combat-text-critical" />
               Experience
             </span>
             <div className="flex items-center gap-2">

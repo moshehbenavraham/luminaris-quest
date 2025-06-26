@@ -9,10 +9,10 @@ export type Json =
 export type Database = {
   graphql_public: {
     Tables: {
-      [_ in never]: never
+      [_key in never]: never
     }
     Views: {
-      [_ in never]: never
+      [_key in never]: never
     }
     Functions: {
       graphql: {
@@ -26,10 +26,10 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      [_key in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      [_key in never]: never
     }
   }
   public: {
@@ -108,16 +108,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      [_key in never]: never
     }
     Functions: {
-      [_ in never]: never
+      [_key in never]: never
     }
     Enums: {
-      [_ in never]: never
+      [_key in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      [_key in never]: never
     }
   }
 }

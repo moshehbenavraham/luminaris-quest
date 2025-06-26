@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCombatSounds, COMBAT_SOUND_MAPPINGS, DEFAULT_COMBAT_SOUNDS_CONFIG } from '../hooks/useCombatSounds';
 import { soundManager } from '../utils/sound-manager';

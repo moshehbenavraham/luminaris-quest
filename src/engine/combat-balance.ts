@@ -131,6 +131,7 @@ export function analyzeShadowDifficulty(shadow: ShadowManifestation): {
       resources: { lp: 10, sp: 5 },
       turn: 1,
       log: [],
+      sceneDC: 12, // Default scene DC for balance calculations
       damageMultiplier: 1,
       damageReduction: 1,
       healingBlocked: 0,
@@ -319,7 +320,7 @@ export function analyzeBalance(): BalanceRecommendations {
 
   // Check action viability
   const lowViabilityActions = Object.entries(metrics.actionViability)
-    .filter(([_, data]) => data.usageRate < 0.4)
+    .filter(([_action, data]) => data.usageRate < 0.4)
     .map(([action]) => action);
 
   if (lowViabilityActions.length > 0) {

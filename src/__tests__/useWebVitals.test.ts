@@ -65,7 +65,7 @@ describe('useWebVitals', () => {
 
   it('should create logger for Web Vitals', () => {
     // Mock the createLogger function
-    const mockCreateLogger = vi.fn((component: string) => ({
+    const mockCreateLogger = vi.fn((_component: string) => ({
       info: vi.fn(),
       warn: vi.fn(),
       debug: vi.fn(),

@@ -37,7 +37,7 @@ export interface UseWebVitalsOptions {
   /** Enable detailed logging of metrics */
   enableLogging?: boolean;
   /** Custom callback for metric reporting */
-  onMetric?: (metric: WebVitalsMetric) => void;
+  onMetric?: (_metric: WebVitalsMetric) => void;
   /** Enable automatic reporting to analytics */
   enableReporting?: boolean;
 }

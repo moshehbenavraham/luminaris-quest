@@ -23,7 +23,7 @@ export interface CombatSoundsOptions {
 
 export interface CombatSoundsReturn {
   /** Play sound for a combat action */
-  playActionSound: (action: CombatAction) => Promise<void>;
+  playActionSound: (_action: CombatAction) => Promise<void>;
   /** Play sound for shadow attack */
   playShadowAttackSound: () => Promise<void>;
   /** Play victory sound */
@@ -31,9 +31,9 @@ export interface CombatSoundsReturn {
   /** Play defeat sound */
   playDefeatSound: () => Promise<void>;
   /** Enable/disable sounds */
-  setSoundsEnabled: (enabled: boolean) => void;
+  setSoundsEnabled: (_enabled: boolean) => void;
   /** Set volume for combat sounds */
-  setSoundVolume: (volume: number) => void;
+  setSoundVolume: (_volume: number) => void;
   /** Check if sounds are enabled */
   isSoundsEnabled: () => boolean;
 }

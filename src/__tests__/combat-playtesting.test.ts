@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { shadowManifestations, createShadowManifestation, SHADOW_IDS } from '../data/shadowManifestations';
-import { executePlayerAction, calculateIlluminateDamage, calculateEmbraceDamage } from '../engine/combat-engine';
-import type { CombatAction, ShadowManifestation, CombatState } from '../store/game-store';
+import { executePlayerAction } from '../engine/combat-engine';
+import type { CombatAction, CombatState } from '../store/game-store';
 
 /**
  * Comprehensive Combat System Playtesting Suite

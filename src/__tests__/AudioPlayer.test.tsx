@@ -25,6 +25,68 @@ describe('AudioPlayer', () => {
     }
   });
 
+  it('automatically advances to next track when current track ends', () => {
+    const onTrackChange = vi.fn();
+    render(<AudioPlayer tracks={playlist} onTrackChange={onTrackChange} />);
+
+    // Verify initial state shows first track
+    expect(screen.getByText('Track 1')).not.toBeNull();
+
+    // Simulate track ending
+    const audio = document.querySelector('audio') as HTMLAudioElement | null;
+    if (audio) {
+      fireEvent.ended(audio);
+
+      // Verify onTrackChange was called with next track index
+      expect(onTrackChange).toHaveBeenCalledWith(1);
+
+      // Verify the component updates to show the next track
+      expect(screen.getByText('Track 2')).not.toBeNull();
+    }
+  });
+
+  it('loops back to first track when last track ends', () => {
+    const onTrackChange = vi.fn();
+    render(<AudioPlayer tracks={playlist} onTrackChange={onTrackChange} />);
+
+    // Manually advance to last track by simulating track end
+    const audio = document.querySelector('audio') as HTMLAudioElement | null;
+    if (audio) {
+      // First track ends, should advance to track 2
+      fireEvent.ended(audio);
+      expect(onTrackChange).toHaveBeenCalledWith(1);
+
+      // Clear the mock to test the loop back
+      onTrackChange.mockClear();
+
+      // Second track ends, should loop back to track 1 (index 0)
+      fireEvent.ended(audio);
+      expect(onTrackChange).toHaveBeenCalledWith(0);
+    }
+  });
+
+  it('handles browser autoplay restrictions gracefully', () => {
+    const onTrackChange = vi.fn();
+    render(<AudioPlayer tracks={playlist} onTrackChange={onTrackChange} />);
+
+    // Mock audio.play() to reject (simulating browser autoplay restriction)
+    const audio = document.querySelector('audio') as HTMLAudioElement | null;
+    if (audio) {
+      const originalPlay = audio.play;
+      audio.play = vi.fn().mockRejectedValue(new Error('Autoplay prevented'));
+
+      // Simulate playing state and then track ending
+      fireEvent.play(audio);
+      fireEvent.ended(audio);
+
+      // Should still advance to next track
+      expect(onTrackChange).toHaveBeenCalledWith(1);
+
+      // Restore original play method
+      audio.play = originalPlay;
+    }
+  });
+
   it('applies correct Tailwind CSS classes for styling', () => {
     render(<AudioPlayer tracks={playlist} />);
 

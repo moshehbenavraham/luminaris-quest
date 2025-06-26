@@ -34,7 +34,7 @@ interface CombatReflectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   reflectionData: CombatReflectionData | null;
-  onSaveReflection: (entry: JournalEntry) => void;
+  onSaveReflection: (_entry: JournalEntry) => void;
   'data-testid'?: string;
 }
 
@@ -316,7 +316,7 @@ export const CombatReflectionModal = React.memo(function CombatReflectionModal({
               {selectedPrompt && (
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium text-muted-foreground">
-                    Reflecting on: "{selectedPrompt}"
+                    Reflecting on: &ldquo;{selectedPrompt}&rdquo;
                   </p>
                 </div>
               )}

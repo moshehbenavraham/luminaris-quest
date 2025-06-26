@@ -30,7 +30,7 @@ export const legalContent = {
           {
             list: [
               'Pathfinder 2e mechanics are used under the ORC License. All proprietary Paizo/Pathfinder Product Identity is excluded',
-              '\"Built with Bolt.new\" — all core logic and UI were developed in Bolt.new',
+              '"Built with Bolt.new" — all core logic and UI were developed in Bolt.new',
               'See OGL/ORC compliance notice for detailed breakdown',
             ],
           },

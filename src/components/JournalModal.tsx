@@ -22,7 +22,7 @@ interface JournalModalProps {
   onClose: () => void;
   trustLevel: number;
   triggerType: 'milestone' | 'learning';
-  onSaveEntry: (entry: JournalEntry) => void;
+  onSaveEntry: (_entry: JournalEntry) => void;
   'data-testid'?: string;
 }
 
@@ -137,7 +137,7 @@ export function JournalModal({
 
             <div className="rounded-lg border-l-4 border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 p-4 dark:from-purple-950/20 dark:to-blue-950/20">
               <blockquote className="text-base italic leading-relaxed text-foreground">
-                "{journalContent.content}"
+                "                &ldquo;{journalContent.content}&rdquo;"
               </blockquote>
             </div>
 

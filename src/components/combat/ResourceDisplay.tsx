@@ -64,7 +64,7 @@ export function ResourceDisplay({
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">LP</p>
-            <p className="text-lg font-bold text-amber-600 dark:text-amber-400">
+            <p className="text-lg font-bold combat-text-critical">
               {lp}
             </p>
           </div>
@@ -81,7 +81,7 @@ export function ResourceDisplay({
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">SP</p>
-            <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+            <p className="text-lg font-bold combat-text-mana">
               {sp}
             </p>
           </div>
@@ -112,7 +112,7 @@ export function ResourceDisplay({
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Light Points</p>
-              <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+              <p className="text-xl font-bold combat-text-critical">
                 {lp}
               </p>
             </div>
@@ -129,7 +129,7 @@ export function ResourceDisplay({
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Shadow Points</p>
-              <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+              <p className="text-xl font-bold combat-text-mana">
                 {sp}
               </p>
             </div>

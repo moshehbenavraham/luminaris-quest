@@ -53,7 +53,7 @@ vi.mock('../store/game-store', () => ({
 }));
 
 vi.mock('../engine/combat-engine', () => ({
-  canPerformAction: vi.fn((action, state, trust) => {
+  canPerformAction: vi.fn((action, state, _trust) => {
     // Mock validation logic - return object with canPerform property
     switch (action) {
       case 'ILLUMINATE':

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -386,7 +386,7 @@ describe('Combat System Accessibility Compliance', () => {
     });
 
     it('should not rely solely on color to convey information', () => {
-      render(<ActionSelector 
+      render(<ActionSelector
         canUseAction={vi.fn((action) => action !== 'ILLUMINATE')}
         getActionCost={vi.fn(() => ({ lp: 2, sp: 0 }))}
         getActionDescription={vi.fn(() => 'Test description')}
@@ -401,9 +401,143 @@ describe('Combat System Accessibility Compliance', () => {
     });
   });
 
+  describe('Combat Text Visibility Integration Tests', () => {
+    it('should use combat-specific text classes for high contrast visibility', () => {
+      const { container } = render(<CombatOverlay />);
+      
+      // Check that combat-specific text classes are used
+      const combatTextShadowElements = container.querySelectorAll('.combat-text-shadow');
+      const combatTextLightElements = container.querySelectorAll('.combat-text-light');
+      
+      expect(combatTextShadowElements.length).toBeGreaterThan(0);
+      expect(combatTextLightElements.length).toBeGreaterThan(0);
+    });
+
+    it('should not use generic text classes for critical combat elements', () => {
+      const { container } = render(<CombatOverlay />);
+      
+      // Check that critical text elements don't use generic text classes
+      const textForegroundElements = container.querySelectorAll('.text-foreground');
+      const textMutedForegroundElements = container.querySelectorAll('.text-muted-foreground');
+      
+      // If generic classes exist, they should not be on critical elements
+      textForegroundElements.forEach(element => {
+        const textContent = element.textContent || '';
+        expect(textContent).not.toMatch(/Health|Experience|Light Points|Shadow Points|End Turn|Surrender/);
+      });
+      
+      textMutedForegroundElements.forEach(element => {
+        const textContent = element.textContent || '';
+        expect(textContent).not.toMatch(/Health|Experience|Light Points|Shadow Points|End Turn|Surrender/);
+      });
+    });
+
+    it('should maintain text visibility across combat state changes', () => {
+      // Test with different combat states
+      const combatStates = [
+        { isPlayerTurn: true, combatEndStatus: { ended: false, victory: false, reason: '' } },
+        { isPlayerTurn: false, combatEndStatus: { ended: false, victory: false, reason: '' } },
+        { isPlayerTurn: true, combatEndStatus: { ended: true, victory: true, reason: 'Victory!' } }
+      ];
+
+      combatStates.forEach(state => {
+        const mockCombatWithState = createMockCombatHook(state);
+        mockUseCombat.mockReturnValue(mockCombatWithState);
+        
+        const { container } = render(<CombatOverlay />);
+        
+        // Should always have combat-specific text classes
+        const combatTextElements = container.querySelectorAll('.combat-text-shadow, .combat-text-light');
+        expect(combatTextElements.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should ensure all resource labels are accessible and visible', () => {
+      render(<CombatOverlay />);
+      
+      // All resource labels should be present and accessible
+      const resourceLabels = [
+        'Health',
+        'Experience',
+        'Light Points',
+        'Shadow Points',
+        'Shadow Strength'
+      ];
+      
+      resourceLabels.forEach(label => {
+        const element = screen.getByText(label);
+        expect(element).toBeVisible();
+        expect(element).toHaveClass('combat-text-light');
+      });
+    });
+
+    it('should ensure action buttons maintain text visibility', () => {
+      render(<CombatOverlay />);
+      
+      // Action buttons should have proper text classes
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      const surrenderButton = screen.getByTestId('surrender-button');
+      
+      expect(endTurnButton).toHaveClass('combat-text-light');
+      expect(surrenderButton).toHaveClass('combat-text-light');
+      
+      // Buttons should be accessible
+      expect(endTurnButton).toHaveAccessibleName();
+      expect(surrenderButton).toHaveAccessibleName();
+    });
+
+    it('should maintain therapeutic insight text visibility', () => {
+      render(<CombatOverlay />);
+      
+      // Therapeutic insight should use combat-specific text classes
+      const therapeuticInsight = screen.getByText(/Test insight/);
+      expect(therapeuticInsight).toBeVisible();
+      expect(therapeuticInsight).toHaveClass('combat-text-light');
+    });
+
+    it('should handle combat end screen text visibility', () => {
+      // Mock combat end state
+      const endedCombatHook = createMockCombatHook({
+        combatEndStatus: { ended: true, victory: true, reason: 'Combat ended successfully!' }
+      });
+      mockUseCombat.mockReturnValue(endedCombatHook);
+      
+      render(<CombatOverlay />);
+      
+      // End screen text should be visible with combat-specific classes
+      const endScreenText = screen.getByText('Combat ended successfully!');
+      expect(endScreenText).toBeVisible();
+      expect(endScreenText).toHaveClass('combat-text-light');
+    });
+
+    it('should ensure combat log text maintains visibility', () => {
+      // Mock combat with log entries
+      const combatWithLog = createMockCombatHook({
+        log: [
+          {
+            turn: 1,
+            actor: 'PLAYER' as const,
+            action: 'ILLUMINATE',
+            effect: 'Dealt 5 damage',
+            resourceChange: { lp: -2 },
+            message: 'You illuminate the darkness with inner light'
+          }
+        ]
+      });
+      mockUseCombat.mockReturnValue(combatWithLog);
+      
+      render(<CombatOverlay />);
+      
+      // Combat log should use proper text classes
+      const logMessage = screen.getByText('You illuminate the darkness with inner light');
+      expect(logMessage).toBeVisible();
+      expect(logMessage).toHaveClass('combat-text-shadow');
+    });
+  });
+
   describe('Screen Reader Support', () => {
     it('should announce combat state changes', () => {
-      const { rerender } = render(<CombatOverlay />);
+      render(<CombatOverlay />);
       
       // Check for live regions that announce changes
       const liveRegions = document.querySelectorAll('[aria-live]');

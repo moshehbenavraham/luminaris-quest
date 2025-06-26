@@ -1,3 +1,40 @@
+.combat-text-light {
+    color: #FFFFFF; /* Ensure contrast against dark backgrounds */
+    font-weight: bold;
+}
+
+.combat-text-shadow {
+    color: #FFFFFF;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Dark shadow for contrast */
+    font-weight: bold;
+}
+
+/* Additional combat text variations for better accessibility */
+.combat-text-damage {
+    color: #FF4444; /* High contrast red for damage */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
+.combat-text-heal {
+    color: #00FF88; /* High contrast green for healing */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
+.combat-text-critical {
+    color: #FFD700; /* High contrast gold for critical hits */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    font-weight: 900;
+    font-size: 1.2em;
+}
+
+.combat-text-mana {
+    color: #4488FF; /* High contrast blue for mana */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @tailwind base;

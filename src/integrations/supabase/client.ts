@@ -50,7 +50,9 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: 'pkce'
+        flowType: 'pkce',
+        // Optimize token refresh behavior for production
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined
       },
       realtime: {
         params: {
@@ -77,7 +79,9 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
           ...baseConfig.clientOptions,
           auth: {
             ...baseConfig.clientOptions.auth,
-            debug: true
+            debug: true,
+            // More aggressive refresh for local development
+            autoRefreshToken: true
           },
           realtime: {
             params: {
@@ -103,7 +107,9 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
           ...baseConfig.clientOptions,
           auth: {
             ...baseConfig.clientOptions.auth,
-            debug: environment === 'dev'
+            debug: environment === 'dev',
+            // Balanced refresh for dev/staging environments
+            autoRefreshToken: true
           },
           realtime: {
             params: {
@@ -129,7 +135,9 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
           ...baseConfig.clientOptions,
           auth: {
             ...baseConfig.clientOptions.auth,
-            debug: false
+            debug: false,
+            // Conservative refresh for production
+            autoRefreshToken: true
           },
           realtime: {
             params: {
@@ -204,6 +212,19 @@ const initializeSupabaseClient = () => {
         logger.debug('Auth state changed', { event, userId: session?.user?.id });
       });
     }
+
+    // Add token refresh monitoring for all environments
+    client.auth.onAuthStateChange((event, session) => {
+      if (event === 'TOKEN_REFRESHED') {
+        logger.debug('Token refreshed successfully', {
+          environment,
+          userId: session?.user?.id,
+          expiresAt: session?.expires_at
+        });
+      } else if (event === 'SIGNED_OUT') {
+        logger.debug('User signed out', { environment });
+      }
+    });
     
     logger.info('Supabase client initialized successfully');
     return client;

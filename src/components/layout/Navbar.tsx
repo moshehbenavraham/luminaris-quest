@@ -17,7 +17,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text font-heading text-xl font-bold text-transparent">
-              Luminari's Quest
+              Luminari&apos;s Quest
             </span>
           </Link>
           <nav className="hidden items-center space-x-2 text-sm font-medium md:flex">

@@ -3,11 +3,9 @@ import {
   handleSceneOutcome,
   mapSceneToShadowType,
   getScene,
-  type Scene,
-  type SceneOutcome
+  type Scene
 } from '../engine/scene-engine';
 import { SHADOW_IDS, createShadowManifestation } from '../data/shadowManifestations';
-import { useGameStore } from '../store/game-store';
 
 // Mock the game store
 const mockGameStore = {

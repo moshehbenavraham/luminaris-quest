@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { CombatOverlay } from '../components/combat/CombatOverlay';
@@ -86,11 +87,14 @@ const createMockCombatHook = (overrides: Partial<CombatHookReturn> = {}): Combat
   combatEndStatus: { isEnded: false },
   executeAction: vi.fn(),
   startCombat: vi.fn(),
+  endTurn: vi.fn(),
   endCombat: vi.fn(),
   preferredActions: { ILLUMINATE: 0, REFLECT: 0, ENDURE: 0, EMBRACE: 0 },
   growthInsights: [],
   getMostUsedAction: vi.fn(() => null),
   getTherapeuticInsight: vi.fn(() => 'Test therapeutic insight'),
+  playerHealth: 100,
+  playerLevel: 1,
   ...overrides
 });
 
@@ -150,33 +154,86 @@ describe('CombatOverlay Component', () => {
     it('should display correct HP percentage', () => {
       const enemyWithLowHP = { ...mockEnemy, currentHP: 3 };
       mockUseCombat.mockReturnValue(createMockCombatHook({ enemy: enemyWithLowHP }));
-      
+
       render(<CombatOverlay />);
-      
+
       expect(screen.getByText('3 / 15')).toBeInTheDocument();
+    });
+
+    it('should display recent combat action when log has entries', () => {
+      const mockLog = [
+        {
+          turn: 1,
+          actor: 'SHADOW' as const,
+          action: 'Shadow Strike',
+          effect: 'Dealt 3 damage',
+          message: 'The shadow strikes with doubt, dealing 3 damage!'
+        }
+      ];
+      mockUseCombat.mockReturnValue(createMockCombatHook({ log: mockLog }));
+
+      render(<CombatOverlay />);
+
+      expect(screen.getByText('The Whisper of Doubt:')).toBeInTheDocument();
+      expect(screen.getByText('The shadow strikes with doubt, dealing 3 damage!')).toBeInTheDocument();
+    });
+
+    it('should not display recent action when log is empty', () => {
+      mockUseCombat.mockReturnValue(createMockCombatHook({ log: [] }));
+
+      render(<CombatOverlay />);
+
+      expect(screen.queryByText('The Whisper of Doubt:')).not.toBeInTheDocument();
     });
 
     it('should display turn counter', () => {
       mockUseCombat.mockReturnValue(createMockCombatHook({ turn: 5 }));
-      
+
       render(<CombatOverlay />);
-      
-      expect(screen.getByText('Turn 5')).toBeInTheDocument();
+
+      expect(screen.getByText(/Turn 5/)).toBeInTheDocument();
     });
   });
 
   describe('Resources Display', () => {
-    it('should display Light Points and Shadow Points correctly', () => {
+    it('should display Health, Experience, Light Points and Shadow Points correctly', () => {
       mockUseCombat.mockReturnValue(createMockCombatHook({
-        resources: { lp: 15, sp: 8 }
+        resources: { lp: 15, sp: 8 },
+        playerHealth: 75,
+        playerLevel: 5
       }));
-      
+
       render(<CombatOverlay />);
-      
-      expect(screen.getByText('15')).toBeInTheDocument(); // LP value
-      expect(screen.getByText('8')).toBeInTheDocument();  // SP value
+
+      expect(screen.getByText('Health')).toBeInTheDocument();
+      expect(screen.getByText('75')).toBeInTheDocument();
+      expect(screen.getByText('Experience')).toBeInTheDocument();
+      expect(screen.getByText('5')).toBeInTheDocument();
+      expect(screen.getByText('Light Points')).toBeInTheDocument();
+      expect(screen.getByText('15')).toBeInTheDocument();
+      expect(screen.getByText('Shadow Points')).toBeInTheDocument();
+      expect(screen.getByText('8')).toBeInTheDocument();
+    });
+
+    it('should display Light Points and Shadow Points stats', () => {
+      mockUseCombat.mockReturnValue(createMockCombatHook({
+        resources: { lp: 5, sp: 3 }
+      }));
+
+      render(<CombatOverlay />);
+
+      // Check for Resources section and Light/Shadow Points labels
+      expect(screen.getByText('Resources')).toBeInTheDocument();
       expect(screen.getByText('Light Points')).toBeInTheDocument();
       expect(screen.getByText('Shadow Points')).toBeInTheDocument();
+
+      // Check for the actual resource values using more specific selectors
+      const allFives = screen.getAllByText('5');
+      const allThrees = screen.getAllByText('3');
+
+      // Verify we have the resource values (should be the larger, bold text)
+      expect(allFives.length).toBeGreaterThan(0); // Light Points value exists
+      expect(allThrees.length).toBeGreaterThan(0); // Shadow Points value exists
     });
 
     it('should display active status effects', () => {
@@ -318,9 +375,60 @@ describe('CombatOverlay Component', () => {
       render(<CombatOverlay />);
 
       const surrenderButton = screen.getByTestId('surrender-button');
-      expect(surrenderButton).toHaveClass('text-muted-foreground');
+      expect(surrenderButton).toHaveClass('combat-text-light');
       expect(surrenderButton).toHaveClass('hover:text-destructive');
       expect(surrenderButton).toHaveClass('hover:border-destructive');
+    });
+
+    it('should render end turn button', () => {
+      mockUseCombat.mockReturnValue(createMockCombatHook());
+
+      render(<CombatOverlay />);
+
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      expect(endTurnButton).toBeInTheDocument();
+      expect(endTurnButton).toHaveTextContent('End Turn');
+    });
+
+    it('should call endTurn when end turn button is clicked', () => {
+      const mockEndTurn = vi.fn();
+      mockUseCombat.mockReturnValue(createMockCombatHook({ endTurn: mockEndTurn }));
+
+      render(<CombatOverlay />);
+
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      fireEvent.click(endTurnButton);
+
+      expect(mockEndTurn).toHaveBeenCalledTimes(1);
+    });
+
+    it('should disable end turn button when not player turn', () => {
+      mockUseCombat.mockReturnValue(createMockCombatHook({ isPlayerTurn: false }));
+
+      render(<CombatOverlay />);
+
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      expect(endTurnButton).toBeDisabled();
+    });
+
+    it('should enable end turn button when it is player turn', () => {
+      mockUseCombat.mockReturnValue(createMockCombatHook({ isPlayerTurn: true }));
+
+      render(<CombatOverlay />);
+
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      expect(endTurnButton).not.toBeDisabled();
+    });
+
+    it('should have proper styling for end turn button', () => {
+      mockUseCombat.mockReturnValue(createMockCombatHook());
+
+      render(<CombatOverlay />);
+
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      expect(endTurnButton).toHaveClass('combat-text-light');
+      expect(endTurnButton).toHaveClass('hover:text-primary');
+      expect(endTurnButton).toHaveClass('hover:border-primary');
     });
   });
 

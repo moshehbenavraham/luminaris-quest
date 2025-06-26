@@ -140,10 +140,10 @@ export const CombatLog = React.memo(function CombatLog({
   }
 
   return (
-    <Card className={`${className}`} data-testid={testId || 'combat-log'}>
+    <Card className={`bg-background/95 backdrop-blur-sm border-border/50 ${className}`} data-testid={testId || 'combat-log'}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading font-bold tracking-tight text-lg flex items-center gap-2">
+          <h3 className="font-heading font-bold tracking-tight text-lg combat-text-light flex items-center gap-2">
             <Scroll className="h-5 w-5" />
             Combat Log
           </h3>
@@ -230,7 +230,7 @@ export const CombatLog = React.memo(function CombatLog({
                               {entry.action}
                             </span>
                           </div>
-                          <p className="text-sm text-foreground leading-relaxed">
+                          <p className="text-sm combat-text-shadow leading-relaxed">
                             {entry.message}
                           </p>
                           {entry.effect && (

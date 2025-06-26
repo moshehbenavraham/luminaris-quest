@@ -21,8 +21,10 @@ import {
   executeShadowAction,
   decideShadowAction,
   checkCombatEnd,
-  canPerformAction
+  canPerformAction,
+  processStatusEffects
 } from '@/engine/combat-engine';
+import { soundManager } from '@/utils/sound-manager';
 // TEMPORARILY COMMENTED OUT FOR BUILD: environment and performanceMonitor imports temporarily commented to fix TS6133 build error
 
 // Save operation status types
@@ -186,7 +188,7 @@ export interface CombatLogEntry {
   actor: 'PLAYER' | 'SHADOW';
   action: string;
   effect: string;
-  resourceChange: Partial<LightShadowResources> & { enemyHP?: number };
+  resourceChange: Partial<LightShadowResources> & { enemyHP?: number; healthDamage?: number };
   message: string;
 }
 
@@ -196,6 +198,9 @@ export interface CombatState {
   resources: LightShadowResources;
   turn: number;
   log: CombatLogEntry[];
+
+  // Scene context for damage calculation
+  sceneDC: number; // Difficulty check of the scene that triggered combat
 
   // Status effects
   damageMultiplier: number;
@@ -219,6 +224,10 @@ export interface GameState {
   milestones: Milestone[];
   sceneHistory: CompletedScene[];
   pendingMilestoneJournals: Set<number>;
+
+  // Player Health System
+  playerHealth: number; // 0-100, represents player's overall health
+  maxPlayerHealth: number; // Maximum health capacity
 
   // Light & Shadow Combat Resources
   lightPoints: number;
@@ -246,14 +255,20 @@ export interface GameState {
   updateMilestone: (level: number) => void;
   markMilestoneJournalShown: (level: number) => void;
   
+  // Player Health Management
+  modifyPlayerHealth: (delta: number) => void;
+  healPlayerHealth: (amount: number) => void;
+  setPlayerHealth: (health: number) => void;
+
   // Light & Shadow Combat Actions
   modifyLightPoints: (delta: number) => void;
   modifyShadowPoints: (delta: number) => void;
   convertShadowToLight: (amount: number) => void;
 
   // Combat System Actions
-  startCombat: (enemyId: string) => void;
+  startCombat: (enemyId: string, sceneDC?: number) => void;
   executeCombatAction: (action: CombatAction) => void;
+  endTurn: () => void;
   endCombat: (victory: boolean) => void;
   
   // Save state utilities
@@ -289,7 +304,11 @@ export const useGameStoreBase = create<GameState>()(
       milestones: initialMilestones,
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
-      
+
+      // Player Health System
+      playerHealth: 100, // Start at full health
+      maxPlayerHealth: 100, // Standard maximum health
+
       // Light & Shadow Combat Resources
       // Players start with some resources to enable combat functionality
       lightPoints: 10,
@@ -302,6 +321,9 @@ export const useGameStoreBase = create<GameState>()(
         resources: { lp: 0, sp: 0 },
         turn: 0,
         log: [],
+
+        // Scene context
+        sceneDC: 0, // Default DC when not in combat
 
         // Status effects
         damageMultiplier: 1,
@@ -497,6 +519,9 @@ export const useGameStoreBase = create<GameState>()(
           })),
           sceneHistory: [],
           pendingMilestoneJournals: new Set(),
+          // Reset player health
+          playerHealth: 100,
+          maxPlayerHealth: 100,
           lightPoints: 0,
           shadowPoints: 0,
           // Reset combat state
@@ -506,6 +531,9 @@ export const useGameStoreBase = create<GameState>()(
             resources: { lp: 0, sp: 0 },
             turn: 0,
             log: [],
+
+            // Scene context
+            sceneDC: 0,
 
             // Status effects
             damageMultiplier: 1,
@@ -529,6 +557,55 @@ export const useGameStoreBase = create<GameState>()(
         }));
         // Also clear from storage to prevent rehydration of bad state
         localStorage.removeItem('luminari-game-state');
+      },
+
+      // Player Health Management
+      modifyPlayerHealth: (delta: number) => {
+        set((state) => {
+          const newHealth = Math.max(0, Math.min(state.maxPlayerHealth, state.playerHealth + delta));
+          logger.debug('Modified player health', {
+            previous: state.playerHealth,
+            delta,
+            new: newHealth,
+            max: state.maxPlayerHealth
+          });
+          return {
+            playerHealth: newHealth,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      healPlayerHealth: (amount: number) => {
+        set((state) => {
+          const healAmount = Math.max(0, amount);
+          const newHealth = Math.min(state.maxPlayerHealth, state.playerHealth + healAmount);
+          logger.debug('Healed player health', {
+            previous: state.playerHealth,
+            healAmount,
+            new: newHealth,
+            max: state.maxPlayerHealth
+          });
+          return {
+            playerHealth: newHealth,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
+      },
+
+      setPlayerHealth: (health: number) => {
+        set((state) => {
+          const newHealth = Math.max(0, Math.min(state.maxPlayerHealth, health));
+          logger.debug('Set player health', {
+            previous: state.playerHealth,
+            new: newHealth,
+            max: state.maxPlayerHealth
+          });
+          return {
+            playerHealth: newHealth,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+        });
       },
 
       // Light & Shadow Combat Resource Management
@@ -591,9 +668,10 @@ export const useGameStoreBase = create<GameState>()(
       },
 
       // Combat System Actions
-      startCombat: (enemyId: string) => {
+      startCombat: (enemyId: string, sceneDC?: number) => {
         set((state) => {
-          logger.info('Starting combat', { enemyId });
+          const effectiveSceneDC = sceneDC || 12; // Default DC if not provided
+          logger.info('Starting combat', { enemyId, sceneDC: effectiveSceneDC });
 
           // Create actual shadow manifestation using the shadow data system
           const shadowEnemy = createShadowManifestation(enemyId);
@@ -607,7 +685,8 @@ export const useGameStoreBase = create<GameState>()(
           logger.info('Shadow manifestation created', {
             shadowId: shadowEnemy.id,
             shadowName: shadowEnemy.name,
-            shadowHP: shadowEnemy.maxHP
+            shadowHP: shadowEnemy.maxHP,
+            sceneDC: effectiveSceneDC
           });
 
           return {
@@ -618,6 +697,7 @@ export const useGameStoreBase = create<GameState>()(
               currentEnemy: shadowEnemy,
               resources: { lp: state.lightPoints, sp: state.shadowPoints },
               turn: 1,
+              sceneDC: effectiveSceneDC,
               log: [{
                 turn: 0,
                 actor: 'SHADOW',
@@ -655,7 +735,7 @@ export const useGameStoreBase = create<GameState>()(
           // Update preferred actions tracking (ensure immutability)
           const newPreferredActions = {
             ...newCombatState.preferredActions,
-            [action]: newCombatState.preferredActions[action] + 1
+            [action]: (newCombatState.preferredActions[action] || 0) + 1
           };
           newCombatState = {
             ...newCombatState,
@@ -665,44 +745,89 @@ export const useGameStoreBase = create<GameState>()(
           // Add player action to combat log
           const combatLog = [...newCombatState.log, playerResult.logEntry];
 
-          // Check if combat ended after player action
-          let combatEndStatus = checkCombatEnd(newCombatState);
-          if (combatEndStatus.isEnded) {
-            return {
-              ...state,
-              combat: {
-                ...newCombatState,
-                log: combatLog
-              },
-              saveState: { ...state.saveState, hasUnsavedChanges: true }
-            };
-          }
-
-          // Execute shadow action if combat continues
-          if (newCombatState.currentEnemy && newCombatState.currentEnemy.currentHP > 0) {
-            const shadowAction = decideShadowAction(newCombatState.currentEnemy, newCombatState);
-            if (shadowAction) {
-              const shadowResult = executeShadowAction(shadowAction, newCombatState);
-              newCombatState = { ...shadowResult.newState };
-              combatLog.push(shadowResult.logEntry);
-            }
-          }
-
-          // Increment turn counter (ensure immutability)
-          newCombatState = {
-            ...newCombatState,
-            turn: newCombatState.turn + 1
-          };
-
-          // Final combat end check after shadow action
-          combatEndStatus = checkCombatEnd(newCombatState);
-
-          return {
+          // Update the state after player action
+          const stateAfterPlayerAction = {
             ...state,
             combat: {
               ...newCombatState,
               log: combatLog
             },
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+
+          // Check if combat ended after player action
+          const combatEndStatus = checkCombatEnd(newCombatState);
+          if (combatEndStatus.isEnded) {
+            get().endCombat(combatEndStatus.victory!);
+            return stateAfterPlayerAction;
+          }
+
+          return stateAfterPlayerAction;
+        });
+      },
+
+      endTurn: () => {
+        set((state) => {
+          if (!state.combat.inCombat || !state.combat.currentEnemy) {
+            logger.warn('Attempted to end turn outside of combat');
+            return state;
+          }
+
+          logger.info('Ending turn and initiating shadow action', { turn: state.combat.turn });
+
+          let newCombatState = { ...state.combat };
+
+          // Execute shadow action if enemy is still alive
+          let healthDamageDealt = 0;
+          if (newCombatState.currentEnemy && newCombatState.currentEnemy.currentHP > 0) {
+            const shadowAction = decideShadowAction(newCombatState.currentEnemy, newCombatState);
+            if (shadowAction) {
+              const shadowResult = executeShadowAction(shadowAction, newCombatState, state.guardianTrust);
+              newCombatState = { ...shadowResult.newState };
+              healthDamageDealt = shadowResult.healthDamage;
+
+              // Add shadow action to combat log
+              newCombatState.log = [...newCombatState.log, shadowResult.logEntry];
+
+              // Play shadow attack sound effect
+              try {
+                soundManager.playSound('shadow-attack', 2);
+              } catch (error) {
+                logger.warn('Failed to play shadow attack sound:', error);
+              }
+            }
+          }
+
+          // Process status effects at turn end
+          newCombatState = processStatusEffects(newCombatState);
+
+          // Increment turn counter
+          newCombatState = {
+            ...newCombatState,
+            turn: newCombatState.turn + 1
+          };
+
+          // Apply health damage from shadow action
+          const newPlayerHealth = Math.max(0, state.playerHealth - healthDamageDealt);
+
+          // Log health damage if any was dealt
+          if (healthDamageDealt > 0) {
+            logger.info('Player took health damage from shadow action', {
+              damage: healthDamageDealt,
+              newHealth: newPlayerHealth,
+              previousHealth: state.playerHealth
+            });
+          }
+
+          // Final combat end check after shadow action
+          const combatEndStatus = checkCombatEnd(newCombatState);
+          if (combatEndStatus.isEnded) {
+            get().endCombat(combatEndStatus.victory!);
+          }
+
+          return {
+            combat: newCombatState,
+            playerHealth: newPlayerHealth,
             saveState: { ...state.saveState, hasUnsavedChanges: true }
           };
         });
@@ -755,6 +880,9 @@ export const useGameStoreBase = create<GameState>()(
               resources: { lp: 0, sp: 0 },
               turn: 0,
               log: [...state.combat.log, finalLogEntry],
+
+              // Reset scene context
+              sceneDC: 0,
 
               // Reset status effects
               damageMultiplier: 1,
@@ -1305,6 +1433,10 @@ export const useGameStore = () => {
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
 
+      // Player Health System - Use actual store values for real-time updates
+      playerHealth: store.playerHealth,
+      maxPlayerHealth: store.maxPlayerHealth,
+
       // Light & Shadow Combat Resources - Use actual store values for real-time updates
       lightPoints: store.lightPoints,
       shadowPoints: store.shadowPoints,
@@ -1335,6 +1467,11 @@ export const useGameStore = () => {
       updateMilestone: store.updateMilestone,
       markMilestoneJournalShown: store.markMilestoneJournalShown,
 
+      // Player Health Management
+      modifyPlayerHealth: store.modifyPlayerHealth,
+      healPlayerHealth: store.healPlayerHealth,
+      setPlayerHealth: store.setPlayerHealth,
+
       // Light & Shadow Combat Actions
       modifyLightPoints: store.modifyLightPoints,
       modifyShadowPoints: store.modifyShadowPoints,
@@ -1343,6 +1480,7 @@ export const useGameStore = () => {
       // Combat System Actions
       startCombat: store.startCombat,
       executeCombatAction: store.executeCombatAction,
+      endTurn: store.endTurn,
       endCombat: store.endCombat,
 
       checkUnsavedChanges: store.checkUnsavedChanges,

@@ -19,9 +19,9 @@ import { Sword, Users, Wrench, BookOpen, Map, Sparkles, Zap } from 'lucide-react
 
 interface ChoiceListProps {
   guardianTrust: number;
-  setGuardianTrust: (trust: number) => void;
-  setGuardianMessage: (message: string) => void;
-  onSceneComplete?: (sceneId: string, success: boolean) => void;
+  setGuardianTrust: (_trust: number) => void;
+  setGuardianMessage: (_message: string) => void;
+  onSceneComplete?: (_sceneId: string, _success: boolean) => void;
   onLearningMoment?: () => void;
   'data-testid'?: string;
 }
@@ -149,7 +149,7 @@ export function ChoiceList({
 
     // Trigger combat if needed
     if (outcome.triggeredCombat && outcome.shadowType) {
-      startCombat(outcome.shadowType);
+      startCombat(outcome.shadowType, scene.dc); // Pass scene DC for damage calculation
     } else {
       // Only advance scene if not entering combat
       if (!isLastScene(currentSceneIndex)) {
@@ -236,19 +236,19 @@ export function ChoiceList({
               {/* Show resource rewards/penalties */}
               <div className="flex justify-center gap-4 pt-1">
                 {(currentScene.lpReward || currentScene.type !== 'combat') && (
-                  <div className="flex items-center gap-1 text-xs text-amber-600">
+                  <div className="flex items-center gap-1 text-xs combat-text-critical">
                     <Sparkles className="h-3 w-3" />
                     <span>+{currentScene.lpReward || (currentScene.type === 'social' ? 3 : currentScene.type === 'skill' ? 2 : currentScene.type === 'exploration' ? 3 : 2)} LP on success</span>
                   </div>
                 )}
                 {currentScene.type === 'combat' && (
-                  <div className="flex items-center gap-1 text-xs text-red-600">
+                  <div className="flex items-center gap-1 text-xs combat-text-damage">
                     <Sword className="h-3 w-3" />
                     <span>Combat on failure</span>
                   </div>
                 )}
                 {currentScene.type !== 'combat' && (
-                  <div className="flex items-center gap-1 text-xs text-purple-600">
+                  <div className="flex items-center gap-1 text-xs combat-text-mana">
                     <Zap className="h-3 w-3" />
                     <span>+{currentScene.spPenalty || (currentScene.type === 'social' ? 2 : currentScene.type === 'skill' ? 1 : currentScene.type === 'exploration' ? 2 : 1)} SP on failure</span>
                   </div>

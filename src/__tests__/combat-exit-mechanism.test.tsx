@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { CombatOverlay } from '../components/combat/CombatOverlay';
-import { useGameStore } from '../store/game-store';
 import type { ShadowManifestation } from '../store/game-store';
 
 // Mock the game store

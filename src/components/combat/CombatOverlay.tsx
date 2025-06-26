@@ -13,7 +13,9 @@ import { CombatReflectionModal, type CombatReflectionData } from './CombatReflec
 import type { JournalEntry } from '@/components/JournalModal';
 import {
   Sparkles,
-  Sword
+  Sword,
+  Heart,
+  Zap
 } from 'lucide-react';
 
 /**
@@ -39,6 +41,7 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
     enemy,
     resources,
     turn,
+    log,
     statusEffects,
     canUseAction,
     getActionCost,
@@ -46,7 +49,10 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
     isPlayerTurn,
     combatEndStatus,
     executeAction,
+    playerHealth,
+    playerLevel,
     endCombat,
+    endTurn,
     getTherapeuticInsight
   } = useCombat();
 
@@ -171,6 +177,21 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
     return Math.max(0, (enemy.currentHP / enemy.maxHP) * 100);
   }, [enemy?.currentHP, enemy?.maxHP]);
 
+  // Keyboard shortcut handler for End Turn (key 5)
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (!isPlayerTurn || !isActive) return;
+
+      if (event.key === '5' && !event.ctrlKey && !event.altKey && !event.metaKey) {
+        event.preventDefault();
+        endTurn();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [isPlayerTurn, isActive, endTurn]);
+
   // Don't render if combat is not active or no enemy
   if (!isActive || !enemy) {
     return null;
@@ -200,12 +221,12 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
           >
             <Card className="mx-4 w-full max-w-md bg-background/95 backdrop-blur-sm">
               <CardHeader className="text-center">
-                <CardTitle className={`text-2xl ${combatEndStatus.victory ? 'text-primary' : 'text-amber-500'}`}>
+                <CardTitle className={`text-2xl ${combatEndStatus.victory ? 'combat-text-heal' : 'combat-text-mana'}`}>
                   {combatEndStatus.victory ? '✨ Victory!' : '💡 Learning Moment'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-center">
-                <p className="text-muted-foreground">
+                <p className="combat-text-light">
                   {combatEndStatus.reason || 'Combat has ended.'}
                 </p>
                 <Button
@@ -228,39 +249,43 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
         data-testid={testId || 'combat-overlay'}
         role="dialog"
         aria-modal="true"
         aria-labelledby="combat-title"
         aria-describedby="combat-description"
       >
-        <div className="w-full max-w-4xl space-y-4">
+        <div className="w-full max-w-5xl mx-auto space-y-2">
           {/* Enemy Display */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="bg-background/95 backdrop-blur-sm">
+            <Card className="bg-background/95 backdrop-blur-sm border-border/50">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Badge className={shadowTypeColor}>
                       {enemy.type.charAt(0).toUpperCase() + enemy.type.slice(1)}
                     </Badge>
-                    <CardTitle className="text-xl" id="combat-title">{enemy.name}</CardTitle>
+                    <CardTitle className="text-xl combat-text-shadow" id="combat-title">{enemy.name}</CardTitle>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Turn {turn}
+                  <div className={`text-sm font-medium px-2 py-1 rounded ${
+                    isPlayerTurn
+                      ? 'combat-text-critical bg-primary/10 border border-primary/20'
+                      : 'combat-text-mana bg-purple-500/10 border border-purple-500/20 animate-pulse'
+                  }`}>
+                    {isPlayerTurn ? '✨ Your Turn' : '🌑 Shadow\'s Turn'} (Turn {turn})
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{enemy.description}</p>
+                <p className="text-sm combat-text-light">{enemy.description}</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Enemy HP Bar */}
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm combat-text-light">
                     <span className="font-medium">Shadow Strength</span>
                     <span>{enemy.currentHP} / {enemy.maxHP}</span>
                   </div>
@@ -271,12 +296,26 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                     aria-label={`${enemy.name} health: ${enemy.currentHP} out of ${enemy.maxHP} points`}
                   />
                 </div>
+
+                {/* Recent Combat Action - Simple text display */}
+                {log.length > 0 && (
+                  <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-600">
+                    <div className="text-sm combat-text-light">
+                      <span className="font-medium">
+                        {log[log.length - 1].actor === 'PLAYER' ? 'You' : enemy.name}:
+                      </span>
+                      <span className="ml-2 combat-text-shadow">
+                        {log[log.length - 1].message}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
 
           {/* Resources and Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Resources Display */}
             <motion.div
               initial={{ x: -20, opacity: 0 }}
@@ -289,14 +328,40 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
+                    {/* Health */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center">
+                        <Heart className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium combat-text-light">Health</p>
+                        <p className="text-xl font-bold combat-text-damage">
+                          {playerHealth}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Experience */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-400 flex items-center justify-center">
+                        <Zap className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium combat-text-light">Experience</p>
+                        <p className="text-xl font-bold combat-text-heal">
+                          {playerLevel}
+                        </p>
+                      </div>
+                    </div>
+
                     {/* Light Points */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Light Points</p>
-                        <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                        <p className="text-sm font-medium combat-text-light">Light Points</p>
+                        <p className="text-xl font-bold combat-text-critical">
                           {resources.lp}
                         </p>
                       </div>
@@ -308,8 +373,8 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                         <Sword className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Shadow Points</p>
-                        <p className="text-xl font-bold text-purple-600 dark:text-purple-400">
+                        <p className="text-sm font-medium combat-text-light">Shadow Points</p>
+                        <p className="text-xl font-bold combat-text-mana">
                           {resources.sp}
                         </p>
                       </div>
@@ -320,7 +385,7 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                   {(statusEffects.healingBlocked || statusEffects.lpGenerationBlocked || statusEffects.skipNextTurn) && (
                     <div className="space-y-2">
                       <Separator />
-                      <p className="text-sm font-medium text-muted-foreground">Active Effects</p>
+                      <p className="text-sm font-medium combat-text-light">Active Effects</p>
                       <div className="flex flex-wrap gap-1">
                         {statusEffects.healingBlocked && (
                           <Badge variant="destructive" className="text-xs">Healing Blocked</Badge>
@@ -354,13 +419,24 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
               />
             </motion.div>
 
-            {/* Surrender Button */}
-            <div className="flex justify-center pt-2">
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-3 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={endTurn}
+                disabled={!isPlayerTurn}
+                className="combat-text-light hover:text-primary hover:border-primary disabled:opacity-50"
+                data-testid="end-turn-button"
+                title="End Turn - Press 5 to use"
+              >
+                End Turn
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleSurrender}
-                className="text-muted-foreground hover:text-destructive hover:border-destructive"
+                className="combat-text-light hover:text-destructive hover:border-destructive"
                 data-testid="surrender-button"
               >
                 Surrender
@@ -376,7 +452,7 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
           >
             <Card className="bg-primary/5 border-primary/20 backdrop-blur-sm">
               <CardContent className="pt-4">
-                <p className="text-sm text-center italic text-muted-foreground" id="combat-description">
+                <p className="text-sm text-center italic combat-text-light" id="combat-description">
                   💡 {getTherapeuticInsight()}
                 </p>
               </CardContent>

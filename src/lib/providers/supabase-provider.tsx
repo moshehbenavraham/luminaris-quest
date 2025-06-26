@@ -1,18 +1,7 @@
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
+import { useEffect, useState, type PropsWithChildren } from 'react';
 import { type User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-
-type SupabaseContextType = {
-  user: User | null;
-  loading: boolean;
-  error: Error | null;
-};
-
-const SupabaseContext = createContext<SupabaseContextType>({
-  user: null,
-  loading: true,
-  error: null,
-});
+import { SupabaseContext } from './supabase-context';
 
 export function SupabaseProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
@@ -66,5 +55,3 @@ export function SupabaseProvider({ children }: PropsWithChildren) {
     <SupabaseContext.Provider value={{ user, loading, error }}>{children}</SupabaseContext.Provider>
   );
 }
-
-export const useSupabase = () => useContext(SupabaseContext);

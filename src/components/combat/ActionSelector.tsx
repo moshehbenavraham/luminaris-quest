@@ -21,19 +21,21 @@ import type { CombatAction } from '@/store/game-store';
  * - Action tooltips and enhanced descriptions
  * - Resource cost display and validation
  * - Responsive design with accessibility compliance
+ * 
+ * Note: End Turn functionality is handled separately in the main combat UI
  */
 
 interface ActionSelectorProps {
   /** Whether it's currently the player's turn */
   isPlayerTurn: boolean;
   /** Function to check if an action can be used */
-  canUseAction: (action: CombatAction) => boolean;
+  canUseAction: (_action: CombatAction) => boolean;
   /** Function to get action resource cost */
-  getActionCost: (action: CombatAction) => { lp?: number; sp?: number };
+  getActionCost: (_action: CombatAction) => { lp?: number; sp?: number };
   /** Function to get action description */
-  getActionDescription: (action: CombatAction) => string;
+  getActionDescription: (_action: CombatAction) => string;
   /** Function to execute an action */
-  onActionSelect: (action: CombatAction) => void;
+  onActionSelect: (_action: CombatAction) => void;
   /** Optional test ID for testing */
   'data-testid'?: string;
 }
@@ -88,7 +90,7 @@ export const ActionSelector = React.memo(function ActionSelector({
     }
   }, [canUseAction, isPlayerTurn, onActionSelect]);
 
-  // Enhanced keyboard shortcuts (1-4)
+  // Enhanced keyboard shortcuts (1-4) - End Turn (5) is handled by main combat UI
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       // Only handle keyboard shortcuts during player turn
@@ -124,7 +126,7 @@ export const ActionSelector = React.memo(function ActionSelector({
       transition={{ delay: 0.3 }}
       data-testid={testId || 'action-selector'}
     >
-      <Card className="bg-background/95 backdrop-blur-sm">
+      <Card className="bg-background/95 backdrop-blur-sm border-border/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">
             {isPlayerTurn ? 'Choose Your Response' : 'Shadow\'s Turn'}
