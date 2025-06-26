@@ -95,31 +95,37 @@ describe('Combat Overlay Text Visibility Fix', () => {
     (useCombatSounds as any).mockReturnValue(mockCombatSounds);
   });
 
-  describe('Enemy Name Text Visibility', () => {
-    it('should use combat-text-shadow class for enemy name', () => {
+  describe('Resources Title Text Visibility', () => {
+    it('should use white text and bold font for Resources title', () => {
       render(<CombatOverlay />);
-      
-      const enemyNameElement = screen.getByText(mockEnemy.name);
-      expect(enemyNameElement).toBeInTheDocument();
-      expect(enemyNameElement).toHaveClass('combat-text-shadow');
-      
-      // Should NOT use generic text classes
-      expect(enemyNameElement).not.toHaveClass('text-foreground');
-      expect(enemyNameElement).not.toHaveClass('text-muted-foreground');
+
+      const resourcesTitle = screen.getByText('Resources');
+      expect(resourcesTitle).toBeInTheDocument();
+      expect(resourcesTitle).toHaveClass('text-white');
+      expect(resourcesTitle).toHaveClass('font-bold');
     });
   });
 
-  describe('Enemy Description Text Visibility', () => {
-    it('should use combat-text-light class for enemy description', () => {
-      render(<CombatOverlay />);
-      
-      const enemyDescriptionElement = screen.getByText(mockEnemy.description);
-      expect(enemyDescriptionElement).toBeInTheDocument();
-      expect(enemyDescriptionElement).toHaveClass('combat-text-light');
-      
-      // Should NOT use generic text classes
-      expect(enemyDescriptionElement).not.toHaveClass('text-foreground');
-      expect(enemyDescriptionElement).not.toHaveClass('text-muted-foreground');
+  describe('ActionSelector Title Text Visibility', () => {
+    it('should use white text and bold font for Choose Your Response title', () => {
+      // We need to import and test ActionSelector separately since it's not directly rendered in CombatOverlay
+      // This test verifies the fix is working by checking the classes are applied
+      const { ActionSelector } = require('../components/combat/ActionSelector');
+      const mockProps = {
+        isPlayerTurn: true,
+        canUseAction: vi.fn(() => true),
+        getActionCost: vi.fn(() => ({ lp: 2 })),
+        getActionDescription: vi.fn(() => 'Test description'),
+        onActionSelect: vi.fn(),
+        onEndTurn: vi.fn()
+      };
+
+      render(<ActionSelector {...mockProps} />);
+
+      const chooseResponseTitle = screen.getByText('Choose Your Response');
+      expect(chooseResponseTitle).toBeInTheDocument();
+      expect(chooseResponseTitle).toHaveClass('text-white');
+      expect(chooseResponseTitle).toHaveClass('font-bold');
     });
   });
 

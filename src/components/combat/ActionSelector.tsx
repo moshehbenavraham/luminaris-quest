@@ -7,7 +7,8 @@ import {
   RotateCcw, 
   Shield, 
   Heart,
-  Zap
+  Zap,
+  Hourglass
 } from 'lucide-react';
 import type { CombatAction } from '@/store/game-store';
 
@@ -17,12 +18,11 @@ import type { CombatAction } from '@/store/game-store';
  * This component provides the interface for selecting therapeutic combat actions,
  * featuring:
  * - All 4 combat actions (ILLUMINATE, REFLECT, ENDURE, EMBRACE)
- * - Enhanced keyboard shortcuts (1-4 keys)
+ * - An "End Turn" button to cede the turn to the shadow
+ * - Enhanced keyboard shortcuts (1-5 keys)
  * - Action tooltips and enhanced descriptions
  * - Resource cost display and validation
  * - Responsive design with accessibility compliance
- * 
- * Note: End Turn functionality is handled separately in the main combat UI
  */
 
 interface ActionSelectorProps {
@@ -36,6 +36,8 @@ interface ActionSelectorProps {
   getActionDescription: (_action: CombatAction) => string;
   /** Function to execute an action */
   onActionSelect: (_action: CombatAction) => void;
+  /** Function to end the player's turn */
+  onEndTurn: () => void;
   /** Optional test ID for testing */
   'data-testid'?: string;
 }
@@ -48,38 +50,45 @@ export const ActionSelector = React.memo(function ActionSelector({
   getActionCost,
   getActionDescription,
   onActionSelect,
+  onEndTurn,
   'data-testid': testId
 }: ActionSelectorProps) {
 
   // Memoized action icon mapping to prevent recreation on every render
-  const getActionIcon = useMemo(() => (action: CombatAction) => {
-    switch (action) {
-      case 'ILLUMINATE': return <Eye className="w-4 h-4" />;
-      case 'REFLECT': return <RotateCcw className="w-4 h-4" />;
-      case 'ENDURE': return <Shield className="w-4 h-4" />;
-      case 'EMBRACE': return <Heart className="w-4 h-4" />;
-      default: return <Zap className="w-4 h-4" />;
-    }
+  const getActionIcon = useMemo(() => {
+    const iconMapper = (action: CombatAction | 'END_TURN') => {
+      switch (action) {
+        case 'ILLUMINATE': return <Eye className="w-4 h-4" />;
+        case 'REFLECT': return <RotateCcw className="w-4 h-4" />;
+        case 'ENDURE': return <Shield className="w-4 h-4" />;
+        case 'EMBRACE': return <Heart className="w-4 h-4" />;
+        case 'END_TURN': return <Hourglass className="w-4 h-4" />;
+        default: return <Zap className="w-4 h-4" />;
+      }
+    };
+    return iconMapper;
   }, []);
 
   // Memoized action color mapping
-  const getActionColor = useMemo(() => (action: CombatAction) => {
+  const getActionColor = useMemo(() => (action: CombatAction | 'END_TURN') => {
     switch (action) {
       case 'ILLUMINATE': return 'bg-amber-500 hover:bg-amber-600 text-white';
       case 'REFLECT': return 'bg-blue-500 hover:bg-blue-600 text-white';
       case 'ENDURE': return 'bg-green-500 hover:bg-green-600 text-white';
       case 'EMBRACE': return 'bg-purple-500 hover:bg-purple-600 text-white';
+      case 'END_TURN': return 'bg-gray-500 hover:bg-gray-600 text-white';
       default: return 'bg-gray-500 hover:bg-gray-600 text-white';
     }
   }, []);
 
   // Memoized keyboard shortcut mapping
-  const getActionKeyboardShortcut = useMemo(() => (action: CombatAction) => {
+  const getActionKeyboardShortcut = useMemo(() => (action: CombatAction | 'END_TURN') => {
     switch (action) {
       case 'ILLUMINATE': return '1';
       case 'REFLECT': return '2';
       case 'ENDURE': return '3';
       case 'EMBRACE': return '4';
+      case 'END_TURN': return '5';
       default: return '';
     }
   }, []);
@@ -90,7 +99,13 @@ export const ActionSelector = React.memo(function ActionSelector({
     }
   }, [canUseAction, isPlayerTurn, onActionSelect]);
 
-  // Enhanced keyboard shortcuts (1-4) - End Turn (5) is handled by main combat UI
+  const handleEndTurnClick = useCallback(() => {
+    if (isPlayerTurn) {
+      onEndTurn();
+    }
+  }, [isPlayerTurn, onEndTurn]);
+
+  // Enhanced keyboard shortcuts (1-5)
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       // Only handle keyboard shortcuts during player turn
@@ -101,23 +116,28 @@ export const ActionSelector = React.memo(function ActionSelector({
         return;
       }
 
-      const keyToAction: Record<string, CombatAction> = {
+      const keyToAction: Record<string, CombatAction | 'END_TURN'> = {
         '1': 'ILLUMINATE',
         '2': 'REFLECT', 
         '3': 'ENDURE',
-        '4': 'EMBRACE'
+        '4': 'EMBRACE',
+        '5': 'END_TURN'
       };
 
       const action = keyToAction[event.key];
-      if (action && canUseAction(action)) {
+      if (action) {
         event.preventDefault();
-        handleActionClick(action);
+        if (action === 'END_TURN') {
+          handleEndTurnClick();
+        } else if (canUseAction(action)) {
+          handleActionClick(action);
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isPlayerTurn, canUseAction, handleActionClick]);
+  }, [isPlayerTurn, canUseAction, handleActionClick, handleEndTurnClick]);
 
   return (
     <motion.div
@@ -128,12 +148,12 @@ export const ActionSelector = React.memo(function ActionSelector({
     >
       <Card className="bg-background/95 backdrop-blur-sm border-border/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">
+          <CardTitle className="text-lg text-white font-bold">
             {isPlayerTurn ? 'Choose Your Response' : 'Shadow\'s Turn'}
           </CardTitle>
           {isPlayerTurn && (
             <p className="text-xs text-muted-foreground">
-              Use keyboard shortcuts: 1-4 keys
+              Use keyboard shortcuts: 1-5 keys
             </p>
           )}
         </CardHeader>
@@ -183,6 +203,8 @@ export const ActionSelector = React.memo(function ActionSelector({
               </Button>
             );
           })}
+
+
         </CardContent>
       </Card>
     </motion.div>

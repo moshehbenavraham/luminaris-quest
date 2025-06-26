@@ -9,7 +9,8 @@ describe('ActionSelector', () => {
     canUseAction: vi.fn(),
     getActionCost: vi.fn(),
     getActionDescription: vi.fn(),
-    onActionSelect: vi.fn()
+    onActionSelect: vi.fn(),
+    onEndTurn: vi.fn()
   };
 
   beforeEach(() => {
@@ -35,8 +36,8 @@ describe('ActionSelector', () => {
 
     it('shows keyboard shortcuts hint when player turn', () => {
       render(<ActionSelector {...mockProps} />);
-      
-      expect(screen.getByText('Use keyboard shortcuts: 1-4 keys')).toBeInTheDocument();
+
+      expect(screen.getByText('Use keyboard shortcuts: 1-5 keys')).toBeInTheDocument();
     });
 
     it('shows shadow turn message when not player turn', () => {
@@ -204,7 +205,13 @@ describe('ActionSelector', () => {
       });
     });
 
-
+    it('triggers onEndTurn when pressing 5', async () => {
+      render(<ActionSelector {...mockProps} />);
+      fireEvent.keyDown(document, { key: '5' });
+      await waitFor(() => {
+        expect(mockProps.onEndTurn).toHaveBeenCalled();
+      });
+    });
 
     it('does not trigger actions when not player turn', async () => {
       render(<ActionSelector {...mockProps} isPlayerTurn={false} />);

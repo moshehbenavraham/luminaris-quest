@@ -5,8 +5,8 @@
 
 **these are issues directly writtten/reported by User**
 
-### the combat overlay is dark and some of the text is too dark making it impossible to see, the text must be lighter - specific text include "Resources" and "Choose Your Response"
-### visual strip appearing at the top of combat overlay -- the combat overlay (combat mode) turns the background blurry and that blur doesn't seem to fill the full screen, i think that is what is causing the strip
+### ✅ the combat overlay is dark and some of the text is too dark making it impossible to see, the text must be lighter - specific text include "Resources" and "Choose Your Response" - COMPLETED 2025-06-26
+### [SKIP THIS FOR NOW, FAILED TOO MANY FIX ATTEMPTS HORRIFIC TIME DRAIN] visual strip appearing at the top of combat overlay -- the combat overlay (combat mode) turns the background blurry and that blur doesn't seem to fill the full screen, i think that is what is causing the strip - FIXES ATTEMPTED AND FAILED 2025-06-26
 ### combat overlay does not deal with resizing well at all (seems to not have been developed with "mobile-first" approach despite that being a rule), only looks decent in full desktop mode
 ### there is no signs at all the opponent is getting a turn at all UNLESS i hit the 'end turn' button (end turn button is meant to just be used if you are stuck or want to skip your own turn)
 ### ✅ 'end turn' button is supposed to be next to the 'surrender' button in the combat overlay (right now its in the "Choose Your Response" section) - COMPLETED 2025-06-26

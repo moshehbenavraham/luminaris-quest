@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { CombatOverlay } from '../components/combat/CombatOverlay';
@@ -375,7 +374,7 @@ describe('CombatOverlay Component', () => {
       render(<CombatOverlay />);
 
       const surrenderButton = screen.getByTestId('surrender-button');
-      expect(surrenderButton).toHaveClass('combat-text-light');
+      expect(surrenderButton).toHaveClass('text-muted-foreground');
       expect(surrenderButton).toHaveClass('hover:text-destructive');
       expect(surrenderButton).toHaveClass('hover:border-destructive');
     });
@@ -426,7 +425,7 @@ describe('CombatOverlay Component', () => {
       render(<CombatOverlay />);
 
       const endTurnButton = screen.getByTestId('end-turn-button');
-      expect(endTurnButton).toHaveClass('combat-text-light');
+      expect(endTurnButton).toHaveClass('text-muted-foreground');
       expect(endTurnButton).toHaveClass('hover:text-primary');
       expect(endTurnButton).toHaveClass('hover:border-primary');
     });

@@ -98,10 +98,8 @@ describe('CombatOverlay z-index layering', () => {
     // Verify it has the dark overlay background
     expect(combatOverlay).toHaveClass('bg-black/70');
     
-    // Verify it's centered
-    expect(combatOverlay).toHaveClass('flex');
-    expect(combatOverlay).toHaveClass('items-center');
-    expect(combatOverlay).toHaveClass('justify-center');
+    // Verify it has backdrop blur (centering is now handled by inner container)
+    expect(combatOverlay).toHaveClass('backdrop-blur-sm');
   });
 
   it('should simulate navbar and combat overlay layering with appropriate z-indices', () => {
