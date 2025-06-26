@@ -258,8 +258,8 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
         aria-labelledby="combat-title"
         aria-describedby="combat-description"
       >
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <div className="w-full max-w-5xl mx-auto space-y-2">
+        <div className="fixed inset-0 flex items-center justify-center p-2 sm:p-4">
+          <div className="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6">
           {/* Enemy Display */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -317,9 +317,9 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
             </Card>
           </motion.div>
 
-          {/* Resources and Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Resources Display */}
+          {/* Resources and Actions - Mobile-First Layout */}
+          <div className="space-y-6">
+            {/* Resources Display - Mobile-First */}
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -330,7 +330,8 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                   <CardTitle className="text-lg text-white font-bold">Resources</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Mobile-First: Stack resources vertically on small screens, 2 columns on larger */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Health */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-red-400 flex items-center justify-center">
@@ -369,7 +370,7 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                         </p>
                       </div>
                     </div>
-                    
+
                     {/* Shadow Points */}
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-purple-400 flex items-center justify-center">
@@ -383,7 +384,7 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Status Effects */}
                   {(statusEffects.healingBlocked || statusEffects.lpGenerationBlocked || statusEffects.skipNextTurn) && (
                     <div className="space-y-2">
@@ -423,14 +424,19 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
               />
             </motion.div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-center gap-3 pt-2">
+            {/* Combat Control Buttons - Mobile-First */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-col sm:flex-row justify-center gap-3 pt-2"
+            >
               <Button
                 variant="outline"
                 size="sm"
                 onClick={endTurn}
                 disabled={!isPlayerTurn}
-                className="text-muted-foreground hover:text-primary hover:border-primary disabled:opacity-50"
+                className="text-muted-foreground hover:text-primary hover:border-primary disabled:opacity-50 w-full sm:w-auto"
                 data-testid="end-turn-button"
                 title="End Turn - Press 5 to use"
               >
@@ -440,12 +446,12 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
                 variant="outline"
                 size="sm"
                 onClick={handleSurrender}
-                className="text-muted-foreground hover:text-destructive hover:border-destructive"
+                className="text-muted-foreground hover:text-destructive hover:border-destructive w-full sm:w-auto"
                 data-testid="surrender-button"
               >
                 Surrender
               </Button>
-            </div>
+            </motion.div>
           </div>
 
           {/* Therapeutic Insight */}

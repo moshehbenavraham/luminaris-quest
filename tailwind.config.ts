@@ -60,6 +60,22 @@ export default {
           destructive: {
             DEFAULT: 'var(--destructive)',
           },
+          // Combat-specific colors
+          combat: {
+            backdrop: 'rgba(0, 0, 0, 0.8)',
+            card: {
+              DEFAULT: 'rgba(30, 30, 40, 0.95)',
+              hover: 'rgba(40, 40, 50, 0.95)',
+            },
+            text: {
+              DEFAULT: '#ffffff',
+              muted: 'rgba(255, 255, 255, 0.8)',
+              damage: '#ff4444',
+              heal: '#00ff88',
+              critical: '#ffd700',
+              mana: '#4488ff',
+            },
+          },
         },
         fontFamily: {
           'heading': ['Roboto', 'Arial', 'sans-serif'],
@@ -68,6 +84,11 @@ export default {
         spacing: {
           '18': '4.5rem',
           '88': '22rem',
+        },
+        zIndex: {
+          'combat-backdrop': '100',
+          'combat-content': '101',
+          'combat-modal': '102',
         },
         borderRadius: {
           lg: 'var(--radius)',
@@ -119,6 +140,34 @@ export default {
             "100%": {
               boxShadow: "0 0 30px rgba(134, 93, 255, 0.6)"
             }
+          },
+          "combat-fade-in": {
+            "0%": {
+              opacity: "0"
+            },
+            "100%": {
+              opacity: "1"
+            }
+          },
+          "combat-slide-up": {
+            "0%": {
+              opacity: "0",
+              transform: "translateY(20px)"
+            },
+            "100%": {
+              opacity: "1",
+              transform: "translateY(0)"
+            }
+          },
+          "damage-float": {
+            "0%": {
+              opacity: "1",
+              transform: "translateY(0)"
+            },
+            "100%": {
+              opacity: "0",
+              transform: "translateY(-30px)"
+            }
           }
         },
         animation: {
@@ -127,6 +176,9 @@ export default {
           "fade-in": "fade-in 0.3s ease-out",
           "slide-up": "slide-up 0.4s ease-out",
           "glow": "glow 2s ease-in-out infinite alternate",
+          "combat-fade-in": "combat-fade-in 0.3s ease-out",
+          "combat-slide-up": "combat-slide-up 0.3s ease-out",
+          "damage-float": "damage-float 1s ease-out",
         },
       },
     },

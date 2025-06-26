@@ -99,23 +99,23 @@ describe('Combat Overlay Backdrop Fix', () => {
     it('should have proper inner container for content positioning', () => {
       const { container } = render(<CombatOverlay data-testid="combat-overlay" />);
 
-      // Find the inner container that handles content positioning
-      const innerContainer = container.querySelector('.fixed.inset-0.flex.items-center.justify-center.p-4');
+      // Find the inner container that handles content positioning with mobile-first responsive padding
+      const innerContainer = container.querySelector('.fixed.inset-0.flex.items-center.justify-center');
       expect(innerContainer).toBeInTheDocument();
 
-      // The inner container should have the positioning and padding
-      expect(innerContainer).toHaveClass('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'p-4');
+      // The inner container should have the positioning and mobile-first responsive padding
+      expect(innerContainer).toHaveClass('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'p-2', 'sm:p-4');
     });
 
     it('should maintain content container structure', () => {
       const { container } = render(<CombatOverlay data-testid="combat-overlay" />);
-      
-      // Find the content container
-      const contentContainer = container.querySelector('.w-full.max-w-5xl.mx-auto.space-y-2');
+
+      // Find the content container with updated mobile-first responsive classes
+      const contentContainer = container.querySelector('.w-full.max-w-4xl.mx-auto');
       expect(contentContainer).toBeInTheDocument();
-      
-      // Content container should maintain its responsive sizing
-      expect(contentContainer).toHaveClass('w-full', 'max-w-5xl', 'mx-auto', 'space-y-2');
+
+      // Content container should maintain its mobile-first responsive sizing
+      expect(contentContainer).toHaveClass('w-full', 'max-w-4xl', 'mx-auto', 'space-y-4', 'sm:space-y-6');
     });
 
     it('should ensure backdrop covers entire viewport without visual strips', () => {
@@ -142,8 +142,8 @@ describe('Combat Overlay Backdrop Fix', () => {
       const mainOverlay = container.querySelector('.fixed.inset-0.z-\\[60\\].bg-black\\/70.backdrop-blur-sm');
       expect(mainOverlay).toHaveClass('fixed', 'inset-0');
 
-      // Content should be properly contained and responsive
-      const contentContainer = container.querySelector('.w-full.max-w-5xl');
+      // Content should be properly contained and responsive with mobile-first sizing
+      const contentContainer = container.querySelector('.w-full.max-w-4xl');
       expect(contentContainer).toBeInTheDocument();
       expect(contentContainer).toHaveClass('mx-auto'); // Centered
     });
@@ -154,7 +154,7 @@ describe('Combat Overlay Backdrop Fix', () => {
       // Verify the layering: backdrop -> positioning -> content
       const backdrop = container.querySelector('.fixed.inset-0.z-\\[60\\].bg-black\\/70.backdrop-blur-sm');
       const positioningLayer = container.querySelector('.fixed.inset-0.flex.items-center.justify-center');
-      const contentLayer = container.querySelector('.w-full.max-w-5xl.mx-auto');
+      const contentLayer = container.querySelector('.w-full.max-w-4xl.mx-auto');
 
       expect(backdrop).toBeInTheDocument();
       expect(positioningLayer).toBeInTheDocument();
@@ -163,6 +163,47 @@ describe('Combat Overlay Backdrop Fix', () => {
       // Verify backdrop is the outermost layer
       expect(backdrop).toHaveClass('backdrop-blur-sm');
       expect(backdrop).toHaveClass('bg-black/70');
+    });
+
+    it('should use mobile-first responsive padding', () => {
+      const { container } = render(<CombatOverlay data-testid="combat-overlay" />);
+
+      // Find the positioning layer that contains responsive padding
+      const positioningLayer = container.querySelector('.fixed.inset-0.flex.items-center.justify-center');
+      expect(positioningLayer).toHaveClass('p-2', 'sm:p-4');
+    });
+
+    it('should use mobile-first responsive spacing', () => {
+      const { container } = render(<CombatOverlay data-testid="combat-overlay" />);
+
+      // Content container should have responsive spacing
+      const contentContainer = container.querySelector('.w-full.max-w-4xl.mx-auto');
+      expect(contentContainer).toHaveClass('space-y-4', 'sm:space-y-6');
+    });
+
+    it('should use mobile-first layout for resources grid', () => {
+      const { container } = render(<CombatOverlay data-testid="combat-overlay" />);
+
+      // Resources should stack on mobile, 2 columns on small screens and up
+      const resourcesGrid = container.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2');
+      expect(resourcesGrid).toBeInTheDocument();
+      expect(resourcesGrid).toHaveClass('grid-cols-1', 'sm:grid-cols-2');
+    });
+
+    it('should use mobile-first layout for control buttons', () => {
+      const { container } = render(<CombatOverlay data-testid="combat-overlay" />);
+
+      // Control buttons should stack on mobile, row on small screens and up
+      const controlButtons = container.querySelector('.flex.flex-col.sm\\:flex-row');
+      expect(controlButtons).toBeInTheDocument();
+      expect(controlButtons).toHaveClass('flex-col', 'sm:flex-row');
+
+      // Buttons should be full width on mobile, auto width on small screens and up
+      const endTurnButton = screen.getByTestId('end-turn-button');
+      const surrenderButton = screen.getByTestId('surrender-button');
+
+      expect(endTurnButton).toHaveClass('w-full', 'sm:w-auto');
+      expect(surrenderButton).toHaveClass('w-full', 'sm:w-auto');
     });
   });
 });

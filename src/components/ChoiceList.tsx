@@ -13,7 +13,9 @@ import {
   type DiceResult,
 } from '@/engine/scene-engine';
 import { DiceRollOverlay } from './DiceRollOverlay';
-import { CombatOverlay } from './combat/CombatOverlay';
+import { CombatOverlay as LegacyCombatOverlay } from './combat/CombatOverlay';
+import { CombatOverlay as NewCombatOverlay } from '@/features/combat';
+import { useNewCombatUI } from '@/features/combat';
 import { useGameStore } from '@/store/game-store';
 import { Sword, Users, Wrench, BookOpen, Map, Sparkles, Zap } from 'lucide-react';
 
@@ -47,6 +49,9 @@ export function ChoiceList({
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Check if we should use the new combat UI
+  const useNewCombat = useNewCombatUI();
 
   const currentScene = getScene(currentSceneIndex);
   const progress = getSceneProgress(currentSceneIndex);
@@ -287,11 +292,17 @@ export function ChoiceList({
         <DiceRollOverlay result={diceResult} onClose={handleDiceRollClose} />
       )}
 
-      {/* Combat Overlay */}
+      {/* Combat Overlay - Choose between new and legacy */}
       {combatState?.inCombat && (
-        <CombatOverlay
-          data-testid="combat-overlay"
-        />
+        useNewCombat ? (
+          <NewCombatOverlay
+            data-testid="combat-overlay"
+          />
+        ) : (
+          <LegacyCombatOverlay
+            data-testid="combat-overlay"
+          />
+        )
       )}
     </>
   );

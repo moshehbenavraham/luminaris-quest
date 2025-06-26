@@ -11,7 +11,12 @@
       "Bash(npm run format:*)",
       "Bash(git reset:*)",
       "Bash(rg:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm test:*)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
