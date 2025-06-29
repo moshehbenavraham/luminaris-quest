@@ -1,4 +1,20 @@
 
+/**
+ * ⚠️⚠️⚠️ DEPRECATED - OLD COMBAT SYSTEM ⚠️⚠️⚠️
+ * 
+ * This file is part of the DEPRECATED combat system.
+ * It only exists for backwards compatibility when using ?legacyCombat=1
+ * 
+ * DO NOT USE THIS FILE FOR NEW DEVELOPMENT!
+ * 
+ * For new development, use the NEW combat system at:
+ * → /src/features/combat/
+ * 
+ * See COMBAT_MIGRATION_GUIDE.md for migration details.
+ * 
+ * ⚠️⚠️⚠️ DEPRECATED - OLD COMBAT SYSTEM ⚠️⚠️⚠️
+ */
+
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, Sword } from 'lucide-react';

@@ -158,7 +158,7 @@ export function useCombat(): CombatHookReturn {
       case 'ILLUMINATE':
         return `Shine light on the shadow with awareness and understanding. Deals ${3 + Math.floor(guardianTrust / 4)} damage.`;
       case 'REFLECT':
-        return 'Transform shadow energy into light through wisdom and reframing. Converts 2 SP to 1 LP and heals.';
+        return `Transform 3 shadow points into light and heal 1d${playerLevel} health. Converts SP to LP and restores your vitality.`;
       case 'ENDURE':
         return 'Build resilience and reduce incoming damage by 50% for one turn.';
       case 'EMBRACE':
@@ -166,7 +166,7 @@ export function useCombat(): CombatHookReturn {
       default:
         return '';
     }
-  }, [guardianTrust]);
+  }, [guardianTrust, playerLevel]);
 
   // Therapeutic insights
   const getMostUsedAction = useCallback((): CombatAction | null => {

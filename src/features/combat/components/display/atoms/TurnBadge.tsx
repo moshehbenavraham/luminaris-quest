@@ -31,7 +31,7 @@ export function TurnBadge({
   const playerConfig = {
     bgColor: 'bg-primary-500/20',
     borderColor: 'border-primary-500/40',
-    textColor: 'text-primary-300',
+    textColor: 'text-primary-50',
     icon: '⚡',
     label: 'Your Turn',
     glowColor: 'shadow-primary-500/30',
@@ -40,7 +40,7 @@ export function TurnBadge({
   const enemyConfig = {
     bgColor: 'bg-red-500/20',
     borderColor: 'border-red-500/40',
-    textColor: 'text-red-300',
+    textColor: 'text-red-100',
     icon: '💀',
     label: 'Shadow Turn',
     glowColor: 'shadow-red-500/30',

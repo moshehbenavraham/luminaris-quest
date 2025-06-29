@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**⚠️ CRITICAL WARNING**: Previous Claude Code assistance on this project has made deeply mistaken assumptions about system functionality twice, wasting significant development time on changes that did NOT address actual user issues. All AI-suggested fixes should be thoroughly verified against actual user testing before implementation.
+
+**⚠️ RECENT FAILURE EXAMPLE**: Combat post-flow modal issue - Claude Code incorrectly modified CombatEndModal.tsx assuming the modal wasn't working, when the actual problem was elsewhere in the combat flow. Zero improvements achieved despite extensive effort.
+
+## 🚨 CRITICAL: TWO SEPARATE COMBAT SYSTEMS EXIST
+
+**This project contains TWO COMPLETELY DIFFERENT combat systems. NEVER confuse them:**
+
+### 1. **NEW Combat System** ✅ (USE THIS)
+- **Location**: `/src/features/combat/`
+- **Store**: `src/features/combat/store/combat-store.ts`
+- **Import**: `import { useCombatStore } from '@/features/combat'`
+- **Status**: ACTIVE - All new development here
+- **Activation**: Default (no URL parameter)
+
+### 2. **OLD Combat System** ❌ (DEPRECATED - DO NOT USE)
+- **Location**: `/src/components/combat/`
+- **Store**: `src/store/game-store.ts` (combat slice)
+- **Import**: `import { CombatOverlay } from '@/components/combat/CombatOverlay'`
+- **Status**: DEPRECATED - Only for backwards compatibility
+- **Activation**: URL parameter `?legacyCombat=1`
+
+**⚠️ See `COMBAT_MIGRATION_GUIDE.md` for full details on the differences**
+
 ## Development Commands
 
 - `npm run dev` - Start development server with Vite

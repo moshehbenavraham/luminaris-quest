@@ -23,7 +23,7 @@ export const COMBAT_BALANCE = {
 
   // Resource costs
   ILLUMINATE_LP_COST: 2,
-  REFLECT_SP_COST: 2,
+  REFLECT_SP_COST: 3,
   ENDURE_LP_THRESHOLD: 0.5, // 50% of max LP
 
   // Healing amounts
@@ -249,13 +249,14 @@ export function canPerformAction(
  * @param action - The combat action to execute ('ILLUMINATE', 'REFLECT', 'ENDURE', 'EMBRACE')
  * @param state - Current combat state
  * @param guardianTrust - Current guardian trust level affecting action effectiveness
+ * @param playerLevel - Current player level used for healing calculations
  * @returns Object containing updated state, combat log entry, and optional damage dealt
  * 
  * @throws {Error} When an unknown action is provided
  * 
  * @example
  * ```typescript
- * const result = executePlayerAction('ILLUMINATE', combatState, 75);
+ * const result = executePlayerAction('ILLUMINATE', combatState, 75, 5);
  * console.log(result.logEntry.message); // "You illuminate the shadow's doubt..."
  * console.log(result.damage); // 21
  * ```
@@ -267,17 +268,20 @@ export function canPerformAction(
 export function executePlayerAction(
   action: CombatAction,
   state: CombatState,
-  guardianTrust: number
+  guardianTrust: number,
+  playerLevel: number = 1  // Default to 1 for backwards compatibility
 ): {
   newState: CombatState;
   logEntry: CombatLogEntry;
   damage?: number;
+  healthHeal?: number;  // Added to track health healing
 } {
   const newState = { ...state };
   let damage = 0;
+  let healthHeal = 0;
   let effect = '';
   let message = '';
-  const resourceChange: Partial<LightShadowResources> & { enemyHP?: number } = {};
+  const resourceChange: Partial<LightShadowResources> & { enemyHP?: number; healthHeal?: number } = {};
 
   switch (action) {
     case 'ILLUMINATE': {
@@ -296,16 +300,20 @@ export function executePlayerAction(
     }
     
     case 'REFLECT': {
-      const spCost = COMBAT_BALANCE.REFLECT_SP_COST;
-      const healAmount = COMBAT_BALANCE.REFLECT_HEAL_AMOUNT;
+      const spCost = COMBAT_BALANCE.REFLECT_SP_COST;  // Now 3 SP
+      const lpHealAmount = COMBAT_BALANCE.REFLECT_HEAL_AMOUNT;  // Still 1 LP
+      
+      // Calculate health healing: 1d(playerLevel) - roll a dice from 1 to playerLevel
+      healthHeal = Math.floor(Math.random() * playerLevel) + 1;
       
       newState.resources.sp = Math.max(0, newState.resources.sp - spCost);
-      newState.resources.lp += healAmount;
+      newState.resources.lp += lpHealAmount;
       
       resourceChange.sp = -spCost;
-      resourceChange.lp = healAmount;
-      effect = `Converted ${spCost} SP to ${healAmount} LP`;
-      message = `You find wisdom in your struggle, transforming pain into understanding. Your inner light grows stronger.`;
+      resourceChange.lp = lpHealAmount;
+      resourceChange.healthHeal = healthHeal;
+      effect = `Converted ${spCost} SP to ${lpHealAmount} LP and healed ${healthHeal} health`;
+      message = `You find wisdom in your struggle, transforming pain into understanding and healing. Your inner light grows stronger as wounds begin to mend.`;
       break;
     }
     
@@ -345,7 +353,7 @@ export function executePlayerAction(
     message
   };
 
-  return { newState, logEntry, damage };
+  return { newState, logEntry, damage, healthHeal };
 }
 
 /**

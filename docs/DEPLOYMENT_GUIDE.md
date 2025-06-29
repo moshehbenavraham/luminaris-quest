@@ -24,7 +24,7 @@ This guide covers deploying Luminari's Quest across different environments, from
 
 | Environment | Purpose | Platform | Database | Domain |
 |-------------|---------|----------|----------|---------|
-| **Local** | Development & testing | Local machine | Supabase Cloud | localhost:5173 |
+| **Local** | Development & testing | Local machine | Supabase Cloud | localhost:8080 |
 | **Development** | Team integration | Netlify/Vercel | Supabase Cloud | dev.luminarisquest.org |
 | **Staging** | Pre-production testing | Netlify/Vercel | Supabase Cloud | staging.luminarisquest.org |
 | **Production** | Live application | Netlify/Vercel | Supabase Cloud | luminarisquest.org |
@@ -34,7 +34,7 @@ This guide covers deploying Luminari's Quest across different environments, from
 ```
 Local Development → Development → Staging → Production
       ↓                ↓           ↓          ↓
-   localhost      dev.domain   staging.domain  domain.com
+   localhost:8080  dev.domain   staging.domain  domain.com
 ```
 
 ## Prerequisites
@@ -48,8 +48,8 @@ Local Development → Development → Staging → Production
 
 ### Required Tools
 
-- **Node.js**: Version 18.0 or higher
-- **npm/yarn**: Package manager
+- **Node.js**: Version 18.0 or higher (Current: 20.11.19+)
+- **npm**: Package manager (version 9+)
 - **Git**: Version control
 - **Supabase CLI**: For database management (optional but recommended)
 
@@ -61,6 +61,7 @@ Gather these before starting deployment:
 - OpenAI API key (for AI features)
 - Leonardo.AI API key (optional)
 - ElevenLabs API key (optional)
+- Sentry DSN (optional, for error tracking)
 
 ## Local Development
 
@@ -78,36 +79,52 @@ Gather these before starting deployment:
    ```
 
 3. **Environment Configuration**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Edit `.env.local`:
+   Create `.env.local` in the root directory:
    ```env
    # Local Development Configuration
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
    VITE_OPENAI_API_KEY=your-openai-key
-   VITE_APP_URL=http://localhost:5173
-   VITE_DEBUG_MODE=true
+   
+   # Optional API Keys
+   VITE_LEONARDO_API_KEY=your-leonardo-key
+   VITE_ELEVENLABS_API_KEY=your-elevenlabs-key
+   VITE_SENTRY_DSN=your-sentry-dsn
    ```
 
 4. **Database Setup**
+   
+   **Option 1: Using Supabase CLI (Recommended)**
    ```bash
-   # Option 1: Using Supabase CLI (recommended)
+   # Install Supabase CLI if not already installed
+   npm install -g supabase
+   
+   # Login and link project
    supabase login
    supabase link --project-ref your-project-id
-   supabase db push
    
-   # Option 2: Manual setup via Supabase Dashboard
-   # Copy SQL from docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql
-   # Paste into Supabase SQL Editor and run
+   # Apply migrations
+   supabase db push
    ```
+   
+   **Option 2: Manual Setup via Supabase Dashboard**
+   1. Go to your Supabase project dashboard
+   2. Navigate to SQL Editor
+   3. Run the latest migration files in order:
+      - `supabase/migrations/20250622204304_hidden_morning.sql`
+      - `supabase/migrations/20250622204705_cool_truth.sql`
+      - `supabase/migrations/20250622204950_stark_flame.sql`
+      - `supabase/migrations/20250623061517_fragrant_canyon.sql`
+      - `supabase/migrations/20250623090533_gentle_silence.sql`
+      - `supabase/migrations/20250624000000_add_energy_fields.sql`
+      - `supabase/migrations/20250628000000_add_missing_point_columns.sql`
+      - `supabase/migrations/20250629000000_add_experience_points.sql`
 
 5. **Start Development Server**
    ```bash
    npm run dev
    ```
+   The application will start on `http://localhost:8080` (Note: Updated from port 5173)
 
 ### Development Workflow
 
@@ -116,14 +133,40 @@ Gather these before starting deployment:
 git pull origin main                    # Get latest changes
 npm install                            # Update dependencies
 npm run lint                           # Check code quality
-npm test                              # Run tests
+npm test                              # Run tests (68+ tests)
 npm run dev                           # Start development
 
 # Before committing
 npm run lint --fix                     # Fix linting issues
-npm run format                        # Format code
-npm test                              # Ensure tests pass
+npm run format                        # Format code with Prettier
+npm test                              # Ensure all tests pass
 npm run build                         # Verify build works
+```
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev                           # Start dev server (port 8080)
+npm run preview                       # Preview production build
+
+# Building
+npm run build                         # Standard build
+npm run build:dev                     # Development mode build
+npm run build:deploy                  # Deployment build with pre-install
+
+# Code Quality
+npm run lint                          # ESLint check
+npm run format                        # Prettier formatting
+npm test                             # Run all tests
+npm run test:coverage                 # Run tests with coverage
+
+# Performance & Optimization
+npm run optimize-images               # Optimize PNG→WebP/AVIF
+npm run lighthouse                    # Run Lighthouse audit
+npm run lighthouse:collect            # Collect performance data
+npm run lighthouse:assert             # Assert performance budgets
+npm run lighthouse:full               # Full Lighthouse CI run
 ```
 
 ## Staging Deployment
@@ -138,13 +181,13 @@ npm run build                         # Verify build works
 
 2. **Build Configuration**
    ```toml
-   # netlify.toml (staging)
+   # netlify.toml (staging configuration)
    [build]
      command = "npm run build"
      publish = "dist"
    
    [build.environment]
-     NODE_VERSION = "18"
+     NODE_VERSION = "20"
      NPM_VERSION = "9"
    
    [[redirects]]
@@ -159,8 +202,9 @@ npm run build                         # Verify build works
    VITE_SUPABASE_URL=https://staging-project.supabase.co
    VITE_SUPABASE_ANON_KEY=staging-anon-key
    VITE_OPENAI_API_KEY=your-openai-key
-   VITE_APP_URL=https://staging.luminarisquest.org
-   VITE_DEBUG_MODE=false
+   VITE_LEONARDO_API_KEY=your-leonardo-key
+   VITE_ELEVENLABS_API_KEY=your-elevenlabs-key
+   VITE_SENTRY_DSN=your-sentry-dsn
    ```
 
 4. **Deploy**
@@ -187,6 +231,9 @@ npm run build                         # Verify build works
    vercel env add VITE_SUPABASE_URL
    vercel env add VITE_SUPABASE_ANON_KEY
    vercel env add VITE_OPENAI_API_KEY
+   vercel env add VITE_LEONARDO_API_KEY
+   vercel env add VITE_ELEVENLABS_API_KEY
+   vercel env add VITE_SENTRY_DSN
    ```
 
 4. **Deploy**
@@ -198,13 +245,15 @@ npm run build                         # Verify build works
 
 ### Pre-Production Checklist
 
-- [ ] All tests passing
+- [ ] All 68+ tests passing
+- [ ] Zero ESLint warnings/errors
 - [ ] Staging environment tested
 - [ ] Database migrations ready
 - [ ] Environment variables configured
-- [ ] Performance audit completed
+- [ ] Performance audit completed (Lighthouse)
 - [ ] Security review completed
 - [ ] Backup strategy in place
+- [ ] Image optimization completed
 
 ### Production Database Setup
 
@@ -212,28 +261,67 @@ npm run build                         # Verify build works
    - Go to Supabase Dashboard
    - Create new project for production
    - Note the project URL and anon key
+   - Configure authentication settings
 
-2. **Run Production Migration**
-   ```sql
-   -- Copy entire contents of:
-   -- docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql
-   -- Run in Supabase SQL Editor
+2. **Run Production Migrations**
+   
+   **Using Supabase CLI:**
+   ```bash
+   # Link to production project
+   supabase link --project-ref your-production-project-id
+   
+   # Push all migrations
+   supabase db push
    ```
+   
+   **Manual Method:**
+   Execute these migration files in order in Supabase SQL Editor:
+   1. `20250622204304_hidden_morning.sql`
+   2. `20250622204705_cool_truth.sql`
+   3. `20250622204950_stark_flame.sql`
+   4. `20250623061517_fragrant_canyon.sql`
+   5. `20250623090533_gentle_silence.sql`
+   6. `20250624000000_add_energy_fields.sql`
+   7. `20250628000000_add_missing_point_columns.sql`
+   8. `20250629000000_add_experience_points.sql` (Latest)
 
 3. **Verify Database Setup**
    - Check tables: `game_states`, `journal_entries`
-   - Verify RLS policies are active
+   - Verify RLS policies are active (8 policies total)
    - Test authentication flow
+   - Confirm indexes are created (7+ indexes)
+
+### Production Environment Variables
+
+```env
+# Required Variables
+VITE_SUPABASE_URL=https://your-prod-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-prod-anon-key
+VITE_OPENAI_API_KEY=your-openai-key
+
+# Optional Variables
+VITE_LEONARDO_API_KEY=your-leonardo-key
+VITE_ELEVENLABS_API_KEY=your-elevenlabs-key
+VITE_SENTRY_DSN=your-sentry-dsn
+```
 
 ### Netlify Production Deployment
 
-1. **Production Environment Variables**
-   ```
-   VITE_SUPABASE_URL=https://prod-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=prod-anon-key
-   VITE_OPENAI_API_KEY=your-openai-key
-   VITE_APP_URL=https://luminarisquest.org
-   VITE_DEBUG_MODE=false
+1. **Build Configuration**
+   Update your `netlify.toml`:
+   ```toml
+   [build]
+     command = "npm run build:deploy"
+     publish = "dist"
+   
+   [build.environment]
+     NODE_VERSION = "20"
+     NPM_VERSION = "9"
+   
+   [[redirects]]
+     from = "/*"
+     to = "/index.html"
+     status = 200
    ```
 
 2. **Custom Domain Setup**
@@ -245,8 +333,8 @@ npm run build                         # Verify build works
    ```bash
    git checkout main
    git pull origin main
-   git tag v1.0.0
-   git push origin v1.0.0
+   git tag v1.0.1  # Update version as needed
+   git push origin v1.0.1
    # Netlify deploys automatically
    ```
 
@@ -254,21 +342,24 @@ npm run build                         # Verify build works
 
 1. **Build Optimization**
    ```bash
-   # Analyze bundle size
+   # Analyze bundle size before deployment
    npm run build
-   npx vite-bundle-analyzer dist
+   # Check dist/ folder size - should be under 5MB total
    ```
 
 2. **Image Optimization**
    ```bash
-   # Optimize images before deployment
+   # Optimize images for better performance
    npm run optimize-images
+   # This converts PNG images to WebP and AVIF formats
+   # Target: <200KB per optimized image
    ```
 
-3. **Lighthouse Audit**
+3. **Performance Testing**
    ```bash
-   # Run performance audit
-   npx lighthouse https://your-domain.com --view
+   # Run Lighthouse audit
+   npm run lighthouse:full
+   # Targets: LCP <2.5s, FID <100ms, CLS <0.1
    ```
 
 ## Platform-Specific Guides
@@ -278,13 +369,14 @@ npm run build                         # Verify build works
 1. **Environment Setup in Bolt.new**
    - Open project in Bolt.new
    - Go to Settings → Environment Variables
-   - Add all required variables
+   - Add all required variables (see Environment Variables section)
 
 2. **Build Configuration**
+   Use the optimized build script:
    ```json
    {
      "scripts": {
-       "build:bolt": "npm ci --include=optional && tsc -b && vite build"
+       "build:bolt": "npm run build:deploy"
      }
    }
    ```
@@ -292,44 +384,22 @@ npm run build                         # Verify build works
 3. **Deploy**
    - Use Bolt.new's built-in deployment
    - Monitor build logs for errors
-   - Test deployed application
-
-### GitHub Pages Deployment
-
-1. **GitHub Actions Workflow**
-   ```yaml
-   # .github/workflows/deploy.yml
-   name: Deploy to GitHub Pages
-   
-   on:
-     push:
-       branches: [ main ]
-   
-   jobs:
-     deploy:
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v3
-         - uses: actions/setup-node@v3
-           with:
-             node-version: '18'
-         - run: npm ci
-         - run: npm run build
-           env:
-             VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-             VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-         - uses: peaceiris/actions-gh-pages@v3
-           with:
-             github_token: ${{ secrets.GITHUB_TOKEN }}
-             publish_dir: ./dist
-   ```
-
-2. **Configure Repository**
-   - Enable GitHub Pages in repository settings
-   - Set source to GitHub Actions
-   - Add secrets for environment variables
+   - Test deployed application thoroughly
 
 ## Database Migrations
+
+### Current Migration Files
+
+The following migrations should be applied in order:
+
+1. **20250622204304_hidden_morning.sql** - Initial schema setup
+2. **20250622204705_cool_truth.sql** - Additional tables and policies
+3. **20250622204950_stark_flame.sql** - Schema refinements
+4. **20250623061517_fragrant_canyon.sql** - Extended functionality
+5. **20250623090533_gentle_silence.sql** - Performance optimizations
+6. **20250624000000_add_energy_fields.sql** - Energy system
+7. **20250628000000_add_missing_point_columns.sql** - Point system enhancements
+8. **20250629000000_add_experience_points.sql** - Experience system (Latest)
 
 ### Migration Strategy
 
@@ -349,26 +419,39 @@ npm run build                         # Verify build works
 
 3. **Production Migration**
    ```bash
-   # Backup production database first
-   supabase db dump --db-url "production-url" > backup.sql
+   # ALWAYS backup production database first
+   supabase db dump --db-url "production-url" --file backup-$(date +%Y%m%d).sql
    
    # Apply migration
    supabase link --project-ref production-project-id
    supabase db push
    ```
 
-### Migration Files
+### Schema Verification
 
-Current migration files:
-- `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` - Complete schema
-- `supabase/migrations/` - Individual migration files
+After migration, verify the following:
 
-### Rollback Procedure
+```sql
+-- Check tables exist
+SELECT COUNT(*) FROM information_schema.tables 
+WHERE table_name IN ('game_states', 'journal_entries');
+-- Should return: 2
 
-```bash
-# If migration fails, restore from backup
-supabase db reset --db-url "production-url"
-psql "production-url" < backup.sql
+-- Check policies exist
+SELECT COUNT(*) FROM pg_policies 
+WHERE tablename IN ('game_states', 'journal_entries');
+-- Should return: 8
+
+-- Check indexes exist
+SELECT COUNT(*) FROM pg_indexes 
+WHERE tablename IN ('game_states', 'journal_entries');
+-- Should return: 7+
+
+-- Verify latest columns exist
+SELECT column_name FROM information_schema.columns 
+WHERE table_name = 'game_states' 
+AND column_name IN ('experience_points', 'experience_to_next');
+-- Should return both columns
 ```
 
 ## Environment Variables
@@ -380,7 +463,6 @@ psql "production-url" < backup.sql
 | `VITE_SUPABASE_URL` | ✅ | ✅ | ✅ | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | ✅ | ✅ | ✅ | Supabase anonymous key |
 | `VITE_OPENAI_API_KEY` | ✅ | ✅ | ✅ | OpenAI API key |
-| `VITE_APP_URL` | ✅ | ✅ | ✅ | Application URL |
 
 ### Optional Variables
 
@@ -388,8 +470,30 @@ psql "production-url" < backup.sql
 |----------|-------------|---------|
 | `VITE_LEONARDO_API_KEY` | Leonardo.AI for images | - |
 | `VITE_ELEVENLABS_API_KEY` | ElevenLabs for voice | - |
-| `VITE_DEBUG_MODE` | Enable debug logging | false |
-| `VITE_MOCK_API_RESPONSES` | Mock API for development | false |
+| `VITE_SENTRY_DSN` | Error tracking with Sentry | - |
+
+### Environment-Specific Configuration
+
+**Development (.env.local):**
+```env
+VITE_SUPABASE_URL=https://your-dev-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-dev-anon-key
+VITE_OPENAI_API_KEY=your-openai-key
+```
+
+**Staging:**
+```env
+VITE_SUPABASE_URL=https://your-staging-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-staging-anon-key
+VITE_OPENAI_API_KEY=your-openai-key
+```
+
+**Production:**
+```env
+VITE_SUPABASE_URL=https://your-prod-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-prod-anon-key
+VITE_OPENAI_API_KEY=your-openai-key
+```
 
 ### Security Best Practices
 
@@ -398,53 +502,90 @@ psql "production-url" < backup.sql
 - **Rotate keys regularly** (quarterly recommended)
 - **Monitor API usage** for unusual activity
 - **Use environment-specific Supabase projects**
+- **Restrict API key permissions** where possible
 
 ## Monitoring & Health Checks
 
-### Application Health Checks
+### Performance Monitoring
 
-The application includes built-in health monitoring:
+The application includes comprehensive performance monitoring via Lighthouse CI:
 
-```typescript
-// Health check endpoint
-const healthCheck = {
-  status: 'healthy',
-  timestamp: new Date().toISOString(),
-  version: packageJson.version,
-  environment: process.env.NODE_ENV,
-  database: 'connected',
-  services: {
-    supabase: 'operational',
-    openai: 'operational'
+#### Current Performance Targets
+
+| Metric | Target | Current Status |
+|--------|--------|---------------|
+| **Largest Contentful Paint (LCP)** | <2.5s | <2.0s ✅ |
+| **First Input Delay (FID)** | <100ms | <100ms ✅ |
+| **Cumulative Layout Shift (CLS)** | <0.1 | <0.05 ✅ |
+| **First Contentful Paint (FCP)** | <1.8s | <1.5s ✅ |
+| **Speed Index** | <3.0s | <2.5s ✅ |
+| **Total Blocking Time (TBT)** | <300ms | <200ms ✅ |
+
+#### Performance Budget Configuration
+
+```javascript
+// From lighthouserc.cjs
+const performanceBudgets = {
+  development: {
+    'metrics:largest-contentful-paint': 3000,
+    'metrics:cumulative-layout-shift': 0.15,
+    'metrics:first-contentful-paint': 2000
+  },
+  staging: {
+    'metrics:largest-contentful-paint': 2500,
+    'metrics:cumulative-layout-shift': 0.1,
+    'metrics:first-contentful-paint': 1800
+  },
+  production: {
+    'metrics:largest-contentful-paint': 2000,
+    'metrics:cumulative-layout-shift': 0.05,
+    'metrics:first-contentful-paint': 1500
   }
 };
 ```
 
-### Monitoring Setup
+### Application Health Monitoring
 
-1. **Supabase Monitoring**
-   - Monitor database performance
-   - Track authentication metrics
-   - Set up alerts for errors
+1. **Database Health Check**
+   - Built-in health indicator in navbar
+   - Automatic connection monitoring
+   - RLS policy verification
 
-2. **Application Monitoring**
-   - Use Netlify Analytics
-   - Monitor Core Web Vitals
-   - Track user engagement
+2. **Error Tracking**
+   - Optional Sentry integration
+   - Console error monitoring
+   - User interaction tracking
 
-3. **Error Tracking**
-   - Implement error boundary
-   - Log errors to external service
-   - Monitor console errors
+3. **Performance Monitoring**
+   ```bash
+   # Run performance audits
+   npm run lighthouse:full
+   
+   # Continuous monitoring
+   npm run lighthouse:collect
+   npm run lighthouse:assert
+   ```
 
-### Performance Metrics
+### Monitoring Dashboard
 
-Track these key metrics:
+Monitor these key areas:
 
-- **Largest Contentful Paint (LCP)**: < 2.5s
-- **First Input Delay (FID)**: < 100ms
-- **Cumulative Layout Shift (CLS)**: < 0.1
-- **Time to Interactive (TTI)**: < 3.5s
+1. **Supabase Dashboard**
+   - Active users and sessions
+   - Database query performance
+   - Authentication success rates
+   - Storage usage
+
+2. **Application Metrics**
+   - Core Web Vitals
+   - User engagement
+   - Error rates
+   - API response times
+
+3. **Performance Trends**
+   - Bundle size over time
+   - Load time improvements
+   - User experience metrics
 
 ## Troubleshooting
 
@@ -452,12 +593,12 @@ Track these key metrics:
 
 #### Build Failures
 
-**Symptom**: Build fails with TypeScript errors
+**Symptom**: TypeScript compilation errors
 ```bash
 # Solution
-npm run lint --fix
-npm run build
-# Fix any remaining TypeScript errors
+npm run lint --fix                    # Fix linting issues
+npm run build                        # Check specific errors
+# Fix TypeScript strict mode errors - no 'any' types allowed
 ```
 
 **Symptom**: Out of memory during build
@@ -466,47 +607,79 @@ npm run build
 NODE_OPTIONS="--max-old-space-size=4096" npm run build
 ```
 
+**Symptom**: Vite build warnings
+- Check `vite.config.ts` for chunk size warnings
+- Review bundle analyzer output
+- Optimize imports and code splitting
+
 #### Database Connection Issues
 
 **Symptom**: Cannot connect to Supabase
-- Verify environment variables are correct
+- Verify `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 - Check Supabase project status
-- Ensure RLS policies are configured
+- Ensure RLS policies are properly configured
+- Verify project ID matches in environment
 
 **Symptom**: Migration fails
 - Check SQL syntax in migration files
 - Verify database permissions
-- Ensure no conflicting table names
+- Ensure migrations are run in correct order
+- Check for conflicting table/column names
+
+#### Performance Issues
+
+**Symptom**: Slow load times
+- Run `npm run optimize-images` to optimize images
+- Check bundle size with build analyzer
+- Verify lazy loading is implemented
+- Review Lighthouse audit results
+
+**Symptom**: Poor Core Web Vitals
+- Optimize images (PNG → WebP/AVIF)
+- Review code splitting strategy
+- Check for layout shifts
+- Minimize render-blocking resources
 
 #### Authentication Issues
 
 **Symptom**: Users cannot sign in
 - Check Supabase auth configuration
-- Verify redirect URLs are correct
+- Verify site URL in Supabase project settings
 - Ensure email templates are configured
+- Check redirect URLs match deployment domain
 
 ### Debug Mode
 
-Enable debug mode for troubleshooting:
+For advanced troubleshooting, you can enable various debug modes:
 
 ```env
-VITE_DEBUG_MODE=true
+# Enable detailed logging (development only)
+NODE_ENV=development
 ```
 
-This enables:
-- Detailed console logging
-- Performance metrics
-- Database query logging
-- Error stack traces
+### Performance Debugging
+
+```bash
+# Analyze bundle composition
+npm run build
+# Check dist/ folder structure and sizes
+
+# Run Lighthouse with detailed reporting
+npm run lighthouse
+# Review generated lighthouse-reports/
+
+# Test different device configurations
+# Lighthouse automatically tests mobile-first
+```
 
 ### Log Analysis
 
 Check these logs for issues:
 
-1. **Browser Console**: Client-side errors
+1. **Browser Console**: Client-side errors and warnings
 2. **Netlify Deploy Logs**: Build and deployment issues
-3. **Supabase Logs**: Database and auth issues
-4. **Network Tab**: API request failures
+3. **Supabase Logs**: Database and authentication issues
+4. **Network Tab**: API request failures and slow responses
 
 ## Rollback Procedures
 
@@ -529,7 +702,7 @@ vercel rollback [deployment-url]
 git revert HEAD
 git push origin main
 
-# Or reset to specific commit
+# Or reset to specific commit (use with caution)
 git reset --hard [commit-hash]
 git push --force origin main
 ```
@@ -538,31 +711,54 @@ git push --force origin main
 
 #### Backup Strategy
 ```bash
-# Create backup before deployment
-supabase db dump --db-url "production-url" > backup-$(date +%Y%m%d).sql
+# Create backup before any production deployment
+supabase db dump --db-url "production-url" --file backup-$(date +%Y%m%d-%H%M).sql
+
+# For critical deployments, also backup specific tables
+supabase db dump --db-url "production-url" --table game_states --file game_states_backup.sql
+supabase db dump --db-url "production-url" --table journal_entries --file journal_entries_backup.sql
 ```
 
 #### Restore from Backup
 ```bash
-# Restore database from backup
-psql "production-url" < backup-20250617.sql
+# Full database restore
+psql "production-url" < backup-20250617-1200.sql
+
+# Selective table restore
+psql "production-url" -c "DROP TABLE IF EXISTS game_states CASCADE;"
+psql "production-url" < game_states_backup.sql
 ```
 
 ### Emergency Procedures
 
 #### Complete System Rollback
-1. **Revert application** to previous version
-2. **Restore database** from backup
-3. **Update DNS** if necessary
-4. **Notify users** of temporary issues
-5. **Investigate** root cause
-6. **Plan** proper fix and redeployment
+1. **Revert application** to previous working version
+2. **Restore database** from latest backup
+3. **Clear CDN cache** if using custom CDN
+4. **Update DNS** if necessary
+5. **Notify stakeholders** of temporary issues
+6. **Investigate** root cause thoroughly
+7. **Plan** proper fix and redeployment
 
 #### Communication Plan
 - **Internal**: Notify development team immediately
-- **External**: Update status page if available
-- **Users**: Send notification if extended downtime
+- **Users**: Update status page or in-app notification
+- **Monitoring**: Ensure alerting systems are working
+
+### Recovery Testing
+
+Regularly test your rollback procedures:
+
+```bash
+# Test database backup/restore on staging
+supabase db dump --db-url "staging-url" --file test-backup.sql
+# Verify backup file integrity
+psql "staging-url" < test-backup.sql
+
+# Test application rollback
+# Deploy a test version, then rollback to verify process
+```
 
 ---
 
-*For platform-specific deployment instructions, see [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md). For database-specific information, see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).*
+*This deployment guide is current as of 2025. For the most up-to-date information on specific deployment platforms, refer to their official documentation. For database-specific details, see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md). For production-specific instructions, see [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md).*

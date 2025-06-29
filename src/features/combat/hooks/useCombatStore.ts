@@ -11,6 +11,12 @@
  * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
+ * 
+ * ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
+ * Modified: 2025-06-28
+ * FAILED: Added playerEnergy export to support battle results screen
+ * but NO battle results screen appears after combat. Export exists but not working.
+ * STATUS: FAILED ATTEMPT - Battle results screen still missing
  */
 
 import { useCallback } from 'react';
@@ -37,6 +43,7 @@ export const useCombatStore = () => {
   const resources = useStore(state => state.resources);
   const playerHealth = useStore(state => state.playerHealth);
   const playerLevel = useStore(state => state.playerLevel);
+  const playerEnergy = useStore(state => state.playerEnergy);
   const turn = useStore(state => state.turn);
   const isPlayerTurn = useStore(state => state.isPlayerTurn);
   const combatEndStatus = useStore(state => state.combatEndStatus);
@@ -52,6 +59,7 @@ export const useCombatStore = () => {
   const endTurn = useStore(state => state.endTurn);
   const surrender = useStore(state => state.surrender);
   const endCombat = useStore(state => state.endCombat);
+  const clearCombatEnd = useStore(state => state.clearCombatEnd);
   const addLogEntry = useStore(state => state.addLogEntry);
   const updateStatusEffect = useStore(state => state.updateStatusEffect);
   
@@ -109,6 +117,7 @@ export const useCombatStore = () => {
     resources,
     playerHealth,
     playerLevel,
+    playerEnergy,
     turn,
     isPlayerTurn,
     combatEndStatus,
@@ -124,6 +133,7 @@ export const useCombatStore = () => {
     endTurn,
     surrender,
     endCombat,
+    clearCombatEnd,
     addLogEntry,
     updateStatusEffect,
     

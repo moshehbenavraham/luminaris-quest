@@ -1,0 +1,298 @@
+# Luminari's Quest - AI Agent Coding Rules & Guidelines
+
+## 🚨 CRITICAL WARNINGS - READ FIRST
+
+### ⚠️ PAST AI FAILURES
+Previous AI assistance on this project has made deeply mistaken assumptions about system functionality TWICE, wasting significant development time on changes that did NOT address actual user issues. Examples:
+- Combat post-flow modal issue: AI incorrectly modified CombatEndModal.tsx assuming the modal wasn't working, when the actual problem was elsewhere in the combat flow
+- Zero improvements achieved despite extensive effort in both cases
+
+**MANDATORY**: All AI-suggested fixes MUST be thoroughly verified against actual user testing before implementation.
+
+### 🔴 TWO SEPARATE COMBAT SYSTEMS EXIST - NEVER CONFUSE THEM
+
+This project contains TWO COMPLETELY DIFFERENT combat systems. **ALWAYS verify which one you're working with:**
+
+#### 1. NEW Combat System ✅ (USE THIS ONE)
+- **Location**: `/src/features/combat/`
+- **Store**: `src/features/combat/store/combat-store.ts`
+- **Import**: `import { useCombatStore } from '@/features/combat'`
+- **Status**: ACTIVE - All new development here
+- **Activation**: Default (no URL parameter needed)
+
+#### 2. OLD Combat System ❌ (DEPRECATED - DO NOT USE)
+- **Location**: `/src/components/combat/`
+- **Store**: `src/store/game-store.ts` (combat slice)
+- **Import**: `import { CombatOverlay } from '@/components/combat/CombatOverlay'`
+- **Status**: DEPRECATED - Only for backwards compatibility
+- **Activation**: URL parameter `?legacyCombat=1`
+
+**Reference `COMBAT_MIGRATION_GUIDE.md` for full details on the differences.**
+
+## 🎯 Project Context & Mission
+
+### Therapeutic Purpose
+**Luminari's Quest** is a therapeutic AI-powered RPG designed to help young adults (18-25) process trauma from parental loss and homelessness. This is NOT just a game - it serves as a supplemental mental health tool with evidence-based therapeutic techniques.
+
+### Core Values
+- **Safety First**: All interactions must be emotionally safe and trauma-informed
+- **Therapeutic Integrity**: Every feature should contribute to healing and growth
+- **User Empowerment**: Players maintain control over their therapeutic journey
+- **Professional Supplement**: NOT a replacement for professional mental health care
+
+## 🏗️ Technical Architecture
+
+### Tech Stack
+```yaml
+Frontend:
+  - React: 18.2.0+ with TypeScript 5.3.3+
+  - Build: Vite 6.3.5+ with hot module replacement
+  - State: Zustand 5.0.2+ for global state
+  - Styling: Tailwind CSS + Shadcn/UI (Radix primitives)
+  - Testing: Vitest 3.2.2+ with React Testing Library
+  - Routing: React Router DOM 6.22.1+
+
+Backend:
+  - Platform: Supabase (PostgreSQL + Auth + Realtime)
+  - Security: Row Level Security (RLS) policies
+  - Auth: PKCE flow with email confirmation
+
+Game Systems:
+  - Combat: combat-engine.ts (turn-based mechanics)
+  - Scenes: scene-engine.ts (20 therapeutic scenarios)
+  - Audio: sound-manager.ts (non-blocking loading)
+  - Balance: combat-balance.ts (difficulty scaling)
+```
+
+### Project Structure
+```
+src/
+├── features/combat/      # NEW combat system ✅ USE THIS
+├── components/combat/    # OLD combat system ❌ DEPRECATED
+├── engine/              # Core game logic
+├── hooks/               # Custom React hooks
+├── store/               # Zustand state management
+├── pages/               # Route components
+└── __tests__/           # Test suite (68+ tests)
+```
+
+## 📏 Development Standards
+
+### Code Quality Requirements
+- **TypeScript**: Strict mode REQUIRED - no `any` types
+- **ESLint**: ZERO errors, ZERO warnings (user has psychological discomfort with warnings)
+- **Build**: Must compile with NO warnings
+- **Components**: Max 500 lines per file
+- **Functions**: Max complexity of 8
+- **Hooks**: Max 100 lines per hook
+- **Tests**: All 68+ tests MUST pass
+
+### Naming Conventions
+```typescript
+// Variables & Functions
+const userProfile = {};           // camelCase
+function getCombatState() {}      // camelCase
+
+// Components & Classes  
+class CombatEngine {}            // PascalCase
+const CombatOverlay = () => {}   // PascalCase
+
+// Constants
+const MAX_HEALTH = 100;          // UPPER_SNAKE_CASE
+
+// Files
+combat-engine.ts                 // kebab-case for utilities
+CombatOverlay.tsx               // PascalCase for components
+useCombat.ts                    // camelCase for hooks
+```
+
+### Component Standards
+```typescript
+// ALWAYS define interfaces for props
+interface ComponentProps {
+  data: DataType;              // Required props first
+  onAction: (value: string) => void;
+  className?: string;          // Optional props last
+  disabled?: boolean;
+}
+
+// Use atomic design principles
+// atoms/ → molecules/ → organisms/ → pages/
+```
+
+## 🚀 Performance Requirements
+
+### Critical Metrics
+| Metric | Requirement | Current Status |
+|--------|------------|----------------|
+| Initial Load | <2s | 1.8s ✅ |
+| Combat Response | <100ms | <100ms ✅ |
+| Scene Transition | <200ms | 200ms ✅ |
+| Image Load (WebP) | <500ms | <500ms ✅ |
+| Audio Loading | Non-blocking | Non-blocking ✅ |
+
+### Mobile-First Design
+- **ALWAYS** test at 375px viewport FIRST
+- Use responsive Tailwind classes: `className="w-full md:w-auto"`
+- Ensure touch targets are minimum 44x44px
+- Test on actual mobile devices when possible
+
+## 🧪 Testing Requirements
+
+### Test Coverage
+- **Minimum**: 70% coverage required
+- **Target**: 80% coverage preferred
+- **Critical Paths**: 100% coverage for combat and scene engines
+- **Current**: 68+ tests ALL passing
+
+### Testing Priorities
+1. Combat engine logic (critical path)
+2. User authentication flows
+3. Scene transitions and state persistence
+4. Audio system (non-blocking)
+5. Mobile responsiveness (375px+)
+6. Accessibility (WCAG 2.1 AA)
+
+## ⚠️ Development Anti-Patterns to AVOID
+
+### ❌ NEVER DO THESE:
+1. **Direct Supabase calls in components** → Use hooks or store
+2. **Prop drilling game state** → Use Zustand store
+3. **Synchronous audio operations** → Always async/non-blocking
+4. **Manual package.json editing** → Use npm/yarn commands
+5. **Desktop-first design** → Mobile-first ALWAYS
+6. **Ignoring TypeScript errors** → Fix them properly
+7. **Working on OLD combat system** → Use NEW system only
+8. **Making assumptions about bugs** → Verify with user testing
+
+## ✅ Development Workflow
+
+### Before Making Changes
+1. **Verify combat system**: Are you in `/src/features/combat/`? (NEW ✅)
+2. **Check existing tests**: Run `npm test` - all must pass
+3. **Review related docs**: Check TASK_LIST.md for current priorities
+4. **Mobile-first**: Start with 375px viewport design
+
+### Implementation Guidelines
+1. **Incremental changes**: ≤50 lines of code per step
+2. **TypeScript interfaces**: Define before implementation
+3. **Test as you go**: Write/update tests with changes
+4. **Zero warnings**: Fix all ESLint/TypeScript warnings
+5. **Performance check**: Verify <100ms combat response
+6. **Mobile test**: Always test at 375px first
+
+### After Making Changes
+1. **Run tests**: `npm test` - ALL must pass
+2. **Check build**: `npm run build` - ZERO warnings
+3. **Lint check**: `npm run lint` - ZERO issues
+4. **Mobile verify**: Test at 375px, 768px, 1024px
+5. **Update docs**: Update CHANGELOG.md if significant
+
+## 🎮 Game-Specific Guidelines
+
+### Combat System
+```typescript
+// Combat state structure (NEW system)
+interface CombatState {
+  isActive: boolean;
+  playerHealth: number;      // Max 100
+  enemyHealth: number;       // Varies by manifestation
+  lightPoints: number;       // Start: 10, combat resource
+  shadowPoints: number;      // Start: 5, risk resource
+  turnCount: number;         // Max: 20 turns
+  canSurrender: boolean;     // Manual exit after turn 3
+}
+
+// Combat actions
+type CombatAction = 'illuminate' | 'reflect' | 'endure' | 'shadowEmbrace';
+```
+
+### Scene Management
+- 20 unique therapeutic scenes
+- 4 complete cycles with progressive difficulty
+- Types: social, skill, combat, journal, exploration
+- Each scene has therapeutic value
+
+### Therapeutic Features
+- Guardian Trust: 0-100 scale (core progression mechanic)
+- Journal System: Milestone & learning entries
+- Reflection Prompts: Post-combat processing
+- Progress Tracking: Visual charts and analytics
+
+## 🔒 Security & Privacy
+
+### Required Practices
+- Use Supabase RLS policies for all data
+- Never expose sensitive keys in frontend
+- Implement proper error boundaries
+- Sanitize all user inputs
+- Follow GDPR compliance guidelines
+
+### Authentication
+- Email/password with PKCE flow
+- Secure session management
+- Password recovery via email
+- Optional social providers
+
+## 📝 User Preferences (IMPORTANT)
+
+The project owner has specific preferences that MUST be respected:
+
+1. **Zero Warnings Policy**: Build and lint must have ZERO warnings (psychological comfort)
+2. **Incremental Development**: Small changes (≤50 lines) per iteration
+3. **Comment Over Delete**: Comment out problematic code instead of deleting [[memory:6251436382001621917]]
+4. **Manual Testing**: User performs independent verification
+5. **Mobile-First**: Always start with 375px viewport
+6. **Documentation**: Update CHANGELOG.md and TASK_LIST.md after changes
+
+## 🚨 Common Pitfalls & Solutions
+
+### Problem: "Combat actions not working"
+- **Check**: Are you using NEW combat system? (`/src/features/combat/`)
+- **Verify**: Is `useCombatStore` from `@/features/combat`?
+- **Test**: Run combat-specific tests in `__tests__/features/combat/`
+
+### Problem: "Component too complex"
+- **Solution**: Split into atomic components (atoms → molecules → organisms)
+- **Max lines**: 500 for components, 100 for hooks
+- **Pattern**: Use composition over inheritance
+
+### Problem: "Performance issues"
+- **Check**: Combat response time (<100ms required)
+- **Verify**: Audio loading is non-blocking
+- **Test**: Use Lighthouse for performance audit
+
+### Problem: "Mobile layout broken"
+- **Start**: Design at 375px FIRST
+- **Use**: Tailwind responsive classes properly
+- **Test**: On actual devices when possible
+
+## 📚 Essential Documentation
+
+### Must Read Before Development
+- `COMBAT_MIGRATION_GUIDE.md` - Understand the two combat systems
+- `TASK_LIST.md` - Current development priorities
+- `docs/COMPONENT_MAP.md` - Architecture overview
+- `CHANGELOG.md` - Recent changes and issues
+
+### Reference During Development
+- `docs/API_DOCUMENTATION.md` - API structures
+- `docs/DATABASE_SCHEMA.md` - Database design
+- `docs/TESTING_GUIDE.md` - Testing practices
+- `.agent.md` - Detailed project context
+
+## 🎯 Final Checklist
+
+Before submitting any code:
+- [ ] Using NEW combat system (`/src/features/combat/`)?
+- [ ] All 68+ tests passing?
+- [ ] Zero ESLint warnings?
+- [ ] Zero TypeScript errors?
+- [ ] Tested at 375px viewport?
+- [ ] Performance metrics met?
+- [ ] Documentation updated?
+- [ ] Therapeutic value maintained?
+
+---
+
+**Remember**: This is a therapeutic tool for vulnerable users. Every decision should prioritize user safety, emotional well-being, and therapeutic value over technical elegance or feature complexity.

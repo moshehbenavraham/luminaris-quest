@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-06-26T20:36:07.714Z",
+  "url": "http://localhost:4173",
+  "performance": {
+    "score": 0.85,
+    "metrics": {
+      "first-contentful-paint": 1200,
+      "largest-contentful-paint": 2100,
+      "speed-index": 2800,
+      "cumulative-layout-shift": 0.08,
+      "total-blocking-time": 180
+    }
+  },
+  "accessibility": {
+    "score": 0.92,
+    "audits": {
+      "color-contrast": "pass",
+      "heading-order": "pass",
+      "aria-allowed-attr": "pass",
+      "aria-required-attr": "pass",
+      "button-name": "pass",
+      "focus-traps": "warn",
+      "logical-tab-order": "pass"
+    }
+  },
+  "recommendations": [
+    "Optimize image loading for combat animations",
+    "Reduce bundle size of combat store",
+    "Implement focus trap improvements for combat modal",
+    "Add skip links for combat interface"
+  ]
+}

@@ -10,6 +10,13 @@ A therapeutic AI-powered RPG adventure designed to help young adults process tra
 
 **Built with [Bolt.new](https://bolt.new/) 🚀**
 
+**⚠️ DEVELOPMENT WARNING**: This project has experienced significant development issues with AI assistance making incorrect assumptions about system functionality. Combat system fixes may contain implementations that do NOT address actual user-reported issues. All recent changes should be thoroughly tested before release.
+
+**🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST**
+- **NEW System** ✅: `/src/features/combat/` - Active development, default behavior
+- **OLD System** ❌: `/src/components/combat/` - DEPRECATED, only with `?legacyCombat=1`
+- See [`COMBAT_MIGRATION_GUIDE.md`](COMBAT_MIGRATION_GUIDE.md) for full details
+
 ## 🌟 About
 
 **Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure designed to help young adults process trauma from losing parents and experiencing homelessness during their teenage years. The game combines fantasy storytelling with evidence-based therapeutic techniques to create a safe space for healing and growth.
@@ -217,6 +224,12 @@ For more detailed troubleshooting, see [docs/FAQ.md](docs/FAQ.md).
   - **Shadow Embrace**: High-risk integration of difficult emotions
 - **Shadow Manifestations**: Battle internal struggles like Doubt, Isolation, Overwhelm, and Past Pain
 - **Combat Reflection**: Post-battle therapeutic processing and insight generation
+
+> **🔄 Combat System Rebuild in Progress**: The project currently contains TWO combat systems running in parallel:
+> - **Original System** (`src/components/combat/`) - The initial implementation with known issues
+> - **New System** (`src/features/combat/`) - Complete mobile-first rebuild with proper architecture
+> - **Feature Flag**: The new system is enabled by default. Add `?legacyCombat=1` to URL to use the original system
+> - **Status**: New system is feature-complete and in testing phase (see [TASK_LIST.md](TASK_LIST.md) for details)
 
 #### Scene Engine (20 Therapeutic Scenarios)
 - **Diverse Scene Types**: Social, skill, combat, journal, and exploration scenarios
@@ -678,6 +691,9 @@ We welcome contributions! Please read our guidelines:
 - ✅ Core application architecture complete
 - ✅ Component structure refactored and improved
 - ✅ TypeScript compilation errors resolved
+- 🔄 **Combat System Rebuild**: New mobile-first combat system (`src/features/combat/`) running in parallel with original (`src/components/combat/`)
+  - New system enabled by default, use `?legacyCombat=1` for original
+  - Phases 1-4 complete, Phase 5 (Testing & Polish) in progress
 - ⚠️ Database schema implementation in progress
 - 🔄 Supabase integration being finalized
 - 📋 AI service integrations planned for future releases

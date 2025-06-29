@@ -24,6 +24,7 @@ describe('Combat Engine', () => {
       resources: { lp: 10, sp: 5 },
       turn: 1,
       log: [],
+      sceneDC: 12,
       damageMultiplier: 1,
       damageReduction: 1,
       healingBlocked: 0,
@@ -167,7 +168,7 @@ describe('Combat Engine', () => {
         mockCombatState.resources.lp = 10;
         const guardianTrust = 20;
         
-        const result = executePlayerAction('ILLUMINATE', mockCombatState, guardianTrust);
+        const result = executePlayerAction('ILLUMINATE', mockCombatState, guardianTrust, 1);
         
         expect(result.newState.resources.lp).toBe(8); // 10 - 2 cost
         expect(result.newState.currentEnemy?.currentHP).toBe(7); // 15 - 8 damage (3 base + 5 trust bonus)
@@ -180,16 +181,38 @@ describe('Combat Engine', () => {
         mockCombatState.resources.sp = 5;
         mockCombatState.resources.lp = 8;
         
-        const result = executePlayerAction('REFLECT', mockCombatState, 50);
+        const result = executePlayerAction('REFLECT', mockCombatState, 50, 5);  // playerLevel = 5
         
-        expect(result.newState.resources.sp).toBe(3); // 5 - 2 cost
-        expect(result.newState.resources.lp).toBe(9); // 8 + 1 heal
+        expect(result.newState.resources.sp).toBe(2); // 5 - 3 cost (updated from 2)
+        expect(result.newState.resources.lp).toBe(9); // 8 + 1 LP heal
+        expect(result.healthHeal).toBeGreaterThanOrEqual(1); // At least 1 health healed
+        expect(result.healthHeal).toBeLessThanOrEqual(5);    // At most playerLevel (5) health healed
         expect(result.logEntry.actor).toBe('PLAYER');
         expect(result.logEntry.action).toBe('REFLECT');
+        expect(result.logEntry.effect).toMatch(/Converted 3 SP to 1 LP and healed \d+ health/);
+      });
+
+      it('should heal random health between 1 and playerLevel for REFLECT', () => {
+        // Test multiple times to verify random range
+        const healAmounts = new Set<number>();
+        const playerLevel = 3;
+        
+        for (let i = 0; i < 20; i++) {
+          mockCombatState.resources.sp = 10;
+          mockCombatState.resources.lp = 5;
+          
+          const result = executePlayerAction('REFLECT', mockCombatState, 50, playerLevel);
+          healAmounts.add(result.healthHeal!);
+        }
+        
+        // Should have multiple different heal amounts between 1 and playerLevel
+        expect(Math.min(...healAmounts)).toBe(1);
+        expect(Math.max(...healAmounts)).toBe(playerLevel);
+        expect(healAmounts.size).toBeGreaterThan(1); // Should have some randomness
       });
 
       it('should execute ENDURE action correctly', () => {
-        const result = executePlayerAction('ENDURE', mockCombatState, 50);
+        const result = executePlayerAction('ENDURE', mockCombatState, 50, 1);
         
         expect(result.newState.consecutiveEndures).toBe(1);
         expect(result.newState.damageReduction).toBe(COMBAT_BALANCE.ENDURE_DAMAGE_REDUCTION);
@@ -200,7 +223,7 @@ describe('Combat Engine', () => {
       it('should execute EMBRACE action correctly', () => {
         mockCombatState.resources.sp = 6;
         
-        const result = executePlayerAction('EMBRACE', mockCombatState, 50);
+        const result = executePlayerAction('EMBRACE', mockCombatState, 50, 1);
         
         expect(result.newState.resources.sp).toBe(4); // 6 - 2 used
         expect(result.newState.currentEnemy?.currentHP).toBe(12); // 15 - 3 damage
@@ -240,7 +263,7 @@ describe('Combat Engine', () => {
 
     describe('executeShadowAction', () => {
       it('should execute shadow ability and set cooldown', () => {
-        const result = executeShadowAction(mockShadowAbility, mockCombatState);
+        const result = executeShadowAction(mockShadowAbility, mockCombatState, 50);
         
         expect(result.newState.resources.lp).toBe(8); // 10 - 2 from ability effect
         expect(result.newState.currentEnemy?.abilities[0].currentCooldown).toBe(3);

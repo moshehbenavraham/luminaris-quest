@@ -14,7 +14,11 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "optimize-images": "node scripts/optimize-images.js"
+    "optimize-images": "node scripts/optimize-images.js",
+    "lighthouse": "node scripts/lighthouse-audit.js",
+    "lighthouse:collect": "lhci collect",
+    "lighthouse:assert": "lhci assert",
+    "lighthouse:full": "lhci autorun"
   },
   "dependencies": {
     "@fontsource/inter": "^5.0.16",
@@ -71,6 +75,7 @@
   },
   "devDependencies": {
     "@axe-core/react": "^4.10.2",
+    "@lhci/cli": "^0.15.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.2.1",
     "@testing-library/user-event": "^14.5.2",

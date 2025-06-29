@@ -13,8 +13,33 @@ export interface EnvironmentConfig {
   enableVerboseLogging: boolean;
   enableErrorReporting: boolean;
   healthCheckInterval: number;
+  energyRegenInterval: number; // Energy regeneration interval in milliseconds
   retryAttempts: number;
   timeoutMs: number;
+  // Scene energy costs and rewards
+  sceneCosts: {
+    social: number;
+    skill: number;
+    combat: number;
+    journal: number;
+    exploration: number;
+  };
+  sceneRewards: {
+    social: number;
+    skill: number;
+    combat: number;
+    journal: number;
+    exploration: number;
+  };
+  // Combat action energy costs and low-energy penalty threshold
+  combatEnergyCosts: {
+    illuminate: number;
+    reflect: number;
+    endure: number;
+    embrace: number;
+  };
+  lowEnergyThreshold: number; // Percentage (0-100) below which penalties apply
+  lowEnergyPenalty: number;   // Damage reduction multiplier when low on energy
 }
 
 /**
@@ -68,8 +93,34 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
     enableVerboseLogging: environment === 'local' || environment === 'dev',
     enableErrorReporting: true,
     healthCheckInterval: 120000, // 2 minutes - reduced from 45 seconds for better performance
+    energyRegenInterval: 30000, // 30 seconds - default energy regeneration rate
     retryAttempts: 3,
-    timeoutMs: 30000 // 30 seconds
+    timeoutMs: 30000, // 30 seconds
+    // Scene energy costs (5-15 range as specified)
+    sceneCosts: {
+      social: 8,      // Medium cost - interpersonal engagement
+      skill: 12,      // High cost - mental effort and focus
+      combat: 15,     // Highest cost - intense confrontation
+      journal: 5,     // Low cost - reflective and gentle
+      exploration: 10 // Medium-high cost - discovery and adventure
+    },
+    // Scene energy rewards on success (recovery bonuses)
+    sceneRewards: {
+      social: 3,      // Connection energizes
+      skill: 5,       // Accomplishment restores energy
+      combat: 8,      // Victory provides significant energy boost
+      journal: 2,     // Gentle restoration from reflection
+      exploration: 4  // Discovery provides moderate energy boost
+    },
+    // Combat action energy costs
+    combatEnergyCosts: {
+      illuminate: 3,  // Moderate cost for basic attack
+      reflect: 2,     // Low cost for defensive action
+      endure: 1,      // Minimal cost for endurance action
+      embrace: 5      // High cost for powerful action
+    },
+    lowEnergyThreshold: 20,  // 20% energy threshold for penalties
+    lowEnergyPenalty: 0.5    // 50% damage reduction when low on energy
   };
 
   // Environment-specific overrides
@@ -78,6 +129,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       return {
         ...baseConfig,
         healthCheckInterval: 90000, // 90 seconds - reduced from 30 seconds for better performance
+        energyRegenInterval: 30000, // 30 seconds - default energy regeneration rate
         retryAttempts: 2, // Fewer retries for local development
         timeoutMs: 15000, // Shorter timeout for local development
         enableDebugLogging: true,
@@ -88,6 +140,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       return {
         ...baseConfig,
         healthCheckInterval: 120000, // 2 minutes - same as base config
+        energyRegenInterval: 30000, // 30 seconds - default energy regeneration rate
         retryAttempts: 3,
         timeoutMs: 20000, // 20 seconds
         enableDebugLogging: true,
@@ -98,6 +151,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       return {
         ...baseConfig,
         healthCheckInterval: 180000, // 3 minutes - increased from 60 seconds
+        energyRegenInterval: 30000, // 30 seconds - default energy regeneration rate
         retryAttempts: 3,
         timeoutMs: 30000, // 30 seconds
         enableDebugLogging: false,
@@ -109,6 +163,7 @@ export const getEnvironmentConfig = (): EnvironmentConfig => {
       return {
         ...baseConfig,
         healthCheckInterval: 300000, // 5 minutes - increased from 90 seconds for production
+        energyRegenInterval: 30000, // 30 seconds - default energy regeneration rate
         retryAttempts: 5, // More retries for production
         timeoutMs: 45000, // 45 seconds - longer timeout for production
         enableDebugLogging: false,
@@ -317,6 +372,7 @@ export const getEnvironmentInfo = () => {
     timestamp: new Date().toISOString(),
     config: {
       healthCheckInterval: config.healthCheckInterval,
+      energyRegenInterval: config.energyRegenInterval,
       retryAttempts: config.retryAttempts,
       timeoutMs: config.timeoutMs,
       enableDebugLogging: config.enableDebugLogging,

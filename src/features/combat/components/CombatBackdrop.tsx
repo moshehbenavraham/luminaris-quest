@@ -35,13 +35,13 @@ export const CombatBackdrop: React.FC<CombatBackdropProps> = ({ isActive, childr
     <AnimatePresence>
       {isActive && (
         <>
-          {/* Backdrop layer - separate from content */}
+          {/* Backdrop layer - separate from content, non-interactive */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-combat-backdrop bg-combat-backdrop backdrop-blur-sm"
+            className="fixed inset-0 z-combat-backdrop bg-combat-backdrop backdrop-blur-sm pointer-events-none"
             aria-hidden="true"
           />
           

@@ -24,7 +24,15 @@ export {
   type CombatState,
   type CombatResources,
   type StatusEffects,
-  type CombatLogEntry
+  type CombatLogEntry,
+  type GameResources,
+  type SyncValidation,
+  type SyncTransaction,
+  type SyncTransactionResult,
+  generateSyncChecksum,
+  validateSyncChecksum,
+  createSyncTransaction,
+  validateSyncTransaction
 } from './store/combat-store';
 
 // Hook exports

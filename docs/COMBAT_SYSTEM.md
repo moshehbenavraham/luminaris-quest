@@ -1,6 +1,10 @@
 # Light & Shadow Combat System Documentation
 ## Luminari's Quest Therapeutic RPG Enhancement
 
+**⚠️ CRITICAL DOCUMENTATION WARNING**: This document may contain inaccurate information. Claude Code has made deeply mistaken assumptions about combat system functionality multiple times, wasting significant development time. All technical details in this document should be independently verified before implementation.
+
+**⚠️ RECENT FAILURES**: Claude Code incorrectly diagnosed and attempted to fix post-combat flow issues, making irrelevant changes to CombatEndModal.tsx that did NOT address actual user problems. Zero improvements achieved despite extensive effort.
+
 ### Table of Contents
 1. [Concept Overview](#concept-overview)
 2. [Core Mechanics](#core-mechanics)

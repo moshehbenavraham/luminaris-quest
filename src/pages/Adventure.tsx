@@ -5,6 +5,7 @@ import { JournalModal, type JournalEntry } from '@/components/JournalModal';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { StatsBar } from '@/components/StatsBar';
 import { useGameStore } from '@/store/game-store';
+import { useAutoSave } from '@/hooks/use-auto-save';
 import AudioPlayer from '@/components/organisms/AudioPlayer';
 import { audioPlaylist } from '@/data/audioPlaylist';
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
@@ -21,8 +22,12 @@ export function Adventure() {
     pendingMilestoneJournals,
     markMilestoneJournalShown,
     currentSceneIndex,
+    playerEnergy,
     _hasHydrated,
   } = useGameStore();
+
+  // Get manual save trigger from auto-save hook
+  const { saveNow } = useAutoSave();
 
   const [isClient, setIsClient] = useState(false);
   const [guardianMessage, setGuardianMessage] = useState(
@@ -67,12 +72,15 @@ export function Adventure() {
             markMilestoneJournalShown(currentMilestoneLevel);
             setCurrentMilestoneLevel(null);
           }
+
+          // Trigger immediate save after journal entry creation
+          saveNow();
         }
       } catch (error) {
         console.error('Error saving journal entry:', error);
       }
     },
-    [addJournalEntry, currentSceneIndex, currentMilestoneLevel, markMilestoneJournalShown],
+    [addJournalEntry, currentSceneIndex, currentMilestoneLevel, markMilestoneJournalShown, saveNow],
   );
 
   const handleSceneComplete = useCallback((_sceneId: string, success: boolean) => {
@@ -81,7 +89,10 @@ export function Adventure() {
       setJournalTrigger('learning');
       setShowJournalModal(true);
     }
-  }, []);
+    
+    // Trigger immediate save after scene completion
+    saveNow();
+  }, [saveNow]);
 
   const handleLearningMoment = useCallback(() => {
     setJournalTrigger('learning');
@@ -121,6 +132,7 @@ export function Adventure() {
           {/* Stats Bar - Shows LP/SP resources for combat awareness */}
           <StatsBar
             trust={guardianTrust}
+            energy={playerEnergy}
             className="mb-6"
             data-testid="adventure-stats-bar"
           />

@@ -3,7 +3,10 @@ import {
   handleSceneOutcome,
   mapSceneToShadowType,
   getScene,
-  type Scene
+  type Scene,
+  rollDice,
+  isLastScene,
+  getSceneProgress,
 } from '../engine/scene-engine';
 import { SHADOW_IDS, createShadowManifestation } from '../data/shadowManifestations';
 
@@ -232,6 +235,79 @@ describe('Scene Engine Combat Integration', () => {
         expect(shadow!.therapeuticInsight).toBeTruthy();
         expect(shadow!.victoryReward.lpBonus).toBeGreaterThan(0);
       });
+    });
+  });
+
+  describe('Scene Array Validation', () => {
+    it('should have exactly 40 scenes', () => {
+      // Test that we can access all 40 scenes
+      for (let i = 0; i < 40; i++) {
+        const scene = getScene(i);
+        expect(scene).toBeDefined();
+        expect(scene.id).toBeDefined();
+      }
+      
+      // Test that scene 41 is undefined
+      expect(getScene(40)).toBeUndefined();
+    });
+
+    it('should follow the correct type pattern for all 40 scenes', () => {
+      const expectedPattern = ['social', 'skill', 'combat', 'journal', 'exploration'];
+      
+      for (let i = 0; i < 40; i++) {
+        const scene = getScene(i);
+        const expectedType = expectedPattern[i % 5];
+        expect(scene.type).toBe(expectedType);
+      }
+    });
+
+    it('should have combat scenes at positions 2,7,12,17,22,27,32,37 (0-indexed)', () => {
+      const combatPositions = [2, 7, 12, 17, 22, 27, 32, 37];
+      
+      combatPositions.forEach(pos => {
+        const scene = getScene(pos);
+        expect(scene.type).toBe('combat');
+        expect(scene.shadowType).toBeDefined();
+      });
+    });
+
+    it('should use correct shadow manifestations in the right order', () => {
+      // First set of combat scenes
+      expect(getScene(2).shadowType).toBe(SHADOW_IDS.WHISPER_OF_DOUBT);
+      expect(getScene(7).shadowType).toBe(SHADOW_IDS.VEIL_OF_ISOLATION);
+      expect(getScene(12).shadowType).toBe(SHADOW_IDS.STORM_OF_OVERWHELM);
+      expect(getScene(17).shadowType).toBe(SHADOW_IDS.ECHO_OF_PAST_PAIN);
+      
+      // Second set of combat scenes (new ones)
+      expect(getScene(22).shadowType).toBe(SHADOW_IDS.WHISPER_OF_DOUBT);
+      expect(getScene(27).shadowType).toBe(SHADOW_IDS.VEIL_OF_ISOLATION);
+      expect(getScene(32).shadowType).toBe(SHADOW_IDS.STORM_OF_OVERWHELM);
+      expect(getScene(37).shadowType).toBe(SHADOW_IDS.ECHO_OF_PAST_PAIN);
+    });
+
+    it('should have unique IDs for all 40 scenes', () => {
+      const ids = new Set<string>();
+      
+      for (let i = 0; i < 40; i++) {
+        const scene = getScene(i);
+        ids.add(scene.id);
+      }
+      
+      expect(ids.size).toBe(40);
+    });
+  });
+
+  describe('Extended Scene Progress', () => {
+    it('should correctly report progress for all 40 scenes', () => {
+      expect(getSceneProgress(0)).toEqual({ current: 1, total: 40 });
+      expect(getSceneProgress(19)).toEqual({ current: 20, total: 40 });
+      expect(getSceneProgress(39)).toEqual({ current: 40, total: 40 });
+    });
+
+    it('should correctly identify last scene at position 39', () => {
+      expect(isLastScene(38)).toBe(false);
+      expect(isLastScene(39)).toBe(true);
+      expect(isLastScene(40)).toBe(true); // Out of bounds should also be true
     });
   });
 });

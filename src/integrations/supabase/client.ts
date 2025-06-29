@@ -41,10 +41,18 @@ interface EnvironmentConfig {
 const getEnvironmentConfig = (): EnvironmentConfig => {
   const environment = detectEnvironment();
   
-  // Base configuration - production values
+  // Get configuration from environment variables - fail fast if missing
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing required Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+  }
+
+  // Base configuration using environment variables
   const baseConfig: EnvironmentConfig = {
-    supabaseUrl: 'https://lxjetnrmjyazegwnymkk.supabase.co',
-    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4amV0bnJtanlhemVnd255bWtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNzY5OTgsImV4cCI6MjA2NDY1Mjk5OH0.qR888X8VCTMLFk2udqZx0zxEsHY_BvSzOdfxJo2DA3g',
+    supabaseUrl,
+    supabaseKey,
     clientOptions: {
       auth: {
         autoRefreshToken: true,
@@ -72,9 +80,9 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
     case 'local':
       return {
         ...baseConfig,
-        // Use local Supabase instance if available, otherwise fall back to cloud
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'http://localhost:54321' || baseConfig.supabaseUrl,
-        supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || baseConfig.supabaseKey,
+        // For local development, allow override to local Supabase instance
+        supabaseUrl: import.meta.env.VITE_LOCAL_SUPABASE_URL || baseConfig.supabaseUrl,
+        supabaseKey: import.meta.env.VITE_LOCAL_SUPABASE_ANON_KEY || baseConfig.supabaseKey,
         clientOptions: {
           ...baseConfig.clientOptions,
           auth: {
@@ -101,8 +109,6 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
     case 'staging':
       return {
         ...baseConfig,
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL || baseConfig.supabaseUrl,
-        supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || baseConfig.supabaseKey,
         clientOptions: {
           ...baseConfig.clientOptions,
           auth: {
@@ -129,8 +135,6 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
     default:
       return {
         ...baseConfig,
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL || baseConfig.supabaseUrl,
-        supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || baseConfig.supabaseKey,
         clientOptions: {
           ...baseConfig.clientOptions,
           auth: {
@@ -199,7 +203,7 @@ const initializeSupabaseClient = () => {
   logger.info('Initializing Supabase client', {
     environment,
     url: config.supabaseUrl,
-    hasCustomKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
+    hasEnvVars: !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
   });
 
   try {

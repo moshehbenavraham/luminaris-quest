@@ -27,12 +27,11 @@ export function StatsBar({
   trust: _trust,
   health, // Optional override - if not provided, uses store value
   energy = 100,
-  experience = 0,
   className,
   showCombatResources,
   ...props
 }: StatsBarProps) {
-  const { lightPoints, shadowPoints, playerHealth, playerEnergy, maxPlayerEnergy, experiencePoints, experienceToNext, playerLevel } = useGameStore();
+  const { lightPoints, shadowPoints, playerHealth, playerEnergy, maxPlayerEnergy, playerLevel, getExperienceProgress } = useGameStore();
 
   // Use store health if no override provided
   const displayHealth = health ?? playerHealth;
@@ -45,6 +44,10 @@ export function StatsBar({
   // Auto-detect if combat resources should be shown
   // Show if explicitly requested, or if player has any combat resources
   const shouldShowCombatResources = showCombatResources ?? (lightPoints > 0 || shadowPoints > 0);
+  
+  // Calculate experience progress correctly
+  const experienceProgress = getExperienceProgress();
+  const progressPercentage = Math.min(100, Math.max(0, experienceProgress.percentage));
 
   return (
     <TooltipProvider>
@@ -115,19 +118,22 @@ export function StatsBar({
             {/* Health */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center justify-between cursor-help">
-                  <span className="flex items-center gap-2 text-sm font-medium">
-                    <Shield className="h-4 w-4 combat-text-heal" />
-                    Health
+                <div className="flex items-center cursor-help">
+                  {/* Left side - icon and label with consistent width */}
+                  <span className="flex items-center gap-2 text-sm font-medium w-24">
+                    <Shield className="h-4 w-4 combat-text-heal flex-shrink-0" />
+                    <span>Health</span>
                   </span>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                  {/* Right side - bar and value */}
+                  <div className="flex items-center gap-2 flex-1 justify-end">
+                    <div className="h-2 w-20 rounded-full bg-gray-200 dark:bg-gray-700">
                       <div
                         className="h-full rounded-full bg-green-500 transition-all duration-300"
                         style={{ width: `${displayHealth}%` }}
                       />
                     </div>
-                    <span className="w-8 text-right text-xs font-medium">{displayHealth}</span>
+                    {/* Value with consistent width and alignment */}
+                    <span className="w-10 text-right text-xs font-medium tabular-nums">{displayHealth}</span>
                   </div>
                 </div>
               </TooltipTrigger>
@@ -140,24 +146,28 @@ export function StatsBar({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn(
-                  "flex items-center justify-between cursor-help rounded-md p-1 transition-colors",
-                  isLowEnergy && "bg-orange-50 dark:bg-orange-950/20"
+                  "flex items-center cursor-help",
+                  isLowEnergy && "bg-orange-50 dark:bg-orange-950/20 rounded-md"
                 )}>
-                  <span className="flex items-center gap-2 text-sm font-medium">
+                  {/* Left side - icon and label with consistent width */}
+                  <span className="flex items-center gap-2 text-sm font-medium w-24">
                     <Zap className={cn(
-                      "h-4 w-4",
+                      "h-4 w-4 flex-shrink-0",
                       isLowEnergy ? "text-orange-500" : "combat-text-mana"
                     )} />
-                    Energy
-                    {isLowEnergy && (
-                      <AlertTriangle 
-                        className="h-3 w-3 text-orange-500 animate-pulse"
-                        data-testid="alert-triangle-icon"
-                      />
-                    )}
+                    <span className="flex items-center gap-1">
+                      Energy
+                      {isLowEnergy && (
+                        <AlertTriangle 
+                          className="h-3 w-3 text-orange-500 animate-pulse"
+                          data-testid="alert-triangle-icon"
+                        />
+                      )}
+                    </span>
                   </span>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                  {/* Right side - bar and value */}
+                  <div className="flex items-center gap-2 flex-1 justify-end">
+                    <div className="h-2 w-20 rounded-full bg-gray-200 dark:bg-gray-700">
                       <div
                         role="progressbar"
                         aria-label="energy"
@@ -173,8 +183,9 @@ export function StatsBar({
                         style={{ width: `${displayEnergy}%` }}
                       />
                     </div>
+                    {/* Value with consistent width and alignment */}
                     <span className={cn(
-                      "w-8 text-right text-xs font-medium",
+                      "w-10 text-right text-xs font-medium tabular-nums",
                       isLowEnergy && "text-orange-600 dark:text-orange-400 font-bold"
                     )}>{displayEnergy}</span>
                   </div>
@@ -202,26 +213,34 @@ export function StatsBar({
             {/* Experience */}
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center justify-between cursor-help">
-                  <span className="flex items-center gap-2 text-sm font-medium">
-                    <Star className="h-4 w-4 combat-text-critical" />
-                    Level {playerLevel}
+                <div className="flex items-center cursor-help">
+                  {/* Left side - icon and label with consistent width */}
+                  <span className="flex items-center gap-2 text-sm font-medium w-24">
+                    <Star className="h-4 w-4 combat-text-critical flex-shrink-0" />
+                    <span>Level {playerLevel}</span>
                   </span>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                  {/* Right side - bar and value */}
+                  <div className="flex items-center gap-2 flex-1 justify-end">
+                    <div className="h-2 w-20 rounded-full bg-gray-200 dark:bg-gray-700">
                       <div
+                        role="progressbar"
+                        aria-label="experience progress"
+                        aria-valuenow={Math.round(progressPercentage)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
                         className="h-full rounded-full bg-yellow-500 transition-all duration-300"
-                        style={{ width: `${Math.min(100, (experiencePoints / experienceToNext) * 100)}%` }}
+                        style={{ width: `${progressPercentage}%` }}
                       />
                     </div>
-                    <span className="w-12 text-right text-xs font-medium">{experiencePoints}/{experienceToNext}</span>
+                    {/* Value with consistent width and alignment */}
+                    <span className="w-16 text-right text-xs font-medium tabular-nums">{experienceProgress.current}/{experienceProgress.current + experienceProgress.toNext}</span>
                   </div>
                 </div>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
                 <div className="space-y-1">
                   <p className="font-semibold">Level {playerLevel} Character</p>
-                  <p>Experience: {experiencePoints}/{experienceToNext} XP</p>
+                  <p>Progress: {experienceProgress.current}/{experienceProgress.current + experienceProgress.toNext} XP to Level {playerLevel + 1}</p>
                   <p className="text-xs">Gain XP from:</p>
                   <ul className="text-xs space-y-0.5 ml-2">
                     <li>• Scene completion (25-50 XP)</li>
@@ -229,8 +248,15 @@ export function StatsBar({
                     <li>• Failed attempts still give 60% XP</li>
                   </ul>
                   <p className="text-xs font-medium text-yellow-400 mt-1">
-                    Each level grants +1 bonus to dice rolls and other benefits!
+                    Level Benefits:
                   </p>
+                  <ul className="text-xs space-y-0.5 ml-2">
+                    <li>• Every level: +1 dice roll bonus</li>
+                    <li>• Every 2 levels: +10 max energy</li>
+                    <li>• Every 3 levels: +5 Light Points</li>
+                    <li>• Every 4 levels: -1 energy cost</li>
+                    <li>• Every 5 levels: +20% trust gain</li>
+                  </ul>
                 </div>
               </TooltipContent>
             </Tooltip>

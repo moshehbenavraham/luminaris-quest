@@ -1,3 +1,19 @@
+/**
+ * ⚠️⚠️⚠️ DEPRECATED - OLD COMBAT SYSTEM ⚠️⚠️⚠️
+ * 
+ * This file is part of the DEPRECATED combat system.
+ * It only exists for backwards compatibility when using ?legacyCombat=1
+ * 
+ * DO NOT USE THIS FILE FOR NEW DEVELOPMENT!
+ * 
+ * For new development, use the NEW combat system at:
+ * → /src/features/combat/
+ * 
+ * See COMBAT_MIGRATION_GUIDE.md for migration details.
+ * 
+ * ⚠️⚠️⚠️ DEPRECATED - OLD COMBAT SYSTEM ⚠️⚠️⚠️
+ */
+
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';

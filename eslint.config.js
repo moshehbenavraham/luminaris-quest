@@ -68,6 +68,16 @@ export default [
         process: 'readonly',
         NodeJS: 'readonly',
         React: 'readonly',
+        // Test globals from vitest
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
       },
     },
     plugins: {

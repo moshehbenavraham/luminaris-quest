@@ -6,6 +6,7 @@ import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminProtectedRoute } from '@/components/auth/AdminProtectedRoute';
 import { useHealthMonitoring } from '@/hooks/use-health-monitoring';
+import { useEnergyRegeneration } from '@/hooks/use-energy-regeneration';
 import { Spinner } from '@/components/ui/spinner';
 
 // Lazy load page components for code splitting
@@ -21,6 +22,9 @@ const DiagnosticTest = lazy(() => import('@/pages/DiagnosticTest').then(module =
 function App() {
   // Initialize database health monitoring
   useHealthMonitoring();
+  
+  // Initialize energy regeneration system
+  useEnergyRegeneration();
   
   return (
     <QueryProvider>

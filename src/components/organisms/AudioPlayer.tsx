@@ -29,16 +29,17 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
   const playerRef = useRef<AudioPlayerLib>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback((autoplay = false) => {
     setCurrentIdx((prev) => {
       const next = (prev + 1) % tracks.length;
       onTrackChange?.(next);
       return next;
     });
 
-    // Ensure the next track starts playing if the current track was playing
-    // This helps with browser autoplay policies by maintaining playback state
-    if (isPlaying && playerRef.current?.audio?.current) {
+    // Auto-start next track if:
+    // 1. User was playing music (isPlaying is true), OR
+    // 2. This is an automatic advance from onEnded event (autoplay is true)
+    if ((isPlaying || autoplay) && playerRef.current?.audio?.current) {
       const audio = playerRef.current.audio.current;
       // Clear any existing timeout
       if (timeoutRef.current) {
@@ -65,6 +66,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
       return previous;
     });
   }, [tracks.length, onTrackChange]);
+
+  // Handler for manual next button clicks - doesn't need autoplay
+  const handleClickNext = useCallback(() => {
+    handleNext();
+  }, [handleNext]);
 
   const togglePlayPause = useCallback(() => {
     const audio = playerRef.current?.audio?.current;
@@ -148,10 +154,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
         showSkipControls
         showJumpControls={false}
         header={currentTrack.title}
-        onEnded={handleNext}
+        onEnded={() => handleNext(true)}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-        onClickNext={handleNext}
+        onClickNext={handleClickNext}
         onClickPrevious={handlePrevious}
         aria-label={`Audio player for ${currentTrack.title}`}
       />

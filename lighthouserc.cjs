@@ -13,19 +13,19 @@
 module.exports = {
   ci: {
     collect: {
-      // URLs to test
+      // URLs to test - focus on combat system
       url: [
-        'http://localhost:5173',
-        'http://localhost:5173/adventure',
-        'http://localhost:5173/progress',
-        'http://localhost:5173/profile'
+        'http://localhost:4173',
+        'http://localhost:4173/adventure',
+        'http://localhost:4173/adventure?combat=true',
+        'http://localhost:4173/progress'
       ],
       // Number of runs for each URL
       numberOfRuns: 3,
       // Settings for collection
       settings: {
-        // Only run performance audits for faster execution
-        onlyCategories: ['performance'],
+        // Run performance and accessibility audits for combat system
+        onlyCategories: ['performance', 'accessibility'],
         // Chrome flags for consistent testing
         chromeFlags: '--no-sandbox --headless --disable-gpu',
         // Throttling settings to simulate real-world conditions
@@ -53,6 +53,7 @@ module.exports = {
       assertions: {
         // Core Web Vitals thresholds
         'categories:performance': ['warn', { minScore: 0.8 }],
+        'categories:accessibility': ['error', { minScore: 0.9 }],
         'metrics:largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
         'metrics:cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
         'metrics:first-contentful-paint': ['warn', { maxNumericValue: 1800 }],
@@ -73,7 +74,20 @@ module.exports = {
         
         // Resource optimization
         'audits:total-byte-weight': ['warn', { maxNumericValue: 1600000 }], // 1.6MB
-        'audits:dom-size': ['warn', { maxNumericValue: 1500 }]
+        'audits:dom-size': ['warn', { maxNumericValue: 1500 }],
+        
+        // Accessibility audits for combat system
+        'audits:color-contrast': ['error', { minScore: 1.0 }],
+        'audits:heading-order': ['warn', { minScore: 1.0 }],
+        'audits:aria-allowed-attr': ['error', { minScore: 1.0 }],
+        'audits:aria-required-attr': ['error', { minScore: 1.0 }],
+        'audits:aria-valid-attr-value': ['error', { minScore: 1.0 }],
+        'audits:button-name': ['error', { minScore: 1.0 }],
+        'audits:bypass': ['warn', { minScore: 1.0 }],
+        'audits:focus-traps': ['warn', { minScore: 1.0 }],
+        'audits:focusable-controls': ['warn', { minScore: 1.0 }],
+        'audits:interactive-element-affordance': ['warn', { minScore: 1.0 }],
+        'audits:logical-tab-order': ['warn', { minScore: 1.0 }]
       }
     },
     upload: {

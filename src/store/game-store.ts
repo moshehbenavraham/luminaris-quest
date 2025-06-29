@@ -333,10 +333,14 @@ const calculateLevelProgression = (totalXP: number) => {
     level++;
   }
   
+  const currentLevelXP = totalXP - xpForCurrentLevel;
+  const xpNeededForNextLevel = getXPRequiredForLevel(level);
+  const xpToNext = xpNeededForNextLevel - currentLevelXP;
+  
   return {
     level,
-    currentLevelXP: totalXP - xpForCurrentLevel,
-    xpToNext: getXPRequiredForLevel(level)
+    currentLevelXP,
+    xpToNext
   };
 };
 
@@ -594,6 +598,9 @@ export const useGameStoreBase = create<GameState>()(
           maxPlayerEnergy: 100,
           lightPoints: 0,
           shadowPoints: 0,
+          // Reset experience points
+          experiencePoints: 0,
+          experienceToNext: 100,
           // Reset combat state
           combat: {
             inCombat: false,
@@ -841,11 +848,17 @@ export const useGameStoreBase = create<GameState>()(
 
       getPlayerLevel: () => get().playerLevel,
       
-      getExperienceProgress: () => ({
-        current: get().experiencePoints,
-        toNext: get().experienceToNext,
-        percentage: (get().experiencePoints / get().experienceToNext) * 100
-      }),
+      getExperienceProgress: () => {
+        const toNext = get().experienceToNext;
+        const totalNeededForNextLevel = getXPRequiredForLevel(get().playerLevel);
+        const currentLevelProgress = totalNeededForNextLevel - toNext;
+        
+        return {
+          current: currentLevelProgress, // XP progress in current level
+          toNext: toNext,               // XP remaining to next level
+          percentage: (currentLevelProgress / totalNeededForNextLevel) * 100
+        };
+      },
 
       // Combat System Actions
       // ⚠️⚠️⚠️ DEPRECATED COMBAT SYSTEM - DO NOT USE ⚠️⚠️⚠️
@@ -913,8 +926,19 @@ export const useGameStoreBase = create<GameState>()(
           }
 
           // Execute player action using combat engine
-          const playerResult = executePlayerAction(action, state.combat, state.guardianTrust);
+          const playerResult = executePlayerAction(action, state.combat, state.guardianTrust, state.playerLevel);
           let newCombatState = { ...playerResult.newState };
+
+          // Apply health healing if the action healed health (REFLECT action)
+          let newPlayerHealth = state.playerHealth;
+          if (playerResult.healthHeal && playerResult.healthHeal > 0) {
+            newPlayerHealth = Math.min(state.maxPlayerHealth, state.playerHealth + playerResult.healthHeal);
+            logger.info('Player healed from REFLECT action', {
+              healAmount: playerResult.healthHeal,
+              newHealth: newPlayerHealth,
+              previousHealth: state.playerHealth
+            });
+          }
 
           // Update preferred actions tracking (ensure immutability)
           const newPreferredActions = {
@@ -932,6 +956,7 @@ export const useGameStoreBase = create<GameState>()(
           // Update the state after player action
           const stateAfterPlayerAction = {
             ...state,
+            playerHealth: newPlayerHealth,  // Apply health healing
             combat: {
               ...newCombatState,
               log: combatLog

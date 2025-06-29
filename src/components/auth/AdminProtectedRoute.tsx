@@ -1,6 +1,7 @@
 import { useSupabase } from '@/lib/providers/supabase-context';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Spinner } from '@/components/ui/spinner';
+import { AuthenticatedApp } from '@/components/auth/AuthenticatedApp';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -27,5 +28,5 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return <AuthenticatedApp>{children}</AuthenticatedApp>;
 }

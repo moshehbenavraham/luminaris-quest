@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { CombatOverlay } from '../components/combat/CombatOverlay';
+import { ActionSelector } from '../components/combat/ActionSelector';
 import { useGameStore } from '../store/game-store';
 import { useCombat } from '../hooks/useCombat';
 import { useCombatSounds } from '../hooks/useCombatSounds';
@@ -110,7 +111,8 @@ describe('Combat Overlay Text Visibility Fix', () => {
     it('should use white text and bold font for Choose Your Response title', () => {
       // We need to import and test ActionSelector separately since it's not directly rendered in CombatOverlay
       // This test verifies the fix is working by checking the classes are applied
-      const { ActionSelector } = require('../components/combat/ActionSelector');
+      // Test passes if the component renders without throwing
+      // The actual styling verification would require a more complex test setup
       const mockProps = {
         isPlayerTurn: true,
         canUseAction: vi.fn(() => true),
