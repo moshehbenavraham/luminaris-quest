@@ -527,9 +527,7 @@ npm run build      # Verify production build
 
 ## 📚 Documentation & Platform Integration
 
-While being primarily developed on Bolt.new, this project integrates multiple AI development platforms and tools. We maintain comprehensive documentation covering all aspects of development, architecture, and deployment.
-
-> **📖 [Complete Documentation Index](docs/INDEX.md)** - Central hub for all project documentation with organized navigation by audience and feature.
+While being primarily developed on Bolt.new, this project integrates multiple AI development platforms and tools.
 
 ### 📋 **Core Project Documentation**
 - **[README.md](README.md)** - Project overview, getting started guide, and feature documentation
@@ -563,50 +561,9 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 🤖 **AI Development Platform Integration**
 
-The [`.agent.md`](.agent.md) file serves as a comprehensive memory configuration for Rovo Dev CLI and other AI development tools, providing agents with essential project context, architecture patterns, and development standards to maintain consistency and code quality across the therapeutic gaming platform.
-
 #### Bolt.new Integration
 - **[.bolt/prompt](.bolt/prompt)** - Comprehensive code generation rules and build standards
 - **[.bolt/](.bolt/)** - Bolt.new project configuration and settings
-
-#### Claude Code Integration  
-- **[CLAUDE.md](CLAUDE.md)** - Claude Code development guidance and project context
-- **[CLAUDE.local.md](CLAUDE.local.md)** - Local Claude Code notes and configurations
-- **[.claude/settings.local.json](.claude/settings.local.json)** - Claude Code IDE settings and preferences
-
-#### Cursor IDE Integration
-- **[.cursor/rules/](.cursor/rules/)** - Cursor IDE component and layout guidelines
-  - `layout-integration.mdc` - Layout integration standards and best practices
-  - `project-context.mdc` - Project context rules and conventions
-  - `sidebar-navigation.mdc` - Navigation component guidelines
-- **[.cursorignore](.cursorignore)** - Files excluded from Cursor context
-- **[.augmentignore](.augmentignore)** - Files excluded from Augment Code AI indexing
-
-#### Augment Code Integration
-- **[.augment-guidelines](.augment-guidelines)** - Project guidelines and standards for Augment Code extension
-- **[.augmentignore](.augmentignore)** - Files excluded from Augment Code AI indexing
-
-#### Windsurf IDE Integration
-- **[.windsurf/rules/](.windsurf/rules/)** - Windsurf IDE component and layout guidelines
-  - `layout-integration.md` - Layout integration standards (⚠️ **Not mapped** - should match Cursor equivalent)
-  - `project-context.md` - Project context rules (⚠️ **Not mapped** - should match Cursor equivalent)
-  - `sidebar-navigation.md` - Navigation component guidelines (⚠️ **Not mapped** - should match Cursor equivalent)
-  - `.windsurfrules` - Windsurf-specific configuration file
-
-#### IDE Configuration Maintenance
-⚠️ **Important**: The `.windsurf` and `.cursor` folders contain similar configuration files that should be kept in sync to maintain consistent development standards across IDEs:
-
-| Purpose | Cursor File | Windsurf File | Status |
-|---------|-------------|---------------|---------|
-| Layout Integration | `.cursor/rules/layout-integration.mdc` | `.windsurf/rules/layout-integration.md` | ⚠️ **Not Mapped** |
-| Project Context | `.cursor/rules/project-context.mdc` | `.windsurf/rules/project-context.md` | ⚠️ **Not Mapped** |
-| Sidebar Navigation | `.cursor/rules/sidebar-navigation.mdc` | `.windsurf/rules/sidebar-navigation.md` | ⚠️ **Not Mapped** |
-| Guidelines | `.augment-guidelines` | `.windsurf/rules/.windsurfrules` | ⚠️ **Not Mapped** |
-
-**Action Required**: Windsurf configuration files need to be updated to match their Cursor counterparts to ensure consistent development experience across different AI-powered IDEs.
-
-#### Multi-Agent Orchestration
-- **[.roomodes](.roomodes)** - Roo Code multi-agent workflow configurations and task orchestration
 
 ### ⚖️ **Legal & Licensing Documentation**
 - **[LICENSE](LICENSE)** - MIT License for codebase
