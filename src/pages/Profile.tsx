@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { HealthStatus } from '@/components/HealthStatus';
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
 import { imageRegistry } from '@/data/imageRegistry';

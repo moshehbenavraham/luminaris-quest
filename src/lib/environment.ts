@@ -1,3 +1,4 @@
+// Built with Bolt.new
 /**
  * Shared environment detection and configuration utilities
  * Used across the application for consistent environment handling

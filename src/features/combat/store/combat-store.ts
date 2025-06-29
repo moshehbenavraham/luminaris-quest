@@ -1,3 +1,4 @@
+// Built with Bolt.new
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
@@ -390,14 +391,11 @@ export const useCombatStore = create<CombatState>()(
         
         const config = getEnvironmentConfig();
         
-        // Calculate energy cost for this action
-        const energyCost = config.combatEnergyCosts[action.toLowerCase() as keyof typeof config.combatEnergyCosts] || 0;
+        // Calculate energy cost for this action - only ENDURE consumes energy in combat
+        const energyCost = action === 'ENDURE' ? config.combatEnergyCosts[action.toLowerCase() as keyof typeof config.combatEnergyCosts] || 0 : 0;
         const newPlayerEnergy = Math.max(0, state.playerEnergy - energyCost);
         
-        // Check for low-energy penalty
-        const energyPercentage = (newPlayerEnergy / state.maxPlayerEnergy) * 100;
-        const isLowEnergy = energyPercentage < config.lowEnergyThreshold;
-        const damageMultiplier = isLowEnergy ? config.lowEnergyPenalty : 1.0;
+        // Note: Low-energy penalties removed from combat actions except ENDURE
         
         // Execute action and apply resource costs
         let newResources = { ...state.resources };
@@ -410,14 +408,12 @@ export const useCombatStore = create<CombatState>()(
           case 'ILLUMINATE':
             if (newResources.lp >= 2) {
               newResources.lp -= 2;
-              // Simple damage calculation with energy penalty
+              // Simple damage calculation - no energy penalty for ILLUMINATE
               const baseDamage = 3 + Math.floor((state.playerLevel || 1) * 1.5);
-              damage = Math.floor(baseDamage * damageMultiplier);
+              damage = baseDamage; // No energy multiplier applied
               enemyHP = Math.max(0, enemyHP - damage);
-              effect = `Dealt ${damage} damage${isLowEnergy ? ' (reduced by low energy)' : ''}`;
-              message = isLowEnergy 
-                ? 'Your light flickers weakly due to exhaustion, but still pushes back the shadows.'
-                : 'You shine light on your inner shadow, seeing it clearly for what it is.';
+              effect = `Dealt ${damage} damage`;
+              message = 'You shine light on your inner shadow, seeing it clearly for what it is.';
             }
             break;
             
@@ -447,13 +443,11 @@ export const useCombatStore = create<CombatState>()(
           case 'EMBRACE':
             if (newResources.sp >= 5) {
               const baseDamage = Math.max(1, Math.floor(newResources.sp / 2));
-              damage = Math.floor(baseDamage * damageMultiplier);
+              damage = baseDamage; // No energy multiplier applied to EMBRACE
               newResources.sp = 0; // Embrace consumes all SP
               enemyHP = Math.max(0, enemyHP - damage);
-              effect = `Dealt ${damage} damage, consumed all SP${isLowEnergy ? ' (reduced by low energy)' : ''}`;
-              message = isLowEnergy
-                ? 'You embrace your shadows with weary acceptance, finding what strength you can.'
-                : 'You embrace your shadows, accepting them as part of your strength.';
+              effect = `Dealt ${damage} damage, consumed all SP`;
+              message = 'You embrace your shadows, accepting them as part of your strength.';
             }
             break;
         }
@@ -486,7 +480,8 @@ export const useCombatStore = create<CombatState>()(
           turn: state.turn,
           actor: 'PLAYER',
           action,
-          effect: energyCost > 0 ? `${effect} | -${energyCost} Energy` : effect,
+          // Only show energy cost for ENDURE action to avoid UI confusion
+          effect: (action === 'ENDURE' && energyCost > 0) ? `${effect} | -${energyCost} Energy` : effect,
           message,
         });
         
@@ -872,10 +867,11 @@ export const selectCanUseAction = (action: CombatAction) => (state: CombatState)
   
   const { resources, playerEnergy } = state;
   const config = getEnvironmentConfig();
-  const energyCost = config.combatEnergyCosts[action.toLowerCase() as keyof typeof config.combatEnergyCosts] || 0;
+  // Only ENDURE action consumes energy in combat
+  const energyCost = action === 'ENDURE' ? config.combatEnergyCosts[action.toLowerCase() as keyof typeof config.combatEnergyCosts] || 0 : 0;
   
-  // Check if player has enough energy
-  if (playerEnergy < energyCost) return false;
+  // Check if player has enough energy (only applies to ENDURE)
+  if (action === 'ENDURE' && playerEnergy < energyCost) return false;
   
   switch (action) {
     case 'ILLUMINATE':
@@ -893,17 +889,18 @@ export const selectCanUseAction = (action: CombatAction) => (state: CombatState)
 
 export const selectActionCost = (action: CombatAction) => () => {
   const config = getEnvironmentConfig();
-  const energyCost = config.combatEnergyCosts[action.toLowerCase() as keyof typeof config.combatEnergyCosts] || 0;
+  // Only ENDURE action shows energy cost in UI
+  const energyCost = action === 'ENDURE' ? config.combatEnergyCosts[action.toLowerCase() as keyof typeof config.combatEnergyCosts] || 0 : 0;
   
   switch (action) {
     case 'ILLUMINATE':
-      return { lp: 2, energy: energyCost };
+      return { lp: 2 }; // No energy cost displayed
     case 'REFLECT':
-      return { sp: 3, energy: energyCost };
+      return { sp: 3 }; // No energy cost displayed
     case 'ENDURE':
-      return { energy: energyCost };
+      return { energy: energyCost }; // Only ENDURE shows energy cost
     case 'EMBRACE':
-      return { sp: 5, energy: energyCost };
+      return { sp: 5 }; // No energy cost displayed
     default:
       return {};
   }

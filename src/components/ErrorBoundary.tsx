@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { Component, type ErrorInfo, type PropsWithChildren } from 'react';
 import { Button } from './ui/button';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';

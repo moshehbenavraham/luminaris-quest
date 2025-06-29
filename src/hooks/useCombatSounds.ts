@@ -1,3 +1,4 @@
+// Built with Bolt.new
 /**
  * useCombatSounds Hook - Integration between combat system and sound effects
  * 

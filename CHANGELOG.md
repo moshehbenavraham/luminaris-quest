@@ -8,6 +8,43 @@ For the full, verbose log see `docs/CHANGELOG_OLD.md`.
 
 ---
 
+## [UPDATED] Combat Energy System - Simplified Resource Management - 2025-06-29
+
+**Implementation Date**: 2025-06-29  
+**Priority**: Medium - Game Balance Improvement  
+
+### Changes Made
+- **Energy Consumption Simplified**: Removed energy costs from ILLUMINATE, REFLECT, and EMBRACE combat actions
+- **ENDURE Focus**: Only ENDURE action now consumes energy (1 energy per use)
+- **UI Consistency**: Updated action cost displays to only show energy for ENDURE
+- **Low Energy Penalties**: Removed low energy damage penalties from all actions except ENDURE
+
+### Technical Changes
+
+#### Core Combat Store Updates (`src/features/combat/store/combat-store.ts`)
+- **Action Validation**: Modified `selectCanUseAction()` to only check energy for ENDURE action
+- **Energy Deduction**: Updated `executeAction()` to only consume energy for ENDURE
+- **Cost Display**: Updated `selectActionCost()` to only show energy cost for ENDURE in UI
+- **Combat Logging**: Energy costs only logged for ENDURE actions
+
+#### Test Coverage Updates
+- **Energy System Tests**: Updated `combat-energy-system.test.ts` with 14 comprehensive tests
+- **Validation Tests**: Verified energy consumption only applies to ENDURE
+- **UI Tests**: Confirmed action cost display only shows energy for ENDURE
+- **Log Integration Tests**: Verified combat logs only show energy costs for ENDURE
+
+### User Impact
+- **Simplified Strategy**: Players no longer need to manage energy for basic combat actions
+- **Focused Resource**: Energy becomes a strategic resource specifically for endurance/defensive actions
+- **Cleaner UI**: Action tooltips show only relevant resource costs
+- **Better Game Flow**: Removes energy management friction from primary offensive/reflective actions
+
+### Breaking Changes
+- **None**: All existing game saves and progress remain compatible
+- **Combat Balance**: Combat may feel easier due to reduced resource constraints
+
+---
+
 ## [FIXED] Experience & Level System - Resolved "Whacky" Progress Display and Calculation Issues
 
 **Implementation Date**: 2025-06-29  

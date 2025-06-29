@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { createClient, type SupabaseClientOptions } from '@supabase/supabase-js';
 import type { Database } from './types';
 

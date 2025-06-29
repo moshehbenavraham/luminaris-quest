@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { legalContent } from '@/lib/legal-content';
 import { ExternalLink } from 'lucide-react';

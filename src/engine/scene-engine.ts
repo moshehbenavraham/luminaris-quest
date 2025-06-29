@@ -75,7 +75,7 @@ const scenes: Scene[] = [
     type: 'social',
     title: 'The Worried Merchant',
     text: "A traveling merchant sits by the roadside, tears streaming down his weathered face. His cart is overturned, goods scattered. 'Bandits took everything,' he whispers. 'My family's livelihood... gone.' He looks up at you with desperate hope. You could offer comfort, share resources, or help him gather his belongings.",
-    dc: 10,
+    dc: 9,
     successText:
       "Your words of comfort and genuine care touch the merchant's heart. He stands straighter, hope returning to his eyes. 'Thank you, young one. Your kindness reminds me that good still exists in this world.' Your guardian spirit glows warmly, sensing your growing empathy.",
     failureText:
@@ -90,7 +90,7 @@ const scenes: Scene[] = [
     type: 'skill',
     title: 'The Ancient Lock',
     text: 'Before you stands an ornate chest, its surface covered in intricate mechanisms and glowing runes. The lock appears to be a puzzle requiring both dexterity and wisdom to solve. Ancient symbols shift and change as you approach. This could contain something valuable, but one wrong move might trigger unknown consequences.',
-    dc: 12,
+    dc: 11,
     successText:
       'Your fingers move with surprising grace across the mechanisms. The runes align perfectly, and the chest opens with a satisfying click. Inside, you find a small crystal that pulses with warm light. Your guardian spirit radiates pride at your growing skill and patience.',
     failureText:
@@ -105,7 +105,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'Shadow Wolf',
     text: 'A creature of living shadow emerges from the darkness between the trees. Its eyes glow with an otherworldly hunger, and its form shifts like smoke. This shadow wolf blocks your path, growling low. You sense it feeds on fear and doubt. You must decide how to face this manifestation of inner darkness.',
-    dc: 14,
+    dc: 15,
     successText:
       'You stand firm against the shadow wolf, your inner light blazing bright. The creature recoils, then slowly dissolves back into harmless shadows. Your courage has banished this manifestation of fear. Your guardian spirit shines brilliantly, proud of your bravery.',
     failureText:
@@ -124,7 +124,7 @@ const scenes: Scene[] = [
     type: 'journal',
     title: 'The Memory Pool',
     text: 'You discover a still pool that reflects not your face, but memories from your past. Images of loss, moments of joy, times of struggle all shimmer on the surface. Your guardian spirit whispers that this is a place of healing, where you can choose to face difficult memories or let them remain buried for now.',
-    dc: 11,
+    dc: 8,
     successText:
       "You kneel by the pool and allow the memories to wash over you. Though some bring pain, you find strength in acknowledging them. The pool's surface clears, showing your reflection with new wisdom in your eyes. Your guardian spirit glows with gentle approval.",
     failureText:
@@ -139,7 +139,7 @@ const scenes: Scene[] = [
     type: 'exploration',
     title: 'The Singing Crystals',
     text: "You enter a cavern filled with luminescent crystals that hum with ethereal music. Each crystal seems to respond to your emotions, their songs shifting in harmony with your inner state. At the cavern's heart stands a larger crystal, its song more complex and beautiful than the others. You sense this place holds ancient wisdom.",
-    dc: 13,
+    dc: 12,
     successText:
       "You attune yourself to the crystals' song, letting their harmony guide your movements. The large crystal's music becomes clearer, revealing melodies that speak of hope, resilience, and growth. Your guardian spirit resonates with the crystals, creating a symphony of healing energy.",
     failureText:
@@ -154,7 +154,7 @@ const scenes: Scene[] = [
     type: 'social',
     title: 'The Village Festival',
     text: "You arrive at a small village during their harvest festival. Laughter and music fill the air, but you notice an elderly woman sitting alone on the outskirts, watching the celebration with longing eyes. She seems forgotten by the revelers, her weathered hands clutching a small, worn photograph. The joy around you contrasts sharply with her solitude.",
-    dc: 11,
+    dc: 7,
     successText:
       "You approach the elderly woman with genuine warmth, asking about the photograph and listening to her stories of past festivals. Her face lights up as she shares memories of her late husband, and soon others join your conversation. Your guardian spirit radiates joy as you help bridge the gap between generations.",
     failureText:
@@ -169,7 +169,7 @@ const scenes: Scene[] = [
     type: 'skill',
     title: 'The Mist-Shrouded Path',
     text: 'A thick, supernatural mist has descended upon the mountain path ahead. Strange whispers echo from within, and the trail seems to shift and change before your eyes. Your map is useless here - only your intuition and careful observation can guide you through this maze of illusion. One wrong turn could lead you deeper into the mist\'s embrace.',
-    dc: 15,
+    dc: 13,
     successText:
       'You close your eyes and trust your inner compass, feeling for the subtle currents of air and listening to the true sounds beneath the whispers. Step by careful step, you navigate through the illusion, emerging into clear sunlight on the other side. Your guardian spirit glows with pride at your growing wisdom and self-trust.',
     failureText:
@@ -203,7 +203,7 @@ const scenes: Scene[] = [
     type: 'journal',
     title: 'The Crossroads of Choice',
     text: 'You stand at a crossroads where three paths diverge, each marked by a stone tablet covered in ancient script. As you approach, the tablets begin to glow, revealing not directions but questions about your life\'s journey. The middle path asks about your dreams, the left about your fears, and the right about your regrets. Your guardian spirit suggests this is a place for deep reflection.',
-    dc: 12,
+    dc: 11,
     successText:
       'You sit quietly at the crossroads and honestly examine each question, writing your thoughts in your journal. The process is challenging but illuminating, helping you see patterns in your choices and growth in your character. The tablets\' glow softens to a warm, welcoming light. Your guardian spirit radiates approval at your willingness to face difficult truths.',
     failureText:
@@ -218,7 +218,7 @@ const scenes: Scene[] = [
     type: 'exploration',
     title: 'The Hidden Sanctuary',
     text: 'Behind a waterfall, you discover a hidden sanctuary carved into living rock. Bioluminescent plants provide gentle light, and a natural spring creates a peaceful melody. Ancient murals cover the walls, depicting scenes of healing, growth, and transformation. At the sanctuary\'s heart lies a garden where impossible flowers bloom - each one representing a different aspect of emotional healing.',
-    dc: 14,
+    dc: 10,
     successText:
       'You move through the sanctuary with reverence, studying each mural and tending to the healing flowers. As you care for the garden, you feel your own wounds beginning to mend. The sanctuary responds to your presence, revealing hidden chambers filled with wisdom about recovery and resilience. Your guardian spirit harmonizes with the sanctuary\'s ancient peace.',
     failureText:
@@ -233,7 +233,7 @@ const scenes: Scene[] = [
     type: 'social',
     title: 'The Weary Teacher',
     text: "In a small schoolhouse, you meet an exhausted teacher struggling to reach a group of troubled students. Her eyes are red from sleepless nights, and her voice cracks with frustration. 'I don't know how to help them anymore,' she confesses. 'They've been through so much trauma, and I feel like I'm failing them every day.' She looks to you with desperate hope for guidance or understanding.",
-    dc: 10,
+    dc: 13,
     successText:
       "You share your own experiences with learning and growth, offering both practical suggestions and emotional support. Your words remind her why she became a teacher, reigniting her passion and hope. The students sense the renewed energy and begin to respond more positively. Your guardian spirit glows warmly, recognizing your ability to inspire others through your own journey.",
     failureText:
@@ -263,7 +263,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'The Storm of Overwhelm',
     text: 'Dark clouds gather overhead, but this is no ordinary storm. Lightning crackles with the energy of every overwhelming moment you\'ve ever faced - bills unpaid, deadlines missed, relationships strained, futures uncertain. The storm speaks in a cacophony of voices: responsibilities, expectations, fears, and pressures all demanding attention at once. You feel yourself drowning in the chaos of too much, too fast, too heavy.',
-    dc: 14,
+    dc: 17,
     successText:
       'You stand in the eye of the storm and breathe deeply, acknowledging each overwhelming voice without letting them control you. One by one, you address what you can and release what you cannot. The storm gradually calms, its chaotic energy transforming into manageable rain. Your guardian spirit shines through the clearing clouds, proud of your growing ability to find peace within chaos.',
     failureText:
@@ -297,7 +297,7 @@ const scenes: Scene[] = [
     type: 'exploration',
     title: 'The Library of Lost Stories',
     text: 'You discover a vast library where the books contain not written words, but the untold stories of people\'s lives - dreams abandoned, paths not taken, words never spoken. The shelves stretch endlessly upward, filled with the weight of human potential. At the center stands a reading desk with an open book that seems to be writing itself, chronicling your own story as you live it.',
-    dc: 12,
+    dc: 14,
     successText:
       'You approach the writing book with curiosity rather than fear, reading the story of your life with compassion for both your struggles and your growth. You realize that your story is still being written, and you have the power to influence its direction. Your guardian spirit radiates joy as you embrace your role as both author and protagonist of your own journey.',
     failureText:
@@ -342,7 +342,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'The Echo of Past Pain',
     text: 'The air around you shimmers, and suddenly you\'re surrounded by ghostly echoes of your most painful memories. They don\'t just replay - they speak, accusing you of weakness, reminding you of every moment you felt helpless, abandoned, or broken. The echoes take the form of shadowy figures from your past, their voices layering into a chorus of old wounds. This manifestation feeds on unhealed trauma, growing stronger with each painful memory it can awaken.',
-    dc: 15,
+    dc: 18,
     successText:
       'You face the echoes with hard-won wisdom, acknowledging the pain they represent while refusing to let them define you. "You are part of my story," you tell them, "but you are not the end of it." The shadows begin to fade as you embrace both your wounds and your healing. Your guardian spirit blazes with fierce pride, celebrating your transformation of pain into strength.',
     failureText:
@@ -392,7 +392,7 @@ const scenes: Scene[] = [
     type: 'social',
     title: 'The Feuding Neighbors',
     text: 'You witness two neighbors arguing bitterly over a shared fence that has fallen into disrepair. Their children watch from windows, fear in their eyes as the adults\' voices rise. Years of accumulated grievances spill out - borrowed tools never returned, property lines disputed, harsh words spoken in anger. The broken fence seems symbolic of the broken relationship. Both turn to you, each demanding you take their side.',
-    dc: 10,
+    dc: 12,
     successText:
       'You gently redirect their attention from blame to their children\'s worried faces. Your calm presence and thoughtful questions help them remember they once shared dinners and celebrated holidays together. Slowly, they begin discussing how to repair the fence together. Your guardian spirit glows with satisfaction as you witness the beginning of reconciliation.',
     failureText:
@@ -407,7 +407,7 @@ const scenes: Scene[] = [
     type: 'skill',
     title: 'The Celestial Map',
     text: 'An ancient astronomer\'s tower contains a complex celestial map that reportedly reveals hidden paths when the stars align correctly. The mechanism involves rotating multiple brass rings inscribed with constellations, each affecting the others in intricate ways. Local legends claim that those who solve the puzzle gain insight into their destiny. The brass is tarnished with age, making some markings difficult to read.',
-    dc: 12,
+    dc: 13,
     successText:
       'Your patient observation reveals the pattern - the rings represent not just stars, but life\'s cycles of growth, loss, and renewal. As you align them properly, the map projects a stunning hologram showing a path forward illuminated by starlight. Your guardian spirit pulses with cosmic energy, impressed by your ability to find order in apparent chaos.',
     failureText:
@@ -422,7 +422,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'The Whispering Shade',
     text: 'In a narrow alley, shadows gather unnaturally, coalescing into a form that speaks with the voice of your inner critic. It knows every mistake you\'ve made, every opportunity you\'ve missed, every person you\'ve disappointed. The shade feeds on self-doubt, growing larger with each harsh whisper. "You\'ll never be enough," it hisses, its form shifting to show distorted reflections of your failures.',
-    dc: 14,
+    dc: 20,
     successText:
       'You acknowledge each whispered criticism without letting it define you. "I am more than my mistakes," you declare firmly. The shade recoils from your self-compassion, its whispers turning to desperate shrieks before it dissipates like smoke. Your guardian spirit burns bright with pride, celebrating your victory over destructive self-talk.',
     failureText:
@@ -441,7 +441,7 @@ const scenes: Scene[] = [
     type: 'journal',
     title: 'The Forgiveness Tree',
     text: 'You find an ancient tree where people have tied thousands of ribbons, each representing someone they need to forgive - including themselves. A basket of blank ribbons and a sign invite you to add your own. Some ribbons are fresh and bright, others weathered by years of wind and rain. Your guardian spirit whispers that forgiveness is not forgetting, but releasing the poison of resentment.',
-    dc: 11,
+    dc: 8,
     successText:
       'You write names on several ribbons - those who hurt you, those you hurt, and finally, your own name. As you tie each ribbon to the tree, you feel weights lifting from your soul. The wind catches your ribbons, making them dance with thousands of others in a beautiful testament to human resilience. Your guardian spirit glows with warm approval.',
     failureText:
@@ -456,7 +456,7 @@ const scenes: Scene[] = [
     type: 'exploration',
     title: 'The Crystal Caverns',
     text: 'Beneath the earth, you discover a network of caverns where crystals grow in impossible formations - spirals that defy gravity, geometric patterns too perfect for nature. Each crystal resonates with a different emotion when touched. At the cavern\'s heart, a massive crystal formation pulses with all emotions at once, creating a symphony of human experience. The locals fear this place, calling it the Cave of Truth.',
-    dc: 13,
+    dc: 16,
     successText:
       'You navigate the emotional resonance with grace, allowing each feeling to flow through you without becoming lost in any single one. The central crystal responds to your emotional balance, revealing a hidden chamber filled with ancient wisdom about the importance of feeling all emotions fully. Your guardian spirit harmonizes with the crystals, creating a moment of perfect emotional clarity.',
     failureText:
@@ -501,7 +501,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'The Mirror of Solitude',
     text: 'A wall of mirrors suddenly surrounds you, but each reflection shows you utterly alone in different scenarios - abandoned at a party, ignored in a crowd, forgotten by loved ones, dying without anyone to mourn you. The reflections begin to move independently, reaching out from the mirrors with hands of cold glass. This manifestation of isolation seeks to convince you that connection is an illusion and you will always be fundamentally alone.',
-    dc: 16,
+    dc: 21,
     successText:
       'You place your hand against the mirrors and speak truth: "I have been alone, but I have also been held. I have been forgotten, but I have also been remembered." The mirrors crack as you acknowledge both isolation and connection as part of human experience. They shatter into light, leaving you surrounded by warm memories of genuine connection. Your guardian spirit embraces you with fierce pride.',
     failureText:
@@ -580,7 +580,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'The Tempest Within',
     text: 'A supernatural storm manifests around you, but this tempest is made of pure chaos - swirling with deadlines, bills, broken relationships, health scares, and every responsibility you\'ve ever shouldered. Lightning strikes with reminders of everything you haven\'t done, thunder roars with the voices of those you\'ve disappointed. The eye of this storm is where all your life\'s pressures converge into overwhelming force.',
-    dc: 14,
+    dc: 24,
     successText:
       'You find stillness in the chaos by accepting what you can and cannot control. You prioritize with clarity, release impossible standards, and forgive yourself for being human. The storm gradually organizes into manageable rain, then gentle mist. Your guardian spirit shines through the clearing weather, proud of your hard-won peace.',
     failureText:
@@ -659,7 +659,7 @@ const scenes: Scene[] = [
     type: 'combat',
     title: 'The Resonance of Pain',
     text: 'The ground beneath you cracks, releasing echoes of every moment your trust was betrayed, every time you were abandoned, every promise that was broken. These echoes take form as shadowy figures that speak with voices you recognize - people who hurt you, including versions of yourself at your lowest. They circle you, each touch bringing vivid flashbacks of pain. The shadow feeds on unprocessed trauma.',
-    dc: 15,
+    dc: 22,
     successText:
       'You stand firm in the center of the echoes and speak a powerful truth: "You are my history, not my destiny. I honor the pain you represent while choosing healing." The shadows pause, then begin to transform into teachers showing you your incredible resilience. Your guardian spirit blazes with fierce love as you integrate your trauma into your strength.',
     failureText:

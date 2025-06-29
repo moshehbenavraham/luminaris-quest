@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { useGameStoreBase } from '@/store/game-store';
 import { cn } from '@/lib/utils';
 import { CheckCircle, Cloud, CloudOff, AlertCircle, Loader2 } from 'lucide-react';

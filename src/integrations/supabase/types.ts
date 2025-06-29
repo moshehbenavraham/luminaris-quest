@@ -1,3 +1,4 @@
+// Built with Bolt.new
 export type Json =
   | string
   | number

@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { performEnhancedHealthCheck, getCurrentHealthStatus, type DatabaseHealthStatus } from '@/lib/database-health';
 import { createLogger, environment, featureFlags } from '@/lib/environment';

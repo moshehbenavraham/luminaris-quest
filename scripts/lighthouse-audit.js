@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Built with Bolt.new
 
 /**
  * MIT License

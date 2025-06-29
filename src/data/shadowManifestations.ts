@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import type { ShadowManifestation, ShadowAbility, CombatState } from '../store/game-store';
 
 /**

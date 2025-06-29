@@ -95,8 +95,8 @@ describe('Combat Energy System', () => {
     });
   });
 
-  describe('Energy Cost Validation', () => {
-    it('should prevent actions when insufficient energy', () => {
+  describe('Energy Cost Validation (Updated: Only ENDURE consumes energy)', () => {
+    it('should only prevent ENDURE when insufficient energy', () => {
       const store = useCombatStore.getState();
       
       // Start combat with low energy
@@ -105,23 +105,23 @@ describe('Combat Energy System', () => {
         shadowPoints: 5,
         playerHealth: 100,
         playerLevel: 1,
-        playerEnergy: 2, // Only 2 energy
+        playerEnergy: 0, // No energy
         maxPlayerEnergy: 100
       });
 
       const state = useCombatStore.getState();
       
-      // Should not be able to use ILLUMINATE (costs 3 energy)
-      expect(selectCanUseAction('ILLUMINATE')(state)).toBe(false);
+      // Should be able to use ILLUMINATE (no energy cost)
+      expect(selectCanUseAction('ILLUMINATE')(state)).toBe(true);
       
-      // Should not be able to use EMBRACE (costs 5 energy)
-      expect(selectCanUseAction('EMBRACE')(state)).toBe(false);
+      // Should be able to use EMBRACE (no energy cost) if has SP
+      expect(selectCanUseAction('EMBRACE')(state)).toBe(true);
       
-      // Should be able to use ENDURE (costs 1 energy)
-      expect(selectCanUseAction('ENDURE')(state)).toBe(true);
+      // Should NOT be able to use ENDURE (costs 1 energy)
+      expect(selectCanUseAction('ENDURE')(state)).toBe(false);
     });
 
-    it('should allow actions when sufficient energy', () => {
+    it('should allow all actions when sufficient resources', () => {
       const store = useCombatStore.getState();
       
       // Start combat with full energy
@@ -136,16 +136,16 @@ describe('Combat Energy System', () => {
 
       const state = useCombatStore.getState();
       
-      // All actions should be available with sufficient energy and resources
-      expect(selectCanUseAction('ILLUMINATE')(state)).toBe(true); // Has LP and energy
-      expect(selectCanUseAction('REFLECT')(state)).toBe(true);    // Has SP and energy
-      expect(selectCanUseAction('ENDURE')(state)).toBe(true);     // Always available with energy
-      expect(selectCanUseAction('EMBRACE')(state)).toBe(true);    // Has SP and energy
+      // All actions should be available with sufficient resources
+      expect(selectCanUseAction('ILLUMINATE')(state)).toBe(true); // Has LP (no energy cost)
+      expect(selectCanUseAction('REFLECT')(state)).toBe(true);    // Has SP (no energy cost)
+      expect(selectCanUseAction('ENDURE')(state)).toBe(true);     // Has energy
+      expect(selectCanUseAction('EMBRACE')(state)).toBe(true);    // Has SP (no energy cost)
     });
   });
 
-  describe('Energy Consumption During Combat', () => {
-    it('should consume energy when executing ILLUMINATE action', () => {
+  describe('Energy Consumption During Combat (Updated: Only ENDURE)', () => {
+    it('should NOT consume energy when executing ILLUMINATE action', () => {
       const store = useCombatStore.getState();
       
       store.startCombat(mockShadowEnemy, {
@@ -161,7 +161,7 @@ describe('Combat Energy System', () => {
       store.executeAction('ILLUMINATE');
       
       const finalEnergy = useCombatStore.getState().playerEnergy;
-      expect(finalEnergy).toBe(initialEnergy - 3); // ILLUMINATE costs 3 energy
+      expect(finalEnergy).toBe(initialEnergy); // ILLUMINATE no longer costs energy
     });
 
     it('should consume energy when executing ENDURE action', () => {
@@ -184,8 +184,8 @@ describe('Combat Energy System', () => {
     });
   });
 
-  describe('Low Energy Penalties', () => {
-    it('should apply damage penalty when energy is below 20%', () => {
+  describe('Low Energy Penalties (Updated: Not applicable to non-ENDURE actions)', () => {
+    it('should NOT apply damage penalty to ILLUMINATE when energy is low', () => {
       const store = useCombatStore.getState();
       
       // Start combat with low energy (15% of max)
@@ -205,11 +205,11 @@ describe('Combat Energy System', () => {
       const damage = initialEnemyHP - finalEnemyHP;
       
       // Base damage for level 1 ILLUMINATE is 3 + floor(1 * 1.5) = 4
-      // With 50% penalty: floor(4 * 0.5) = 2
-      expect(damage).toBe(2);
+      // No energy penalty applied since ILLUMINATE doesn't consume energy
+      expect(damage).toBe(4);
     });
 
-    it('should not apply damage penalty when energy is above 20%', () => {
+    it('should maintain consistent damage for ILLUMINATE regardless of energy', () => {
       const store = useCombatStore.getState();
       
       // Start combat with sufficient energy (25% of max)
@@ -229,11 +229,11 @@ describe('Combat Energy System', () => {
       const damage = initialEnemyHP - finalEnemyHP;
       
       // Base damage for level 1 ILLUMINATE is 3 + floor(1 * 1.5) = 4
-      // No penalty applied
+      // No energy factor since ILLUMINATE doesn't consume energy
       expect(damage).toBe(4);
     });
 
-    it('should show low energy message when penalty is applied', () => {
+    it('should NOT show low energy message for ILLUMINATE since it does not consume energy', () => {
       const store = useCombatStore.getState();
       
       store.startCombat(mockShadowEnemy, {
@@ -250,22 +250,22 @@ describe('Combat Energy System', () => {
       const log = useCombatStore.getState().log;
       const lastEntry = log[log.length - 1];
       
-      expect(lastEntry.message).toContain('flickers weakly due to exhaustion');
-      expect(lastEntry.effect).toContain('reduced by low energy');
+      expect(lastEntry.message).not.toContain('flickers weakly due to exhaustion');
+      expect(lastEntry.effect).not.toContain('reduced by low energy');
     });
   });
 
-  describe('Action Cost Selector', () => {
-    it('should return correct costs including energy for all actions', () => {
-      expect(selectActionCost('ILLUMINATE')()).toEqual({ lp: 2, energy: 3 });
-      expect(selectActionCost('REFLECT')()).toEqual({ sp: 1, energy: 2 });
-      expect(selectActionCost('ENDURE')()).toEqual({ energy: 1 });
-      expect(selectActionCost('EMBRACE')()).toEqual({ sp: 5, energy: 5 });
+  describe('Action Cost Selector (Updated: Only ENDURE shows energy cost)', () => {
+    it('should return correct costs with energy only for ENDURE', () => {
+      expect(selectActionCost('ILLUMINATE')()).toEqual({ lp: 2 }); // No energy cost shown
+      expect(selectActionCost('REFLECT')()).toEqual({ sp: 3 }); // No energy cost shown
+      expect(selectActionCost('ENDURE')()).toEqual({ energy: 1 }); // Only ENDURE shows energy
+      expect(selectActionCost('EMBRACE')()).toEqual({ sp: 5 }); // No energy cost shown
     });
   });
 
-  describe('Combat Log Integration', () => {
-    it('should log energy costs in combat actions', () => {
+  describe('Combat Log Integration (Updated: Only ENDURE shows energy cost)', () => {
+    it('should NOT log energy costs for ILLUMINATE actions', () => {
       const store = useCombatStore.getState();
       
       store.startCombat(mockShadowEnemy, {
@@ -282,9 +282,31 @@ describe('Combat Energy System', () => {
       const log = useCombatStore.getState().log;
       const lastEntry = log[log.length - 1];
       
-      expect(lastEntry.effect).toContain('-3 Energy');
+      expect(lastEntry.effect).not.toContain('Energy'); // Should not show energy cost
       expect(lastEntry.actor).toBe('PLAYER');
       expect(lastEntry.action).toBe('ILLUMINATE');
+    });
+    
+    it('should log energy costs only for ENDURE actions', () => {
+      const store = useCombatStore.getState();
+      
+      store.startCombat(mockShadowEnemy, {
+        lightPoints: 10,
+        shadowPoints: 5,
+        playerHealth: 100,
+        playerLevel: 1,
+        playerEnergy: 50,
+        maxPlayerEnergy: 100
+      });
+
+      store.executeAction('ENDURE');
+      
+      const log = useCombatStore.getState().log;
+      const lastEntry = log[log.length - 1];
+      
+      expect(lastEntry.effect).toContain('-1 Energy'); // Should show energy cost for ENDURE
+      expect(lastEntry.actor).toBe('PLAYER');
+      expect(lastEntry.action).toBe('ENDURE');
     });
   });
 }); 

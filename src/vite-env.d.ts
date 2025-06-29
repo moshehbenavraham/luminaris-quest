@@ -1,3 +1,4 @@
+// Built with Bolt.new
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {

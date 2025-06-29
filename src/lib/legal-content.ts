@@ -1,3 +1,4 @@
+// Built with Bolt.new
 export const legalContent = {
   lastUpdated: 'June 2025',
 

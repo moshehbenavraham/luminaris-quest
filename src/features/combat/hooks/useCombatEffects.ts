@@ -1,3 +1,4 @@
+// Built with Bolt.new
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest

@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { Menu, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';

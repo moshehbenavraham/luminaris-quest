@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { QueryProvider } from '@/lib/providers/query-provider';

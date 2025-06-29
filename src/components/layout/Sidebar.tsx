@@ -1,3 +1,4 @@
+// Built with Bolt.new
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Swords, TrendingUp, User, Scale, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
