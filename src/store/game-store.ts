@@ -229,9 +229,17 @@ export interface GameState {
   playerHealth: number; // 0-100, represents player's overall health
   maxPlayerHealth: number; // Maximum health capacity
 
+  // Player Energy System
+  playerEnergy: number; // 0-100 represents player's current energy
+  maxPlayerEnergy: number; // maximum energy capacity
+
   // Light & Shadow Combat Resources
   lightPoints: number;
   shadowPoints: number;
+
+  // Experience Points System
+  experiencePoints: number;        // Current XP total
+  experienceToNext: number;        // XP needed for next level
 
   // Combat System State
   combat: CombatState;
@@ -260,10 +268,19 @@ export interface GameState {
   healPlayerHealth: (amount: number) => void;
   setPlayerHealth: (health: number) => void;
 
+  // Player Energy Management
+  modifyPlayerEnergy: (delta: number) => void;
+  setPlayerEnergy: (energy: number) => void;
+
   // Light & Shadow Combat Actions
   modifyLightPoints: (delta: number) => void;
   modifyShadowPoints: (delta: number) => void;
   convertShadowToLight: (amount: number) => void;
+
+  // Experience Points Management
+  modifyExperiencePoints: (delta: number, reason?: string) => void;
+  getPlayerLevel: () => number;
+  getExperienceProgress: () => { current: number; toNext: number; percentage: number };
 
   // Combat System Actions
   startCombat: (enemyId: string, sceneDC?: number) => void;
@@ -285,6 +302,13 @@ export interface GameState {
   _setHasHydrated: (hasHydrated: boolean) => void;
   _healthCheckInterval?: NodeJS.Timeout;
   _isHealthMonitoringActive: boolean;
+  _energyRegenInterval?: NodeJS.Timeout;
+  _isEnergyRegenActive: boolean;
+  
+  // Energy regeneration actions
+  startEnergyRegeneration: () => void;
+  stopEnergyRegeneration: () => void;
+  regenerateEnergy: () => void;
 }
 
 const initialMilestones: Milestone[] = [
@@ -292,6 +316,39 @@ const initialMilestones: Milestone[] = [
   { id: 'milestone-50', level: 50, label: 'Finding Balance', achieved: false },
   { id: 'milestone-75', level: 75, label: 'Deep Connection', achieved: false },
 ];
+
+// Experience Points calculation functions
+const getXPRequiredForLevel = (level: number): number => {
+  const baseXP = 100;
+  const growthFactor = 1.4; // Gentle exponential growth
+  return Math.floor(baseXP * Math.pow(growthFactor, level - 1));
+};
+
+const calculateLevelProgression = (totalXP: number) => {
+  let level = 1;
+  let xpForCurrentLevel = 0;
+  
+  while (totalXP >= xpForCurrentLevel + getXPRequiredForLevel(level)) {
+    xpForCurrentLevel += getXPRequiredForLevel(level);
+    level++;
+  }
+  
+  return {
+    level,
+    currentLevelXP: totalXP - xpForCurrentLevel,
+    xpToNext: getXPRequiredForLevel(level)
+  };
+};
+
+// Level benefits calculation
+export const getLevelBenefits = (level: number) => {
+  return {
+    maxEnergyBonus: Math.floor((level - 1) / 2) * 10,      // +10 energy every 2 levels
+    startingLPBonus: Math.floor((level - 1) / 3) * 5,      // +5 LP every 3 levels
+    energyCostReduction: Math.floor((level - 1) / 4),      // -1 energy cost every 4 levels
+    trustGainMultiplier: 1 + (Math.floor((level - 1) / 5) * 0.2) // +20% trust every 5 levels
+  };
+};
 
 export const useGameStoreBase = create<GameState>()(
   persist(
@@ -306,13 +363,21 @@ export const useGameStoreBase = create<GameState>()(
       pendingMilestoneJournals: new Set(),
 
       // Player Health System
-      playerHealth: 100, // Start at full health
-      maxPlayerHealth: 100, // Standard maximum health
+      playerHealth: 100,
+      maxPlayerHealth: 100,
+
+      // Player Energy System
+      playerEnergy: 100,
+      maxPlayerEnergy: 100,
 
       // Light & Shadow Combat Resources
       // Players start with some resources to enable combat functionality
       lightPoints: 10,
       shadowPoints: 5,
+
+      // Experience Points System
+      experiencePoints: 0,
+      experienceToNext: 100, // XP needed for level 2
 
       // Combat System State
       combat: {
@@ -361,6 +426,8 @@ export const useGameStoreBase = create<GameState>()(
       
       _hasHydrated: false,
       _isHealthMonitoringActive: false,
+      _energyRegenInterval: undefined,
+      _isEnergyRegenActive: false,
 
       // Actions
       setGuardianTrust: (trust: number) => {
@@ -522,6 +589,9 @@ export const useGameStoreBase = create<GameState>()(
           // Reset player health
           playerHealth: 100,
           maxPlayerHealth: 100,
+          // Reset energy
+          playerEnergy: 100,
+          maxPlayerEnergy: 100,
           lightPoints: 0,
           shadowPoints: 0,
           // Reset combat state
@@ -608,6 +678,27 @@ export const useGameStoreBase = create<GameState>()(
         });
       },
 
+      // Player Energy Management
+      modifyPlayerEnergy: (delta: number) => {
+        set((state) => {
+          const newEnergy = Math.max(0, Math.min(state.maxPlayerEnergy, state.playerEnergy + delta));
+          return {
+            playerEnergy: newEnergy,
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
+          };
+        });
+      },
+
+      setPlayerEnergy: (energy: number) => {
+        set((state) => {
+          const newEnergy = Math.max(0, Math.min(state.maxPlayerEnergy, energy));
+          return {
+            playerEnergy: newEnergy,
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
+          };
+        });
+      },
+
       // Light & Shadow Combat Resource Management
       modifyLightPoints: (delta: number) => {
         set((state) => {
@@ -667,7 +758,100 @@ export const useGameStoreBase = create<GameState>()(
         });
       },
 
+      // Experience Points Management
+      modifyExperiencePoints: (delta: number, reason?: string) => {
+        set((state) => {
+          const newTotalXP = Math.max(0, state.experiencePoints + delta);
+          const { level, xpToNext } = calculateLevelProgression(newTotalXP);
+          const leveledUp = level > state.playerLevel;
+          
+          logger.debug('Modified experience points', {
+            previous: state.experiencePoints,
+            delta,
+            new: newTotalXP,
+            level,
+            leveledUp,
+            reason
+          });
+          
+          const baseUpdate = {
+            experiencePoints: newTotalXP,
+            experienceToNext: xpToNext,
+            playerLevel: level,
+            saveState: { ...state.saveState, hasUnsavedChanges: true }
+          };
+
+          if (leveledUp && reason) {
+            // Calculate and apply level benefits
+            const newBenefits = getLevelBenefits(level);
+            const oldBenefits = getLevelBenefits(state.playerLevel);
+            
+            // Prepare benefit updates
+            const benefitUpdates: any = {};
+            
+            // Apply new max energy bonus
+            const energyBonus = newBenefits.maxEnergyBonus - oldBenefits.maxEnergyBonus;
+            if (energyBonus > 0) {
+              benefitUpdates.maxPlayerEnergy = state.maxPlayerEnergy + energyBonus;
+              benefitUpdates.playerEnergy = state.playerEnergy + energyBonus; // Give current energy boost too
+            }
+            
+            // Apply starting LP bonus (if gained new bonus levels)
+            const lpBonus = newBenefits.startingLPBonus - oldBenefits.startingLPBonus;
+            if (lpBonus > 0) {
+              benefitUpdates.lightPoints = Math.max(state.lightPoints, state.lightPoints + lpBonus);
+            }
+            
+            // Create level-up journal entry with benefits description
+            const benefitsText = [];
+            if (energyBonus > 0) benefitsText.push(`+${energyBonus} max energy`);
+            if (lpBonus > 0) benefitsText.push(`+${lpBonus} Light Points`);
+            if (newBenefits.energyCostReduction > oldBenefits.energyCostReduction) {
+              benefitsText.push(`-1 energy cost for actions`);
+            }
+            if (newBenefits.trustGainMultiplier > oldBenefits.trustGainMultiplier) {
+              benefitsText.push(`+20% trust gain bonus`);
+            }
+            benefitsText.push(`+1 bonus to all dice rolls`);
+            
+            const benefitsDescription = benefitsText.length > 0 
+              ? `\n\nNew benefits gained:\n• ${benefitsText.join('\n• ')}`
+              : '';
+            
+            // Trigger level-up celebration and journal prompt
+            get().addJournalEntry({
+              id: `level-up-${level}-${Date.now()}`,
+              type: 'learning',
+              title: `Level ${level} Achieved!`,
+              content: `Your journey of growth continues. Reflect on how far you've come.\n\nReason for advancement: ${reason}${benefitsDescription}`,
+              trustLevel: state.guardianTrust,
+              tags: ['level-up', 'achievement'],
+              timestamp: new Date()
+            });
+            
+            return {
+              ...baseUpdate,
+              ...benefitUpdates
+            };
+          }
+          
+          return baseUpdate;
+        });
+      },
+
+      getPlayerLevel: () => get().playerLevel,
+      
+      getExperienceProgress: () => ({
+        current: get().experiencePoints,
+        toNext: get().experienceToNext,
+        percentage: (get().experiencePoints / get().experienceToNext) * 100
+      }),
+
       // Combat System Actions
+      // ⚠️⚠️⚠️ DEPRECATED COMBAT SYSTEM - DO NOT USE ⚠️⚠️⚠️
+      // This is the OLD combat system - only used with ?legacyCombat=1
+      // For NEW development, use useCombatStore from @/features/combat
+      // See COMBAT_MIGRATION_GUIDE.md for migration details
       startCombat: (enemyId: string, sceneDC?: number) => {
         set((state) => {
           const effectiveSceneDC = sceneDC || 12; // Default DC if not provided
@@ -833,6 +1017,7 @@ export const useGameStoreBase = create<GameState>()(
         });
       },
 
+      // ⚠️⚠️⚠️ DEPRECATED - Part of OLD combat system ⚠️⚠️⚠️
       endCombat: (victory: boolean) => {
         set((state) => {
           if (!state.combat.inCombat) {
@@ -865,7 +1050,12 @@ export const useGameStoreBase = create<GameState>()(
           };
 
           // Advance scene after successful combat (victory or learning from defeat)
-          const shouldAdvanceScene = victory || !victory; // Always advance after combat
+          // ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
+          // Modified: 2025-06-28 - Changed to only advance scene on victory (not defeat)
+          // FAILED: This change was made to fix defeat handling but NO battle results screen
+          // appears after combat. User still reports no battle results screen.
+          // STATUS: FAILED ATTEMPT - Battle results screen still missing
+          const shouldAdvanceScene = victory; // Only advance on victory
           const newSceneIndex = shouldAdvanceScene && !isLastScene(state.currentSceneIndex)
             ? state.currentSceneIndex + 1
             : state.currentSceneIndex;
@@ -873,6 +1063,7 @@ export const useGameStoreBase = create<GameState>()(
           return {
             lightPoints: finalLightPoints + bonusLP,
             shadowPoints: finalShadowPoints,
+            playerHealth: 100, // Restore health to full after combat
             currentSceneIndex: newSceneIndex,
             combat: {
               inCombat: false,
@@ -991,13 +1182,24 @@ export const useGameStoreBase = create<GameState>()(
               current_scene_index: currentState.currentSceneIndex,
               milestones: JSON.stringify(currentState.milestones),
               scene_history: JSON.stringify(currentState.sceneHistory),
+              player_energy: currentState.playerEnergy,
+              max_player_energy: currentState.maxPlayerEnergy,
+              // Add missing columns that were previously only in localStorage
+              light_points: currentState.lightPoints,
+              shadow_points: currentState.shadowPoints,
+              player_health: currentState.playerHealth,
+              // Experience points system
+              experience_points: currentState.experiencePoints,
+              experience_to_next: currentState.experienceToNext,
               updated_at: new Date().toISOString(),
             };
 
             logger.debug('Saving game state', {
               userId: user.id,
               guardianTrust: gameState.guardian_trust,
-              journalCount: currentState.journalEntries.length
+              journalCount: currentState.journalEntries.length,
+              playerEnergy: gameState.player_energy,
+              maxPlayerEnergy: gameState.max_player_energy
             });
 
             // Save game state with timeout
@@ -1219,6 +1421,15 @@ export const useGameStoreBase = create<GameState>()(
                 currentSceneIndex: gameState.current_scene_index,
                 milestones: parsedMilestones,
                 sceneHistory: parsedSceneHistory,
+                playerEnergy: (gameState as any).player_energy ?? 100,
+                maxPlayerEnergy: (gameState as any).max_player_energy ?? 100,
+                // Load missing columns with fallback to current values for backward compatibility
+                lightPoints: (gameState as any).light_points ?? get().lightPoints,
+                shadowPoints: (gameState as any).shadow_points ?? get().shadowPoints,
+                playerHealth: (gameState as any).player_health ?? get().playerHealth,
+                // Experience points system
+                experiencePoints: (gameState as any).experience_points ?? get().experiencePoints,
+                experienceToNext: (gameState as any).experience_to_next ?? get().experienceToNext,
               }),
               journalEntries:
                 journalEntries?.map((entry) => ({
@@ -1350,6 +1561,88 @@ export const useGameStoreBase = create<GameState>()(
           });
         }
       },
+
+      // Energy regeneration actions
+      startEnergyRegeneration: () => {
+        const state = get();
+        
+        // CRITICAL: Check and prevent duplicate starts atomically
+        if (state._isEnergyRegenActive) {
+          logger.debug('Energy regeneration already active, skipping start');
+          return;
+        }
+        
+        // CRITICAL: Always clear existing interval first if it exists (atomic cleanup)
+        if (state._energyRegenInterval) {
+          clearInterval(state._energyRegenInterval);
+          logger.warn('Cleared existing energy regeneration interval');
+        }
+        
+        logger.info('Starting energy regeneration');
+        
+        // Set active flag immediately to prevent race conditions
+        set({ _isEnergyRegenActive: true });
+        
+        // Set up periodic regeneration using environment-specific interval
+        const config = getEnvironmentConfig();
+        const interval = setInterval(() => {
+          const currentState = get();
+
+          // Only regenerate energy if the app is active and user is present
+          if (document.hidden || !document.hasFocus()) {
+            logger.debug('Skipping energy regeneration - app not active');
+            return;
+          }
+
+          currentState.regenerateEnergy();
+        }, config.energyRegenInterval);
+        
+        // Store interval reference atomically
+        set({ _energyRegenInterval: interval });
+      },
+
+      stopEnergyRegeneration: () => {
+        const state = get();
+        
+        // Always reset flags, even if no interval exists (cleanup any inconsistent state)
+        if (state._energyRegenInterval) {
+          logger.info('Stopping energy regeneration');
+          clearInterval(state._energyRegenInterval);
+        } else if (state._isEnergyRegenActive) {
+          logger.warn('Clearing inconsistent energy regeneration state (active flag but no interval)');
+        }
+        
+        // Atomically reset both flags regardless of current state
+        set({ 
+          _energyRegenInterval: undefined,
+          _isEnergyRegenActive: false 
+        });
+      },
+
+      regenerateEnergy: () => {
+        const state = get();
+        
+        // Don't regenerate if in combat
+        if (state.combat.inCombat) {
+          logger.debug('Energy regeneration paused - in combat');
+          return;
+        }
+        
+        // Don't regenerate if already at max energy
+        if (state.playerEnergy >= state.maxPlayerEnergy) {
+          logger.debug('Energy regeneration skipped - already at max energy');
+          return;
+        }
+        
+        // Regenerate 1 energy
+        const newEnergy = Math.min(state.maxPlayerEnergy, state.playerEnergy + 1);
+        set((state) => ({
+          playerEnergy: newEnergy,
+          saveState: { ...state.saveState, hasUnsavedChanges: true }
+        }));
+        
+        logger.debug(`Energy regenerated: ${state.playerEnergy} -> ${newEnergy}`);
+      },
     }),
     {
       name: 'luminari-game-state',
@@ -1437,9 +1730,17 @@ export const useGameStore = () => {
       playerHealth: store.playerHealth,
       maxPlayerHealth: store.maxPlayerHealth,
 
+      // Player Energy System - Use actual store values for real-time updates
+      playerEnergy: store.playerEnergy,
+      maxPlayerEnergy: store.maxPlayerEnergy,
+
       // Light & Shadow Combat Resources - Use actual store values for real-time updates
       lightPoints: store.lightPoints,
       shadowPoints: store.shadowPoints,
+
+      // Experience Points System - Use actual store values for real-time updates
+      experiencePoints: store.experiencePoints,
+      experienceToNext: store.experienceToNext,
 
       // Combat System State - Use actual store values for real-time updates
       combat: store.combat,
@@ -1472,10 +1773,19 @@ export const useGameStore = () => {
       healPlayerHealth: store.healPlayerHealth,
       setPlayerHealth: store.setPlayerHealth,
 
+      // Player Energy Management
+      modifyPlayerEnergy: store.modifyPlayerEnergy,
+      setPlayerEnergy: store.setPlayerEnergy,
+
       // Light & Shadow Combat Actions
       modifyLightPoints: store.modifyLightPoints,
       modifyShadowPoints: store.modifyShadowPoints,
       convertShadowToLight: store.convertShadowToLight,
+
+      // Experience Points Management
+      modifyExperiencePoints: store.modifyExperiencePoints,
+      getPlayerLevel: store.getPlayerLevel,
+      getExperienceProgress: store.getExperienceProgress,
 
       // Combat System Actions
       startCombat: store.startCombat,
@@ -1488,8 +1798,13 @@ export const useGameStore = () => {
       performHealthCheck: store.performHealthCheck,
       startHealthMonitoring: store.startHealthMonitoring,
       stopHealthMonitoring: store.stopHealthMonitoring,
-      _hasHydrated: false,
+      _hasHydrated: store._hasHydrated,
       _setHasHydrated: store._setHasHydrated,
+
+      // Energy regeneration actions
+      startEnergyRegeneration: store.startEnergyRegeneration,
+      stopEnergyRegeneration: store.stopEnergyRegeneration,
+      regenerateEnergy: store.regenerateEnergy,
     };
   }
 

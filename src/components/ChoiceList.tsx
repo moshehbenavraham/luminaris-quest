@@ -10,14 +10,22 @@ import {
   getSceneProgress,
   rollDice,
   handleSceneOutcome,
+  getLevelRollBonus,
   type DiceResult,
 } from '@/engine/scene-engine';
 import { DiceRollOverlay } from './DiceRollOverlay';
-import { CombatOverlay as LegacyCombatOverlay } from './combat/CombatOverlay';
+import { getLevelBenefits } from '@/store/game-store';
+
+// 🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST
+// NEW System (✅ USE THIS): @/features/combat/
+// OLD System (❌ DEPRECATED): @/components/combat/
+// See COMBAT_MIGRATION_GUIDE.md for details
 import { CombatOverlay as NewCombatOverlay } from '@/features/combat';
-import { useNewCombatUI } from '@/features/combat';
+import { useNewCombatUI, useCombatStore } from '@/features/combat';
+import { generateSyncChecksum } from '@/features/combat';
 import { useGameStore } from '@/store/game-store';
-import { Sword, Users, Wrench, BookOpen, Map, Sparkles, Zap } from 'lucide-react';
+import { createShadowManifestation } from '@/data/shadowManifestations';
+import { Sword, Users, Wrench, BookOpen, Map, Sparkles, Zap, Battery } from 'lucide-react';
 
 interface ChoiceListProps {
   guardianTrust: number;
@@ -43,9 +51,19 @@ export function ChoiceList({
     advanceScene,
     modifyLightPoints,
     modifyShadowPoints,
-    startCombat,
-    combat: combatState
+    modifyPlayerEnergy,
+    modifyExperiencePoints,
+    lightPoints,
+    shadowPoints,
+    playerHealth,
+    playerLevel,
+    playerEnergy,
+    maxPlayerEnergy
   } = useGameStore();
+  
+  // Get startCombat from NEW combat store
+  const { startCombat: startNewCombat } = useCombatStore();
+  
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -93,8 +111,20 @@ export function ChoiceList({
   const handleChoice = () => {
     if (isProcessing) return;
 
+    // Check if player has enough energy for this scene type
+    const outcome = handleSceneOutcome(currentScene, true); // Get energy cost regardless of success
+    const energyCost = Math.abs(outcome.energyChanges?.energyCost || 0);
+    
+    if (playerEnergy < energyCost) {
+      setGuardianMessage(
+        `You need ${energyCost} energy to attempt this ${currentScene.type} challenge, but you only have ${playerEnergy}. Rest and let your energy regenerate before trying again.`
+      );
+      return;
+    }
+
     setIsProcessing(true);
-    const result = rollDice(currentScene.dc);
+    const levelBonus = getLevelRollBonus(playerLevel);
+    const result = rollDice(currentScene.dc, levelBonus);
     setDiceResult(result);
     setShowDiceRoll(true);
   };
@@ -106,17 +136,37 @@ export function ChoiceList({
 
     // Handle scene outcome with new integration system
     const scene = getScene(currentSceneIndex);
-    const outcome = handleSceneOutcome(scene, diceResult.success, diceResult.roll);
+    const outcome = handleSceneOutcome(scene, diceResult.success, diceResult.roll, currentSceneIndex);
 
     // Update guardian trust and message based on result
-    const trustChange = diceResult.success ? 5 : -5;
-    const newTrust = Math.min(100, Math.max(0, guardianTrust + trustChange));
+    const baseTrustChange = diceResult.success ? 5 : -5;
+    const levelBenefits = getLevelBenefits(playerLevel);
+    // Apply trust gain multiplier only to positive changes
+    const multipliedTrustChange = baseTrustChange > 0 
+      ? Math.round(baseTrustChange * levelBenefits.trustGainMultiplier)
+      : baseTrustChange;
+    const newTrust = Math.min(100, Math.max(0, guardianTrust + multipliedTrustChange));
     setGuardianTrust(newTrust);
 
     if (diceResult.success) {
       setGuardianMessage(scene.successText);
     } else {
       setGuardianMessage(scene.failureText);
+    }
+
+    // Apply energy changes (cost is always applied, reward only on success)
+    if (outcome.energyChanges) {
+      if (outcome.energyChanges.energyCost) {
+        // Apply energy cost reduction benefit (reduce the cost by the benefit amount)
+        const baseCost = outcome.energyChanges.energyCost; // This is negative
+        const reducedCost = Math.min(0, baseCost + levelBenefits.energyCostReduction); // Less negative = reduced cost
+        console.log('Applying energy cost:', baseCost, '→', reducedCost, '(reduction:', levelBenefits.energyCostReduction, ')');
+        modifyPlayerEnergy(reducedCost);
+      }
+      if (outcome.energyChanges.energyReward && diceResult.success) {
+        console.log('Applying energy reward:', outcome.energyChanges.energyReward);
+        modifyPlayerEnergy(outcome.energyChanges.energyReward);
+      }
     }
 
     // Apply resource changes if not triggering combat
@@ -131,12 +181,19 @@ export function ChoiceList({
       }
     }
 
+    // Apply experience points (always awarded for scene attempts)
+    if (outcome.experienceChanges?.xpGained) {
+      console.log('Applying XP change:', outcome.experienceChanges.xpGained, 'for:', outcome.experienceChanges.reason);
+      modifyExperiencePoints(outcome.experienceChanges.xpGained, outcome.experienceChanges.reason);
+    }
+
     // Debug logging for resource application
     console.log('Scene outcome:', {
       sceneType: scene.type,
       success: diceResult.success,
       triggeredCombat: outcome.triggeredCombat,
-      resourceChanges: outcome.resourceChanges
+      resourceChanges: outcome.resourceChanges,
+      energyChanges: outcome.energyChanges
     });
 
     // Record the completed scene
@@ -148,13 +205,31 @@ export function ChoiceList({
       success: diceResult.success,
       roll: diceResult.roll,
       dc: scene.dc,
-      trustChange,
+      trustChange: multipliedTrustChange,
       completedAt: Date.now(),
     });
 
     // Trigger combat if needed
     if (outcome.triggeredCombat && outcome.shadowType) {
-      startCombat(outcome.shadowType, scene.dc); // Pass scene DC for damage calculation
+      // 🚨 CRITICAL: This triggers the NEW combat system
+      // The NEW system uses useCombatStore from @/features/combat
+      // NOT the old gameStore.startCombat() from @/store/game-store
+      // See COMBAT_MIGRATION_GUIDE.md if confused
+      const shadowEnemy = createShadowManifestation(outcome.shadowType);
+      if (shadowEnemy) {
+        // Generate sync checksum for combat store validation
+        const syncChecksum = generateSyncChecksum(lightPoints, shadowPoints);
+        
+        startNewCombat(shadowEnemy, {
+          lightPoints,
+          shadowPoints,
+          playerHealth,
+          playerLevel,
+          playerEnergy,
+          maxPlayerEnergy,
+          syncChecksum
+        });
+      }
     } else {
       // Only advance scene if not entering combat
       if (!isLastScene(currentSceneIndex)) {
@@ -238,8 +313,23 @@ export function ChoiceList({
               </p>
               <p className="text-xs text-muted-foreground">Your choice will be tested by fate</p>
 
-              {/* Show resource rewards/penalties */}
-              <div className="flex justify-center gap-4 pt-1">
+              {/* Show resource rewards/penalties and energy costs */}
+              <div className="flex justify-center gap-3 pt-1 flex-wrap">
+                {/* Energy cost (always shown) */}
+                <div className="flex items-center gap-1 text-xs text-orange-600">
+                  <Battery className="h-3 w-3" />
+                  <span>-{(() => {
+                    const cost = handleSceneOutcome(currentScene, true).energyChanges?.energyCost;
+                    return cost ? Math.abs(cost) : 0;
+                  })()} Energy</span>
+                </div>
+                
+                {/* Energy reward on success */}
+                <div className="flex items-center gap-1 text-xs text-green-600">
+                  <Battery className="h-3 w-3" />
+                  <span>+{handleSceneOutcome(currentScene, true).energyChanges?.energyReward || 0} Energy on success</span>
+                </div>
+                
                 {(currentScene.lpReward || currentScene.type !== 'combat') && (
                   <div className="flex items-center gap-1 text-xs combat-text-critical">
                     <Sparkles className="h-3 w-3" />
@@ -292,17 +382,11 @@ export function ChoiceList({
         <DiceRollOverlay result={diceResult} onClose={handleDiceRollClose} />
       )}
 
-      {/* Combat Overlay - Choose between new and legacy */}
-      {combatState?.inCombat && (
-        useNewCombat ? (
-          <NewCombatOverlay
-            data-testid="combat-overlay"
-          />
-        ) : (
-          <LegacyCombatOverlay
-            data-testid="combat-overlay"
-          />
-        )
+      {/* Combat Overlay - Use new combat system only */}
+      {useNewCombat && (
+        <NewCombatOverlay
+          data-testid="combat-overlay"
+        />
       )}
     </>
   );
