@@ -10,6 +10,8 @@ A therapeutic AI-powered RPG adventure designed to help young adults process tra
 
 **Built with [Bolt.new](https://bolt.new/) 🚀**
 
+## Video Demo: [View on YouTube](https://youtu.be/FXpZskJYqvA)
+
 ## 🌟 About
 
 **Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure designed to help young adults process trauma from losing parents and experiencing homelessness during their teenage years. The game combines fantasy storytelling with evidence-based therapeutic techniques to create a safe space for healing and growth.
