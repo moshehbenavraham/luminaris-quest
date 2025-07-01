@@ -10,12 +10,9 @@ A therapeutic AI-powered RPG adventure designed to help young adults process tra
 
 **Built with [Bolt.new](https://bolt.new/) 🚀**
 
-**⚠️ DEVELOPMENT WARNING**: This project has experienced significant development issues with AI assistance making incorrect assumptions about system functionality. Combat system fixes may contain implementations that do NOT address actual user-reported issues. All recent changes should be thoroughly tested before release.
+## Video Demo: [View on YouTube](https://youtu.be/FXpZskJYqvA)
 
-**🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST**
-- **NEW System** ✅: `/src/features/combat/` - Active development, default behavior
-- **OLD System** ❌: `/src/components/combat/` - DEPRECATED, only with `?legacyCombat=1`
-- See [`COMBAT_MIGRATION_GUIDE.md`](COMBAT_MIGRATION_GUIDE.md) for full details
+## Bolt.new DevPost.com [World's Largest Hackthon Submission](https://devpost.com/software/luminari-s-quest-a-therapeutic-gaming-experience)
 
 ## 🌟 About
 
@@ -674,6 +671,13 @@ We welcome contributions! Please read our guidelines:
 2. **[API Documentation](docs/API_DOCUMENTATION.md)** - Technical reference
 3. **[Testing Guide](docs/TESTING_GUIDE.md)** - Quality assurance
 4. **[Security Documentation](docs/SECURITY.md)** - Security practices
+
+---
+
+**🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST**
+- **NEW System** ✅: `/src/features/combat/` - Active development, default behavior
+- **OLD System** ❌: `/src/components/combat/` - DEPRECATED, only with `?legacyCombat=1`
+- See [`COMBAT_MIGRATION_GUIDE.md`](COMBAT_MIGRATION_GUIDE.md) for full details
 
 ---
 
