@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { TherapeuticInsight } from '@/features/combat/components/feedback/TherapeuticInsight';
 import { advanceTimersAndAct } from '@/test/utils';
