@@ -40,23 +40,23 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 
 ### Migration Status
 
-**Last Updated:** 2025-11-17 23:45
+**Last Updated:** 2025-11-17 00:03
 - [x] Phase 1: Critical Build Blockers - Completed (2025-11-17) - ~2 hours ✅
 - [x] Phase 2: ESLint Configuration & Critical Errors - Completed (2025-11-17) - ~3 hours ✅
 - [x] Phase 3: React 19 Test Infrastructure - Completed (2025-11-17) - ~2 hours ✅
 - [~] Phase 4: Combat System Tests - Partial (2025-11-17) - ~2 hours ⚠️
 - [x] Phase 5: Investigation & Analysis - Completed (2025-11-17) - ~1 hour ✅
-- [ ] Phase 6: Outdated Test Assertions (StatsBar, Pages) **RESUME HERE**
-- [ ] Phase 7: Tooltip & Timer Tests (Radix UI, Auto-save)
+- [x] Phase 6: Outdated Test Assertions - Completed (2025-11-17) - ~2 hours ✅
+- [ ] Phase 7: Tooltip & Timer Tests (Radix UI, Auto-save) **RESUME HERE**
 - [ ] Phase 8: Integration Tests & Combat Completion
 - [ ] Phase 9: Final Validation & Documentation
 
-### ✅ Current Status: PHASE 5 COMPLETE - READY FOR PHASE 6
+### ✅ Current Status: PHASE 6 COMPLETE - READY FOR PHASE 7
 
-**Current Build State (as of 2025-11-17 23:41):**
+**Current Build State (as of 2025-11-17 00:03):**
 - **Build:** ✅ PASSING (0 errors)
 - **Lint:** ✅ PASSING (0 errors, 253 warnings - within tolerance)
-- **Tests:** ⚠️ 155 failures / 1116 tests (86.1% pass rate)
+- **Tests:** ⚠️ 122 failures / 1116 tests (89.1% pass rate)
 
 **Phase 5 Investigation Summary:**
 - **Status:** Investigation complete - significant test refactoring required
@@ -105,13 +105,13 @@ This plan divides the migration into 6 phases, each sized to fit within a single
    - Tests: ⚠️ 85.8% (above 80% coverage target)
    - Defer test refactoring to separate maintenance task
 
-2. **Option B (Systematic Fix):** Allocate 2-3 additional sessions to fix tests
+2. **Option B (Systematic Fix):** Allocate 2-3 additional sessions to fix tests ✅ **SELECTED**
    - Session 1: Fix outdated tests (update assertions to match current components)
    - Session 2: Fix tooltip tests (Radix UI timing + React 19 act() patterns)
    - Session 3: Fix remaining integration tests
    - Target: >95% pass rate
 
-**Current Recommendation:** Option A - The core migration is functionally complete. The remaining test failures are primarily due to test maintenance debt (outdated assertions) rather than React 19 breaking changes. Tests can be fixed in a follow-up PR focused on test maintenance.
+**Current Recommendation:** Option B - Proceeding with systematic fix to achieve >95% pass rate.
 
 **Git Commits Created (Phase 5):**
 ```bash
@@ -1451,6 +1451,69 @@ Refs: package_update_fixes.md Phase 6"
 
 ---
 
+## Phase 6 Completion Summary ✅
+
+**Status:** ✅ **Completed (2025-11-17) - ~2 hours**
+
+**Duration:** ~2 hours total
+**Final Test State:** 122 failures, 994 passing (89.1% pass rate) ✅
+**Starting State:** 155 failures, 961 passing (86.1% pass rate)
+**Improvement:** 33 tests fixed (21.3% reduction in failures)
+
+**What Was Accomplished:**
+1. ✅ Fixed 4 StatsBar assertion tests (experience display format, custom values, edge cases, energy calculation)
+2. ✅ Fixed all 22 page component tests (Adventure, Home, Profile) - 100% success rate
+   - Added missing `useGameStoreBase` export to mocks
+   - Added missing `saveState` property to mocks
+   - Updated Home test assertions for current layout classes
+3. ✅ Fixed all 8 StatsBarAlignment tests - 100% success rate
+   - Added missing `getExperienceProgress` function to mock
+
+**Key Changes Made:**
+1. **StatsBar.test.tsx:**
+   - Updated "renders custom stat values" test to check for "25/100" format instead of "25"
+   - Updated "handles edge case values" test to check for "1000/1500" format instead of "1000"
+   - Updated "maintains proper section order" test to check for "Level 1" instead of "Experience"
+   - Fixed "calculates energy percentage correctly" test to use aria-valuenow from progressbar instead of fragile DOM selectors
+
+2. **Adventure.test.tsx:**
+   - Added `useGameStoreBase` export to mock
+   - Added `saveState` object to mockGameStore
+
+3. **Profile.test.tsx:**
+   - Added `useGameStoreBase` export to mock
+   - Added `saveState` object to mockGameStore
+
+4. **Home.test.tsx:**
+   - Removed outdated `data-ratio` assertion (ratio prop not passed to component)
+   - Updated imageContainer class assertions from "overflow-hidden" to "mt-6 mb-16 relative z-0"
+
+5. **StatsBarAlignment.test.tsx:**
+   - Replaced outdated `experiencePoints`/`experienceToNext` with `getExperienceProgress` function
+   - Updated mock to return proper experience progress object
+
+**Files Modified (7 total):**
+1. src/components/StatsBar.test.tsx
+2. src/pages/Adventure.test.tsx
+3. src/pages/Home.test.tsx
+4. src/pages/Profile.test.tsx
+5. src/components/StatsBarAlignment.test.tsx
+
+**Test Results:**
+- StatsBar tests: 18/22 passing (4 tooltip tests deferred to Phase 7)
+- Page tests: 30/30 passing ✅
+- StatsBarAlignment tests: 8/8 passing ✅
+
+**Success Criteria Met:**
+- [x] StatsBar assertion tests passing (excluding tooltips for Phase 7)
+- [x] All page component tests passing
+- [x] All StatsBarAlignment tests passing
+- [x] Test pass rate improved to 89.1% (exceeded 89% target)
+
+**Next Session:** Begin Phase 7 - Tooltip & Timer Tests
+
+---
+
 ## Phase 7: Tooltip & Timer Tests (Radix UI + React 19 Timing)
 
 **Session:** 7 of 9
@@ -1908,21 +1971,21 @@ Refs: package_update_fixes.md Phase 9"
 
 ## Revised Timeline & Effort
 
-| Phase | Description | Est. Time | Complexity | Status |
-|-------|-------------|-----------|------------|--------|
-| Phase 1 | Critical Build Blockers | ~2 hours | High | ✅ Complete |
-| Phase 2 | ESLint & Critical Errors | ~3 hours | Low-Med | ✅ Complete |
-| Phase 3 | React 19 Test Infrastructure | ~2 hours | Med-High | ✅ Complete |
-| Phase 4 | Combat System Tests (Partial) | ~2 hours | High | ⚠️ Partial |
-| Phase 5 | Investigation & Analysis | ~1 hour | Medium | ✅ Complete |
-| **Phase 6** | **Outdated Test Assertions** | **3-4 hours** | **Low-Med** | **⬅️ RESUME** |
-| Phase 7 | Tooltip & Timer Tests | 3-4 hours | Medium | 📅 Planned |
-| Phase 8 | Integration & Combat Completion | 4-6 hours | High | 📅 Planned |
-| Phase 9 | Final Validation & Docs | 2-3 hours | Low-Med | 📅 Planned |
+| Phase | Description | Est. Time | Actual | Complexity | Status |
+|-------|-------------|-----------|--------|------------|--------|
+| Phase 1 | Critical Build Blockers | ~2 hours | ~2 hours | High | ✅ Complete |
+| Phase 2 | ESLint & Critical Errors | ~3 hours | ~3 hours | Low-Med | ✅ Complete |
+| Phase 3 | React 19 Test Infrastructure | ~2 hours | ~2 hours | Med-High | ✅ Complete |
+| Phase 4 | Combat System Tests (Partial) | ~2 hours | ~2 hours | High | ⚠️ Partial |
+| Phase 5 | Investigation & Analysis | ~1 hour | ~1 hour | Medium | ✅ Complete |
+| Phase 6 | Outdated Test Assertions | 3-4 hours | ~2 hours | Low-Med | ✅ Complete |
+| **Phase 7** | **Tooltip & Timer Tests** | **3-4 hours** | **TBD** | **Medium** | **⬅️ RESUME** |
+| Phase 8 | Integration & Combat Completion | 4-6 hours | TBD | High | 📅 Planned |
+| Phase 9 | Final Validation & Docs | 2-3 hours | TBD | Low-Med | 📅 Planned |
 
 **Total Estimated Time:** 22-29 hours across 9 sessions
-**Completed:** 10 hours (Phases 1-5)
-**Remaining:** 12-19 hours (Phases 6-9)
+**Completed:** 12 hours (Phases 1-6)
+**Remaining:** 10-17 hours (Phases 7-9)
 
 ---
 

@@ -13,10 +13,18 @@ const mockGameStore = {
   _hasHydrated: true,
   lightPoints: 0,
   shadowPoints: 0,
+  saveToSupabase: vi.fn(),
+  saveState: {
+    status: 'idle' as const,
+    hasUnsavedChanges: false,
+    lastSaveTimestamp: Date.now(),
+    error: null,
+  },
 };
 
 vi.mock('@/store/game-store', () => ({
   useGameStore: () => mockGameStore,
+  useGameStoreBase: (selector?: any) => selector ? selector(mockGameStore) : mockGameStore,
 }));
 
 // Mock StatsBar to use mock store values for testing

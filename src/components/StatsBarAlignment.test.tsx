@@ -19,9 +19,12 @@ describe('StatsBar Visual Alignment', () => {
       playerHealth: 75,
       playerEnergy: 80,
       maxPlayerEnergy: 100,
-      experiencePoints: 120,
-      experienceToNext: 200,
-      playerLevel: 3
+      playerLevel: 3,
+      getExperienceProgress: () => ({
+        current: 120,
+        toNext: 80,
+        percentage: 60
+      })
     });
   });
 
@@ -144,9 +147,12 @@ describe('StatsBar Visual Alignment', () => {
       playerHealth: 75,
       playerEnergy: 15, // Low energy
       maxPlayerEnergy: 100,
-      experiencePoints: 120,
-      experienceToNext: 200,
-      playerLevel: 3
+      playerLevel: 3,
+      getExperienceProgress: () => ({
+        current: 120,
+        toNext: 80,
+        percentage: 60
+      })
     });
 
     render(<StatsBar trust={50} showCombatResources={true} />);

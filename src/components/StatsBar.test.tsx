@@ -1,6 +1,6 @@
 import React from 'react';
-import { describe, it, expect, beforeEach, vi, test } from 'vitest';
-import { render, screen } from '@/test/utils';
+import { describe, it, expect, beforeEach, vi, test, afterEach } from 'vitest';
+import { render, screen, act, waitFor, advanceTimersAndAct } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { StatsBar } from '@/components/StatsBar';
 
@@ -36,18 +36,27 @@ describe('StatsBar Component', () => {
 
       expect(screen.getByText('Health')).toBeInTheDocument();
       expect(screen.getByText('Energy')).toBeInTheDocument();
-      expect(screen.getByText('Experience')).toBeInTheDocument();
+      // Experience is now shown as "Level X" instead of "Experience"
+      expect(screen.getByText('Level 1')).toBeInTheDocument();
 
       // Trust bond is NOT displayed in StatsBar - it's handled by GuardianText
       expect(screen.queryByText('Trust Bond')).not.toBeInTheDocument();
     });
 
     it('renders custom stat values when provided', () => {
-      render(<StatsBar trust={75} health={80} energy={60} experience={25} />);
+      // Mock experience progress to show specific values
+      mockGameStore.getExperienceProgress.mockReturnValue({
+        current: 25,
+        toNext: 75,
+        percentage: 25
+      });
+
+      render(<StatsBar trust={75} health={80} energy={60} />);
 
       expect(screen.getByText('80')).toBeInTheDocument();
       expect(screen.getByText('60')).toBeInTheDocument();
-      expect(screen.getByText('25')).toBeInTheDocument();
+      // Experience is now displayed as "current/total" format
+      expect(screen.getByText('25/100')).toBeInTheDocument();
 
       // Trust bond is NOT displayed in StatsBar
       expect(screen.queryByText('Strong Trust')).not.toBeInTheDocument();
@@ -204,14 +213,21 @@ describe('StatsBar Component', () => {
     it('handles edge case values correctly', () => {
       mockGameStore.lightPoints = 999;
       mockGameStore.shadowPoints = 0;
+      // Mock large experience progress values
+      mockGameStore.getExperienceProgress.mockReturnValue({
+        current: 1000,
+        toNext: 500,
+        percentage: 66.67
+      });
 
-      render(<StatsBar trust={100} health={0} energy={150} experience={1000} />);
+      render(<StatsBar trust={100} health={0} energy={150} />);
 
       // Trust bond is NOT displayed in StatsBar
       expect(screen.queryByText('Deep Bond')).not.toBeInTheDocument();
       expect(screen.getByText('999')).toBeInTheDocument(); // Large LP value
       expect(screen.getByText('150')).toBeInTheDocument(); // Over 100 energy
-      expect(screen.getByText('1000')).toBeInTheDocument(); // Large experience
+      // Experience is now displayed as "current/total" format
+      expect(screen.getByText('1000/1500')).toBeInTheDocument(); // Large experience
 
       // Check for zero health in the health section specifically
       const healthSection = screen.getByText('Health').closest('div');
@@ -243,7 +259,8 @@ describe('StatsBar Component', () => {
       // But should still show the basic stats
       expect(screen.getByText('Health')).toBeInTheDocument();
       expect(screen.getByText('Energy')).toBeInTheDocument();
-      expect(screen.getByText('Experience')).toBeInTheDocument();
+      // Experience is now shown as "Level X" instead of "Experience"
+      expect(screen.getByText('Level 1')).toBeInTheDocument();
     });
   });
 
@@ -278,15 +295,21 @@ describe('StatsBar Component', () => {
   describe('Tooltips', () => {
     it('shows energy tooltip on hover', async () => {
       const user = userEvent.setup();
-      
+
       render(<StatsBar trust={50} />);
-      
+
       // Hover over energy stat
       const energyStat = screen.getByText('Energy').closest('.cursor-help');
-      await user.hover(energyStat!);
-      
-      // Check tooltip content
-      expect(await screen.findByText('Energy System')).toBeInTheDocument();
+
+      await act(async () => {
+        await user.hover(energyStat!);
+      });
+
+      // Check tooltip content - Radix UI has delay so use longer timeout
+      await waitFor(() => {
+        expect(screen.getByText('Energy System')).toBeInTheDocument();
+      }, { timeout: 2000 });
+
       expect(screen.getByText(/Scene choices cost 5-15 energy/)).toBeInTheDocument();
       expect(screen.getByText(/Combat actions cost 1-5 energy/)).toBeInTheDocument();
       expect(screen.getByText(/Regenerates 1 energy every 30 seconds/)).toBeInTheDocument();
@@ -295,69 +318,94 @@ describe('StatsBar Component', () => {
 
     it('shows low energy warning in tooltip when energy is low', async () => {
       const user = userEvent.setup();
-      
+
       // Update mock values
       mockGameStore.playerEnergy = 10;
       mockGameStore.maxPlayerEnergy = 100;
 
       render(<StatsBar trust={50} />);
-      
+
       // Hover over energy stat
       const energyStat = screen.getByText('Energy').closest('.cursor-help');
-      await user.hover(energyStat!);
-      
+
+      await act(async () => {
+        await user.hover(energyStat!);
+      });
+
       // Check for low energy warning in tooltip
-      expect(await screen.findByText(/⚠️ Low energy! Rest or complete scenes to recover./)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/⚠️ Low energy! Rest or complete scenes to recover./)).toBeInTheDocument();
+      }, { timeout: 2000 });
     });
 
     it('shows health tooltip on hover', async () => {
       const user = userEvent.setup();
-      
+
       render(<StatsBar trust={50} />);
-      
+
       // Hover over health stat
       const healthStat = screen.getByText('Health').closest('.cursor-help');
-      await user.hover(healthStat!);
-      
+
+      await act(async () => {
+        await user.hover(healthStat!);
+      });
+
       // Check tooltip content
-      expect(await screen.findByText('Your vitality and wellbeing. Recovers after combat victories.')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Your vitality and wellbeing. Recovers after combat victories.')).toBeInTheDocument();
+      }, { timeout: 2000 });
     });
 
     it('shows combat resource tooltips on hover', async () => {
       const user = userEvent.setup();
-      
+
       // Update mock values
       mockGameStore.lightPoints = 10;
       mockGameStore.shadowPoints = 5;
 
       render(<StatsBar trust={50} />);
-      
+
       // Hover over light points
       const lightPoints = screen.getByText('Light Points').closest('.cursor-help');
-      await user.hover(lightPoints!);
-      
-      expect(await screen.findByText('Use Light Points for healing and defensive actions in combat')).toBeInTheDocument();
-      
-      // Clear tooltip by hovering elsewhere
-      await user.unhover(lightPoints!);
-      
+
+      await act(async () => {
+        await user.hover(lightPoints!);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Use Light Points for healing and defensive actions in combat')).toBeInTheDocument();
+      }, { timeout: 2000 });
+
+      // Clear tooltip by unhover
+      await act(async () => {
+        await user.unhover(lightPoints!);
+      });
+
+      // Wait a bit for tooltip to close
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       // Hover over shadow points
       const shadowPoints = screen.getByText('Shadow Points').closest('.cursor-help');
-      await user.hover(shadowPoints!);
-      
-      expect(await screen.findByText('Shadow Points enable powerful attacks but come with risk')).toBeInTheDocument();
+
+      await act(async () => {
+        await user.hover(shadowPoints!);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Shadow Points enable powerful attacks but come with risk')).toBeInTheDocument();
+      }, { timeout: 2000 });
     });
   });
 
   test('calculates energy percentage correctly', () => {
     // Test various energy values
     const testCases = [
-      { playerEnergy: 100, maxPlayerEnergy: 100, expected: '100' },
-      { playerEnergy: 50, maxPlayerEnergy: 100, expected: '50' },
-      { playerEnergy: 25, maxPlayerEnergy: 100, expected: '25' },
-      { playerEnergy: 10, maxPlayerEnergy: 100, expected: '10' },
-      { playerEnergy: 0, maxPlayerEnergy: 100, expected: '0' },
-      { playerEnergy: 75, maxPlayerEnergy: 150, expected: '50' }, // Non-standard max
+      { playerEnergy: 100, maxPlayerEnergy: 100, expected: 100 },
+      { playerEnergy: 50, maxPlayerEnergy: 100, expected: 50 },
+      { playerEnergy: 25, maxPlayerEnergy: 100, expected: 25 },
+      { playerEnergy: 10, maxPlayerEnergy: 100, expected: 10 },
+      { playerEnergy: 0, maxPlayerEnergy: 100, expected: 0 },
+      { playerEnergy: 75, maxPlayerEnergy: 150, expected: 50 }, // Non-standard max
     ];
 
     testCases.forEach(({ playerEnergy, maxPlayerEnergy, expected }) => {
@@ -369,11 +417,11 @@ describe('StatsBar Component', () => {
       mockGameStore.shadowPoints = 0;
 
       const { unmount } = render(<StatsBar trust={50} />);
-      
-      // Find the energy value specifically (not health which might also be 100)
-      const energySection = screen.getByText('Energy').closest('div')?.parentElement;
-      const energyValue = energySection?.querySelector('.text-xs.font-medium')?.textContent;
-      
+
+      // Use the energy progressbar's aria-valuenow attribute to get the actual calculated value
+      const energyProgressBar = screen.getByRole('progressbar', { name: 'energy' });
+      const energyValue = parseInt(energyProgressBar.getAttribute('aria-valuenow') || '0');
+
       expect(energyValue).toBe(expected);
       unmount(); // Clean up for next iteration
     });

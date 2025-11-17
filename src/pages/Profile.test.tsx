@@ -22,10 +22,18 @@ const mockGameStore = {
   milestones: [],
   updateJournalEntry: vi.fn(),
   deleteJournalEntry: vi.fn(),
+  saveToSupabase: vi.fn(),
+  saveState: {
+    status: 'idle' as const,
+    hasUnsavedChanges: false,
+    lastSaveTimestamp: Date.now(),
+    error: null,
+  },
 };
 
 vi.mock('@/store/game-store', () => ({
   useGameStore: () => mockGameStore,
+  useGameStoreBase: (selector?: any) => selector ? selector(mockGameStore) : mockGameStore,
 }));
 
 // Mock the ImpactfulImage component

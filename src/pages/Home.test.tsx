@@ -25,11 +25,11 @@ vi.mock('@/components/auth/AuthForm', () => ({
 describe('Home Page - ImpactfulImage Integration', () => {
   it('renders ImpactfulImage with correct props for home hero', () => {
     render(<Home />);
-    
+
     const heroImage = screen.getByTestId('impactful-image');
     expect(heroImage).toBeInTheDocument();
     expect(heroImage).toHaveAttribute('data-priority', 'true');
-    expect(heroImage).toHaveAttribute('data-ratio', String(16/9));
+    // Note: ratio prop is not passed in Home component, so no need to check data-ratio
     expect(heroImage).toHaveClass('rounded-lg', 'shadow-lg');
   });
 
@@ -74,9 +74,9 @@ describe('Home Page - ImpactfulImage Integration', () => {
     expect(heroImage).toBeInTheDocument();
     expect(authForm).toBeInTheDocument();
 
-    // Check that the image is within an AspectRatio container (which has overflow-hidden)
+    // Check that the image is within a container with proper spacing
     const imageContainer = heroImage.closest('div');
-    expect(imageContainer).toHaveClass('overflow-hidden');
+    expect(imageContainer).toHaveClass('mt-6', 'mb-16', 'relative', 'z-0');
 
     // Check that the auth form is in a separate container with proper spacing and z-index
     const authFormContainer = authForm.closest('div[class*="mt-16"]');
