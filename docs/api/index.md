@@ -553,4 +553,5 @@ const mockSupabase = {
 
 ---
 
-*For more detailed information, see the individual component documentation and the [Database Schema](DATABASE_SCHEMA.md) documentation.*
+*For more detailed information, see the individual component documentation and the [../architecture/database.md](../architecture/database.md) documentation.*
+

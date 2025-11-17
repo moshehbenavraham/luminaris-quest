@@ -199,7 +199,7 @@ npm run dev -- --force
 npm run dev -- --port 3000
 ```
 
-For more detailed troubleshooting, see [docs/FAQ.md](docs/FAQ.md).
+For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubleshooting/faq.md).
 
 ## 🎮 Features
 
@@ -226,7 +226,7 @@ For more detailed troubleshooting, see [docs/FAQ.md](docs/FAQ.md).
 > - **Original System** (`src/components/combat/`) - The initial implementation with known issues
 > - **New System** (`src/features/combat/`) - Complete mobile-first rebuild with proper architecture
 > - **Feature Flag**: The new system is enabled by default. Add `?legacyCombat=1` to URL to use the original system
-> - **Status**: New system is feature-complete and in testing phase (see [TASK_LIST.md](TASK_LIST.md) for details)
+> - **Status**: New system is feature-complete and in testing phase (see [docs/contributing/roadmap.md](docs/contributing/roadmap.md) for details)
 
 #### Scene Engine (20 Therapeutic Scenarios)
 - **Diverse Scene Types**: Social, skill, combat, journal, and exploration scenarios
@@ -502,9 +502,9 @@ npm run build      # Verify production build
 ### Contributing Guidelines
 
 #### Before Contributing
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines
-2. Check [TASK_LIST.md](TASK_LIST.md) for current priorities
-3. Review [docs/COMPONENT_MAP.md](docs/COMPONENT_MAP.md) for architecture overview
+1. Read [docs/contributing/index.md](docs/contributing/index.md) for detailed guidelines
+2. Check [docs/contributing/roadmap.md](docs/contributing/roadmap.md) for current priorities
+3. Review [docs/architecture/components.md](docs/architecture/components.md) for architecture overview
 4. Understand the therapeutic goals and user safety considerations
 
 #### Pull Request Process
@@ -528,33 +528,32 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 📋 **Core Project Documentation**
 - **[README.md](README.md)** - Project overview, getting started guide, and feature documentation
-- **[FAQ.md](docs/FAQ.md)** - Frequently asked questions, troubleshooting, and setup guidance
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development guidelines, coding standards, and contribution workflows
-- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community guidelines and behavioral expectations
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history, notable changes, and release notes
+- **[docs/troubleshooting/faq.md](docs/troubleshooting/faq.md)** - Frequently asked questions, troubleshooting, and setup guidance
+- **[docs/contributing/index.md](docs/contributing/index.md)** - Development guidelines, coding standards, and contribution workflows
+- **[docs/contributing/code-of-conduct.md](docs/contributing/code-of-conduct.md)** - Community guidelines and behavioral expectations
+- **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Version history, notable changes, and release notes
 
 ### 🏗️ **Architecture & Technical Documentation**
-- **[COMPONENT_MAP.md](docs/COMPONENT_MAP.md)** - Architecture overview, component relationships, and build priorities
-- **[DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)** - Database table structures, relationships, and RLS policies
-- **[API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)** - Complete API reference, data structures, and integration guides
-- **[ENVIRONMENT_ARCHITECTURE.md](docs/ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup and deployment strategy
-- **[TASK_LIST.md](TASK_LIST.md)** - Comprehensive development roadmap and project management
+- **[docs/architecture/components.md](docs/architecture/components.md)** - Architecture overview, component relationships, and build priorities
+- **[docs/architecture/database.md](docs/architecture/database.md)** - Database table structures, relationships, and RLS policies
+- **[docs/api/index.md](docs/api/index.md)** - Complete API reference, data structures, and integration guides
+- **[docs/architecture/environments.md](docs/architecture/environments.md)** - Multi-environment setup and deployment strategy
+- **[docs/contributing/roadmap.md](docs/contributing/roadmap.md)** - Comprehensive development roadmap and project management
 
 ### 🚀 **Deployment & Operations**
-- **[DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** - Comprehensive deployment guide for all environments
-- **[PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)** - Step-by-step production deployment guide for Bolt.new
+- **[docs/guides/deployment.md](docs/guides/deployment.md)** - Comprehensive deployment guide for all environments
+- **[docs/archive/PRODUCTION_DEPLOYMENT.md](docs/archive/PRODUCTION_DEPLOYMENT.md)** - Step-by-step production deployment guide for Bolt.new (archived)
 - **[docs/migrations/](docs/migrations/)** - Database migration files and execution history
   - `PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` - Production database schema
 - **[netlify.toml](netlify.toml)** - Netlify deployment configuration
 
 ### 🔒 **Security & Privacy**
-- **[SECURITY.md](docs/SECURITY.md)** - Comprehensive security documentation, practices, and compliance
+- **[docs/contributing/security.md](docs/contributing/security.md)** - Comprehensive security documentation, practices, and compliance
 - **[Privacy Policy](docs/PRIVACY_POLICY.md)** - User privacy protection and data handling practices (planned)
 
 ### 🧪 **Testing & Quality Assurance**
-- **[TESTING_GUIDE.md](docs/TESTING_GUIDE.md)** - Comprehensive testing strategies, frameworks, and best practices
-- **[MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md)** - Browser testing procedures and validation checklists
-- **[MILESTONE_FIX_SUMMARY.md](MILESTONE_FIX_SUMMARY.md)** - Critical bug fix documentation and lessons learned
+- **[docs/guides/testing.md](docs/guides/testing.md)** - Comprehensive testing strategies, frameworks, and best practices
+- **[docs/archive/MILESTONE_FIX_SUMMARY.md](docs/archive/MILESTONE_FIX_SUMMARY.md)** - Critical bug fix documentation and lessons learned
 
 ### 🤖 **AI Development Platform Integration**
 
@@ -622,7 +621,7 @@ See `LICENSE` and `licenses/` directory for detailed license information.
 
 We welcome contributions! Please read our guidelines:
 
-1. **Read Documentation**: Check `CONTRIBUTING.md` for detailed guidelines
+1. **Read Documentation**: Check `docs/contributing/index.md` for detailed guidelines
 2. **Follow Standards**: Adhere to TypeScript strict mode and component guidelines
 3. **Test Changes**: Ensure all tests pass and no TypeScript errors
 4. **Respect Architecture**: Follow the established component structure and patterns
@@ -655,10 +654,10 @@ We welcome contributions! Please read our guidelines:
 ## 🚀 Next Steps
 
 ### For New Contributors
-1. **[Read the FAQ](docs/FAQ.md)** - Common questions and setup help
-2. **[Review Contributing Guidelines](CONTRIBUTING.md)** - Development standards and workflow
-3. **[Explore the Architecture](docs/COMPONENT_MAP.md)** - Understand the system design
-4. **[Check Current Priorities](TASK_LIST.md)** - See what needs work
+1. **[Read the FAQ](docs/troubleshooting/faq.md)** - Common questions and setup help
+2. **[Review Contributing Guidelines](docs/contributing/index.md)** - Development standards and workflow
+3. **[Explore the Architecture](docs/architecture/components.md)** - Understand the system design
+4. **[Check Current Priorities](docs/contributing/roadmap.md)** - See what needs work
 
 ### For Users
 1. **[Try the Live Demo](https://luminarisquest.org)** - Experience the therapeutic journey
@@ -668,16 +667,16 @@ We welcome contributions! Please read our guidelines:
 
 ### For Developers
 1. **[Quick Start Guide](#getting-started)** - Get up and running
-2. **[API Documentation](docs/API_DOCUMENTATION.md)** - Technical reference
-3. **[Testing Guide](docs/TESTING_GUIDE.md)** - Quality assurance
-4. **[Security Documentation](docs/SECURITY.md)** - Security practices
+2. **[API Documentation](docs/api/index.md)** - Technical reference
+3. **[Testing Guide](docs/guides/testing.md)** - Quality assurance
+4. **[Security Documentation](docs/contributing/security.md)** - Security practices
 
 ---
 
 **🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST**
 - **NEW System** ✅: `/src/features/combat/` - Active development, default behavior
 - **OLD System** ❌: `/src/components/combat/` - DEPRECATED, only with `?legacyCombat=1`
-- See [`COMBAT_MIGRATION_GUIDE.md`](COMBAT_MIGRATION_GUIDE.md) for full details
+- See [`docs/archive/COMBAT_MIGRATION_GUIDE.md`](docs/archive/COMBAT_MIGRATION_GUIDE.md) for full details
 
 ---
 

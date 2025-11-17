@@ -864,7 +864,7 @@ export const useGameStoreBase = create<GameState>()(
       // ⚠️⚠️⚠️ DEPRECATED COMBAT SYSTEM - DO NOT USE ⚠️⚠️⚠️
       // This is the OLD combat system - only used with ?legacyCombat=1
       // For NEW development, use useCombatStore from @/features/combat
-      // See COMBAT_MIGRATION_GUIDE.md for migration details
+      // See docs/archive/COMBAT_MIGRATION_GUIDE.md for migration details
       startCombat: (enemyId: string, sceneDC?: number) => {
         set((state) => {
           const effectiveSceneDC = sceneDC || 12; // Default DC if not provided

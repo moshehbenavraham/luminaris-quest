@@ -91,9 +91,9 @@ ENV_PLACEHOLDERS_FILE  = .env.example
   - ✅ Database schema implemented with migrations
   - ✅ Health monitoring system integrated
   - ✅ Production deployment documentation created
-• Follow component priority in docs/COMPONENT_MAP.md for new features
-• Track current focus through TASK_LIST.md, GitHub Issues/PRs and CHANGELOG.md
-• Reference PRODUCTION_DEPLOYMENT.md for deployment procedures
+• Follow component priority in docs/architecture/components.md for new features
+• Track current focus through docs/contributing/roadmap.md, GitHub Issues/PRs and docs/CHANGELOG.md
+• Reference docs/archive/PRODUCTION_DEPLOYMENT.md or docs/guides/deployment.md for deployment procedures
 
 ## 4. Prompt Format Expectations
 • The incoming prompt must follow the SPECS-E pattern  
@@ -144,7 +144,7 @@ ENV_PLACEHOLDERS_FILE  = .env.example
 • **Import Verification**: All imports must resolve to existing files/exports.
 
 ## 9. Documentation & Commit Standards
-• Keep core documentation files updated: README.md, CONTRIBUTING.md, CHANGELOG.md, docs/COMPONENT_MAP.md.
+• Keep core documentation files updated: README.md, docs/contributing/index.md, docs/CHANGELOG.md, docs/architecture/components.md.
 • Write conventional commit messages: feat/fix/docs/style/refactor/test/chore.
 • Stage only files related to current task; keep commits atomic and focused.
 
@@ -153,26 +153,27 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
 
 #### 📋 Core Project Documentation
 - **README.md** - Project overview, getting started guide, and feature documentation
-- **FAQ.md** (docs/) - Frequently asked questions, troubleshooting, and setup guidance
-- **CONTRIBUTING.md** - Development guidelines, coding standards, and contribution workflows
-- **CODE_OF_CONDUCT.md** - Community guidelines and behavioral expectations
-- **CHANGELOG.md** - Version history, notable changes, and release notes
+- **docs/troubleshooting/faq.md** - Frequently asked questions, troubleshooting, and setup guidance
+- **docs/contributing/index.md** - Development guidelines, coding standards, and contribution workflows
+- **docs/contributing/code-of-conduct.md** - Community guidelines and behavioral expectations
+- **docs/CHANGELOG.md** - Version history, notable changes, and release notes
 
 #### 🏗️ Architecture & Technical Documentation
-- **COMPONENT_MAP.md** (docs/) - Architecture overview, component relationships, and build priorities
-- **DATABASE_SCHEMA.md** (docs/) - Database table structures, relationships, and RLS policies
-- **ENVIRONMENT_ARCHITECTURE.md** (docs/) - Multi-environment setup and deployment strategy
-- **TASK_LIST.md** - Comprehensive development roadmap and project management
+- **docs/architecture/components.md** - Architecture overview, component relationships, and build priorities
+- **docs/architecture/database.md** - Database table structures, relationships, and RLS policies
+- **docs/architecture/environments.md** - Multi-environment setup and deployment strategy
+- **docs/contributing/roadmap.md** - Comprehensive development roadmap and project management
 
 #### 🚀 Deployment & Operations
-- **PRODUCTION_DEPLOYMENT.md** - Step-by-step production deployment guide for Bolt.new
+- **docs/guides/deployment.md** - Comprehensive deployment guide for all environments
+- **docs/archive/PRODUCTION_DEPLOYMENT.md** - Legacy deployment guide (archived)
 - **docs/migrations/** - Database migration files and execution history
   - PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql - Production database schema
 - **netlify.toml** - Netlify deployment configuration
 
 #### 🧪 Testing & Quality Assurance
-- **MANUAL_TESTING_GUIDE.md** - Browser testing procedures and validation checklists
-- **MILESTONE_FIX_SUMMARY.md** - Critical bug fix documentation and lessons learned
+- **docs/guides/testing.md** - Comprehensive testing strategies, frameworks, and best practices
+- **docs/archive/MILESTONE_FIX_SUMMARY.md** - Critical bug fix documentation and lessons learned
 
 #### 🤖 AI Development Platform Integration
 
@@ -224,19 +225,42 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
 
 #### 📊 Documentation Organization Structure
 ```
-📁 Root Level (Quick Access)
-├── README.md (Project overview)
-├── CONTRIBUTING.md (Development guide)
-├── CHANGELOG.md (Version history)
-├── PRODUCTION_DEPLOYMENT.md (Deployment)
-├── TASK_LIST.md (Project management)
-└── MANUAL_TESTING_GUIDE.md (QA procedures)
+📁 Root Level
+└── README.md (Project overview)
 
-📁 docs/ (Detailed Documentation)
-├── FAQ.md (User guidance)
-├── COMPONENT_MAP.md (Architecture)
-├── DATABASE_SCHEMA.md (Database design)
-├── ENVIRONMENT_ARCHITECTURE.md (Infrastructure)
+📁 docs/ (Organized Documentation)
+├── INDEX.md (Main navigation hub)
+├── CHANGELOG.md (Version history)
+├── guides/ (User & developer guides)
+│   ├── getting-started.md
+│   ├── user-guide.md
+│   ├── deployment.md
+│   └── testing.md
+├── architecture/ (System design)
+│   ├── overview.md
+│   ├── components.md
+│   ├── database.md
+│   ├── environments.md
+│   └── state-management.md
+├── api/ (API reference)
+│   ├── index.md
+│   ├── hooks.md
+│   └── game-engine.md
+├── features/ (Feature docs)
+│   ├── combat.md
+│   ├── scenes.md
+│   ├── journal.md
+│   └── guardian-trust.md
+├── contributing/ (Contribution guidelines)
+│   ├── index.md
+│   ├── code-of-conduct.md
+│   ├── security.md
+│   └── roadmap.md
+├── troubleshooting/ (Help & debugging)
+│   ├── faq.md
+│   ├── common-errors.md
+│   └── debugging.md
+├── archive/ (Deprecated docs)
 └── migrations/ (Database migrations)
 
 📁 Platform Integration
@@ -255,9 +279,9 @@ While this project is primarily built using the 'Bolt.new' platform, it also int
 
 ## 11. Cross-Platform Integration
 • Cursor IDE rules: See .cursor/rules/ for component layout and navigation standards
-• Component roadmap: Reference docs/COMPONENT_MAP.md for build priority and status
+• Component roadmap: Reference docs/architecture/components.md for build priority and status
 • Code quality: Follow eslint.config.js, .prettierrc, and tsconfig.*.json standards
-• Documentation: Maintain consistency with README.md, CONTRIBUTING.md standards
+• Documentation: Maintain consistency with README.md, docs/contributing/index.md standards
 • Legal compliance: Reference licenses/ directory and LICENSE for OGL/attribution rules
 
 ## 12. Critical Anti-Patterns (NEVER DO THESE)

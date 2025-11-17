@@ -73,10 +73,10 @@ async function runLighthouseAudit() {
     console.log('📊 Generating audit report...');
     
     // Create reports directory
-    await fs.mkdir('./lighthouse-reports', { recursive: true });
-    
+    await fs.mkdir('./docs/lighthouse-reports', { recursive: true });
+
     // Generate detailed report
-    const reportPath = './lighthouse-reports/combat-audit-report.json';
+    const reportPath = './docs/lighthouse-reports/combat-audit-report.json';
     await fs.writeFile(reportPath, JSON.stringify(mockAuditResults, null, 2));
     
     console.log(`✅ Audit report saved to: ${reportPath}\n`);

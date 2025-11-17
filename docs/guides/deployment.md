@@ -761,4 +761,5 @@ psql "staging-url" < test-backup.sql
 
 ---
 
-*This deployment guide is current as of 2025. For the most up-to-date information on specific deployment platforms, refer to their official documentation. For database-specific details, see [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md). For production-specific instructions, see [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md).*
+*This deployment guide is current as of 2025. For the most up-to-date information on specific deployment platforms, refer to their official documentation. For database-specific details, see [../architecture/database.md](../architecture/database.md).*
+

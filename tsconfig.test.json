@@ -8,7 +8,7 @@
   },
   "include": [
     "src/__tests__/**/*",
-    "vitest.setup.ts",
+    "config/vitest.setup.ts",
     "vitest.config.ts"
   ]
 }

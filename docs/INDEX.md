@@ -1,243 +1,401 @@
-# Documentation Index
+# Luminaris Quest Documentation
 
-Welcome to the comprehensive documentation for **Luminari's Quest** - a therapeutic AI-powered RPG adventure designed to help young adults process trauma through interactive storytelling and journaling.
+Welcome to the comprehensive documentation for **Luminaris Quest** - a therapeutic AI-powered RPG adventure designed to help young adults process trauma through interactive storytelling and journaling.
 
-## 📚 Quick Navigation
+**Version:** 2.0  
+**Last Updated:** 2025-11-17  
+**Documentation Status:** ✅ Fully Reorganized and Current
 
-### 🚀 Getting Started
-- **[README.md](../README.md)** - Start here! Project overview, setup, and quick start guide
-- **[FAQ.md](FAQ.md)** - Frequently asked questions and troubleshooting
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** - How to contribute to the project
+---
 
-### 🏗️ Architecture & Development
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Complete API reference and integration guides
-- **[COMPONENT_MAP.md](COMPONENT_MAP.md)** - Architecture overview and component relationships
-- **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Database structure and relationships
+## 🚀 For Users
 
-### 🚀 Deployment & Operations
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Comprehensive deployment guide for all environments
-- **[PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)** - Production-specific deployment instructions
-- **[ENVIRONMENT_ARCHITECTURE.md](ENVIRONMENT_ARCHITECTURE.md)** - Multi-environment setup strategy
+New to Luminaris Quest? Start here!
 
-### 🔒 Security & Privacy
-- **[SECURITY.md](SECURITY.md)** - Security practices, compliance, and incident response
+- **[Getting Started](guides/getting-started.md)** - Quick start guide for installation and first adventure
+- **[User Guide](guides/user-guide.md)** - Complete guide to playing the game
+- **[FAQ](troubleshooting/faq.md)** - Frequently asked questions and solutions
 
-### 🧪 Testing & Quality
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing strategies, frameworks, and best practices
+---
 
-### 📋 Project Management
-- **[TASK_LIST.md](../TASK_LIST.md)** - Development roadmap and current priorities
-- **[CHANGELOG.md](../CHANGELOG.md)** - Version history and release notes
+## 👩‍💻 For Developers
+
+Building and contributing to Luminaris Quest?
+
+### Essential Docs
+
+- **[Architecture Overview](architecture/overview.md)** - System design and technical architecture
+- **[API Reference](api/index.md)** - Complete API documentation
+- **[Contributing Guide](contributing/index.md)** - How to contribute to the project
+
+### Quick Links
+
+- **[Getting Started Guide](guides/getting-started.md)** - Development environment setup
+- **[Testing Guide](guides/testing.md)** - Testing strategies and practices
+- **[Hooks API](api/hooks.md)** - Custom React hooks documentation
+- **[Game Engine API](api/game-engine.md)** - Core engine functions
+- **[Common Errors](troubleshooting/common-errors.md)** - Troubleshooting development issues
+
+---
+
+## 🎮 Game Features
+
+Explore the core features and systems:
+
+- **[Combat System](features/combat.md)** - Light & Shadow combat mechanics
+- **[Scene System](features/scenes.md)** - Therapeutic scenario engine
+- **[Journal System](features/journal.md)** - Personal reflection and tracking
+- **[Guardian Trust](features/guardian-trust.md)** - Player-companion relationship system
+
+**Feature Status Dashboard:** See [Features README](features/README.md) for implementation status of all features.
+
+---
+
+## 🚀 Operations & Deployment
+
+DevOps and deployment information:
+
+- **[Deployment Guide](guides/deployment.md)** - Production deployment procedures
+- **[Environment Architecture](architecture/environments.md)** - Multi-environment setup
+- **[Testing Guide](guides/testing.md)** - Testing strategies and quality assurance
+- **[Troubleshooting](troubleshooting/)** - Debugging and problem-solving
+
+---
+
+## 🏗️ System Architecture
+
+Deep dive into technical architecture:
+
+- **[Architecture Overview](architecture/overview.md)** - Complete system design
+- **[Components](architecture/components.md)** - Component architecture and map
+- **[Database](architecture/database.md)** - Database schema and design
+- **[State Management](architecture/state-management.md)** - Application state architecture
+- **[Environments](architecture/environments.md)** - Deployment architecture
+
+---
+
+## 📚 Documentation by Section
+
+### [Guides](guides/)
+
+User and developer guides for getting started and using the system:
+- Getting Started
+- User Guide  
+- Deployment Guide
+- Testing Guide
+
+**[→ Browse All Guides](guides/)**
+
+### [Architecture](architecture/)
+
+System design, technical architecture, and engineering documentation:
+- System Overview
+- Component Architecture
+- Database Schema
+- State Management
+- Environment Architecture
+
+**[→ Browse All Architecture Docs](architecture/)**
+
+### [API Reference](api/)
+
+Code-level API documentation and technical references:
+- API Index
+- Custom Hooks
+- Game Engine Functions
+
+**[→ Browse All API Docs](api/)**
+
+### [Features](features/)
+
+Feature-specific documentation and implementation details:
+- Combat System
+- Scene System
+- Journal System
+- Guardian Trust System
+
+**[→ Browse All Feature Docs](features/)**
+
+### [Contributing](contributing/)
+
+Contribution guidelines and project governance:
+- Contributing Guide
+- Code of Conduct
+- Security Guidelines
+- Project Roadmap
+
+**[→ Browse All Contributing Docs](contributing/)**
+
+### [Troubleshooting](troubleshooting/)
+
+Help, debugging, and problem-solving resources:
+- FAQ
+- Common Errors
+- Debugging Guide
+
+**[→ Browse All Troubleshooting Docs](troubleshooting/)**
+
+### [Archive](archive/)
+
+Historical and deprecated documentation preserved for reference:
+- Old bug fix documentation
+- Completed migration guides
+- Superseded documentation
+
+**[→ Browse Archive](archive/)**
+
+---
 
 ## 📖 Documentation by Audience
 
-### 👩‍💻 For Developers
+### 🆕 New Users
 
-#### New Contributors
-1. **[README.md](../README.md)** - Project overview and setup
-2. **[CONTRIBUTING.md](../CONTRIBUTING.md)** - Development guidelines and workflow
-3. **[FAQ.md](FAQ.md)** - Common questions and solutions
-4. **[COMPONENT_MAP.md](COMPONENT_MAP.md)** - Architecture understanding
+**First time playing?**
 
-#### Experienced Developers
-1. **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Detailed API reference
-2. **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Database design and queries
-3. **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing strategies and tools
-4. **[SECURITY.md](SECURITY.md)** - Security considerations
+1. **[Getting Started](guides/getting-started.md)** - Install and configure the game
+2. **[User Guide](guides/user-guide.md)** - Learn how to play
+3. **[FAQ](troubleshooting/faq.md)** - Common questions answered
 
-### 🚀 For DevOps/Deployment
+### 👨‍💻 New Contributors
 
-#### Environment Setup
-1. **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Complete deployment guide
-2. **[ENVIRONMENT_ARCHITECTURE.md](ENVIRONMENT_ARCHITECTURE.md)** - Environment strategy
-3. **[PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)** - Production specifics
+**Want to contribute?**
 
-#### Operations
-1. **[SECURITY.md](SECURITY.md)** - Security monitoring and incident response
-2. **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Database operations and migrations
+1. **[Getting Started](guides/getting-started.md)** - Setup development environment
+2. **[Contributing Guide](contributing/index.md)** - Development workflow and standards
+3. **[Architecture Overview](architecture/overview.md)** - Understand the system
+4. **[Testing Guide](guides/testing.md)** - Learn testing practices
 
-### 🎯 For Project Managers
+### 🏗️ Experienced Developers
 
-#### Planning & Tracking
-1. **[TASK_LIST.md](../TASK_LIST.md)** - Current priorities and roadmap
-2. **[CHANGELOG.md](../CHANGELOG.md)** - Progress tracking and releases
-3. **[COMPONENT_MAP.md](COMPONENT_MAP.md)** - Feature completion status
+**Working on advanced features?**
 
-#### Quality Assurance
-1. **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Quality standards and testing
-2. **[SECURITY.md](SECURITY.md)** - Security compliance and standards
+1. **[API Reference](api/index.md)** - Detailed API documentation
+2. **[Hooks API](api/hooks.md)** - Custom React hooks
+3. **[Game Engine API](api/game-engine.md)** - Core engine functions
+4. **[State Management](architecture/state-management.md)** - State architecture
+5. **[Database Schema](architecture/database.md)** - Database design
 
-### 🧠 For Therapeutic Consultants
+### 🚀 DevOps Engineers
 
-#### Understanding the System
-1. **[README.md](../README.md)** - Therapeutic approach and mission
-2. **[COMPONENT_MAP.md](COMPONENT_MAP.md)** - Feature overview
-3. **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Data structures and therapeutic mechanics
+**Deploying and maintaining?**
 
-## 🎯 Documentation by Feature
+1. **[Deployment Guide](guides/deployment.md)** - Deployment procedures
+2. **[Environment Architecture](architecture/environments.md)** - Infrastructure setup
+3. **[Troubleshooting](troubleshooting/)** - Debugging production issues
+4. **[Security Guidelines](contributing/security.md)** - Security best practices
 
-### 🌟 Core Systems
+### 🧠 Therapeutic Consultants
 
-#### Guardian Trust System
-- **[README.md#features](../README.md#features)** - Feature overview
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Implementation details
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing strategies
+**Understanding the therapeutic approach?**
 
-#### Light & Shadow Combat
-- **[COMBAT_SYSTEM.md](../COMBAT_SYSTEM.md)** - Complete combat system documentation
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Combat API reference
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Combat testing
+1. **[User Guide](guides/user-guide.md)** - How the game supports healing
+2. **[Combat System](features/combat.md)** - Therapeutic combat metaphors
+3. **[Scene System](features/scenes.md)** - Scenario-based therapy
+4. **[Journal System](features/journal.md)** - Reflection and processing
 
-#### Scene Engine
-- **[SCENE_SYSTEM.md](../SCENE_SYSTEM.md)** - Scene system technical documentation
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Scene API reference
+---
 
-#### Journal System
-- **[README.md#features](../README.md#features)** - Journal features
-- **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Journal data structure
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Journal API
+## 🎯 Documentation by Task
 
-### 🔧 Technical Systems
+### Adding New Features
 
-#### Database
-- **[DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)** - Complete schema documentation
-- **[SECURITY.md](SECURITY.md)** - Database security
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Database deployment
+1. **Plan:** Review [Roadmap](contributing/roadmap.md) for priorities
+2. **Design:** Check [Architecture Overview](architecture/overview.md) for patterns
+3. **Develop:** Follow [Contributing Guide](contributing/index.md) standards
+4. **Test:** Use [Testing Guide](guides/testing.md) strategies
+5. **Document:** Update relevant docs in the same PR
+6. **Deploy:** Follow [Deployment Guide](guides/deployment.md)
 
-#### Authentication
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Auth API reference
-- **[SECURITY.md](SECURITY.md)** - Auth security practices
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Auth configuration
+### Fixing Bugs
 
-#### Performance
-- **[README.md#architecture](../README.md#architecture)** - Performance architecture
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Performance testing
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Performance optimization
+1. **Investigate:** Check [Common Errors](troubleshooting/common-errors.md)
+2. **Debug:** Use [Debugging Guide](troubleshooting/debugging.md)
+3. **Fix:** Follow [Contributing Guide](contributing/index.md) standards
+4. **Test:** Add regression tests ([Testing Guide](guides/testing.md))
+5. **Document:** Update [FAQ](troubleshooting/faq.md) if needed
 
-## 🛠️ Development Workflows
+### Understanding a Feature
 
-### 🆕 Adding New Features
+1. **Overview:** Read feature doc in [Features](features/)
+2. **Implementation:** Check [API Reference](api/) for code details
+3. **Architecture:** Review [Architecture](architecture/) for system design
+4. **Usage:** See [User Guide](guides/user-guide.md) for player perspective
 
-1. **Planning**
-   - Review **[TASK_LIST.md](../TASK_LIST.md)** for priorities
-   - Check **[COMPONENT_MAP.md](COMPONENT_MAP.md)** for architecture fit
-   - Consider therapeutic impact (see **[README.md](../README.md)**)
+### Deploying to Production
 
-2. **Development**
-   - Follow **[CONTRIBUTING.md](../CONTRIBUTING.md)** guidelines
-   - Reference **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** for patterns
-   - Implement tests per **[TESTING_GUIDE.md](TESTING_GUIDE.md)**
+1. **Prepare:** Review [Deployment Guide](guides/deployment.md) checklist
+2. **Test:** Run full test suite ([Testing Guide](guides/testing.md))
+3. **Security:** Verify [Security Guidelines](contributing/security.md) compliance
+4. **Deploy:** Follow environment-specific procedures
+5. **Monitor:** Use [Troubleshooting](troubleshooting/) for issues
+6. **Document:** Update changelog and documentation
 
-3. **Testing**
-   - Run full test suite (**[TESTING_GUIDE.md](TESTING_GUIDE.md)**)
-   - Verify accessibility compliance
-   - Check security considerations (**[SECURITY.md](SECURITY.md)**)
+---
 
-4. **Deployment**
-   - Follow **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**
-   - Update **[CHANGELOG.md](../CHANGELOG.md)**
+## 📊 Documentation Quality
 
-### 🐛 Bug Fixing
+### Current Status
 
-1. **Investigation**
-   - Check **[FAQ.md](FAQ.md)** for known issues
-   - Review **[TESTING_GUIDE.md](TESTING_GUIDE.md)** for debugging
-   - Consider security implications (**[SECURITY.md](SECURITY.md)**)
-
-2. **Resolution**
-   - Follow **[CONTRIBUTING.md](../CONTRIBUTING.md)** standards
-   - Add tests to prevent regression
-   - Update documentation if needed
-
-### 🚀 Deployment Process
-
-1. **Pre-deployment**
-   - Review **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** checklist
-   - Verify **[SECURITY.md](SECURITY.md)** compliance
-   - Run **[TESTING_GUIDE.md](TESTING_GUIDE.md)** test suite
-
-2. **Deployment**
-   - Follow environment-specific guides
-   - Monitor per **[SECURITY.md](SECURITY.md)** procedures
-
-3. **Post-deployment**
-   - Verify functionality
-   - Update **[CHANGELOG.md](../CHANGELOG.md)**
-
-## 📊 Documentation Metrics
-
-### Coverage Status
-- ✅ **Core Features**: Fully documented
-- ✅ **API Reference**: Complete with examples
-- ✅ **Security**: Comprehensive security documentation
-- ✅ **Testing**: Complete testing strategies
-- ✅ **Deployment**: Multi-environment deployment guides
-- ✅ **Architecture**: Detailed system architecture
-- 🔄 **Privacy Policy**: In development
+| Section | Files | Status | Coverage | Last Updated |
+|---------|-------|--------|----------|--------------|
+| Guides | 5 | ✅ Complete | 100% | 2025-11-17 |
+| Architecture | 5 | ✅ Complete | 100% | 2025-11-17 |
+| API Reference | 3 | ✅ Complete | 100% | 2025-11-17 |
+| Features | 5 | ✅ Complete | 100% | 2025-11-17 |
+| Contributing | 4 | ✅ Complete | 100% | 2025-11-17 |
+| Troubleshooting | 3 | ✅ Complete | 100% | 2025-11-17 |
+| Archive | 12 | ✅ Archived | N/A | 2025-11-17 |
 
 ### Quality Standards
-- **Accuracy**: All documentation verified against current codebase
-- **Completeness**: All major features and systems documented
-- **Accessibility**: Documentation follows accessibility guidelines
-- **Maintenance**: Regular updates with code changes
 
-## 🔄 Documentation Maintenance
+All active documentation follows these standards:
 
-### Update Schedule
-- **Weekly**: Review and update **[TASK_LIST.md](../TASK_LIST.md)**
-- **Per Release**: Update **[CHANGELOG.md](../CHANGELOG.md)**
-- **Monthly**: Review all documentation for accuracy
-- **Quarterly**: Comprehensive documentation audit
+✅ **Accuracy** - Verified against actual source code (no assumptions)  
+✅ **Completeness** - Covers all essential information  
+✅ **Clarity** - Written in clear, accessible language  
+✅ **Examples** - Includes practical code examples with line references  
+✅ **Maintenance** - Updated with code changes in same PR  
+✅ **Organization** - Follows industry-standard structure  
+✅ **Navigation** - Easy to find and navigate between docs  
 
-### Contributing to Documentation
-1. Follow **[CONTRIBUTING.md](../CONTRIBUTING.md)** guidelines
-2. Ensure accuracy and clarity
-3. Include examples where helpful
-4. Update this index when adding new documents
+---
 
-### Documentation Standards
-- **Markdown**: Use consistent Markdown formatting
-- **Structure**: Follow established document structure patterns
-- **Links**: Use relative links for internal documentation
-- **Examples**: Include practical code examples
-- **Accessibility**: Ensure documentation is accessible
+## 🔍 Search & Find
+
+### Can't find what you need?
+
+**Looking for...**
+
+- **Setup instructions?** → [Getting Started](guides/getting-started.md)
+- **How to play?** → [User Guide](guides/user-guide.md)
+- **API documentation?** → [API Reference](api/)
+- **Error solutions?** → [Troubleshooting](troubleshooting/)
+- **How to contribute?** → [Contributing Guide](contributing/index.md)
+- **Feature details?** → [Features](features/)
+- **System design?** → [Architecture](architecture/)
+- **Deployment help?** → [Deployment Guide](guides/deployment.md)
+
+**Still can't find it?**
+
+- Check the README files in each section folder
+- Search the [FAQ](troubleshooting/faq.md)
+- Browse the [Archive](archive/) for historical docs
+- Ask in GitHub Discussions
+- Check the actual source code (code is truth!)
+
+---
+
+## 🔄 Documentation Reorganization
+
+**Recent Changes (2025-11-17):**
+
+This documentation was recently reorganized from a flat structure (27 files) into an industry-standard hierarchical structure with clear separation of concerns:
+
+- ✅ Created 7 category folders (guides, architecture, api, features, contributing, troubleshooting, archive)
+- ✅ Moved 14 existing docs to appropriate locations
+- ✅ Archived 12 deprecated/temporary docs
+- ✅ Created 10 new comprehensive documentation files
+- ✅ Added README.md navigation files to each folder
+- ✅ Updated all internal cross-references
+- ✅ Verified all content against actual source code
+
+**See:** [Documentation Reorganization Plan](documentation-fix.md) for complete details.
+
+---
 
 ## 🆘 Getting Help
 
 ### Quick Help
-- **Setup Issues**: Check **[FAQ.md](FAQ.md)**
-- **Development Questions**: See **[CONTRIBUTING.md](../CONTRIBUTING.md)**
-- **Deployment Problems**: Review **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**
+
+- **Installation issues?** → [FAQ - Installation](troubleshooting/faq.md)
+- **Game not working?** → [Common Errors](troubleshooting/common-errors.md)
+- **Need to debug?** → [Debugging Guide](troubleshooting/debugging.md)
+- **Deployment problems?** → [Deployment Guide](guides/deployment.md)
 
 ### Community Support
-- **GitHub Issues**: For bug reports and feature requests
-- **Discussions**: For general questions and community support
-- **Security Issues**: Follow **[SECURITY.md](SECURITY.md)** reporting procedures
 
-### Professional Support
-- **Therapeutic Consultation**: Contact project maintainers for therapeutic guidance
-- **Technical Consultation**: Available for complex implementation questions
+- **GitHub Discussions** - Ask questions and share knowledge
+- **GitHub Issues** - Report bugs and request features
+- **Security Issues** - Follow [Security Guidelines](contributing/security.md) (DO NOT use public issues!)
 
 ---
 
-## 📝 Document Status
+## 💡 Contributing to Documentation
 
-| Document | Status | Last Updated | Maintainer |
-|----------|--------|--------------|------------|
-| README.md | ✅ Current | 2024-12 | Core Team |
-| API_DOCUMENTATION.md | ✅ Current | 2024-12 | Core Team |
-| DEPLOYMENT_GUIDE.md | ✅ Current | 2024-12 | Core Team |
-| SECURITY.md | ✅ Current | 2024-12 | Core Team |
-| TESTING_GUIDE.md | ✅ Current | 2024-12 | Core Team |
-| CONTRIBUTING.md | ✅ Current | 2024-12 | Core Team |
-| DATABASE_SCHEMA.md | ✅ Current | 2024-12 | Core Team |
-| COMPONENT_MAP.md | ✅ Current | 2024-12 | Core Team |
-| FAQ.md | ✅ Current | 2024-12 | Core Team |
+Documentation improvements are always welcome!
+
+**Found an error or outdated info?**
+
+1. Verify against actual source code (code is truth!)
+2. Follow [Contributing Guidelines](contributing/index.md)
+3. Update documentation in same PR as code changes
+4. Add examples and verify they work
+5. Update this index if adding new documents
+
+**Documentation standards:**
+- Use Markdown with consistent formatting
+- Include code examples with line references
+- Verify all information against source code
+- Add links to related documentation
+- Follow the established folder structure
 
 ---
 
-*This documentation index is maintained by the Luminari's Quest development team. For questions or suggestions about documentation, please open an issue or contact the maintainers.*
+## 📚 External Resources
 
-**Last Updated**: December 2024  
-**Version**: 1.0  
-**Maintained By**: Luminari's Quest Core Team
+### Technologies Used
+
+- **[React Documentation](https://react.dev/)** - React 18
+- **[TypeScript Handbook](https://www.typescriptlang.org/docs/)** - TypeScript 5
+- **[Vite Guide](https://vitejs.dev/guide/)** - Vite 5
+- **[Tailwind CSS](https://tailwindcss.com/docs)** - Styling
+- **[Supabase Documentation](https://supabase.com/docs)** - Backend
+- **[Zustand](https://zustand-demo.pmnd.rs/)** - State management
+- **[Vitest](https://vitest.dev/)** - Testing
+
+### Learning Resources
+
+- **[React TypeScript Cheatsheet](https://react-typescript-cheatsheet.netlify.app/)**
+- **[Testing Library Docs](https://testing-library.com/)**
+- **[Atomic Design](https://bradfrost.com/blog/post/atomic-web-design/)**
+
+---
+
+## 📝 Documentation Maintenance
+
+### Update Schedule
+
+- **Per PR:** Update docs affected by code changes
+- **Weekly:** Review [Roadmap](contributing/roadmap.md)
+- **Per Release:** Update version numbers and changelog
+- **Monthly:** Review all docs for accuracy
+- **Quarterly:** Comprehensive documentation audit
+
+### Maintainers
+
+Documentation is maintained by the Luminaris Quest Core Team with contributions from the community.
+
+**Questions or suggestions?**  
+Open an issue or discussion on GitHub.
+
+---
+
+## ✨ About This Documentation
+
+**Structure:** Industry-standard hierarchical organization  
+**Accuracy:** All content verified against actual source code  
+**Coverage:** Comprehensive coverage of all systems and features  
+**Maintenance:** Actively maintained and updated with code changes  
+
+**Philosophy:** *Code is truth, documentation is guidance, archived docs are history.*
+
+---
+
+**Documentation Version:** 2.0  
+**Last Major Update:** 2025-11-17 (Complete reorganization)  
+**Maintained By:** Luminaris Quest Core Team  
+**License:** See repository root for license information  
+
+---
+
+*Thank you for using Luminaris Quest documentation! We hope it helps you build, contribute, and play. ✨*

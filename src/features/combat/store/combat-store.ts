@@ -18,7 +18,7 @@
 // This is the ACTIVE combat store for all new development
 // Located in: /src/features/combat/
 // DO NOT confuse with OLD system in /src/store/game-store.ts
-// See COMBAT_MIGRATION_GUIDE.md for details
+// See docs/archive/COMBAT_MIGRATION_GUIDE.md for details
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';

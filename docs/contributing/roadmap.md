@@ -5,7 +5,7 @@
 **⚠️ NEW System**: `/src/features/combat/` - ✅ ACTIVE DEVELOPMENT
 **⚠️ OLD System**: `/src/components/combat/` - ❌ DEPRECATED
 
-See `COMBAT_MIGRATION_GUIDE.md` for full details before working on combat!
+See `docs/archive/COMBAT_MIGRATION_GUIDE.md` for full details before working on combat!
 
 ## CRITICAL - Combat Overlay Complete Rebuild Plan - In Progress
 

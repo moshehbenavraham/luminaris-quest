@@ -197,7 +197,7 @@ src/
 
 ### Before Starting Work
 
-1. **Check Current Status**: Review `docs/COMPONENT_MAP.md` for completed features
+1. **Check Current Status**: Review `../architecture/components.md` for completed features
 2. **TypeScript Check**: Ensure `npm run build` passes without errors
 3. **Code Quality**: Run `npm run lint` and `npm run format`
 
@@ -328,8 +328,8 @@ try {
 
 ## 🤝 Getting Help
 
-- **Documentation**: Check `docs/` directory for detailed guides
-- **Component Map**: Review `docs/COMPONENT_MAP.md` for architecture overview
+- **Documentation**: Check `../` directory for detailed guides
+- **Component Map**: Review `../architecture/components.md` for architecture overview
 - **Code Standards**: Reference `eslint.config.js` and `tsconfig.*.json`
 - **Legal Compliance**: See `LICENSE` and `licenses/` directory
 
@@ -348,3 +348,4 @@ Based on the recent refactoring work, current development priorities include:
 Thank you for contributing to Luminari's Quest! Your work helps create a meaningful therapeutic experience for users on their healing journey.
 
 *Built with [Bolt.new](https://bolt.new/)*
+
