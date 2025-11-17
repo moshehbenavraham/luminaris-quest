@@ -50,7 +50,7 @@ function getFileSize(filePath) {
   try {
     const stats = fs.statSync(filePath);
     return stats.size;
-  } catch (error) {
+  } catch (_error) {
     return 0;
   }
 }

@@ -78,9 +78,6 @@ vi.mock('@/store/game-store', () => ({
   useGameStore: vi.fn(() => mockGameStore)
 }));
 
-// Import after mocking
-import { useGameStore } from '@/store/game-store';
-
 describe('Combat Health Restoration', () => {
   beforeEach(() => {
     vi.clearAllMocks();

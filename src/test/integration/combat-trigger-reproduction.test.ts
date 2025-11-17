@@ -5,7 +5,7 @@
  * Reproduction test for combat trigger issue - verifying the complete flow
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { useGameStoreBase } from '@/store/game-store';
 import { handleSceneOutcome, getScene } from '@/engine/scene-engine';
 import { SHADOW_IDS } from '@/data/shadowManifestations';

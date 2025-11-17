@@ -123,7 +123,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
             </div>
           ) : (
             <blockquote className="border-l-4 border-purple-400 pl-4 italic text-foreground">
-              "              &ldquo;{entry.content}&rdquo;"
+                            &ldquo;{entry.content}&rdquo;
             </blockquote>
           )}
           {entry.tags && entry.tags.length > 0 && (

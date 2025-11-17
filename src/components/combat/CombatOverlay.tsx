@@ -192,7 +192,7 @@ export const CombatOverlay = React.memo(function CombatOverlay({ 'data-testid': 
   const hpPercentage = useMemo(() => {
     if (!enemy) return 0;
     return Math.max(0, (enemy.currentHP / enemy.maxHP) * 100);
-  }, [enemy?.currentHP, enemy?.maxHP]);
+  }, [enemy]);
 
   // Keyboard shortcut handler for End Turn (key 5)
   useEffect(() => {

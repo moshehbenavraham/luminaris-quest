@@ -56,7 +56,7 @@ export function GuardianText({ trust, message, className, 'data-testid': testId 
         {shouldShowMessage && message && (
           <div className="rounded-lg border-l-4 border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 p-4 dark:from-purple-950/20 dark:to-blue-950/20">
             <blockquote className="text-lg font-medium italic leading-relaxed text-foreground">
-              "              &ldquo;{message}&rdquo;"
+                            &ldquo;{message}&rdquo;
             </blockquote>
           </div>
         )}

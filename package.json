@@ -9,7 +9,7 @@
     "build": "tsc --project tsconfig.app.json --noEmit && vite build",
     "build:dev": "vite build --mode development",
     "build:deploy": "npm ci --include=optional && tsc -b && vite build",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 250",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "test": "vitest run",

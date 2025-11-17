@@ -20,7 +20,7 @@ describe('Combat Trigger Debug Tests', () => {
         if (scene.type === 'combat') {
           scenes.push({ index: i, scene });
         }
-      } catch (e) {
+      } catch (_e) {
         break;
       }
     }

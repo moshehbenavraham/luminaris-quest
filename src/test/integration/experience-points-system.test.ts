@@ -113,7 +113,7 @@ describe('Experience Points System', () => {
 
   describe('Scene XP Rewards', () => {
     it('should award appropriate XP for different scene types', () => {
-      const { result } = renderHook(() => useGameStore());
+      const { result: _result } = renderHook(() => useGameStore());
       
       // Test each scene type
       const sceneTypes = ['social', 'skill', 'combat', 'journal', 'exploration'] as const;
@@ -202,9 +202,9 @@ describe('Experience Points System', () => {
 
     it('should apply level benefits on level up', () => {
       const { result } = renderHook(() => useGameStore());
-      
+
       const initialEnergy = result.current.maxPlayerEnergy;
-      const initialLP = result.current.lightPoints;
+      const _initialLP = result.current.lightPoints;
       
       // Level up to 2 (Level 2 doesn't get energy bonus yet - starts at level 3)
       act(() => {
@@ -256,7 +256,7 @@ describe('Experience Points System', () => {
         'echo-of-past-pain': 75
       };
       
-      Object.entries(expectedCombatXP).forEach(([shadowId, expectedXP]) => {
+      Object.entries(expectedCombatXP).forEach(([_shadowId, expectedXP]) => {
         expect(expectedXP).toBeGreaterThan(35); // Should be more than skill scenes
         expect(expectedXP).toBeLessThan(80);    // Should be reasonable for combat
       });
@@ -328,10 +328,10 @@ describe('Experience Points System', () => {
   describe('Persistence Integration', () => {
     it('should include XP fields in save operations', () => {
       const { result } = renderHook(() => useGameStore());
-      
+
       // Mock the save operation to capture the data
-      const mockSave = vi.fn();
-      const originalSave = result.current.saveToSupabase;
+      const _mockSave = vi.fn();
+      const _originalSave = result.current.saveToSupabase;
       
       act(() => {
         result.current.modifyExperiencePoints(50, 'test');

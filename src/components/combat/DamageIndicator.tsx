@@ -15,7 +15,7 @@
  * ⚠️⚠️⚠️ DEPRECATED - OLD COMBAT SYSTEM ⚠️⚠️⚠️
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -143,11 +143,13 @@ export const ScreenShake = React.memo(function ScreenShake({
     }
   }, [trigger, duration, onComplete]);
 
-  // Generate random shake values based on intensity
-  const shakeKeyframes = Array.from({ length: 10 }, () => ({
-    x: (Math.random() - 0.5) * intensity * 2,
-    y: (Math.random() - 0.5) * intensity * 2,
-  }));
+  // Generate random shake values based on intensity - memoized to avoid impure Math.random() in render
+  const shakeKeyframes = useMemo(() => {
+    return Array.from({ length: 10 }, () => ({
+      x: (Math.random() - 0.5) * intensity * 2,
+      y: (Math.random() - 0.5) * intensity * 2,
+    }));
+  }, [intensity, trigger]);
 
   return (
     <motion.div

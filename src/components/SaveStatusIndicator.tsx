@@ -1,4 +1,5 @@
 // Built with Bolt.new
+import { useMemo } from 'react';
 import { useGameStoreBase } from '@/store/game-store';
 import { cn } from '@/lib/utils';
 import { CheckCircle, Cloud, CloudOff, AlertCircle, Loader2 } from 'lucide-react';
@@ -19,18 +20,18 @@ export function SaveStatusIndicator() {
   const saveToSupabase = useGameStoreBase(state => state.saveToSupabase);
   const clearSaveError = useGameStoreBase(state => state.clearSaveError);
 
-  // Format time since last save
-  const getTimeSinceLastSave = () => {
+  // Format time since last save - memoized to avoid impure Date.now() calls in render
+  const timeSinceLastSave = useMemo(() => {
     if (!saveState.lastSaveTimestamp) return 'Never';
-    
+
     const now = Date.now();
     const diff = now - saveState.lastSaveTimestamp;
-    
+
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} hr ago`;
     return `${Math.floor(diff / 86400000)} days ago`;
-  };
+  }, [saveState.lastSaveTimestamp]);
 
   // Get status icon and color based on save state
   const getStatusDisplay = () => {
@@ -54,7 +55,7 @@ export function SaveStatusIndicator() {
         }
         return {
           icon: <CheckCircle className="h-4 w-4" />,
-          text: `Saved ${getTimeSinceLastSave()}`,
+          text: `Saved ${timeSinceLastSave}`,
           className: 'text-green-500',
           bgClassName: 'bg-green-500/10 border-green-500/20'
         };

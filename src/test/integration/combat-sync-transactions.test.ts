@@ -6,12 +6,10 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { 
+import {
   createSyncTransaction,
   validateSyncTransaction,
-  useCombatStore,
-  type SyncTransaction,
-  type SyncTransactionResult
+  useCombatStore
 } from '@/features/combat/store/combat-store';
 import { createShadowManifestation } from '@/data/shadowManifestations';
 
