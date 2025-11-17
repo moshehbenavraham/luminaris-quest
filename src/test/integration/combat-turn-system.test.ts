@@ -193,9 +193,9 @@ describe('Combat Turn System', () => {
 
   it('should play sound during enemy turn', async () => {
     vi.useFakeTimers();
-    
-    const { soundManager } = await import('../utils/sound-manager');
-    
+
+    const { soundManager } = await import('@/utils/sound-manager');
+
     // End player turn
     store.endTurn();
     
