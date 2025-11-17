@@ -106,11 +106,13 @@ describe('DiceRollOverlay', () => {
     const continueButton = screen.getByRole('button', { name: 'Continue' });
     expect(continueButton).toBeInTheDocument();
 
-    // Click the button and run all timers
+    // Click the button - this calls handleClose which sets a 1000ms timeout
     await act(async () => {
       await user.click(continueButton);
-      await vi.runAllTimersAsync();
     });
+
+    // Advance past the 1000ms delay in handleClose
+    await advanceTimersAndAct(1000);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
@@ -120,14 +122,18 @@ describe('DiceRollOverlay', () => {
     const { container } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
 
     // The backdrop is the outer fixed div with onClick handler
-    const backdrop = container.querySelector('.fixed.inset-0');
+    // Use querySelector with proper class syntax for multiple classes
+    const backdrop = container.querySelector('div.fixed[class*="inset-0"]');
     expect(backdrop).toBeTruthy();
 
     if (backdrop) {
+      // Click the backdrop - this calls handleClose which sets a 1000ms timeout
       await act(async () => {
         await user.click(backdrop as Element);
-        await vi.runAllTimersAsync();
       });
+
+      // Advance past the 1000ms delay in handleClose
+      await advanceTimersAndAct(1000);
 
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     }
@@ -135,12 +141,13 @@ describe('DiceRollOverlay', () => {
 
   describe('Dice Sound Effects', () => {
     it('should play a random dice sound when rolling starts', async () => {
+      // Render the component - the sound should play in useEffect on mount
       render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
 
-      // Wait for useEffect to execute (no need to advance timers for the sound effect)
+      // The sound is played synchronously in useEffect, but we need to wait for React to flush effects
       await act(async () => {
-        // Just wait for any pending microtasks/promises
-        await Promise.resolve();
+        // Flush any pending timers/effects
+        await vi.runOnlyPendingTimersAsync();
       });
 
       // Should have played one of the dice sounds
@@ -158,7 +165,7 @@ describe('DiceRollOverlay', () => {
       mockRandom.mockReturnValueOnce(0.1);
       const { unmount: unmount1 } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
       await act(async () => {
-        await Promise.resolve();
+        await vi.runOnlyPendingTimersAsync();
       });
       expect(soundManager.playSound).toHaveBeenCalledWith('dice1');
       vi.clearAllMocks();
@@ -168,7 +175,7 @@ describe('DiceRollOverlay', () => {
       mockRandom.mockReturnValueOnce(0.5);
       const { unmount: unmount2 } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
       await act(async () => {
-        await Promise.resolve();
+        await vi.runOnlyPendingTimersAsync();
       });
       expect(soundManager.playSound).toHaveBeenCalledWith('dice2');
       vi.clearAllMocks();
@@ -178,7 +185,7 @@ describe('DiceRollOverlay', () => {
       mockRandom.mockReturnValueOnce(0.9);
       render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
       await act(async () => {
-        await Promise.resolve();
+        await vi.runOnlyPendingTimersAsync();
       });
       expect(soundManager.playSound).toHaveBeenCalledWith('dice3');
 

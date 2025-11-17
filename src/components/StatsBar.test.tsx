@@ -306,14 +306,15 @@ describe('StatsBar Component', () => {
       });
 
       // Check tooltip content - Radix UI has delay so use longer timeout
+      // Use getAllByText because Radix UI duplicates content for accessibility
       await waitFor(() => {
-        expect(screen.getByText('Energy System')).toBeInTheDocument();
+        expect(screen.getAllByText('Energy System')[0]).toBeInTheDocument();
       }, { timeout: 2000 });
 
-      expect(screen.getByText(/Scene choices cost 5-15 energy/)).toBeInTheDocument();
-      expect(screen.getByText(/Combat actions cost 1-5 energy/)).toBeInTheDocument();
-      expect(screen.getByText(/Regenerates 1 energy every 30 seconds/)).toBeInTheDocument();
-      expect(screen.getByText(/Low energy.*reduces combat damage by 50%/)).toBeInTheDocument();
+      expect(screen.getAllByText(/Scene choices cost 5-15 energy/)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/Combat actions cost 1-5 energy/)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/Regenerates 1 energy every 30 seconds/)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(/Low energy.*reduces combat damage by 50%/)[0]).toBeInTheDocument();
     });
 
     it('shows low energy warning in tooltip when energy is low', async () => {
@@ -333,8 +334,9 @@ describe('StatsBar Component', () => {
       });
 
       // Check for low energy warning in tooltip
+      // Use getAllByText because Radix UI duplicates content for accessibility
       await waitFor(() => {
-        expect(screen.getByText(/⚠️ Low energy! Rest or complete scenes to recover./)).toBeInTheDocument();
+        expect(screen.getAllByText(/⚠️ Low energy! Rest or complete scenes to recover./)[0]).toBeInTheDocument();
       }, { timeout: 2000 });
     });
 
@@ -351,12 +353,13 @@ describe('StatsBar Component', () => {
       });
 
       // Check tooltip content
+      // Use getAllByText because Radix UI duplicates content for accessibility
       await waitFor(() => {
-        expect(screen.getByText('Your vitality and wellbeing. Recovers after combat victories.')).toBeInTheDocument();
+        expect(screen.getAllByText('Your vitality and wellbeing. Recovers after combat victories.')[0]).toBeInTheDocument();
       }, { timeout: 2000 });
     });
 
-    it('shows combat resource tooltips on hover', async () => {
+    it('shows Light Points tooltip on hover', async () => {
       const user = userEvent.setup();
 
       // Update mock values
@@ -372,17 +375,20 @@ describe('StatsBar Component', () => {
         await user.hover(lightPoints!);
       });
 
+      // Use getAllByText because Radix UI duplicates content for accessibility
       await waitFor(() => {
-        expect(screen.getByText('Use Light Points for healing and defensive actions in combat')).toBeInTheDocument();
+        expect(screen.getAllByText('Use Light Points for healing and defensive actions in combat')[0]).toBeInTheDocument();
       }, { timeout: 2000 });
+    });
 
-      // Clear tooltip by unhover
-      await act(async () => {
-        await user.unhover(lightPoints!);
-      });
+    it('shows Shadow Points tooltip on hover', async () => {
+      const user = userEvent.setup();
 
-      // Wait a bit for tooltip to close
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Update mock values
+      mockGameStore.lightPoints = 10;
+      mockGameStore.shadowPoints = 5;
+
+      render(<StatsBar trust={50} />);
 
       // Hover over shadow points
       const shadowPoints = screen.getByText('Shadow Points').closest('.cursor-help');
@@ -391,8 +397,9 @@ describe('StatsBar Component', () => {
         await user.hover(shadowPoints!);
       });
 
+      // Use getAllByText because Radix UI duplicates content for accessibility
       await waitFor(() => {
-        expect(screen.getByText('Shadow Points enable powerful attacks but come with risk')).toBeInTheDocument();
+        expect(screen.getAllByText('Shadow Points enable powerful attacks but come with risk')[0]).toBeInTheDocument();
       }, { timeout: 2000 });
     });
   });
