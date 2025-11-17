@@ -117,16 +117,15 @@ describe('DiceRollOverlay', () => {
 
   it('should close when clicking the backdrop', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+    const { container } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
 
-    // The backdrop is the outer div with the onClick handler
-    // Use data-testid or find by role/class
-    const backdrop = screen.getByRole('presentation') || document.querySelector('[class*="fixed"][class*="inset-0"]');
+    // The backdrop is the outer fixed div with onClick handler
+    const backdrop = container.querySelector('.fixed.inset-0');
     expect(backdrop).toBeTruthy();
 
     if (backdrop) {
       await act(async () => {
-        await user.click(backdrop);
+        await user.click(backdrop as Element);
         await vi.runAllTimersAsync();
       });
 
@@ -135,9 +134,15 @@ describe('DiceRollOverlay', () => {
   });
 
   describe('Dice Sound Effects', () => {
-    it('should play a random dice sound when rolling starts', () => {
+    it('should play a random dice sound when rolling starts', async () => {
       render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-      
+
+      // Wait for useEffect to execute (no need to advance timers for the sound effect)
+      await act(async () => {
+        // Just wait for any pending microtasks/promises
+        await Promise.resolve();
+      });
+
       // Should have played one of the dice sounds
       expect(soundManager.playSound).toHaveBeenCalledTimes(1);
       expect(soundManager.playSound).toHaveBeenCalledWith(
@@ -145,29 +150,38 @@ describe('DiceRollOverlay', () => {
       );
     });
 
-    it('should play a different dice sound on each render', () => {
+    it('should play a different dice sound on each render', async () => {
       // Mock Math.random to return predictable values
       const mockRandom = vi.spyOn(Math, 'random');
-      
+
       // First render - will select dice1 (index 0)
       mockRandom.mockReturnValueOnce(0.1);
       const { unmount: unmount1 } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+      await act(async () => {
+        await Promise.resolve();
+      });
       expect(soundManager.playSound).toHaveBeenCalledWith('dice1');
       vi.clearAllMocks();
       unmount1();
-      
-      // Second render - will select dice2 (index 1) 
+
+      // Second render - will select dice2 (index 1)
       mockRandom.mockReturnValueOnce(0.5);
       const { unmount: unmount2 } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+      await act(async () => {
+        await Promise.resolve();
+      });
       expect(soundManager.playSound).toHaveBeenCalledWith('dice2');
       vi.clearAllMocks();
       unmount2();
-      
+
       // Third render - will select dice3 (index 2)
       mockRandom.mockReturnValueOnce(0.9);
       render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+      await act(async () => {
+        await Promise.resolve();
+      });
       expect(soundManager.playSound).toHaveBeenCalledWith('dice3');
-      
+
       mockRandom.mockRestore();
     });
   });

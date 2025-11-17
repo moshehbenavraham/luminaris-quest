@@ -154,13 +154,14 @@ describe('useAutoSave', () => {
       renderHook(() => useAutoSave({ debounceDelay: 1000 }));
 
       // Fast-forward past debounce delay
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(1000);
       });
 
+      // Wait for the save to be called
       await waitFor(() => {
         expect(mockSaveToSupabase).toHaveBeenCalledTimes(1);
-      });
+      }, { timeout: 3000 });
     });
 
     it('should not save if already saving', () => {
@@ -228,19 +229,29 @@ describe('useAutoSave', () => {
       renderHook(() => useAutoSave({ interval: 1000 }));
 
       // Fast-forward past interval
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(1000);
       });
 
+      // Wait for the save to be called
       await waitFor(() => {
         expect(mockSaveToSupabase).toHaveBeenCalledTimes(1);
-      });
+      }, { timeout: 3000 });
     });
 
-    it('should skip periodic save when app is not active', () => {
+    it('should skip periodic save when app is not active', async () => {
+      // Store original value
+      const originalHidden = Object.getOwnPropertyDescriptor(document, 'hidden');
+
+      // Delete and redefine the property
+      if (originalHidden) {
+        delete (document as any).hidden;
+      }
+
       Object.defineProperty(document, 'hidden', {
         value: true,
-        writable: true
+        writable: true,
+        configurable: true
       });
 
       mockUseGameStore.mockImplementation((selector: any) => {
@@ -260,11 +271,18 @@ describe('useAutoSave', () => {
       renderHook(() => useAutoSave({ interval: 1000 }));
 
       // Fast-forward past interval
-      act(() => {
+      await act(async () => {
         vi.advanceTimersByTime(1000);
       });
 
+      // Should not have saved because document is hidden
       expect(mockSaveToSupabase).not.toHaveBeenCalled();
+
+      // Restore original property
+      delete (document as any).hidden;
+      if (originalHidden) {
+        Object.defineProperty(document, 'hidden', originalHidden);
+      }
     });
   });
 

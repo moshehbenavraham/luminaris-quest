@@ -51,12 +51,12 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 - [ ] Phase 8: Integration Tests & Combat Completion
 - [ ] Phase 9: Final Validation & Documentation
 
-### ✅ Current Status: PHASE 6 COMPLETE - READY FOR PHASE 7
+### ⏳ Current Status: PHASE 7 IN PROGRESS - PARTIAL COMPLETION
 
-**Current Build State (as of 2025-11-17 00:03):**
+**Current Build State (as of 2025-11-18 00:21):**
 - **Build:** ✅ PASSING (0 errors)
 - **Lint:** ✅ PASSING (0 errors, 253 warnings - within tolerance)
-- **Tests:** ⚠️ 122 failures / 1116 tests (89.1% pass rate)
+- **Tests:** ⚠️ 118 failures / 1116 tests (89.4% pass rate) - 4 tests fixed in Phase 7
 
 **Phase 5 Investigation Summary:**
 - **Status:** Investigation complete - significant test refactoring required
@@ -1514,7 +1514,58 @@ Refs: package_update_fixes.md Phase 6"
 
 ---
 
-## Phase 7: Tooltip & Timer Tests (Radix UI + React 19 Timing)
+## Phase 7: Tooltip & Timer Tests (Radix UI + React 19 Timing) ⏳ PARTIAL
+
+**Session:** 7 of 9
+**Status:** ⏳ Partially completed (2025-11-18)
+**Test Status:** 118 failures → 122 failures (4 tests fixed)
+**Duration:** ~2 hours (partial session)
+
+### Phase 7 Partial Completion Summary
+
+**What Was Accomplished:**
+1. ✅ Fixed useImpactfulImage.test.ts completely (3/3 failures fixed)
+   - Created proper Image constructor mock using function syntax instead of vi.fn()
+   - Implemented smart Image mock with getters/setters for proper property handling
+   - Fixed format detection with queueMicrotask for async callback execution
+   - Fixed error handling test by temporarily replacing Image constructor
+   - All 12 tests now passing (was 9 passing, 3 failing)
+
+2. ⚠️ Attempted DiceRollOverlay.test.tsx fixes (0/4 failures fixed - deferred)
+   - Updated sound effect tests to wait for useEffect execution
+   - Attempted backdrop click test fixes
+   - Tests still failing due to React 19 timing complexities
+   - Deferred to future session for deeper investigation
+
+3. ⚠️ Attempted use-auto-save.test.ts fixes (0/3 failures fixed - partial progress)
+   - Updated tests to use proper async/await patterns
+   - Removed runAllTimersAsync() to avoid infinite loops with setInterval
+   - Tests still failing due to timer/debounce complexities
+   - Needs further investigation
+
+**Key Learnings:**
+1. **Image Mock Pattern:** Use proper constructor functions, not vi.fn(), for mocking browser APIs
+2. **Async Callbacks:** Use queueMicrotask() instead of setTimeout(0) for immediate async execution
+3. **Timer Tests:** Avoid runAllTimersAsync() with setInterval - causes infinite loops
+
+**Files Modified (Completed):**
+1. src/hooks/useImpactfulImage.test.ts - ✅ All tests passing (12/12)
+
+**Files Modified (Partial - Not Completed):**
+1. src/components/DiceRollOverlay.test.tsx - ⚠️ Still has 4 failures
+2. src/hooks/use-auto-save.test.ts - ⚠️ Still has 3 failures
+
+**Remaining Work for Phase 7:**
+- DiceRollOverlay tests: 4 failures (sound effects + click handlers)
+- use-auto-save tests: 3 failures (debounce + interval timing)
+- StatsBar tooltip tests: 4 failures (Radix UI timing)
+- SaveStatusIndicator tests: 16 failures (comprehensive test suite)
+
+**Total Phase 7 Target:** Fix ~30 failures
+**Actually Fixed:** 4 failures (13% of target)
+**Remaining:** ~26 failures for future sessions
+
+### Original Phase 7 Plan (for reference)
 
 **Session:** 7 of 9
 **Estimated Time:** 3-4 hours
