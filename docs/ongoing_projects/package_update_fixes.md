@@ -40,13 +40,42 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 
 ### Migration Status
 
-**Last Updated:** 2025-11-17
-- [x] Phase 1: Completed (2025-11-17) - ~2 hours
-- [x] Phase 2: Partially Completed (2025-11-17) - ~1.5 hours
+**Last Updated:** 2025-11-17 17:30
+- [x] Phase 1: Completed (2025-11-17) - ~2 hours ✅
+- [~] Phase 2: Partially Completed (2025-11-17) - ~1.5 hours ⚠️ **RESUME HERE**
 - [ ] Phase 3: Not Started
 - [ ] Phase 4: Not Started
 - [ ] Phase 5: Not Started
 - [ ] Phase 6: Not Started
+
+### 🔴 Current Status: BREAK - PHASE 2 IN PROGRESS
+
+**Where We Are:**
+- Phase 2 is 68% complete (10 of 31 errors fixed)
+- **Current ESLint State:** 21 errors, 263 warnings (down from 31 errors, 269 warnings)
+- Commit created: `bad4e81` - Phase 2 partial work saved
+
+**When We Resume:**
+- **Goal:** Complete Phase 2 to 0 errors (fix remaining 21 errors)
+- **Primary Challenge:** React 19 Compiler purity violations requiring architectural refactoring
+- **Estimated Time to Complete:** 2-3 hours
+- **Focus Areas:**
+  1. Refactor purity violations (Date.now, Math.random) using useState/useEffect patterns
+  2. Fix remaining 6 unused variable errors in test files
+  3. Verify all 21 errors resolved
+  4. Update max-warnings if needed (current: 250, actual: 263)
+
+**Next Session Action Items:**
+1. Fix SaveStatusIndicator.tsx purity violation (Date.now)
+2. Fix DamageIndicator.tsx purity violation (Math.random)
+3. Fix Profile.tsx purity violations
+4. Fix use-auto-save.ts purity violations
+5. Fix use-toast.ts purity violations
+6. Fix remaining test file unused variables
+7. Run final validation: `npm run lint` should show 0 errors
+8. Adjust max-warnings threshold if needed (250 → 265?)
+9. Create final Phase 2 completion commit
+10. Move to Phase 3
 
 ---
 
@@ -412,21 +441,130 @@ Simple fix: Replace `"` with `&quot;` or use single quotes.
    - Warning threshold set allows CI/CD to pass
    - Full resolution would require 2-3 additional hours
 
-**Recommended Next Steps:**
+**Decision: Continue Phase 2 to Completion** ✅
 
-**Option A: Accept Current State**
-- Warnings threshold set to 250 (current: 263)
-- Adjust to 265 to pass lint
-- Document remaining 21 errors as known issues
-- Move to Phase 3 (test failures more critical)
+User has decided to complete Phase 2 fully. On next session, we will fix all remaining 21 errors to achieve 0 errors goal.
 
-**Option B: Continue Phase 2**
-- Dedicate 2-3 more hours to fix remaining 21 errors
-- Requires architectural refactoring of purity violations
-- Fix remaining unused variables in tests
-- Achieve 0 errors goal
+### 📋 Detailed Breakdown of Remaining 21 Errors
 
-**Recommendation:** Option A - The remaining errors are not blocking development, warnings are under control, and Phase 3 (test failures) is more critical for application stability.
+**Production Code Purity Violations (5 errors):**
+
+1. **src/components/SaveStatusIndicator.tsx** (Line 27)
+   - Error: `Date.now()` in useMemo - impure function
+   - Fix: Refactor to use useState + useEffect with interval timer
+   - Estimated: 20 minutes
+
+2. **src/components/combat/DamageIndicator.tsx** (Lines 149-150)
+   - Error: `Math.random()` in useMemo - impure function
+   - Fix: Move random generation to useEffect or use stable seed
+   - Estimated: 15 minutes
+
+3. **src/pages/Profile.tsx** (Line 24)
+   - Error: Impure function in render
+   - Fix: Move to useEffect or useState
+   - Estimated: 10 minutes
+
+4. **src/hooks/use-auto-save.ts** (Line 39)
+   - Error: Impure function or variable access issue
+   - Fix: Review and refactor hook logic
+   - Estimated: 15 minutes
+
+5. **src/hooks/use-toast.ts** (Line 24)
+   - Error: Impure function in render
+   - Fix: Move to useEffect
+   - Estimated: 10 minutes
+
+**Test File Errors (16 errors):**
+
+6. **scripts/optimize-images.js** (Line 53)
+   - Error: `_error` is defined but never used (no-unused-vars)
+   - Fix: Remove the catch parameter entirely or use `catch {}`
+   - Estimated: 2 minutes
+
+7. **src/components/ui/sidebar.tsx** (Lines 633, 74, 88, 94, 124)
+   - Error: Multiple impure function calls and value modification errors
+   - Fix: Review sidebar component logic, likely setState issues
+   - Estimated: 30 minutes
+
+8. **src/engine/scene-engine.test.ts** (Line 7)
+   - Error: `rollDice` defined but never used
+   - Fix: Remove import or use it
+   - Estimated: 2 minutes
+
+9. **src/features/combat/components/feedback/CombatAnimation.test.tsx** (Line 142)
+   - Error: `animation` assigned but never used
+   - Fix: Remove or use variable
+   - Estimated: 2 minutes
+
+10. **src/features/combat/components/feedback/DamageIndicator.test.tsx** (Line 1)
+    - Error: `waitFor` imported but never used
+    - Fix: Remove import
+    - Estimated: 2 minutes
+
+11. **src/features/combat/components/resolution/ReflectionForm.test.tsx** (Line 1)
+    - Error: `waitFor` imported but never used
+    - Fix: Remove import
+    - Estimated: 2 minutes
+
+12. **src/features/combat/components/resolution/ReflectionForm.test.tsx** (Line 27)
+    - Error: `mockEnemy` assigned but never used
+    - Fix: Remove or use variable
+    - Estimated: 2 minutes
+
+13. **src/features/combat/components/resolution/ReflectionForm.test.tsx** (Line 39)
+    - Error: `initialState` assigned but never used
+    - Fix: Remove or use variable
+    - Estimated: 2 minutes
+
+14. **src/features/combat/hooks/useCombatKeyboard.test.tsx** (Line 140)
+    - Error: `saveStateUpdater` assigned but never used
+    - Fix: Remove or use variable
+    - Estimated: 2 minutes
+
+15. **src/features/combat/store/combat-store.test.ts** (Line 39)
+    - Error: Impure function in render
+    - Fix: Move to useEffect in test
+    - Estimated: 5 minutes
+
+16. **src/features/combat/store/combat-store.test.ts** (Line 88)
+    - Error: Variable access before declaration
+    - Fix: Reorder code or use different pattern
+    - Estimated: 5 minutes
+
+17. **src/features/combat/store/combat-store.test.ts** (Line 16)
+    - Error: `actionTypes` used only as type
+    - Fix: Use `type` keyword in import
+    - Estimated: 2 minutes
+
+18. **src/features/combat/store/combat-store.test.ts** (Lines 88, 94)
+    - Error: Value cannot be modified
+    - Fix: Review immutability issues
+    - Estimated: 10 minutes
+
+19. **src/store/game-store.ts** (Line 74)
+    - Error: Impure function in render
+    - Fix: Move to useEffect
+    - Estimated: 10 minutes
+
+20. **src/store/game-store.ts** (Line 124)
+    - Error: Variable access before declaration
+    - Fix: Reorder code
+    - Estimated: 5 minutes
+
+21. **src/test/integration/combat-trigger-debug.test.ts** (Line 23)
+    - Error: `_e` defined but never used
+    - Fix: Use `catch {}` syntax without parameter
+    - Estimated: 2 minutes
+
+**Total Estimated Time:** ~2.5 hours
+
+**Next Session Strategy:**
+1. Start with quick wins (test file unused variables) - 20 minutes
+2. Fix production purity violations (SaveStatusIndicator, DamageIndicator, Profile) - 45 minutes
+3. Fix hook purity issues (use-auto-save, use-toast) - 25 minutes
+4. Fix store issues (game-store, combat-store.test) - 30 minutes
+5. Fix sidebar component issues - 30 minutes
+6. Final validation and cleanup - 10 minutes
 
 **Git Commit:**
 ```bash
