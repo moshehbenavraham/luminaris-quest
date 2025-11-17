@@ -36,7 +36,16 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
-  const lastSaveTimeRef = useRef(Date.now());
+  const lastSaveTimeRef = useRef<number>(0);
+  // Store performSave in a ref to avoid forward reference issues (React 19 purity compliance)
+  const performSaveRef = useRef<(() => Promise<void>) | null>(null);
+
+  // Initialize lastSaveTimeRef in an effect (React 19 purity compliance)
+  useEffect(() => {
+    if (lastSaveTimeRef.current === 0) {
+      lastSaveTimeRef.current = Date.now();
+    }
+  }, []);
 
   /**
    * Perform save with retry logic
@@ -67,25 +76,25 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
       });
 
       await saveToSupabase();
-      
+
       // Reset retry count on success
       retryCountRef.current = 0;
       lastSaveTimeRef.current = Date.now();
-      
+
       logger.info('Auto-save completed successfully');
     } catch (error) {
       logger.error('Auto-save failed', error);
-      
+
       // Retry if under max attempts
       if (retryCountRef.current < MAX_RETRY_ATTEMPTS) {
         retryCountRef.current++;
-        
+
         logger.info(`Scheduling auto-save retry ${retryCountRef.current}/${MAX_RETRY_ATTEMPTS}`);
-        
+
         // Schedule retry with exponential backoff
         const retryDelay = RETRY_DELAY * Math.pow(2, retryCountRef.current - 1);
         setTimeout(() => {
-          performSave();
+          performSaveRef.current?.();
         }, retryDelay);
       } else {
         logger.error('Auto-save max retries exceeded', {
@@ -96,6 +105,11 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
       }
     }
   }, [enabled, user, saveStatus, hasUnsavedChanges, saveToSupabase]);
+
+  // Keep the ref updated with the latest performSave function
+  useEffect(() => {
+    performSaveRef.current = performSave;
+  }, [performSave]);
 
   /**
    * Debounced save function

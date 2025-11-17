@@ -4,7 +4,6 @@ import {
   mapSceneToShadowType,
   getScene,
   type Scene,
-  rollDice,
   isLastScene,
   getSceneProgress,
 } from '../engine/scene-engine';

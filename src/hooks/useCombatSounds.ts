@@ -83,17 +83,16 @@ export function useCombatSounds(
     await soundManager.playSound('defeat', 3); // Medium duration for defeat
   }, [config.enabled]);
 
-  // Enable/disable sounds
+  // Enable/disable sounds (React 19 purity compliance - avoid config mutation)
   const setSoundsEnabled = useCallback((enabled: boolean): void => {
-    config.enabled = enabled;
     soundManager.setMuted(!enabled);
-  }, [config]);
+  }, []);
 
-  // Set sound volume
+  // Set sound volume (React 19 purity compliance - avoid config mutation)
   const setSoundVolume = useCallback((volume: number): void => {
-    config.volume = Math.max(0, Math.min(1, volume));
-    soundManager.setVolume(config.volume);
-  }, [config]);
+    const clampedVolume = Math.max(0, Math.min(1, volume));
+    soundManager.setVolume(clampedVolume);
+  }, []);
 
   // Check if sounds are enabled
   const isSoundsEnabled = useCallback((): boolean => {

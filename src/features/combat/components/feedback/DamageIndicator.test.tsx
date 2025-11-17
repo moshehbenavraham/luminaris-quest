@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import { DamageIndicator } from '@/features/combat/components/feedback/DamageIndicator';
 

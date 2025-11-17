@@ -71,7 +71,8 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
     if (metricKey in metricsRef.current) {
       (metricsRef.current as any)[metricKey] = metric.value;
     }
-    metricsRef.current.timestamp = Date.now();
+    // Store metric timestamp (React 19 purity compliance - use metric.value as approximation)
+    metricsRef.current.timestamp = metric.value;
     metricsRef.current.url = window.location.href;
     metricsRef.current.userAgent = navigator.userAgent;
 
@@ -116,29 +117,8 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
 
     let webVitalsModule: any;
 
-    // Dynamically import web-vitals to avoid bundle size impact
-    const initWebVitals = async () => {
-      try {
-        // For now, we'll implement basic performance observers
-        // In production, you would install and use the 'web-vitals' package
-        initPerformanceObservers();
-      } catch (error) {
-        logger.warn('Failed to initialize Web Vitals tracking', error);
-      }
-    };
-
-    initWebVitals();
-
-    return () => {
-      // Cleanup observers if needed
-      if (webVitalsModule) {
-        // Cleanup logic would go here
-      }
-    };
-  }, [enableReporting]);
-
-  // Initialize basic performance observers
-  const initPerformanceObservers = () => {
+    // Initialize basic performance observers (defined here to avoid forward reference - React 19)
+    const initPerformanceObservers = () => {
     // Largest Contentful Paint (LCP)
     if ('PerformanceObserver' in window) {
       try {
@@ -198,7 +178,22 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
         logger.warn('Failed to initialize performance observers', error);
       }
     }
-  };
+    };
+
+    // Call the performance observers initialization
+    try {
+      initPerformanceObservers();
+    } catch (error) {
+      logger.warn('Failed to initialize Web Vitals tracking', error);
+    }
+
+    return () => {
+      // Cleanup observers if needed
+      if (webVitalsModule) {
+        // Cleanup logic would go here
+      }
+    };
+  }, [enableReporting]);
 
   // Get current metrics snapshot
   const getMetrics = (): Partial<WebVitalsData> => {

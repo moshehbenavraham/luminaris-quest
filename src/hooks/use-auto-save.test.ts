@@ -137,8 +137,6 @@ describe('useAutoSave', () => {
 
   describe('Debounced auto-save', () => {
     it('should trigger debounced save when unsaved changes detected', async () => {
-      let saveStateUpdater: any;
-      
       mockUseGameStore.mockImplementation((selector: any) => {
         const mockState = {
           saveToSupabase: mockSaveToSupabase,
@@ -150,14 +148,7 @@ describe('useAutoSave', () => {
             lastError: undefined
           }
         };
-        const result = selector(mockState);
-        
-        // Capture the selector function to trigger updates
-        if (typeof result === 'boolean' && result === true) {
-          saveStateUpdater = selector;
-        }
-        
-        return result;
+        return selector(mockState);
       });
 
       renderHook(() => useAutoSave({ debounceDelay: 1000 }));

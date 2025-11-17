@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { ReflectionForm } from '@/features/combat/components/resolution/ReflectionForm';
 import type { ShadowManifestation } from '@/store/game-store';

@@ -36,16 +36,14 @@ describe('Combat Store - Action Execution Flow', () => {
 
   describe('Action Execution', () => {
     it('executes ILLUMINATE action correctly', () => {
-      const initialState = store.getState();
-      
       // Ensure player has enough LP
-      store.setState({ 
+      store.setState({
         resources: { lp: 10, sp: 0 },
         playerLevel: 1
       });
-      
+
       store.getState().executeAction('ILLUMINATE');
-      
+
       const finalState = store.getState();
       
       // Check resource consumption

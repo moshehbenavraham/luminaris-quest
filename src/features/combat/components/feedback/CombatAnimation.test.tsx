@@ -133,20 +133,18 @@ describe('CombatAnimation', () => {
 
   it('goes through animation phases correctly', () => {
     render(
-      <CombatAnimation 
-        type="attack" 
-        direction="player-to-enemy" 
+      <CombatAnimation
+        type="attack"
+        direction="player-to-enemy"
       />
     );
 
-    const animation = screen.getByRole('img');
-    
     // Initial state should be 'idle' but we start with 'windup'
     vi.advanceTimersByTime(200);
-    
+
     vi.advanceTimersByTime(200);
     // Should be in 'strike' phase
-    
+
     vi.advanceTimersByTime(200);
     // Should be in 'recovery' phase
   });

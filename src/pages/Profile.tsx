@@ -1,4 +1,5 @@
 // Built with Bolt.new
+import { useState, useEffect } from 'react';
 import { HealthStatus } from '@/components/HealthStatus';
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
 import { imageRegistry } from '@/data/imageRegistry';
@@ -14,16 +15,27 @@ export function Profile() {
   const saveToSupabase = useGameStoreBase(state => state.saveToSupabase);
   const saveState = useGameStoreBase(state => state.saveState);
 
+  // Track current time in state (React 19 purity compliance)
+  const [currentTime, setCurrentTime] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    // Update current time every 10 seconds for accurate "time ago" display
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleManualSave = async () => {
     await saveToSupabase();
   };
 
   const formatLastSave = () => {
     if (!saveState.lastSaveTimestamp) return 'Never';
-    
-    const now = Date.now();
-    const diff = now - saveState.lastSaveTimestamp;
-    
+
+    const diff = currentTime - saveState.lastSaveTimestamp;
+
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;

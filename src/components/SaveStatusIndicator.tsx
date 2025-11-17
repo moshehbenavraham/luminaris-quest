@@ -1,5 +1,5 @@
 // Built with Bolt.new
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useGameStoreBase } from '@/store/game-store';
 import { cn } from '@/lib/utils';
 import { CheckCircle, Cloud, CloudOff, AlertCircle, Loader2 } from 'lucide-react';
@@ -20,18 +20,29 @@ export function SaveStatusIndicator() {
   const saveToSupabase = useGameStoreBase(state => state.saveToSupabase);
   const clearSaveError = useGameStoreBase(state => state.clearSaveError);
 
-  // Format time since last save - memoized to avoid impure Date.now() calls in render
+  // Track current time in state and update via effect (React 19 purity compliance)
+  const [currentTime, setCurrentTime] = useState<number>(() => Date.now());
+
+  useEffect(() => {
+    // Update current time every 10 seconds for accurate "time ago" display
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Format time since last save - now uses state-based currentTime
   const timeSinceLastSave = useMemo(() => {
     if (!saveState.lastSaveTimestamp) return 'Never';
 
-    const now = Date.now();
-    const diff = now - saveState.lastSaveTimestamp;
+    const diff = currentTime - saveState.lastSaveTimestamp;
 
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} hr ago`;
     return `${Math.floor(diff / 86400000)} days ago`;
-  }, [saveState.lastSaveTimestamp]);
+  }, [saveState.lastSaveTimestamp, currentTime]);
 
   // Get status icon and color based on save state
   const getStatusDisplay = () => {

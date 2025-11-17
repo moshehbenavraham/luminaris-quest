@@ -7,7 +7,6 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCombatKeyboard } from '@/features/combat/hooks/useCombatKeyboard';
 import { useCombatStore } from '@/features/combat/hooks/useCombatStore';
-import type { ShadowManifestation } from '@/store/game-store';
 
 // Mock the combat hooks
 vi.mock('@/features/combat/hooks/useCombatStore', () => ({
@@ -22,18 +21,6 @@ describe('useCombatKeyboard', () => {
     endTurn: vi.fn(),
     surrender: vi.fn(),
     canUseAction: vi.fn(),
-  };
-
-  const mockEnemy: ShadowManifestation = {
-    id: 'test-shadow',
-    name: 'Test Shadow',
-    type: 'doubt',
-    description: 'A test shadow',
-    maxHP: 20,
-    currentHP: 20,
-    abilities: [],
-    scene: 'test-scene',
-    isDefeated: false,
   };
 
   beforeEach(() => {
