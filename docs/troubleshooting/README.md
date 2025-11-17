@@ -45,6 +45,12 @@ Welcome to the Luminaris Quest troubleshooting section! Find help, solutions to 
   - Performance profiling
   - Test-driven debugging approach
 
+- **[Supabase Security Warnings](supabase-security-warnings.md)** - Fix database security warnings
+  - Function search path security
+  - Leaked password protection
+  - PostgreSQL version upgrades
+  - Step-by-step fix guide with migration
+
 ---
 
 ## 🔍 Quick Diagnostic Checklist
