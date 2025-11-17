@@ -65,6 +65,73 @@ Gather these before starting deployment:
 
 ## Local Development
 
+### Local Development Scenarios
+
+There are **two different ways** to develop locally, depending on your needs:
+
+#### Scenario 1: Local App → Production/Staging Database (Recommended)
+
+**When to use:**
+- Default development workflow
+- Working on features that don't require schema changes
+- Want to test with production-like data
+- Multiple developers sharing the same database
+- Testing authentication flows
+
+**Setup:**
+```bash
+# .env.local - connects to cloud Supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# DO NOT set VITE_LOCAL_SUPABASE_URL
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
+```
+
+**Run:**
+```bash
+npm run dev  # Runs on localhost:8080, connected to cloud database
+```
+
+#### Scenario 2: Local App → Local Supabase Instance (Advanced)
+
+**When to use:**
+- Testing database migrations before deploying
+- Working offline
+- Developing schema changes
+- Want complete isolation from production
+
+**Prerequisites:**
+- Supabase CLI installed: `npm install -g supabase`
+- Docker Desktop running (required for local Supabase)
+
+**Setup:**
+```bash
+# Start local Supabase instance
+supabase start  # Runs on http://localhost:54321
+
+# .env.local - connects to local Supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co  # Fallback for non-local
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_LOCAL_SUPABASE_URL=http://localhost:54321
+VITE_LOCAL_SUPABASE_ANON_KEY=your-local-anon-key  # From supabase start output
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
+```
+
+**Run:**
+```bash
+npm run dev  # Runs on localhost:8080, connected to local database
+```
+
+**Stop local Supabase:**
+```bash
+supabase stop
+```
+
 ### Initial Setup
 
 1. **Clone Repository**
@@ -78,18 +145,22 @@ Gather these before starting deployment:
    npm install
    ```
 
-3. **Environment Configuration**
+3. **Environment Configuration (Scenario 1: Production Database)**
    Create `.env.local` in the root directory:
    ```env
-   # Local Development Configuration
+   # Local Development → Production Database (Recommended)
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
-   VITE_OPENAI_API_KEY=your-openai-key
-   
-   # Optional API Keys
-   VITE_LEONARDO_API_KEY=your-leonardo-key
-   VITE_ELEVENLABS_API_KEY=your-elevenlabs-key
-   VITE_SENTRY_DSN=your-sentry-dsn
+
+   # Optional: AI Features (planned, not currently used)
+   # VITE_OPENAI_API_KEY=your-openai-key
+   # VITE_LEONARDO_API_KEY=your-leonardo-key
+   # VITE_ELEVENLABS_API_KEY=your-elevenlabs-key
+   # VITE_SENTRY_DSN=your-sentry-dsn
+
+   # For Scenario 2 (Local Database), uncomment and add:
+   # VITE_LOCAL_SUPABASE_URL=http://localhost:54321
+   # VITE_LOCAL_SUPABASE_ANON_KEY=your-local-anon-key
    ```
 
 4. **Database Setup**
@@ -462,15 +533,15 @@ AND column_name IN ('experience_points', 'experience_to_next');
 |----------|-------------|---------|------------|-------------|
 | `VITE_SUPABASE_URL` | ✅ | ✅ | ✅ | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | ✅ | ✅ | ✅ | Supabase anonymous key |
-| `VITE_OPENAI_API_KEY` | ✅ | ✅ | ✅ | OpenAI API key |
 
 ### Optional Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_LEONARDO_API_KEY` | Leonardo.AI for images | - |
-| `VITE_ELEVENLABS_API_KEY` | ElevenLabs for voice | - |
-| `VITE_SENTRY_DSN` | Error tracking with Sentry | - |
+| Variable | Description | Default | Status |
+|----------|-------------|---------|--------|
+| `VITE_OPENAI_API_KEY` | OpenAI API for narrative | - | Planned, not used |
+| `VITE_LEONARDO_API_KEY` | Leonardo.AI for images | - | Planned, not used |
+| `VITE_ELEVENLABS_API_KEY` | ElevenLabs for voice | - | Planned, not used |
+| `VITE_SENTRY_DSN` | Error tracking with Sentry | - | Optional |
 
 ### Environment-Specific Configuration
 
@@ -478,21 +549,27 @@ AND column_name IN ('experience_points', 'experience_to_next');
 ```env
 VITE_SUPABASE_URL=https://your-dev-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-dev-anon-key
-VITE_OPENAI_API_KEY=your-openai-key
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
 ```
 
 **Staging:**
 ```env
 VITE_SUPABASE_URL=https://your-staging-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-staging-anon-key
-VITE_OPENAI_API_KEY=your-openai-key
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
 ```
 
 **Production:**
 ```env
 VITE_SUPABASE_URL=https://your-prod-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-prod-anon-key
-VITE_OPENAI_API_KEY=your-openai-key
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
 ```
 
 ### Security Best Practices

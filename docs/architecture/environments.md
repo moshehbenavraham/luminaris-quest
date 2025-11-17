@@ -13,11 +13,24 @@
 ### 1. **Local Development** ✅ ACTIVE
 - **Purpose**: Primary development and testing environment
 - **Platform**: WSL 2 / Windows 10/11 + Cursor IDE
+- **Port**: localhost:8080 (updated from 5173)
+- **Testing**: 68+ automated tests passing, manual testing complete
+
+**Database Connection Options:**
+
+#### Option A: Local → Cloud Database (Default, Recommended)
 - **Supabase Project**: Current project (lxjetnrmjyazegwnymkk)
 - **Database URL**: https://lxjetnrmjyazegwnymkk.supabase.co
-- **Port**: localhost:8080 (updated from 5173)
-- **Migration Strategy**: All 8 migrations deployed and tested
-- **Testing**: 68+ automated tests passing, manual testing complete
+- **Setup**: Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` only
+- **Use Case**: Standard development, team collaboration, testing with production data
+- **Migration Strategy**: All 8 migrations already deployed to cloud
+
+#### Option B: Local → Local Supabase (Advanced)
+- **Supabase Instance**: Local Docker container (localhost:54321)
+- **Setup**: Set `VITE_LOCAL_SUPABASE_URL` and `VITE_LOCAL_SUPABASE_ANON_KEY`
+- **Prerequisites**: Supabase CLI + Docker Desktop
+- **Use Case**: Testing migrations, offline development, schema changes
+- **Migration Strategy**: Run migrations via `supabase db reset` locally
 
 ### 2. **Development/Staging (Cloud)** ✅ CONFIGURED
 - **Purpose**: Integration testing and team collaboration
@@ -158,26 +171,54 @@ Local (localhost:8080) → Development → Staging → Production
 
 ## Environment-Specific Configuration
 
-### Local Development
+### Local Development (Option A: Cloud Database - Recommended)
 ```env
-# .env.local
-VITE_SUPABASE_URL=https://lxjetnrmjyzagegwnymkk.supabase.co
-VITE_SUPABASE_ANON_KEY=your-local-anon-key
-VITE_OPENAI_API_KEY=your-openai-key
+# .env.local - Local app connecting to cloud Supabase
+VITE_SUPABASE_URL=https://lxjetnrmjyazegwnymkk.supabase.co
+VITE_SUPABASE_ANON_KEY=your-cloud-anon-key
+
+# DO NOT set these unless using local Supabase instance:
+# VITE_LOCAL_SUPABASE_URL=...
+# VITE_LOCAL_SUPABASE_ANON_KEY=...
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
 ```
+
+### Local Development (Option B: Local Supabase - Advanced)
+```env
+# .env.local - Local app connecting to local Supabase instance
+VITE_SUPABASE_URL=https://lxjetnrmjyazegwnymkk.supabase.co  # Fallback
+VITE_SUPABASE_ANON_KEY=your-cloud-anon-key                  # Fallback
+VITE_LOCAL_SUPABASE_URL=http://localhost:54321              # Override
+VITE_LOCAL_SUPABASE_ANON_KEY=your-local-anon-key            # Override
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
+```
+
+**How it works:** When `VITE_LOCAL_SUPABASE_URL` is set, the client (`src/integrations/supabase/client.ts:82-87`) overrides the cloud URL for localhost environments only. Other environments (dev/staging/prod) always use the cloud URL.
 
 ### Development/Staging
 ```env
 VITE_SUPABASE_URL=https://staging-project.supabase.co
 VITE_SUPABASE_ANON_KEY=staging-anon-key
-VITE_OPENAI_API_KEY=your-openai-key
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
+
+# Local override is ignored in non-localhost environments
 ```
 
 ### Production
 ```env
 VITE_SUPABASE_URL=https://production-project.supabase.co
 VITE_SUPABASE_ANON_KEY=production-anon-key
-VITE_OPENAI_API_KEY=your-openai-key
+
+# Optional (not currently used):
+# VITE_OPENAI_API_KEY=your-openai-key
+
+# Local override is ignored in non-localhost environments
 ```
 
 ## Migration Deployment Strategy ✅

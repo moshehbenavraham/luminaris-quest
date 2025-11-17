@@ -81,20 +81,33 @@ process.env.VITE_SUPABASE_ANON_KEY = 'test-key';
 
 ### Test File Organization
 
+**Co-located Test Pattern** (Industry Standard 2024-2025):
+
 ```
 src/
-├── __tests__/                    # Test files
-│   ├── components/              # Component tests
-│   ├── hooks/                   # Hook tests
-│   ├── engine/                  # Game logic tests
-│   ├── integration/             # Integration tests
-│   ├── accessibility/           # Accessibility tests
-│   ├── performance/             # Performance tests
-│   └── test-utils.tsx          # Testing utilities
 ├── components/
-│   └── Component.test.tsx       # Co-located component tests
-└── hooks/
-    └── useHook.test.ts         # Co-located hook tests
+│   ├── StatsBar.tsx
+│   └── StatsBar.test.tsx        # Co-located component tests
+├── pages/
+│   ├── Home.tsx
+│   └── Home.test.tsx            # Co-located page tests
+├── hooks/
+│   ├── useCombat.ts
+│   └── useCombat.test.ts        # Co-located hook tests
+├── engine/
+│   ├── combat-engine.ts
+│   └── combat-engine.test.ts    # Co-located engine tests
+├── features/
+│   └── combat/
+│       ├── components/
+│       │   └── actions/
+│       │       ├── ActionButton.tsx
+│       │       └── ActionButton.test.tsx  # Co-located feature tests
+└── test/
+    ├── utils.tsx                # Shared testing utilities
+    └── integration/             # Cross-cutting integration tests
+        ├── combat-playtesting.test.ts
+        └── experience-points-system.test.ts
 ```
 
 ## Test Types
@@ -321,7 +334,7 @@ npm test -- StatsBar.test.tsx
 npm test -- --grep "combat"
 
 # Run tests in specific directory
-npm test -- src/__tests__/components/
+npm test -- src/components/
 
 # Run accessibility tests only
 npm test -- --grep "accessibility"
@@ -349,7 +362,8 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'src/__tests__/',
+        '**/*.test.{ts,tsx}',
+        'src/test/',
         '**/*.d.ts',
         '**/*.config.*',
       ],

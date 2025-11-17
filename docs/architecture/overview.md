@@ -108,13 +108,13 @@ luminaris-quest/
 │   │   ├── database-health.ts     # DB monitoring
 │   │   ├── environment.ts         # Env detection
 │   │   ├── performance-monitoring.ts
+│   │   ├── performance-monitoring.test.ts  # Co-located tests
 │   │   └── utils.ts               # Common utilities
 │   │
-│   ├── __tests__/        # Test suites (68+ files)
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── engine/
-│   │   └── integration/
+│   ├── test/             # Test utilities and integration tests
+│   │   ├── utils.tsx     # Shared test utilities
+│   │   └── integration/  # System-wide integration tests (50+ files)
+│   │                    # Unit tests co-located with source files
 │   │
 │   ├── App.tsx           # Root component with routing
 │   ├── main.tsx          # Application entry point

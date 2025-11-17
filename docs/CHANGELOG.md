@@ -8,6 +8,77 @@ For the full, verbose log see `docs/CHANGELOG_OLD.md`.
 
 ---
 
+## [REFACTORED] Test Organization - Migrated to Industry Standard Co-located Pattern - 2025-11-17
+
+**Implementation Date**: 2025-11-17
+**Priority**: Medium - Infrastructure Improvement
+
+### Changes Made
+- **Test Organization**: Migrated all 93 test files from centralized `src/__tests__/` to co-located pattern
+- **Industry Standards**: Adopted 2024-2025 React/Vite/Vitest best practices for test file organization
+- **Test Utilities**: Moved shared test utilities to `src/test/utils.tsx`
+- **Integration Tests**: Organized cross-cutting integration tests in `src/test/integration/`
+
+### Technical Changes
+
+#### Test File Locations
+- **Pages**: Tests now live alongside page components (`src/pages/Home.test.tsx`)
+- **Components**: Tests co-located with components (`src/components/atoms/ImpactfulImage.test.tsx`)
+- **Hooks**: Tests next to custom hooks (`src/hooks/useCombat.test.ts`)
+- **Engine**: Core logic tests with engine files (`src/engine/combat-engine.test.ts`)
+- **Features**: NEW combat system tests within feature modules (`src/features/combat/components/actions/ActionButton.test.tsx`)
+- **Integration**: System-wide integration tests in dedicated directory (`src/test/integration/`)
+
+#### Configuration Updates
+- **vitest.config.ts**: Changed test pattern from `src/__tests__/**/*.test.{ts,tsx}` to `src/**/*.test.{ts,tsx}`
+- **Test Imports**: Updated 6 test files to use `@/test/utils` import path for test utilities
+- **Directory Cleanup**: Removed all empty `__tests__/` directories
+
+### Benefits
+- **Easier Maintenance**: Tests move with source files during refactoring
+- **Better Discovery**: Tests are immediately visible next to implementation
+- **Cleaner Imports**: Relative imports simplified (e.g., `./ComponentName.test.tsx` instead of `../../../../ComponentName.test.tsx`)
+- **Industry Standard**: Follows patterns used by Next.js, Remix, and modern React projects
+- **IDE Integration**: Better autocomplete and test runner integration
+
+### File Statistics
+- **Total Files Migrated**: 93 test files
+- **Page Tests**: 4 files
+- **Component Tests**: 30+ files
+- **Hook Tests**: 5 files
+- **Engine Tests**: 3 files
+- **Integration Tests**: 50+ files
+- **Files Modified**: `vitest.config.ts` + 6 test files with import path updates
+
+### Breaking Changes
+- **None**: All tests remain functional with same test names and behavior
+- **Configuration**: Projects using custom test runners may need to update test file patterns
+- **Git History**: Preserved via `git mv` - full file history maintained
+
+### Migration Details
+```
+Before:
+src/__tests__/
+├── Home.test.tsx
+├── combat-engine.test.ts
+└── features/combat/components/actions/ActionButton.test.tsx
+
+After:
+src/
+├── pages/Home.test.tsx
+├── engine/combat-engine.test.ts
+├── features/combat/components/actions/ActionButton.test.tsx
+└── test/
+    ├── utils.tsx
+    └── integration/
+```
+
+**Build Status**: All tests remain discoverable by Vitest
+**Breaking Changes**: None - purely organizational improvement
+**Version Impact**: No version bump required (infrastructure change)
+
+---
+
 ## [UPDATED] Combat Energy System - Simplified Resource Management - 2025-06-29
 
 **Implementation Date**: 2025-06-29  
