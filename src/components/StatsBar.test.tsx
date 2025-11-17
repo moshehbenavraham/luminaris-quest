@@ -11,6 +11,12 @@ const mockGameStore = {
   playerHealth: 100,
   playerEnergy: 100,
   maxPlayerEnergy: 100,
+  playerLevel: 1,
+  getExperienceProgress: vi.fn(() => ({
+    current: 0,
+    toNext: 100,
+    percentage: 0
+  })),
 };
 
 vi.mock('@/store/game-store', () => ({
