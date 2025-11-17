@@ -50,20 +50,22 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 
 ### ⚠️ Current Status: PHASE 5 INVESTIGATION COMPLETE
 
-**Current Build State (as of 2025-11-17 23:38):**
+**Current Build State (as of 2025-11-17 23:41):**
 - **Build:** ✅ PASSING (0 errors)
 - **Lint:** ✅ PASSING (0 errors, 253 warnings - within tolerance)
-- **Tests:** ⚠️ 159 failures / 1116 tests (85.8% pass rate)
+- **Tests:** ⚠️ 155 failures / 1116 tests (86.1% pass rate)
 
 **Phase 5 Investigation Summary:**
 - **Status:** Investigation complete - significant test refactoring required
-- **Test Status:** 159 failures / 1116 tests (85.8% pass rate)
+- **Starting Test Status:** 159 failures / 1116 tests (85.8% pass rate)
+- **Final Test Status:** 155 failures / 1116 tests (86.1% pass rate) ✅ +4 tests fixed
 - **Findings:**
   1. ✅ Fixed lint errors (2 unused imports) - lint now passing with 0 errors
-  2. ⚠️ **Critical Discovery**: Many tests are outdated and check for UI text that no longer exists
-  3. ⚠️ StatsBar component refactored (shows "Level X" instead of "Experience" text)
-  4. ⚠️ Tooltip tests have multiple issues: Radix UI delays + cleanup + outdated assertions
-  5. ⚠️ ~40+ tests require significant rework, not just React 19 compatibility fixes
+  2. ✅ Fixed 4 additional test failures (lint-related test errors)
+  3. ⚠️ **Critical Discovery**: Many tests are outdated and check for UI text that no longer exists
+  4. ⚠️ StatsBar component refactored (shows "Level X" instead of "Experience" text)
+  5. ⚠️ Tooltip tests have multiple issues: Radix UI delays + cleanup + outdated assertions
+  6. ⚠️ ~40+ tests require significant rework, not just React 19 compatibility fixes
 
 **Detailed Test Failure Analysis:**
 
