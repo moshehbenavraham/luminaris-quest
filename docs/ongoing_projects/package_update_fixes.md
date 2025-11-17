@@ -40,15 +40,18 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 
 ### Migration Status
 
-**Last Updated:** 2025-11-17 23:38
-- [x] Phase 1: Completed (2025-11-17) - ~2 hours ✅
-- [x] Phase 2: Completed (2025-11-17) - ~3 hours ✅
-- [x] Phase 3: Completed (2025-11-17) - ~2 hours ✅
-- [~] Phase 4: Partial (2025-11-17) - ~2 hours ⚠️
-- [~] Phase 5: Investigation Complete - Requires Significant Refactoring ⚠️ **CURRENT**
-- [ ] Phase 6: Not Started
+**Last Updated:** 2025-11-17 23:45
+- [x] Phase 1: Critical Build Blockers - Completed (2025-11-17) - ~2 hours ✅
+- [x] Phase 2: ESLint Configuration & Critical Errors - Completed (2025-11-17) - ~3 hours ✅
+- [x] Phase 3: React 19 Test Infrastructure - Completed (2025-11-17) - ~2 hours ✅
+- [~] Phase 4: Combat System Tests - Partial (2025-11-17) - ~2 hours ⚠️
+- [x] Phase 5: Investigation & Analysis - Completed (2025-11-17) - ~1 hour ✅
+- [ ] Phase 6: Outdated Test Assertions (StatsBar, Pages) **RESUME HERE**
+- [ ] Phase 7: Tooltip & Timer Tests (Radix UI, Auto-save)
+- [ ] Phase 8: Integration Tests & Combat Completion
+- [ ] Phase 9: Final Validation & Documentation
 
-### ⚠️ Current Status: PHASE 5 INVESTIGATION COMPLETE
+### ✅ Current Status: PHASE 5 COMPLETE - READY FOR PHASE 6
 
 **Current Build State (as of 2025-11-17 23:41):**
 - **Build:** ✅ PASSING (0 errors)
@@ -1290,608 +1293,691 @@ Refs: package_update_fixes.md Phase 4"
 
 ---
 
-## Phase 5: React 19 Test Failures - Part 3: Remaining Tests
+## Phase 5: Investigation & Analysis ✅ COMPLETED
 
-**Session:** 5 of 6
-**Estimated Time:** 5-6 hours
+**Session:** 5 of 9
+**Actual Time:** ~1 hour
 **Complexity:** Medium
-**Priority:** MEDIUM - Long tail of smaller issues
+**Priority:** HIGH - Understand root causes before fixing
+**Status:** ✅ Completed 2025-11-17
 
-### Goal
-Fix all remaining test failures. Target: >95% pass rate (>1045/1103).
+### Goal Achieved
+Comprehensive analysis of all 155 test failures. Categorized by root cause and created systematic fix plan.
 
-### 5.1 Component Tests (2-3 hours)
+### What Was Accomplished
+1. ✅ Fixed 2 lint errors (unused waitFor imports) - 0 errors remaining
+2. ✅ Improved test pass rate from 159 → 155 failures (+4 tests fixed)
+3. ✅ Analyzed and categorized all 155 remaining failures into 5 distinct categories
+4. ✅ Identified that most failures are test maintenance debt, not React 19 breaking changes
+5. ✅ Created revised phase plan for systematic fixes
 
-**Categories:**
+### Findings
+- **Category 1:** Outdated test assertions (~25 failures) - Components refactored, tests not updated
+- **Category 2:** Tooltip/Radix UI timing (~20 failures) - 700ms delays + React 19 act() issues
+- **Category 3:** Image mocking (~3 failures) - Incorrect Image constructor mocking
+- **Category 4:** Timer tests (~10 failures) - Need fake timers + act() wrapping
+- **Category 5:** Integration tests (~97 failures) - Mixed issues requiring case-by-case fixes
 
-#### 5.1.1 Page Components
-**Files:**
-- `src/pages/Adventure.test.tsx`
-- `src/pages/Progress.test.tsx`
-- `src/pages/Profile.test.tsx`
-- `src/pages/Home.test.tsx`
-
-**Common issues:** Router context, async data loading
-
-#### 5.1.2 Layout Components
-**Files:**
-- `src/components/layout/Layout.test.tsx`
-- `src/components/layout/Navbar.test.tsx`
-- `src/components/layout/Sidebar.test.tsx`
-
-**Common issues:** Navigation state, theme switching
-
-#### 5.1.3 UI Components
-**Files:**
-- `src/components/atoms/**/*.test.tsx`
-- `src/components/molecules/**/*.test.tsx`
-- `src/components/organisms/**/*.test.tsx`
-
-**Common issues:** Event handlers, animation timing
-
-**Fix Strategy:**
-Apply patterns from Phases 3-4. Most will be simple `act()` wrapper additions.
+### Success Criteria Met
+- [x] All test failures categorized by root cause
+- [x] Lint errors fixed (0 errors)
+- [x] Systematic fix plan created for Phases 6-9
+- [x] Documentation updated with realistic timeline
 
 ---
 
-### 5.2 Hook Tests (1-2 hours)
+## Phase 6: Outdated Test Assertions (Component Refactoring Fixes)
 
-**Files:**
-- `src/hooks/useCombat.test.ts` (OLD combat system - may deprecate)
-- `src/hooks/use-energy-regeneration.test.ts`
-- `src/hooks/use-health-monitoring.test.ts`
-- Other hook tests
-
-**Common Issues:**
-- Timer-based hooks need `act()` + `advanceTimersByTime`
-- Hooks with external dependencies (Supabase) need better mocking
-
----
-
-### 5.3 Integration Tests (1-2 hours)
-
-**Remaining files:**
-- `src/test/integration/experience-points-system.test.ts`
-- `src/test/integration/energy-persistence.test.ts`
-- `src/test/integration/combat-overlay-zindex.test.tsx`
-- Any other non-combat integration tests
-
-**Strategy:**
-- Review each test file individually
-- Apply learned patterns from Phases 3-4
-- Consider if any tests are obsolete and can be removed
-
----
-
-### 5.4 Final Test Suite Validation
-
-**Run full test suite multiple times:**
-```bash
-# Run 3 times to check for flaky tests
-npm test
-npm test
-npm test
-
-# Generate coverage report
-npm run test:coverage
-
-# Check for warnings in test output
-npm test 2>&1 | grep -i "warn"
-```
-
-**Success Metrics:**
-- Pass rate: >95% (>1045/1103 tests)
-- No flaky tests (consistent results across runs)
-- Coverage maintained or improved
-- No `act()` warnings in console
-
----
-
-### 5.5 Document Remaining Failures
-
-If any tests still fail (<5% acceptable):
-
-**Create:** `docs/testing/known-test-issues.md`
-
-```markdown
-# Known Test Issues
-
-## Tests Intentionally Skipped
-
-### Test: "Legacy combat system integration"
-**File:** src/hooks/useCombat.test.ts
-**Reason:** Legacy combat system being deprecated, not worth fixing for React 19
-**Status:** Will be removed in future PR
-
-[... document other acceptable failures ...]
-```
-
----
-
-### Phase 5 Success Criteria
-
-- [ ] >95% test pass rate (>1045/1103)
-- [ ] No flaky tests
-- [ ] Coverage report generated
-- [ ] Known issues documented
-- [ ] All `act()` warnings resolved
-
-**Git Commit:**
-```bash
-git add .
-git commit -m "fix: resolve remaining React 19 test failures
-
-- Fix page component tests
-- Fix layout component tests
-- Fix UI component tests
-- Fix hook tests (timers, async)
-- Fix remaining integration tests
-- Document known issues
-
-Tests passing: 1055/1103 (95.6%)
-
-Refs: package_update_fixes.md Phase 5"
-```
-
----
-
-## Phase 6: Validation, Documentation & Cleanup
-
-**Session:** 6 of 6
+**Session:** 6 of 9
 **Estimated Time:** 3-4 hours
 **Complexity:** Low-Medium
-**Priority:** HIGH - Ensure migration is complete
+**Priority:** HIGH - Quick wins with immediate impact
+**Target:** Fix ~35 failures → ~120 remaining (89% pass rate)
 
 ### Goal
-Validate entire application, update documentation, clean up.
+Update test assertions to match current component implementations. Many components were refactored but tests still check for old UI text/structure.
 
-### 6.1 Application Validation (1 hour)
+### 6.1 StatsBar Tests (1 hour) - 9 failures
 
-**6.1.1 Development Environment**
-```bash
-npm run dev
-```
+**File:** `src/components/StatsBar.test.tsx`
 
-**Manual Tests:**
-- [ ] Home page loads
-- [ ] Authentication works (sign up, sign in, sign out)
-- [ ] Adventure page loads with scenes
-- [ ] Combat triggers correctly
-- [ ] Combat actions work (Illuminate, Reflect, Endure, Shadow Embrace)
-- [ ] Combat resolution and reflection work
-- [ ] Progress page shows stats and charts
-- [ ] Profile page loads and updates
-- [ ] Journal entries save and display
-- [ ] Auto-save indicator works
-- [ ] Theme switching works (light/dark)
-- [ ] Navigation works
-- [ ] Audio player works
+**Issue:** Component refactored to show "Level X" instead of "Experience" text, tests still assert on old text.
 
-**6.1.2 Production Build**
-```bash
-npm run build
-npm run preview
-```
+**Tasks:**
+1. Update "renders default stats" test - change `Experience` → `Level 1`
+2. Update "renders custom stat values" test - fix value assertions for new layout
+3. Update "handles edge case values" test - update assertions for refactored display
+4. Update "maintains proper section order" test - verify new section structure
+5. Fix energy percentage calculation test - update selector/assertion logic
+6. Review and update all StatsBar-related test assertions
 
-**Tests:**
-- [ ] Build succeeds with no errors
-- [ ] Preview server runs
-- [ ] All features work in production build
-- [ ] No console errors in browser
-
-**6.1.3 Cross-Browser Testing**
-
-Test in:
-- [ ] Chrome/Edge (Chromium)
-- [ ] Firefox
-- [ ] Safari (if available)
-
-**Verify:**
-- Glassmorphism effects render correctly
-- Animations smooth
-- Combat overlay works
-- No visual regressions
+**Success Criteria:**
+- [ ] All 22 StatsBar tests passing
+- [ ] Tests match current component implementation
+- [ ] No outdated assertions remaining
 
 ---
 
-### 6.2 Performance Validation (1 hour)
+### 6.2 Page Component Tests (2-3 hours) - ~25 failures
 
-**6.2.1 Lighthouse Audit**
-```bash
-npm run lighthouse
-```
+**Files:**
+- `src/pages/Adventure.test.tsx` (~12 failures)
+- `src/pages/Home.test.tsx` (~3 failures)
+- `src/pages/Profile.test.tsx` (~4 failures)
+- `src/pages/Progress.test.tsx` (if any failures)
 
-**Target Scores:**
-- Performance: >90
-- Accessibility: >90
-- Best Practices: >90
-- SEO: >80
+**Common Issues:**
+- Tests checking for removed/renamed UI elements
+- ImpactfulImage integration tests with outdated selectors
+- StatsBar integration with refactored props
+- Feature flag tests for deprecated features
 
-**6.2.2 Bundle Size Analysis**
-```bash
-npm run build
-ls -lh dist/assets/*.js
+**Tasks:**
+1. **Adventure.test.tsx:**
+   - Update StatsBar integration tests for new props
+   - Fix ImpactfulImage selector tests
+   - Update feature flag tests (AudioPlayer, etc.)
+   - Verify scene rendering with current structure
 
-# Compare with pre-migration sizes
-# Document any significant increases/decreases
-```
+2. **Home.test.tsx:**
+   - Update ImpactfulImage integration tests
+   - Fix layout structure assertions
+   - Update hero section tests
 
-**Expected changes:**
-- React 19 may reduce bundle size slightly
-- Tailwind 4 should have similar or smaller CSS
-- Overall bundle should be comparable or better
+3. **Profile.test.tsx:**
+   - Update ImpactfulImage integration tests
+   - Fix profile data display assertions
+   - Update layout structure tests
 
-**6.2.3 Runtime Performance**
-
-**Test combat performance:**
-- [ ] Combat animations smooth (60 FPS)
-- [ ] No stuttering during state updates
-- [ ] React 19 concurrent features working
-
-**Test auto-save:**
-- [ ] Saves trigger at correct intervals
-- [ ] No UI blocking during save
-- [ ] Save status indicator accurate
+**Success Criteria:**
+- [ ] All page component tests passing
+- [ ] ImpactfulImage integration tests updated
+- [ ] StatsBar integration tests updated
+- [ ] No hardcoded UI text assertions (use aria-labels/roles instead)
 
 ---
 
-### 6.3 Update Documentation (1 hour)
+### 6.3 StatsBarAlignment Tests (1 hour) - ~7 failures
 
-**6.3.1 CLAUDE.md**
+**File:** `src/components/StatsBarAlignment.test.tsx`
 
-Update sections:
-```markdown
-## Essential Commands
-[Verify all commands still work]
+**Issue:** Visual regression tests checking outdated CSS classes and layout structure.
 
-## High-Level Architecture
-### State Management Strategy
-- Note: Using React 19 with improved concurrent rendering
-- Zustand store patterns updated for React 19
+**Tasks:**
+1. Update layout structure assertions for refactored component
+2. Fix width/alignment tests for new flex-based layout
+3. Update progress bar selector tests
+4. Fix tabular-nums font tests
+5. Update icon flex-shrink tests
 
-## Critical Development Patterns
-### Component Standards
-- Update React 19 specific patterns
-
-## Testing Strategy
-- Note: Tests updated for React 19 act() requirements
-- Updated testing patterns documented in test utilities
-
-## Environment Configuration
-### Required Environment Variables
-[No changes expected]
-
-## Known Issues & Gotchas
-[Update with any new issues discovered]
-
-**Last Updated**: 2025-11-17
-**Project Version**: 0.2.0  # Bump minor version
-```
-
-**6.3.2 package.json**
-
-Update version:
-```json
-{
-  "version": "0.2.0",
-  "description": "Therapeutic AI-powered RPG adventure. Built with Bolt.new. Updated to React 19, Tailwind 4, and latest dependencies."
-}
-```
-
-**6.3.3 Create Migration Guides**
-
-**Create:** `docs/migration/react-19-migration.md`
-```markdown
-# React 19 Migration Guide
-
-## Overview
-This document covers the migration from React 18.3 to React 19.2.
-
-## Breaking Changes
-1. Stricter `act()` requirements in tests
-2. Updated testing patterns
-[... detailed guide ...]
-```
-
-**Create:** `docs/migration/tailwind-4-migration.md`
-```markdown
-# Tailwind CSS 4 Migration Guide
-
-## Overview
-Migration from Tailwind CSS 3.4 to 4.1.
-
-## Breaking Changes
-1. Custom utilities syntax changed
-2. PostCSS plugin moved to separate package
-[... detailed guide ...]
-```
-
-**6.3.4 Update Other Docs**
-
-**Files to review/update:**
-- `docs/architecture/components.md` - Note any structural changes
-- `docs/troubleshooting/faq.md` - Add migration-related Q&A
-- `docs/contributing/roadmap.md` - Mark migration as completed
-- `README.md` - Update if needed
-
----
-
-### 6.4 Git Commit Strategy & PR
-
-**6.4.1 Review All Commits**
-
-Should have 6-7 commits from phases 1-5:
-1. "fix: migrate to Tailwind CSS 4 and resolve build blockers"
-2. "fix: resolve ESLint v9 errors and establish warning strategy"
-3. "fix: update test infrastructure for React 19 compatibility"
-4. "fix: update combat system tests for React 19"
-5. "fix: resolve remaining React 19 test failures"
-6. "docs: update migration documentation and bump version"
-
-**6.4.2 Final Validation Commit**
-```bash
-git add .
-git commit -m "docs: finalize package migration documentation
-
-- Update CLAUDE.md with React 19 and Tailwind 4 info
-- Bump project version to 0.2.0
-- Add React 19 migration guide
-- Add Tailwind 4 migration guide
-- Update architecture documentation
-- Validate all features working
-
-Refs: package_update_fixes.md Phase 6"
-```
-
-**6.4.3 Create Pull Request (if using PR workflow)**
-```markdown
-# Package Update Migration - React 19, Tailwind 4, and 71 others
-
-## Summary
-Comprehensive migration updating 73 packages to latest versions, including major upgrades to React 19, Tailwind CSS 4, Vite 7, and more.
-
-## Changes
--  React 18.3 � 19.2
--  Tailwind CSS 3.4 � 4.1
--  Vite 6.3 � 7.2
--  ESLint 8.56 � 9.39
--  And 69 more packages
-
-## Testing
-- Build:  Passing
-- Lint:  Passing (0 errors, <250 warnings)
-- Tests:  1055/1103 passing (95.6%)
-- Manual:  All features validated
-- Performance:  Lighthouse scores maintained
-
-## Migration Guide
-See docs/migration/ for detailed guides.
-
-Closes #[issue-number]
-```
-
----
-
-### 6.5 Final Checklist
-
-**Pre-Merge Validation:**
-- [ ] `npm run build` succeeds
-- [ ] `npm run lint` passes (0 errors)
-- [ ] `npm test` >95% pass rate
-- [ ] `npm run dev` works
-- [ ] `npm run preview` works
-- [ ] Manual testing completed
-- [ ] Cross-browser testing completed
-- [ ] Lighthouse scores acceptable
-- [ ] Bundle sizes acceptable
-- [ ] No console errors
-- [ ] All documentation updated
-- [ ] Git history clean
-- [ ] PR created (if applicable)
-
-**Post-Merge Tasks:**
-- [ ] Monitor production for issues
-- [ ] Watch for user reports
-- [ ] Update dependencies regularly going forward
-- [ ] Consider setting up automated dependency updates (Dependabot/Renovate)
+**Success Criteria:**
+- [ ] All 7 StatsBarAlignment tests passing
+- [ ] Tests verify correct visual alignment
+- [ ] CSS class assertions match current implementation
 
 ---
 
 ### Phase 6 Success Criteria
 
-- [ ] Application fully functional
-- [ ] Performance maintained or improved
-- [ ] All documentation updated
+- [ ] StatsBar tests: 22/22 passing (0 failures)
+- [ ] Page component tests: All passing (~25 failures fixed)
+- [ ] StatsBarAlignment tests: 7/7 passing (0 failures)
+- [ ] Total: ~40 failures fixed → ~115 failures remaining
+- [ ] Test pass rate: >89% (>1000/1116 tests)
+
+**Validation:**
+```bash
+npm test -- StatsBar.test.tsx
+npm test -- StatsBarAlignment.test.tsx
+npm test -- src/pages/
+npm test  # Check overall progress
+```
+
+**Git Commit:**
+```bash
+git add .
+git commit -m "fix: update outdated test assertions for refactored components
+
+- Update StatsBar tests for 'Level X' display (was 'Experience')
+- Fix page component tests for ImpactfulImage integration
+- Update StatsBarAlignment tests for refactored layout
+- Remove hardcoded UI text assertions, use aria-labels
+- Fix energy percentage calculation test selectors
+
+Tests passing: ~1000/1116 (89%)
+
+Refs: package_update_fixes.md Phase 6"
+```
+
+---
+
+## Phase 7: Tooltip & Timer Tests (Radix UI + React 19 Timing)
+
+**Session:** 7 of 9
+**Estimated Time:** 3-4 hours
+**Complexity:** Medium
+**Priority:** MEDIUM - Requires understanding of Radix UI + React 19 patterns
+**Target:** Fix ~33 failures → ~82 remaining (93% pass rate)
+
+### Goal
+Fix tooltip tests (Radix UI delays), timer-based tests (auto-save, DiceRollOverlay), and SaveStatusIndicator tests.
+
+### 7.1 Tooltip Tests (Remaining from StatsBar) (30 min)
+
+**Note:** Some tooltip tests may be fixed in Phase 6, but any remaining tooltip timing issues go here.
+
+**Pattern to Apply:**
+```typescript
+it('shows tooltip on hover', async () => {
+  const user = userEvent.setup();
+  render(<Component />);
+
+  const element = screen.getByText('Label').closest('.cursor-help');
+
+  await act(async () => {
+    await user.hover(element!);
+  });
+
+  // Radix UI has 700ms default delay
+  await waitFor(() => {
+    expect(screen.getByText('Tooltip content')).toBeInTheDocument();
+  }, { timeout: 2000 });
+});
+```
+
+---
+
+### 7.2 use-auto-save Tests (1 hour) - 3 failures
+
+**File:** `src/hooks/use-auto-save.test.ts`
+
+**Failures:**
+- "should trigger debounced save when unsaved changes detected" (timeout)
+- "should save periodically when unsaved changes exist" (timeout)
+- "should skip periodic save when app is not active" (failing assertion)
+
+**Issue:** Timer mocking not compatible with React 19 async rendering
+
+**Fix Pattern (from Phase 3):**
+```typescript
+import { advanceTimersAndAct } from '@/test/utils';
+
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+it('should trigger debounced save', async () => {
+  const { result } = renderHook(() => useAutoSave());
+
+  await advanceTimersAndAct(30000); // Advance 30 seconds
+
+  await waitFor(() => {
+    expect(mockSave).toHaveBeenCalled();
+  }, { timeout: 2000 });
+});
+```
+
+---
+
+### 7.3 SaveStatusIndicator Tests (2 hours) - 16 failures
+
+**File:** `src/components/organisms/SaveStatusIndicator.test.tsx`
+
+**Common Issues:**
+- State updates not wrapped in act()
+- Timer advances for time display ("Just now", "5 minutes ago")
+- Button click interactions need act() wrapping
+- Tooltip interactions with Radix UI delays
+
+**Fix Strategy:**
+1. Wrap all renders in `renderWithAct` or use `act()` for state-changing operations
+2. Use fake timers with `advanceTimersAndAct()` for time-based displays
+3. Wrap user interactions (clicks, hovers) in `act()`
+4. Increase waitFor timeouts for Radix UI tooltips
+
+**Tasks:**
+1. Fix "All changes saved" test - add act() wrapping
+2. Fix "Unsaved changes" test - add act() wrapping
+3. Fix "Saving..." test - add act() wrapping
+4. Fix "Save failed" test - add act() wrapping
+5. Fix time display tests - use fake timers
+6. Fix "Save Now" button tests - wrap clicks in act()
+7. Fix "Retry" button tests - wrap clicks in act()
+8. Fix error tooltip tests - Radix UI delays
+9. Fix visual states test - state update wrapping
+
+---
+
+### 7.4 DiceRollOverlay Tests (30 min) - 4 failures
+
+**File:** `src/components/DiceRollOverlay.test.tsx`
+
+**Failures:**
+- "should close when clicking the Continue button"
+- "should close when clicking the backdrop"
+- "should play a random dice sound when rolling starts"
+- "should play a different dice sound on each render"
+
+**Issue:** Animation timings (1.5s delay), portal rendering, sound effect mocks
+
+**Fix Pattern:**
+```typescript
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+it('should show result after 1.5 seconds', async () => {
+  render(<DiceRollOverlay roll={15} dc={10} onClose={mockClose} />);
+
+  expect(screen.queryByText(/Success/i)).not.toBeInTheDocument();
+
+  await advanceTimersAndAct(1500);
+
+  await waitFor(() => {
+    expect(screen.getByText(/Success/i)).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+### 7.5 useImpactfulImage Tests (30 min) - 3 failures
+
+**File:** `src/hooks/useImpactfulImage.test.ts`
+
+**Failures:**
+- "detects AVIF support and uses AVIF format"
+- "falls back to WebP when AVIF is not supported"
+- "provides safe defaults during server-side rendering"
+
+**Issue:** Incorrect Image constructor mocking - `() => mockImage is not a constructor`
+
+**Fix:**
+```typescript
+beforeEach(() => {
+  // Proper Image mock - use class syntax
+  global.Image = vi.fn().mockImplementation(() => ({
+    onload: null,
+    onerror: null,
+    src: '',
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  })) as any;
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+```
+
+---
+
+### Phase 7 Success Criteria
+
+- [ ] use-auto-save tests: 3/3 passing (0 failures)
+- [ ] SaveStatusIndicator tests: 16/16 passing (0 failures)
+- [ ] DiceRollOverlay tests: 4/4 passing (0 failures)
+- [ ] useImpactfulImage tests: 3/3 passing (0 failures)
+- [ ] Tooltip tests: All passing
+- [ ] Total: ~30 failures fixed → ~85 failures remaining
+- [ ] Test pass rate: >92% (>1030/1116 tests)
+
+**Validation:**
+```bash
+npm test -- use-auto-save.test.ts
+npm test -- SaveStatusIndicator.test.tsx
+npm test -- DiceRollOverlay.test.tsx
+npm test -- useImpactfulImage.test.ts
+npm test  # Check overall progress
+```
+
+**Git Commit:**
+```bash
+git add .
+git commit -m "fix: resolve tooltip and timer test issues for React 19
+
+- Fix use-auto-save tests with proper fake timer setup
+- Fix SaveStatusIndicator tests with act() wrapping
+- Fix DiceRollOverlay animation timing tests
+- Fix useImpactfulImage Image constructor mocking
+- Apply Radix UI tooltip delay patterns (waitFor 2000ms)
+- Use advanceTimersAndAct helper for all timer tests
+
+Tests passing: ~1030/1116 (92%)
+
+Refs: package_update_fixes.md Phase 7"
+```
+
+---
+
+## Phase 8: Integration Tests & Combat Completion
+
+**Session:** 8 of 9
+**Estimated Time:** 4-6 hours
+**Complexity:** High
+**Priority:** MEDIUM-HIGH - Complex cross-component issues
+**Target:** Fix ~80 failures → <10 remaining (>99% pass rate)
+
+### Goal
+Fix combat integration tests, combat component tests, and remaining page integration tests.
+
+### 8.1 Combat Integration Tests (3-4 hours) - ~60 failures
+
+**Files:**
+- `src/test/integration/combat-*.test.tsx` (~40 failures)
+- `src/features/combat/components/**/*.test.tsx` (~20 failures)
+
+**Common Issues:**
+- Zustand store mocking for React 19
+- Cross-store synchronization timing
+- Combat overlay portal rendering
+- Combat text visibility tests (outdated class names)
+- Combat resolution flow tests
+
+**Fix Strategy:**
+
+**8.1.1 Combat Text Visibility Tests (~15 failures)**
+**File:** `src/test/integration/CombatTextVisibilityFix.test.tsx`
+
+These tests check for specific CSS classes that may have changed. Review and update class name assertions.
+
+**8.1.2 Combat Accessibility Tests (~8 failures)**
+**File:** `src/test/integration/combat-accessibility.test.tsx`
+
+Similar to visibility tests - update class name and aria-label assertions.
+
+**8.1.3 Combat Resolution Tests (~10 failures)**
+**Files:** Various combat integration tests
+
+Apply Zustand test helper pattern:
+```typescript
+import { act, waitFor } from '@testing-library/react';
+
+it('should handle combat action', async () => {
+  const user = userEvent.setup();
+  render(<CombatOverlay />);
+
+  await act(async () => {
+    await user.click(screen.getByText('Illuminate'));
+  });
+
+  await waitFor(() => {
+    expect(screen.getByText(/damage dealt/i)).toBeInTheDocument();
+  }, { timeout: 3000 });
+});
+```
+
+**8.1.4 Combat Store Tests (~10 failures)**
+**File:** `src/features/combat/store/combat-store.test.ts`
+
+Fix async action timing and state synchronization.
+
+**8.1.5 Combat Component Tests (~17 failures)**
+Various combat component test files - apply act() patterns from Phase 3.
+
+---
+
+### 8.2 Remaining Combat Tests (1-2 hours) - ~20 failures
+
+**Categories:**
+- Combat health integration
+- Combat energy system
+- Combat focus management
+- Combat overlay interaction
+- Resource display tests
+
+**Apply Phase 3 patterns** to all remaining combat tests.
+
+---
+
+### 8.3 Miscellaneous Integration Tests (1 hour) - ~10 failures
+
+**Files:**
+- `src/engine/combat-balance.test.ts`
+- `src/components/combat/CombatOverlay.test.tsx`
+- `src/components/combat/ResourceDisplay.test.tsx`
+
+**Fix Strategy:**
+- Update outdated assertions
+- Apply act() wrapping
+- Fix mocking issues
+
+---
+
+### Phase 8 Success Criteria
+
+- [ ] Combat integration tests: >90% passing
+- [ ] Combat component tests: >95% passing
+- [ ] Combat store tests: All passing
+- [ ] Combat text visibility tests: All passing
+- [ ] Total: ~80 failures fixed → <10 failures remaining
+- [ ] Test pass rate: >99% (>1105/1116 tests)
+
+**Validation:**
+```bash
+npm test -- src/test/integration/combat-
+npm test -- src/features/combat/
+npm test -- src/components/combat/
+npm test  # Check overall: should be >1105/1116 passing
+```
+
+**Git Commit:**
+```bash
+git add .
+git commit -m "fix: resolve combat integration and component tests for React 19
+
+- Fix combat text visibility tests (update class assertions)
+- Fix combat accessibility tests (aria-label updates)
+- Fix combat resolution flow with proper act() wrapping
+- Fix combat store async action tests
+- Fix combat component tests with React 19 patterns
+- Apply Zustand test helpers across all combat tests
+
+Tests passing: >1105/1116 (>99%)
+
+Refs: package_update_fixes.md Phase 8"
+```
+
+---
+
+## Phase 9: Final Validation & Documentation
+
+**Session:** 9 of 9
+**Estimated Time:** 2-3 hours
+**Complexity:** Low-Medium
+**Priority:** HIGH - Ensure migration is complete and documented
+**Target:** 100% passing tests, complete documentation
+
+### Goal
+Fix final test failures, validate application, update documentation.
+
+### 9.1 Fix Remaining Failures (<10 tests) (1 hour)
+
+**Strategy:**
+- Analyze each remaining failure individually
+- Apply appropriate fix pattern based on root cause
+- If test is obsolete or testing deprecated functionality, consider skipping/removing
+
+---
+
+### 9.2 Application Validation (30 min)
+
+**Manual Testing:**
+```bash
+npm run dev
+```
+
+Test critical paths:
+- [ ] Home page loads
+- [ ] Authentication works
+- [ ] Adventure page loads with scenes
+- [ ] Combat triggers and completes successfully
+- [ ] StatsBar displays correctly
+- [ ] Save indicator works
+- [ ] All tooltips appear correctly
+
+---
+
+### 9.3 Build & Production Validation (30 min)
+
+```bash
+npm run build
+npm run preview
+```
+
+**Verify:**
+- [ ] Build succeeds with 0 errors
+- [ ] Preview server runs
+- [ ] All features work in production build
+- [ ] No console errors
+- [ ] Glassmorphism effects render correctly
+
+---
+
+### 9.4 Update Documentation (30-60 min)
+
+**Files to Update:**
+1. `docs/ongoing_projects/package_update_fixes.md`
+   - Mark all phases as complete
+   - Document final metrics
+   - Update lessons learned
+
+2. `docs/testing/react-19-patterns.md` (create new)
+   - Document all React 19 test patterns used
+   - Radix UI tooltip testing
+   - Timer/fake timer patterns
+   - Zustand store testing patterns
+
+3. `CLAUDE.md`
+   - Update testing section with React 19 notes
+   - Update project version to 0.2.0
+   - Note package versions (React 19, Tailwind 4, etc.)
+
+4. `package.json`
+   - Bump version to 0.2.0
+
+---
+
+### Phase 9 Success Criteria
+
+- [ ] All tests passing (1116/1116) or >99.5% (>1110/1116)
+- [ ] Build: ✅ Passing
+- [ ] Lint: ✅ Passing (0 errors)
+- [ ] Manual testing: All critical paths work
+- [ ] Production build: All features work
+- [ ] Documentation: Complete and up-to-date
 - [ ] Version bumped to 0.2.0
-- [ ] Migration guides created
-- [ ] Final checklist completed
 
----
-
-## Rollback Strategy
-
-If critical issues discovered during Phase 6:
-
-### Quick Rollback Options
-
-**Option 1: Rollback Entire Migration**
+**Final Validation:**
 ```bash
-# If on migration branch
-git checkout master
-git branch -D migration/package-updates
-
-# If already merged
-git revert HEAD~6..HEAD
+npm run build  # Must succeed
+npm run lint   # Must show 0 errors
+npm test       # Must show >99.5% pass rate
 ```
 
-**Option 2: Selective Rollback - Tailwind CSS 4**
+**Git Commit:**
 ```bash
-npm install tailwindcss@^3.4.18 --save-dev
-npm uninstall @tailwindcss/postcss
+git add .
+git commit -m "fix: complete React 19 migration - all tests passing
 
-# Revert these files:
-git checkout HEAD~6 -- postcss.config.js
-git checkout HEAD~6 -- src/index.css
-git checkout HEAD~6 -- tailwind.config.ts
-```
+- Fix final remaining test failures
+- Validate all application features
+- Update documentation for React 19 patterns
+- Bump version to 0.2.0
+- Create React 19 testing patterns guide
 
-**Option 3: Selective Rollback - React 19**
-```bash
-npm install react@^18.3.1 react-dom@^18.3.1 --save
-npm install @types/react@^18.3.26 @types/react-dom@^18.3.7 --save-dev
-npm install @testing-library/react@^14.3.1 --save-dev
+Final state:
+- Build: ✅ PASSING
+- Lint: ✅ PASSING (0 errors, 253 warnings)
+- Tests: ✅ >1110/1116 (>99.5%)
 
-# Revert test changes
-git checkout HEAD~4 -- src/test/
-git checkout HEAD~4 -- src/**/*.test.ts*
-```
+Migration complete: React 19.2, Tailwind CSS 4.1, Vite 7.2, and 70 other packages updated successfully.
 
-**Option 4: Rollback Individual Packages**
-```bash
-# Check package.json history for specific version
-git show HEAD~6:package.json | grep "package-name"
-
-# Install specific old version
-npm install package-name@version
+Refs: package_update_fixes.md Phase 9"
 ```
 
 ---
 
-## Risk Assessment
+## Revised Timeline & Effort
 
-| Phase | Risk Level | Impact if Failed | Mitigation Strategy |
-|-------|-----------|------------------|---------------------|
-| Phase 1 | **HIGH** | Build completely blocked | Well-documented Tailwind 4 guides; can rollback CSS only |
-| Phase 2 | **LOW** | Annoying warnings only | Can adjust lint threshold temporarily |
-| Phase 3 | **MEDIUM** | Tests unreliable, may miss bugs | React 19 testing docs available; extensive test coverage |
-| Phase 4 | **MEDIUM** | Combat untested, risky to deploy | Combat isolated to module; extensive manual testing |
-| Phase 5 | **LOW** | Some features untested | Can accept <5% failure rate short-term |
-| Phase 6 | **LOW** | Documentation incomplete | Non-blocking; can iterate after merge |
+| Phase | Description | Est. Time | Complexity | Status |
+|-------|-------------|-----------|------------|--------|
+| Phase 1 | Critical Build Blockers | ~2 hours | High | ✅ Complete |
+| Phase 2 | ESLint & Critical Errors | ~3 hours | Low-Med | ✅ Complete |
+| Phase 3 | React 19 Test Infrastructure | ~2 hours | Med-High | ✅ Complete |
+| Phase 4 | Combat System Tests (Partial) | ~2 hours | High | ⚠️ Partial |
+| Phase 5 | Investigation & Analysis | ~1 hour | Medium | ✅ Complete |
+| **Phase 6** | **Outdated Test Assertions** | **3-4 hours** | **Low-Med** | **⬅️ RESUME** |
+| Phase 7 | Tooltip & Timer Tests | 3-4 hours | Medium | 📅 Planned |
+| Phase 8 | Integration & Combat Completion | 4-6 hours | High | 📅 Planned |
+| Phase 9 | Final Validation & Docs | 2-3 hours | Low-Med | 📅 Planned |
 
-**Overall Risk:** MEDIUM
-
-**Risk Mitigation:**
-1. Each phase can be committed separately
-2. Rollback strategies documented for each major change
-3. Manual testing validates critical paths
-4. Can ship with <100% test pass rate if critical tests pass
-
----
-
-## Success Metrics
-
-### Build & Development
--  `npm run build` succeeds with 0 errors
--  `npm run dev` runs without errors
--  `npm run preview` works for production testing
-
-### Code Quality
--  `npm run lint` shows 0 errors
--  Warnings <250 (or documented threshold)
--  TypeScript compilation: 0 errors
-
-### Testing
--  Tests pass: >95% (>1045/1103)
--  Critical test suites: 100% passing
-  - Combat store tests
-  - Auto-save tests
-  - Authentication tests
-  - Scene progression tests
--  No flaky tests
--  Coverage maintained: >80%
-
-### Application Quality
--  All features work in dev and production
--  No console errors
--  Lighthouse Performance: >90
--  Cross-browser compatible
--  Bundle size reasonable
-
-### Documentation
--  CLAUDE.md updated
--  Migration guides created
--  Version bumped
--  Known issues documented
+**Total Estimated Time:** 22-29 hours across 9 sessions
+**Completed:** 10 hours (Phases 1-5)
+**Remaining:** 12-19 hours (Phases 6-9)
 
 ---
 
-## Timeline & Effort Estimate
+## Key Takeaways for Future Phases
 
-| Phase | Estimated Time | Complexity | Can Parallelize? |
-|-------|---------------|------------|------------------|
-| Phase 1 | 4-6 hours | High | No (critical path) |
-| Phase 2 | 3-4 hours | Low-Medium | After Phase 1 |
-| Phase 3 | 5-7 hours | Medium-High | After Phase 2 |
-| Phase 4 | 6-8 hours | High | After Phase 3 |
-| Phase 5 | 5-6 hours | Medium | After Phase 4 |
-| Phase 6 | 3-4 hours | Low-Medium | After Phase 5 |
+### React 19 Test Patterns That Work
 
-**Total Sequential:** 26-35 hours across 5-6 sessions
+1. **Timer-based tests:**
+   ```typescript
+   import { advanceTimersAndAct } from '@/test/utils';
 
-**With Multiple Developers:**
-- Phase 1: Must be sequential (1 dev)
-- Phase 2: Can parallelize with Phase 3 setup (2 devs)
-- Phases 3-5: Can partially parallelize if careful (2-3 devs)
-- Phase 6: Sequential (1 dev)
-- **Minimum time with parallelization:** ~15-20 hours
+   beforeEach(() => vi.useFakeTimers());
+   afterEach(() => vi.useRealTimers());
 
----
+   await advanceTimersAndAct(1000);
+   ```
 
-## Communication Plan
+2. **Radix UI tooltips:**
+   ```typescript
+   await act(async () => {
+     await user.hover(element);
+   });
 
-### During Migration
+   await waitFor(() => {
+     expect(screen.getByText('Tooltip')).toBeInTheDocument();
+   }, { timeout: 2000 }); // Radix has 700ms delay
+   ```
 
-**Daily Updates (if team project):**
-- Post completion of each phase in team chat
-- Document any blockers or unexpected issues
-- Share testing results
+3. **Zustand store updates:**
+   ```typescript
+   await act(async () => {
+     store.updateState(newValue);
+   });
 
-**Status Updates:**
-Update this document with:
-```markdown
-## Migration Status
+   await waitFor(() => {
+     expect(store.getState().value).toBe(expected);
+   });
+   ```
 
-- [x] Phase 1: Completed 2025-11-18 (5 hours)
-- [x] Phase 2: Completed 2025-11-18 (3.5 hours)
-- [ ] Phase 3: In Progress (started 2025-11-19)
-- [ ] Phase 4: Not Started
-- [ ] Phase 5: Not Started
-- [ ] Phase 6: Not Started
-```
+4. **User interactions:**
+   ```typescript
+   const user = userEvent.setup();
 
-### Post-Migration
+   await act(async () => {
+     await user.click(button);
+   });
+   ```
 
-**Announcement Message:**
-```
-<� Package Migration Complete!
+### Common Pitfalls to Avoid
 
-We've successfully upgraded to React 19, Tailwind CSS 4, and 71 other packages.
-
- All critical features tested and working
- Performance maintained
- Tests passing (95.6%)
-
-=� See docs/migration/ for details
-� Please report any issues immediately
-
-Thank you for your patience!
-```
-
----
-
-## Lessons Learned (Update Post-Migration)
-
-### What Went Well
-- [To be filled in after migration]
-
-### Challenges Encountered
-- [To be filled in after migration]
-
-### Would Do Differently
-- [To be filled in after migration]
-
-### Recommendations for Future Updates
-- [To be filled in after migration]
+1. ❌ Don't use `vi.advanceTimersByTime()` directly - always use `advanceTimersAndAct()`
+2. ❌ Don't expect tooltips to appear immediately - use 2000ms timeout
+3. ❌ Don't forget act() wrapping for state updates
+4. ❌ Don't mock Image as `() => mockImage` - use class implementation
+5. ❌ Don't check for hardcoded UI text - use aria-labels/roles when possible
 
 ---
 
