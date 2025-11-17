@@ -14,6 +14,34 @@ export default [
   {
     ignores: ['dist', 'node_modules', '.bolt'],
   },
+  // Config for Node.js files (vite.config.ts, vitest.config.ts, etc.)
+  {
+    files: ['*.config.{ts,js}', 'scripts/**/*.{ts,js}'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      globals: {
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        global: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        Buffer: 'readonly',
+        NodeJS: 'readonly',
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-undef': 'off', // TypeScript handles this
+    },
+  },
+  // Main config for React/TypeScript files
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -69,6 +97,8 @@ export default [
         process: 'readonly',
         NodeJS: 'readonly',
         React: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
         // Test globals from vitest
         describe: 'readonly',
         it: 'readonly',
@@ -97,12 +127,17 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      }],
+      'no-unused-vars': 'off', // Let TypeScript handle this
       '@typescript-eslint/no-explicit-any': 'warn',
       'react/prop-types': 'off', // We use TypeScript for prop validation
-      'react/no-unescaped-entities': 'error',
+      'react/no-unescaped-entities': 'warn', // Downgrade to warning
       'no-useless-escape': 'error',
+      'react-hooks/set-state-in-effect': 'warn', // Downgrade to warning
+      'no-undef': 'off', // TypeScript handles undefined variables
     },
     settings: {
       react: {

@@ -1,7 +1,7 @@
 // Built with Bolt.new
 export default {
   plugins: {
-    tailwindcss: {},
+    '@tailwindcss/postcss': {},
     autoprefixer: {},
   },
 }

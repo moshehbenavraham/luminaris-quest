@@ -141,26 +141,27 @@ body {
   background: linear-gradient(135deg, #0a0b14 0%, var(--neutral-800) 100%);
 }
 
-/* Glassmorphism Utilities */
+/* Glassmorphism Utilities - Moved outside @layer for Tailwind v4 compatibility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.glass-hover:hover {
+  background: rgba(134, 93, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(134, 93, 255, 0.2);
+}
+
+/* Button Utilities */
 @layer utilities {
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-  }
-
-  .glass-hover {
-    transition: all 0.2s ease-in-out;
-  }
-
-  .glass-hover:hover {
-    background: rgba(134, 93, 255, 0.1);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(134, 93, 255, 0.2);
-  }
-
   .btn-primary {
     background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
     color: var(--primary-foreground);
@@ -230,22 +231,33 @@ textarea:focus {
   border-bottom-color: var(--primary);
 }
 
-/* Card Component Enhancements */
+/* Component Enhancements - Plain CSS for Tailwind v4 compatibility */
 .card-enhanced {
-  @apply glass rounded-xl p-6 transition-all duration-200;
+  /* Glass effect properties */
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  /* Tailwind equivalent styles */
+  border-radius: 0.75rem; /* rounded-xl */
+  padding: 1.5rem; /* p-6 */
+  transition: all 200ms; /* transition-all duration-200 */
 }
 
 .card-enhanced:hover {
-  @apply glass-hover;
+  background: rgba(134, 93, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(134, 93, 255, 0.2);
 }
 
-/* Navigation Enhancements */
 .nav-link {
-  @apply relative transition-all duration-200 ease-in-out;
+  position: relative;
+  transition: all 200ms ease-in-out;
 }
 
 .nav-link.active {
-  @apply font-bold;
+  font-weight: 700; /* font-bold */
   background: var(--primary);
   color: var(--primary-foreground);
   border-radius: 9999px;
@@ -253,7 +265,7 @@ textarea:focus {
 }
 
 .nav-link:hover:not(.active) {
-  @apply text-primary;
+  color: var(--primary);
 }
 
 /* Responsive Typography */
@@ -269,11 +281,9 @@ textarea:focus {
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+/* Base styles - Plain CSS for Tailwind v4 compatibility */
+* {
+  border-color: var(--border);
 }
+
+/* Note: body background and color already defined above (lines 131-142) */

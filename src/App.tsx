@@ -30,7 +30,7 @@ function App() {
   return (
     <QueryProvider>
       <SupabaseProvider>
-        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Router>
           <Suspense fallback={
             <div className="flex items-center justify-center min-h-screen">
               <Spinner className="w-8 h-8" />
