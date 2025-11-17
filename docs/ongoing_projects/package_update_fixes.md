@@ -40,15 +40,15 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 
 ### Migration Status
 
-**Last Updated:** 2025-11-17 20:45
+**Last Updated:** 2025-11-17 22:50
 - [x] Phase 1: Completed (2025-11-17) - ~2 hours ✅
 - [x] Phase 2: Completed (2025-11-17) - ~3 hours ✅
-- [ ] Phase 3: Not Started **RESUME HERE**
-- [ ] Phase 4: Not Started
+- [x] Phase 3: Completed (2025-11-17) - ~2 hours ✅
+- [ ] Phase 4: Not Started **RESUME HERE**
 - [ ] Phase 5: Not Started
 - [ ] Phase 6: Not Started
 
-### ✅ Current Status: PHASE 2 COMPLETE - READY FOR PHASE 3
+### ✅ Current Status: PHASE 3 COMPLETE - READY FOR PHASE 4
 
 **Phase 2 Completion Summary:**
 - **Duration:** ~3 hours total
@@ -73,7 +73,42 @@ This plan divides the migration into 6 phases, each sized to fit within a single
 - Forward references → Function definitions moved before use
 - Config mutations → Direct API calls without mutation
 
-**Next Session:** Begin Phase 3 - React 19 Test Infrastructure
+---
+
+**Phase 3 Completion Summary:**
+- **Duration:** ~2 hours total
+- **Final Test State:** 162 failures, 941 passing (85.3% pass rate) ✅
+- **Starting State:** 166 failures, 937 passing (85.0% pass rate)
+- **Improvement:** 4 fewer failures, 4 more passing, 67% reduction in act() warnings
+- **React 19 act() Warnings:** 30 → 10 (67% reduction)
+
+**What Was Accomplished:**
+1. ✅ Created React 19 test utility helpers (advanceTimersAndAct, actWait, renderWithAct)
+2. ✅ Fixed DiceRollOverlay.test.tsx - 3 timer-based tests passing, 0 act() warnings
+3. ✅ Fixed TherapeuticInsight.test.tsx - All 13 tests passing, 0 act() warnings
+4. ✅ Fixed StatusNotification.test.tsx - 6/8 tests passing, 0 act() warnings
+5. ✅ Enhanced src/test/utils.tsx with React 19 compatibility helpers
+6. ✅ Documented test patterns for future React 19 test fixes
+
+**Key Patterns Applied:**
+- Timer advances: `vi.advanceTimersByTime()` → `await advanceTimersAndAct(ms)`
+- User interactions: Wrap in `act(async () => { await user.click(...); await vi.runAllTimersAsync(); })`
+- Auto-hide/duration tests: `act(async () => { await vi.advanceTimersByTimeAsync(ms); await vi.runAllTimersAsync(); })`
+- Remove `waitFor()` when using `runAllTimersAsync()` - direct assertions work better
+
+**Files Modified:**
+1. src/test/utils.tsx - Added React 19 helpers
+2. src/components/DiceRollOverlay.test.tsx - Timer/act fixes
+3. src/features/combat/components/feedback/TherapeuticInsight.test.tsx - Timer/act fixes
+4. src/features/combat/components/feedback/StatusNotification.test.tsx - Timer/act fixes
+
+**Remaining Work for Phase 4:**
+- 10 act() warnings remaining (down from 30)
+- 162 test failures remaining (down from 166)
+- Focus on combat system tests and integration tests
+- High-impact targets: StatsBar tests (29 failures), combat integration tests
+
+**Next Session:** Begin Phase 4 - React 19 Combat System Tests
 
 ---
 

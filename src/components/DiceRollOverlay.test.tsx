@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
-import { render, screen } from '@/test/utils';
+import { render, screen, advanceTimersAndAct, act } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 
 // Mock the sound manager module before importing the component
@@ -61,13 +61,13 @@ describe('DiceRollOverlay', () => {
 
   it('should show the result after 1.5 seconds', async () => {
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-    
+
     expect(screen.getByText('Rolling...')).toBeInTheDocument();
     expect(screen.queryByText('15')).not.toBeInTheDocument();
-    
-    // Fast forward 1.5 seconds
-    await vi.advanceTimersByTimeAsync(1500);
-    
+
+    // Fast forward 1.5 seconds with act() wrapper
+    await advanceTimersAndAct(1500);
+
     expect(screen.queryByText('Rolling...')).not.toBeInTheDocument();
     expect(screen.getByText('15')).toBeInTheDocument();
     expect(screen.getByText('✨ Success!')).toBeInTheDocument();
@@ -76,59 +76,60 @@ describe('DiceRollOverlay', () => {
   it('should show failure message for unsuccessful rolls', async () => {
     const failedResult = { ...defaultResult, success: false };
     render(<DiceRollOverlay result={failedResult} onClose={mockOnClose} />);
-    
-    await vi.advanceTimersByTimeAsync(1500);
-    
+
+    await advanceTimersAndAct(1500);
+
     expect(screen.getByText('💡 Try Again')).toBeInTheDocument();
   });
 
   it('should auto-close after 7 seconds', async () => {
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-    
+
     expect(mockOnClose).not.toHaveBeenCalled();
-    
+
     // Fast forward 7 seconds (this triggers handleClose)
-    await vi.advanceTimersByTimeAsync(7000);
-    
+    await advanceTimersAndAct(7000);
+
     // Wait for the fade out animation (handleClose sets timeout of 1 second)
-    await vi.advanceTimersByTimeAsync(1000);
-    
+    await advanceTimersAndAct(1000);
+
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   it('should close when clicking the Continue button', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-    
+
     // Show the result first
-    await vi.advanceTimersByTimeAsync(1500);
-    
+    await advanceTimersAndAct(1500);
+
     const continueButton = screen.getByRole('button', { name: 'Continue' });
     expect(continueButton).toBeInTheDocument();
-    
-    await user.click(continueButton);
-    
-    // Wait for fade out animation
-    await vi.advanceTimersByTimeAsync(1000);
-    
+
+    // Click the button and run all timers
+    await act(async () => {
+      await user.click(continueButton);
+      await vi.runAllTimersAsync();
+    });
+
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
   it('should close when clicking the backdrop', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-    
+
     // The backdrop is the outer div with the onClick handler
-    // Find by class name pattern since it has the fixed inset-0 classes
-    const backdrop = document.querySelector('.fixed.inset-0');
+    // Use data-testid or find by role/class
+    const backdrop = screen.getByRole('presentation') || document.querySelector('[class*="fixed"][class*="inset-0"]');
     expect(backdrop).toBeTruthy();
-    
+
     if (backdrop) {
-      await user.click(backdrop);
-      
-      // Wait for fade out animation
-      await vi.advanceTimersByTimeAsync(1000);
-      
+      await act(async () => {
+        await user.click(backdrop);
+        await vi.runAllTimersAsync();
+      });
+
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     }
   });

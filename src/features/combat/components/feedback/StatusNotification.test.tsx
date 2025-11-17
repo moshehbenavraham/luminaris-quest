@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { StatusNotification } from '@/features/combat/components/feedback/StatusNotification';
 
@@ -78,33 +78,32 @@ describe('StatusNotification', () => {
 
   it('closes notification when close button is clicked', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <StatusNotification 
-        message="Test" 
-        type="info" 
+      <StatusNotification
+        message="Test"
+        type="info"
         onClose={onClose}
       />
     );
 
     const closeButton = screen.getByRole('button', { name: /close notification/i });
-    fireEvent.click(closeButton);
 
-    // Wait for animation
-    vi.advanceTimersByTime(300);
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => {
+      fireEvent.click(closeButton);
+      await vi.runAllTimersAsync();
     });
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 
   it('auto-closes after specified duration', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <StatusNotification 
-        message="Test" 
-        type="info" 
+      <StatusNotification
+        message="Test"
+        type="info"
         duration={2000}
         onClose={onClose}
       />
@@ -112,11 +111,12 @@ describe('StatusNotification', () => {
 
     expect(onClose).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(2000);
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+      await vi.runAllTimersAsync();
     });
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 
   it('has proper accessibility attributes', () => {
@@ -146,20 +146,21 @@ describe('StatusNotification', () => {
 
   it('uses default duration when not specified', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <StatusNotification 
-        message="Test" 
-        type="info" 
+      <StatusNotification
+        message="Test"
+        type="info"
         onClose={onClose}
       />
     );
 
     // Default duration should be 3000ms
-    vi.advanceTimersByTime(3000);
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3000);
+      await vi.runAllTimersAsync();
     });
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });

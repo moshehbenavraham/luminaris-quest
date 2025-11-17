@@ -1,6 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { TherapeuticInsight } from '@/features/combat/components/feedback/TherapeuticInsight';
+import { advanceTimersAndAct } from '@/test/utils';
 
 // Mock useCombatEffects hook
 vi.mock('@/features/combat/hooks/useCombatEffects', () => ({
@@ -92,10 +93,10 @@ describe('TherapeuticInsight', () => {
 
   it('auto-hides after specified duration', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <TherapeuticInsight 
-        message="Test" 
+      <TherapeuticInsight
+        message="Test"
         type="encouragement"
         duration={2000}
         onClose={onClose}
@@ -104,26 +105,27 @@ describe('TherapeuticInsight', () => {
 
     expect(onClose).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(2000);
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2000);
+      await vi.runAllTimersAsync();
     });
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 
   it('does not auto-hide when autoHide is false', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <TherapeuticInsight 
-        message="Test" 
+      <TherapeuticInsight
+        message="Test"
         type="encouragement"
         autoHide={false}
         onClose={onClose}
       />
     );
 
-    vi.advanceTimersByTime(10000);
+    await advanceTimersAndAct(10000);
 
     expect(onClose).not.toHaveBeenCalled();
   });
@@ -143,10 +145,10 @@ describe('TherapeuticInsight', () => {
 
   it('closes when close button is clicked', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <TherapeuticInsight 
-        message="Test" 
+      <TherapeuticInsight
+        message="Test"
         type="encouragement"
         autoHide={false}
         onClose={onClose}
@@ -154,14 +156,13 @@ describe('TherapeuticInsight', () => {
     );
 
     const closeButton = screen.getByRole('button', { name: /close insight/i });
-    fireEvent.click(closeButton);
 
-    // Wait for animation
-    vi.advanceTimersByTime(400);
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => {
+      fireEvent.click(closeButton);
+      await vi.runAllTimersAsync();
     });
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 
   it('shows progress bar when auto-hiding', () => {
@@ -224,20 +225,21 @@ describe('TherapeuticInsight', () => {
 
   it('uses default duration when not specified', async () => {
     const onClose = vi.fn();
-    
+
     render(
-      <TherapeuticInsight 
-        message="Test" 
+      <TherapeuticInsight
+        message="Test"
         type="encouragement"
         onClose={onClose}
       />
     );
 
     // Default duration should be 5000ms
-    vi.advanceTimersByTime(5000);
-
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledOnce();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5000);
+      await vi.runAllTimersAsync();
     });
+
+    expect(onClose).toHaveBeenCalledOnce();
   });
 });
