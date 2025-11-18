@@ -2,7 +2,6 @@
 
 /*
  * MIT License
- * Built with Bolt.new
  * Image optimization script for Luminari's Quest
  *
  * This script optimizes PNG images to WebP and AVIF formats

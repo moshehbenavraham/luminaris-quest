@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * Performance monitoring utilities for Luminari's Quest
  * 
  * Features:

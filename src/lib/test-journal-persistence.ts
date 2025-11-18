@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * Journal persistence testing utilities for Luminari's Quest
  * 
  * Features:

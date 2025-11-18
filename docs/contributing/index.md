@@ -1,6 +1,6 @@
 # Contributing to Luminari's Quest
 
-Welcome to Luminari's Quest! This therapeutic RPG was built primarily using Bolt.new and follows specific architectural patterns and development standards. We're excited to have you contribute to this meaningful project that helps young adults process trauma through interactive storytelling.
+Welcome to Luminari's Quest! This therapeutic RPG was built primarily using AI and follows specific architectural patterns and development standards. We're excited to have you contribute to this meaningful project that helps young adults process trauma through interactive storytelling.
 
 ## 🌟 Mission & Values
 
@@ -346,6 +346,4 @@ Based on the recent refactoring work, current development priorities include:
 ---
 
 Thank you for contributing to Luminari's Quest! Your work helps create a meaningful therapeutic experience for users on their healing journey.
-
-*Built with [Bolt.new](https://bolt.new/)*
 

@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { useEffect, useRef, useCallback } from 'react';
 import { useGameStoreBase } from '@/store/game-store';
 import { useSupabase } from '@/lib/providers/supabase-context';

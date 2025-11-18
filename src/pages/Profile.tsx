@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { useState, useEffect } from 'react';
 import { HealthStatus } from '@/components/HealthStatus';
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';

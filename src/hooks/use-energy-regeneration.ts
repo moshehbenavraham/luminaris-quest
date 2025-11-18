@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { useEffect } from 'react';
 import { useGameStore } from '@/store/game-store';
 

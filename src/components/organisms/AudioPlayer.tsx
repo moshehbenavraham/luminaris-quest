@@ -1,8 +1,7 @@
-// Built with Bolt.new
+ 
 /*
  MIT License
  Luminari's Quest - AudioPlayer Organism
- Built with Bolt.new
 */
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import AudioPlayerLib from 'react-h5-audio-player';

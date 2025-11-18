@@ -1,11 +1,11 @@
-# Production Deployment Guide for Bolt.new
+# Production Deployment Guide for Netlify
 
-This guide walks through deploying Luminari's Quest to production on bolt.new.
+This guide walks through deploying Luminari's Quest to production on Netlify.
 
 ## Prerequisites
 
 - Production Supabase project created
-- Access to bolt.new deployment settings
+- Access to Netlify deployment settings
 - Production API keys ready
 
 ## Step 1: Database Migration
@@ -44,7 +44,7 @@ After running the migration, verify in Supabase dashboard:
 
 ## Step 2: Environment Variables
 
-Create a `.env` file in bolt.new with these variables:
+Create a `.env` file in Netlify with these variables:
 
 ### Required Variables
 ```env
@@ -69,16 +69,16 @@ VITE_ELEVENLABS_VOICE_ID=your-voice-id
 VITE_APP_URL=https://your-app-domain.com
 ```
 
-## Step 3: Deploy on Bolt.new
+## Step 3: Deploy on Netlify
 
-1. **Push latest code** to your bolt.new project
-2. **Configure environment variables** in bolt.new settings
+1. **Push latest code** to your Netlify project
+2. **Configure environment variables** in Netlify settings
 3. **Run build commands**:
    ```bash
    npm install
    npm run build
    ```
-4. **Deploy** using bolt.new's deployment process
+4. **Deploy** using Netlify's deployment process
 
 ## Step 4: Post-Deployment Verification
 
@@ -143,7 +143,7 @@ Before going live:
 - [ ] Build completes without errors
 - [ ] Core features tested and working
 - [ ] No console errors in production
-- [ ] SSL certificate active (handled by bolt.new/Netlify)
+- [ ] SSL certificate active (handled by Netlify)
 - [ ] Custom domain configured (if applicable)
 
 ## Monitoring
@@ -167,6 +167,5 @@ After deployment:
 ## Support
 
 For issues specific to:
-- **Bolt.new deployment**: Check bolt.new documentation
 - **Supabase**: support.supabase.com
 - **Application bugs**: Create issue in project repository

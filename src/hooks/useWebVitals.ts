@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * Web Vitals tracking hook for Luminari's Quest
  * 
  * Features:

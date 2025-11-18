@@ -1,4 +1,3 @@
-All core app logic and UI were built primarily in Bolt.new
 
 # Luminari's Quest · Component Map (MVP slices, top priority first)
 

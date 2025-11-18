@@ -1,4 +1,3 @@
-All core app logic and UI were built primarily in Bolt.new
 
 # Section C: Third-Party Notices & Attributions
 

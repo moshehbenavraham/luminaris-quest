@@ -40,10 +40,6 @@ Welcome to the Luminaris Quest guides! These documents will help you get started
 
 ### Additional Resources
 
-- **[Bolt.new Prompt](bolt_ai-prompt.md)** - AI-assisted development prompt
-
----
-
 ## 📖 Suggested Reading Order
 
 ### For Players

@@ -4,8 +4,6 @@
 
 We, as contributors and maintainers of **Luminari's Quest**, commit to making participation in this project and our community a harassment-free, positive, and inspiring experience for everyone—regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
-**Luminari's Quest was conceived and built primarily using Bolt.new as part of the World's Largest AI Hackathon.** We expect all contributions to follow the collaborative, respectful, and inclusive spirit embodied by both the project and the Bolt.new platform.
-
 ---
 
 ## Our Standards
@@ -52,4 +50,4 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 
 ---
 
-*Thank you for helping us create a kind, welcoming, and innovative environment—built with Bolt.new!*
+*Thank you for helping us create a kind, welcoming, and innovative environment—built!*

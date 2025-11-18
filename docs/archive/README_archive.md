@@ -41,12 +41,6 @@ This archive contains documentation that has been superseded, completed, or is n
 
 ### Platform-Specific Documentation (1 file)
 
-**[BOLT_NEW_SUBMISSION_GUIDE.md](BOLT_NEW_SUBMISSION_GUIDE.md)**
-- **Date:** Pre-2025
-- **Purpose:** Guide for submitting to Bolt.new platform
-- **Status:** Platform-specific documentation
-- **Reason for Archive:** Not relevant to general development workflow
-
 ### Marketing Materials (2 files)
 
 **[SUBMISSION_AD.md](SUBMISSION_AD.md)**

@@ -1,4 +1,3 @@
-// Built with Bolt.new
 // ESLint configuration for Luminari's Quest
 // Cross-references: .bolt/prompt (code generation standards), .cursor/rules/ (IDE guidelines), 
 // CONTRIBUTING.md (code quality standards), tsconfig.*.json (TypeScript settings)

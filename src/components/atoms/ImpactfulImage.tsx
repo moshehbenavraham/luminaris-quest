@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * ImpactfulImage - Performance-optimized image component for Luminari's Quest
  * 
  * Features:

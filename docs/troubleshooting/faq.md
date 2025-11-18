@@ -9,7 +9,7 @@
 This project was built for the World's Largest AI Hackathon to demonstrate how AI can be used for therapeutic purposes. It addresses the real need for accessible mental health resources for young adults who have experienced significant trauma.
 
 ### How was this built?
-The project was built primarily using [Bolt.new](https://bolt.new/), an AI-powered development environment. This allowed for rapid prototyping, iterative development, and seamless integration of complex AI services. Other tools used include OpenAI's "Project" feature (for keeping track and taking notes for the project), Cursor (for local debugging), and Windsurf (was interested in testing platform, very limited usage).
+The project was built primarily using AI. This allowed for rapid prototyping, iterative development, and seamless integration of complex AI services. Other tools used include OpenAI's "Project" feature (for keeping track and taking notes for the project), Cursor (for local debugging), Bolt.new (initial deployment), and Windsurf (was interested in testing platform, very limited usage).
 
 ---
 
@@ -510,7 +510,6 @@ export function DatabaseTest() {
 
 - **Project Repository:** [https://github.com/moshehbenavraham/luminaris-quest](https://github.com/moshehbenavraham/luminaris-quest)
 - **Community:** [Skool Community](https://www.skool.com/ai-with-apex/about)
-- **Bolt.new:** [https://bolt.new/](https://bolt.new/)
 - **Component Documentation:** [../architecture/components.md](../architecture/components.md)
 - **Contributing Guide:** [../contributing/index.md](../contributing/index.md)
 - **Supabase Documentation:** [https://supabase.com/docs](https://supabase.com/docs)
@@ -531,8 +530,6 @@ Still have questions? Here's how to get help:
 6. **Read the source code** - it's well-documented!
 
 ---
-
-*Built with [Bolt.new](https://bolt.new/) 🚀*
 
 *Last updated: December 2024*
 

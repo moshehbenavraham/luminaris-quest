@@ -8,11 +8,9 @@
 
 A therapeutic AI-powered RPG adventure designed to help young adults process trauma through interactive storytelling and journaling.
 
-**Built with [Bolt.new](https://bolt.new/) 🚀**
+## Play the Game: [Play NOW](https://luminariquest.org/)
 
 ## Video Demo: [View on YouTube](https://youtu.be/FXpZskJYqvA)
-
-## Bolt.new DevPost.com [World's Largest Hackthon Submission](https://devpost.com/software/luminari-s-quest-a-therapeutic-gaming-experience)
 
 ## 🌟 About
 
@@ -524,8 +522,6 @@ npm run build      # Verify production build
 
 ## 📚 Documentation & Platform Integration
 
-While being primarily developed on Bolt.new, this project integrates multiple AI development platforms and tools.
-
 ### 📋 **Core Project Documentation**
 - **[README.md](README.md)** - Project overview, getting started guide, and feature documentation
 - **[docs/troubleshooting/faq.md](docs/troubleshooting/faq.md)** - Frequently asked questions, troubleshooting, and setup guidance
@@ -542,7 +538,6 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 ### 🚀 **Deployment & Operations**
 - **[docs/guides/deployment.md](docs/guides/deployment.md)** - Comprehensive deployment guide for all environments
-- **[docs/archive/PRODUCTION_DEPLOYMENT.md](docs/archive/PRODUCTION_DEPLOYMENT.md)** - Step-by-step production deployment guide for Bolt.new (archived)
 - **[docs/migrations/](docs/migrations/)** - Database migration files and execution history
   - `PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` - Production database schema
 - **[netlify.toml](netlify.toml)** - Netlify deployment configuration
@@ -556,10 +551,6 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 - **[docs/archive/MILESTONE_FIX_SUMMARY.md](docs/archive/MILESTONE_FIX_SUMMARY.md)** - Critical bug fix documentation and lessons learned
 
 ### 🤖 **AI Development Platform Integration**
-
-#### Bolt.new Integration
-- **[.bolt/prompt](.bolt/prompt)** - Comprehensive code generation rules and build standards
-- **[.bolt/](.bolt/)** - Bolt.new project configuration and settings
 
 ### ⚖️ **Legal & Licensing Documentation**
 - **[LICENSE](LICENSE)** - MIT License for codebase
@@ -592,15 +583,6 @@ While being primarily developed on Bolt.new, this project integrates multiple AI
 
 The documentation follows a hierarchical structure:
 
-## 🎯 Why Bolt.new?
-
-This repository showcases the power of AI-accelerated development:
-
-- **AI-Accelerated Development**: All core logic, UI/UX flows, and backend connections were generated or composed directly within Bolt.new
-- **Instant MVP Prototyping**: Enabled breaking the app into smallest functional increments with real-time testing
-- **Seamless Integration**: Complex features like AI narration and voice synthesis made possible through Bolt.new's automation
-- **Transparent Workflow**: The Bolt.new project history captures each component and decision for full transparency
-
 ## 🚀 Key Features
 
 - **Interactive Scenario Selection**: Users choose narrative paths that echo real-world emotional challenges
@@ -630,7 +612,6 @@ We welcome contributions! Please read our guidelines:
 
 - **Repository**: [GitHub](https://github.com/moshehbenavraham/luminaris-quest)
 - **Community**: [Skool Community](https://www.skool.com/ai-with-apex/about)
-- **Built with**: [Bolt.new](https://bolt.new/)
 - **Supabase**: Backend and authentication platform
 
 ## ⚠️ Important Notes
@@ -681,7 +662,5 @@ We welcome contributions! Please read our guidelines:
 ---
 
 Thank you for your interest in Luminari's Quest! Together, we're creating a meaningful therapeutic experience that can help young adults on their healing journey.
-
-**Built with [Bolt.new](https://bolt.new/) 🚀**
 
 *Last updated: December 2024*

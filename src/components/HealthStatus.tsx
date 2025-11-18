@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import React from 'react';
 import { useGameStore } from '@/store/game-store';
 import { getConnectionStatusIndicator, formatResponseTime } from '@/lib/database-health';

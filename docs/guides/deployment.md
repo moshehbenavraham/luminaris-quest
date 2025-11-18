@@ -433,30 +433,6 @@ VITE_SENTRY_DSN=your-sentry-dsn
    # Targets: LCP <2.5s, FID <100ms, CLS <0.1
    ```
 
-## Platform-Specific Guides
-
-### Bolt.new Deployment
-
-1. **Environment Setup in Bolt.new**
-   - Open project in Bolt.new
-   - Go to Settings → Environment Variables
-   - Add all required variables (see Environment Variables section)
-
-2. **Build Configuration**
-   Use the optimized build script:
-   ```json
-   {
-     "scripts": {
-       "build:bolt": "npm run build:deploy"
-     }
-   }
-   ```
-
-3. **Deploy**
-   - Use Bolt.new's built-in deployment
-   - Monitor build logs for errors
-   - Test deployed application thoroughly
-
 ## Database Migrations
 
 ### Current Migration Files

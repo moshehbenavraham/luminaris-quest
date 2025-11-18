@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * useImpactfulImage - Enhanced responsive image selection hook for Luminari's Quest
  * 
  * Features:

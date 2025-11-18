@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { createClient } from '@supabase/supabase-js';
 
 // Get Supabase configuration from environment variables

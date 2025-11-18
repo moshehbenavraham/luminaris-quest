@@ -1,6 +1,5 @@
 /*
  MIT License
- Built with Bolt.new
  Default audio playlist referenced by Adventure and Log pages.
 */
 import type { Track } from '@/components/organisms/AudioPlayer';

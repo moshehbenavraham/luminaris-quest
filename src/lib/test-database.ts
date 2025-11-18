@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { supabaseDiagnostics as supabase } from '@/lib/supabase-diagnostics';
 import { createLogger } from '@/lib/environment';
 

@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { useState, useCallback, useEffect } from 'react';
 import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';

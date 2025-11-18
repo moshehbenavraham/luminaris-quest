@@ -1,6 +1,5 @@
 /*
  * MIT License
- * Built with Bolt.new
  * Lighthouse CI configuration for Luminari's Quest
  * 
  * Features:

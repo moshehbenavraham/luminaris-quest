@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * Centralized image registry for Luminari's Quest
  */
 

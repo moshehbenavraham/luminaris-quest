@@ -18,6 +18,10 @@ coverage
 *.log
 npm-debug.log*
 
+# Logs directory (keep structure, ignore contents)
+logs/*
+!logs/.gitkeep
+
 # Editor directories
 .idea
 .vscode

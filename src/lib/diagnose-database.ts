@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * Database diagnostic utilities for Luminari's Quest
  * 
  * Features:

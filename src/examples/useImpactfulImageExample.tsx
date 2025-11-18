@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Built with Bolt.new
+ 
  * Example usage of useImpactfulImage hook for enhanced responsive image selection
  */
 

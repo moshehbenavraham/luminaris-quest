@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import { AuthForm } from '@/components/auth/AuthForm';
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
 import { imageRegistry } from '@/data/imageRegistry';

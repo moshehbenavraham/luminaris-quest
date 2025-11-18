@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import type { ShadowManifestation, CombatState } from '../store/game-store';
 import { COMBAT_BALANCE } from './combat-engine';
 import { shadowManifestations } from '../data/shadowManifestations';

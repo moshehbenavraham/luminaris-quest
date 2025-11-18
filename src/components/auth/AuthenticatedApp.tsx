@@ -1,4 +1,4 @@
-// Built with Bolt.new
+ 
 import type { ReactNode } from 'react';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { SaveStatusIndicator } from '@/components/SaveStatusIndicator';
