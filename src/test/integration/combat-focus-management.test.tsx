@@ -124,7 +124,7 @@ describe('Combat Focus Management', () => {
     // Check for focus ring classes
     expect(container).toHaveClass('focus:outline-none');
     expect(container).toHaveClass('focus:ring-2');
-    expect(container).toHaveClass('focus:ring-primary-500');
+    expect(container).toHaveClass('focus:ring-opacity-50');
   });
 
   it('should allow buttons within the overlay to be immediately clickable', async () => {

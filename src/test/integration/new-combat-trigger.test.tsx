@@ -8,8 +8,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ChoiceList } from '@/components/ChoiceList';
-import { useGameStore } from '@/store/game-store';
-import { useCombatStore } from '@/features/combat';
+import { useGameStoreBase } from '@/store/game-store';
+import { useCombatStore } from '@/features/combat/store/combat-store';
 
 // Mock the scene engine to force specific outcomes
 vi.mock('@/engine/scene-engine', async () => {
@@ -71,7 +71,7 @@ vi.mock('@/features/combat', async () => {
 describe('NEW Combat System Trigger Tests', () => {
   beforeEach(() => {
     // Reset game store state using actual store
-    useGameStore.setState({
+    useGameStoreBase.setState({
       currentSceneIndex: 2,
       guardianTrust: 50,
       lightPoints: 10,
@@ -118,8 +118,13 @@ describe('NEW Combat System Trigger Tests', () => {
       expect(screen.getByText('Rolling...')).toBeInTheDocument();
     });
 
-    // Close the dice overlay
-    const continueButton = screen.getByText('Continue');
+    // Now use fake timers to advance past the 1.5s dice roll animation delay
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
+    // Find and close the dice overlay
+    const continueButton = await waitFor(() => screen.getByText('Continue'), { timeout: 2000 });
     fireEvent.click(continueButton);
 
     // Verify combat was started by checking store state
@@ -148,9 +153,15 @@ describe('NEW Combat System Trigger Tests', () => {
 
     // Click choice and fail the DC check
     fireEvent.click(screen.getByText('Attack!'));
-    await waitFor(() => screen.getByText('Continue'));
 
-    fireEvent.click(screen.getByText('Continue'));
+    // Wait for dice overlay to appear, then use fake timers to skip the animation
+    await waitFor(() => screen.getByText('Rolling...'));
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
+    const continueButton = await waitFor(() => screen.getByText('Continue'), { timeout: 2000 });
+    fireEvent.click(continueButton);
 
     // Wait and check that combat was started
     await waitFor(() => {
@@ -177,8 +188,15 @@ describe('NEW Combat System Trigger Tests', () => {
 
     // Click choice and complete dice roll
     fireEvent.click(screen.getByText('Attack!'));
-    await waitFor(() => screen.getByText('Continue'));
-    fireEvent.click(screen.getByText('Continue'));
+
+    // Wait for dice overlay to appear, then use fake timers to skip the animation
+    await waitFor(() => screen.getByText('Rolling...'));
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
+    const continueButton = await waitFor(() => screen.getByText('Continue'), { timeout: 2000 });
+    fireEvent.click(continueButton);
 
     // Should not start combat (verify by checking combat state remains inactive)
     await waitFor(() => {
@@ -187,8 +205,10 @@ describe('NEW Combat System Trigger Tests', () => {
       expect(combatState.enemy).toBeNull();
     });
 
-    // Verify success message was set
-    expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
+    // Verify success message was set (may be called asynchronously)
+    await waitFor(() => {
+      expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
+    }, { timeout: 2000 });
   });
 
   it('should handle missing shadow manifestation gracefully', async () => {
@@ -206,8 +226,15 @@ describe('NEW Combat System Trigger Tests', () => {
 
     // Click choice and fail DC
     fireEvent.click(screen.getByText('Attack!'));
-    await waitFor(() => screen.getByText('Continue'));
-    fireEvent.click(screen.getByText('Continue'));
+
+    // Wait for dice overlay to appear, then use fake timers to skip the animation
+    await waitFor(() => screen.getByText('Rolling...'));
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
+    const continueButton = await waitFor(() => screen.getByText('Continue'), { timeout: 2000 });
+    fireEvent.click(continueButton);
 
     // Should not start combat if shadow creation failed (verify by checking state)
     await waitFor(() => {

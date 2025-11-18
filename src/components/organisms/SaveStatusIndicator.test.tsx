@@ -1,12 +1,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SaveStatusIndicator } from '@/components/SaveStatusIndicator';
-import { useGameStore } from '@/store/game-store';
+import { useGameStoreBase } from '@/store/game-store';
 
 // Mock the game store
 vi.mock('@/store/game-store');
 
-const mockUseGameStore = vi.mocked(useGameStore);
+const mockUseGameStoreBase = vi.mocked(useGameStoreBase);
 
 describe('SaveStatusIndicator', () => {
   const mockSaveToSupabase = vi.fn();
@@ -16,7 +17,7 @@ describe('SaveStatusIndicator', () => {
     vi.clearAllMocks();
 
     // Setup default mock state
-    mockUseGameStore.mockImplementation((selector: any) => {
+    mockUseGameStoreBase.mockImplementation((selector: any) => {
       const mockState = {
         saveState: {
           status: 'idle',
@@ -40,7 +41,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should show "Unsaved changes" when there are unsaved changes', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'success',
@@ -61,7 +62,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should show "Saving..." when saving is in progress', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'saving',
@@ -82,7 +83,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should show "Save failed" when there is an error', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'error',
@@ -105,7 +106,7 @@ describe('SaveStatusIndicator', () => {
 
   describe('Time Display', () => {
     it('should show "Just now" for recent saves', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'success',
@@ -126,7 +127,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should show minutes for saves within an hour', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'success',
@@ -147,7 +148,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should show "Never" when no save timestamp exists', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'idle',
@@ -170,7 +171,7 @@ describe('SaveStatusIndicator', () => {
 
   describe('Manual Save Button', () => {
     it('should show "Save Now" button when there are unsaved changes', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'idle',
@@ -197,7 +198,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should call saveToSupabase when "Save Now" is clicked', async () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'idle',
@@ -223,7 +224,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should disable "Save Now" button when saving', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'saving',
@@ -239,15 +240,15 @@ describe('SaveStatusIndicator', () => {
       });
 
       render(<SaveStatusIndicator />);
-      
-      const saveButton = screen.getByRole('button', { name: 'Save Now' });
-      expect(saveButton).toBeDisabled();
+
+      // Button is hidden (not disabled) during saving
+      expect(screen.queryByRole('button', { name: 'Save Now' })).not.toBeInTheDocument();
     });
   });
 
   describe('Retry Button', () => {
     it('should show "Retry" button when there is an error', () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'error',
@@ -268,7 +269,7 @@ describe('SaveStatusIndicator', () => {
     });
 
     it('should call clearSaveError and saveToSupabase when "Retry" is clicked', async () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'error',
@@ -303,7 +304,9 @@ describe('SaveStatusIndicator', () => {
 
   describe('Error Display', () => {
     it('should show error details in tooltip', async () => {
-      mockUseGameStore.mockImplementation((selector: any) => {
+      const user = userEvent.setup();
+
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'error',
@@ -319,16 +322,18 @@ describe('SaveStatusIndicator', () => {
       });
 
       render(<SaveStatusIndicator />);
-      
+
       // Hover over the retry button to show tooltip
       const retryButton = screen.getByRole('button', { name: 'Retry' });
-      fireEvent.mouseEnter(retryButton);
+      await user.hover(retryButton);
 
+      // Radix UI has a 700ms default delay before showing tooltips
       await waitFor(() => {
-        expect(screen.getByText('Save failed')).toBeInTheDocument();
-        expect(screen.getByText('Network connection failed')).toBeInTheDocument();
-        expect(screen.getByText('Retried 2 times')).toBeInTheDocument();
-      });
+        // Radix UI renders tooltip content multiple times for accessibility, so use getAllByText
+        expect(screen.getAllByText('Save failed')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Network connection failed')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Retried 2 times')[0]).toBeInTheDocument();
+      }, { timeout: 2000 });
     });
   });
 
@@ -340,7 +345,7 @@ describe('SaveStatusIndicator', () => {
       expect(screen.getByText('All changes saved')).toHaveClass('text-gray-400');
 
       // Test unsaved changes state
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'success',
@@ -359,7 +364,7 @@ describe('SaveStatusIndicator', () => {
       expect(screen.getByText('Unsaved changes')).toHaveClass('text-amber-500');
 
       // Test saving state
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'saving',
@@ -378,7 +383,7 @@ describe('SaveStatusIndicator', () => {
       expect(screen.getByText('Saving...')).toHaveClass('text-blue-500');
 
       // Test error state
-      mockUseGameStore.mockImplementation((selector: any) => {
+      mockUseGameStoreBase.mockImplementation((selector: any) => {
         const mockState = {
           saveState: {
             status: 'error',

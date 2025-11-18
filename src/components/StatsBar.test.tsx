@@ -1,6 +1,6 @@
 import React from 'react';
-import { describe, it, expect, beforeEach, vi, test, afterEach } from 'vitest';
-import { render, screen, act, waitFor, advanceTimersAndAct } from '@/test/utils';
+import { describe, it, expect, beforeEach, vi, test } from 'vitest';
+import { render, screen, act, waitFor } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
 import { StatsBar } from '@/components/StatsBar';
 

@@ -115,6 +115,11 @@ describe('Combat Health Integration', () => {
       result.current.executeCombatAction('ILLUMINATE');
     });
 
+    // End turn to trigger shadow's action (which deals health damage)
+    act(() => {
+      result.current.endTurn();
+    });
+
     // Player health should be reduced after shadow action
     expect(result.current.playerHealth).toBeLessThan(initialHealth);
 
@@ -141,12 +146,17 @@ describe('Combat Health Integration', () => {
     });
     
     const initialHealth = result.current.playerHealth;
-    
+
     // Execute combat action
     act(() => {
       result.current.executeCombatAction('ILLUMINATE');
     });
-    
+
+    // End turn to trigger shadow's action (which deals health damage)
+    act(() => {
+      result.current.endTurn();
+    });
+
     // Calculate expected damage: Scene DC 14 - (LP defense + trust defense)
     // With trust 20, ILLUMINATE damage = 3 + floor(20/4) = 8, enemy survives with 7 HP
     // LP defense: 8 LP * 0.5 = 4 (after ILLUMINATE cost)
@@ -180,6 +190,11 @@ describe('Combat Health Integration', () => {
       result.current.executeCombatAction('ENDURE');
     });
 
+    // End turn to trigger shadow's action (which deals health damage)
+    act(() => {
+      result.current.endTurn();
+    });
+
     // Should apply minimum damage even with high defenses
     // Scene DC 8 - (50 LP * 0.5 + 100 trust * 0.1) = 8 - 35 = minimum 1
     // But shadow abilities can apply damage multipliers (e.g., Magnification = 2x)
@@ -206,6 +221,11 @@ describe('Combat Health Integration', () => {
     for (let i = 0; i < 2; i++) {
       act(() => {
         result.current.executeCombatAction('ENDURE'); // Low-cost action
+      });
+
+      // End turn to trigger shadow's action (which deals health damage)
+      act(() => {
+        result.current.endTurn();
       });
 
       // Record health after each round

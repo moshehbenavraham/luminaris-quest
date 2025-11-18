@@ -374,7 +374,7 @@ describe('CombatOverlay Component', () => {
       render(<CombatOverlay />);
 
       const surrenderButton = screen.getByTestId('surrender-button');
-      expect(surrenderButton).toHaveClass('text-muted-foreground');
+      expect(surrenderButton).toHaveClass('combat-text-light');
       expect(surrenderButton).toHaveClass('hover:text-destructive');
       expect(surrenderButton).toHaveClass('hover:border-destructive');
     });
@@ -425,7 +425,7 @@ describe('CombatOverlay Component', () => {
       render(<CombatOverlay />);
 
       const endTurnButton = screen.getByTestId('end-turn-button');
-      expect(endTurnButton).toHaveClass('text-muted-foreground');
+      expect(endTurnButton).toHaveClass('combat-text-light');
       expect(endTurnButton).toHaveClass('hover:text-primary');
       expect(endTurnButton).toHaveClass('hover:border-primary');
     });

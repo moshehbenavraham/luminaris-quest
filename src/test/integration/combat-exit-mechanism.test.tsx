@@ -187,12 +187,12 @@ describe('Combat Exit Mechanism Integration Tests', () => {
   describe('User Experience', () => {
     it('should have clear visual styling to indicate surrender action', () => {
       render(<CombatOverlay />);
-      
+
       const surrenderButton = screen.getByTestId('surrender-button');
-      
-      // Check for muted styling (less prominent than main actions)
-      expect(surrenderButton).toHaveClass('text-muted-foreground');
-      
+
+      // Check for combat light styling (less prominent than main actions)
+      expect(surrenderButton).toHaveClass('combat-text-light');
+
       // Check for destructive hover styling (indicates negative action)
       expect(surrenderButton).toHaveClass('hover:text-destructive');
       expect(surrenderButton).toHaveClass('hover:border-destructive');

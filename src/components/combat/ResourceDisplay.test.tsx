@@ -74,16 +74,16 @@ describe('ResourceDisplay Component', () => {
   describe('Visual Elements', () => {
     it('should render Light Points with amber styling', () => {
       render(<ResourceDisplay lp={10} sp={5} />);
-      
+
       const lpValue = screen.getByText('10');
-      expect(lpValue).toHaveClass('text-amber-600', 'dark:text-amber-400');
+      expect(lpValue).toHaveClass('combat-text-critical');
     });
 
     it('should render Shadow Points with purple styling', () => {
       render(<ResourceDisplay lp={10} sp={5} />);
-      
+
       const spValue = screen.getByText('5');
-      expect(spValue).toHaveClass('text-purple-600', 'dark:text-purple-400');
+      expect(spValue).toHaveClass('combat-text-mana');
     });
 
     it('should render icons for both resource types in detailed mode', () => {

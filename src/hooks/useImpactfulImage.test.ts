@@ -11,6 +11,7 @@ vi.mock('../hooks/use-mobile', () => ({
 
 // Mock Image constructor for format detection
 // Need to create a factory that returns fresh objects for each new Image()
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let latestImageInstance: any = null;
 let imageInstances: any[] = [];
 

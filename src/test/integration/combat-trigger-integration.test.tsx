@@ -9,8 +9,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 // Import stores BEFORE mocks so we get the actual stores with setState
-import { useGameStore } from '@/store/game-store';
-import { useCombatStore } from '@/features/combat';
+import { useGameStoreBase } from '@/store/game-store';
+import { useCombatStore } from '@/features/combat/store/combat-store';
 
 import { ChoiceList } from '@/components/ChoiceList';
 
@@ -80,7 +80,7 @@ vi.mock('@/features/combat', async () => {
 describe('Combat Trigger Integration Tests', () => {
   beforeEach(() => {
     // Reset game store state
-    useGameStore.setState({
+    useGameStoreBase.setState({
       currentSceneIndex: 2,
       guardianTrust: 50,
       combat: { inCombat: false },
@@ -129,8 +129,13 @@ describe('Combat Trigger Integration Tests', () => {
       expect(screen.getByText('Rolling...')).toBeInTheDocument();
     });
 
+    // Now use fake timers to advance past the 1.5s dice roll animation delay
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
     // Find and close the dice overlay
-    const continueButton = screen.getByText('Continue');
+    const continueButton = await waitFor(() => screen.getByText('Continue'), { timeout: 2000 });
     fireEvent.click(continueButton);
 
     // Verify combat was started by checking store state
@@ -193,8 +198,15 @@ describe('Combat Trigger Integration Tests', () => {
 
     // Click choice and complete dice roll
     fireEvent.click(screen.getByText('Attack!'));
-    await waitFor(() => screen.getByText('Continue'));
-    fireEvent.click(screen.getByText('Continue'));
+
+    // Wait for dice overlay to appear, then use fake timers to skip the animation
+    await waitFor(() => screen.getByText('Rolling...'));
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(1500);
+    vi.useRealTimers();
+
+    const continueButton = await waitFor(() => screen.getByText('Continue'), { timeout: 2000 });
+    fireEvent.click(continueButton);
 
     // Should not start combat (verify by checking combat state remains inactive)
     await waitFor(() => {
@@ -203,7 +215,9 @@ describe('Combat Trigger Integration Tests', () => {
       expect(combatState.enemy).toBeNull();
     });
 
-    // Verify success message was set
-    expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
+    // Verify success message was set (may be called asynchronously)
+    await waitFor(() => {
+      expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
+    }, { timeout: 2000 });
   });
 });

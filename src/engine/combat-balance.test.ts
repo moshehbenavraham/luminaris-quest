@@ -95,7 +95,7 @@ describe('Combat Balance System', () => {
         
         expect(efficiency.lpPerDamage).toBeCloseTo(0.36, 2); // 2 LP / 5.5 avg damage
         expect(efficiency.spPerDamage).toBe(2); // 2 SP per 1 damage
-        expect(efficiency.healingPerSP).toBe(0.5); // 1 heal / 2 SP
+        expect(efficiency.healingPerSP).toBeCloseTo(0.333, 2); // 1 heal / 3 SP (REFLECT costs 3 SP)
       });
 
       it('should provide meaningful efficiency metrics', () => {

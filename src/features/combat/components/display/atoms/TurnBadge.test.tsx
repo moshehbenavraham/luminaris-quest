@@ -53,9 +53,10 @@ describe('TurnBadge', () => {
   it('applies different styling for player vs enemy', () => {
     const { container: playerContainer } = render(<TurnBadge isPlayerTurn={true} />);
     const { container: enemyContainer } = render(<TurnBadge isPlayerTurn={false} />);
-    
-    expect(playerContainer.querySelector('.text-primary-300')).toBeInTheDocument();
-    expect(enemyContainer.querySelector('.text-red-300')).toBeInTheDocument();
+
+    // Check for actual text color classes used in component
+    expect(playerContainer.querySelector('.text-primary-50')).toBeInTheDocument();
+    expect(enemyContainer.querySelector('.text-red-100')).toBeInTheDocument();
   });
 
   it('enemy turn always has pulse animation', () => {

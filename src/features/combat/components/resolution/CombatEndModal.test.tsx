@@ -1,59 +1,75 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { CombatEndModal } from '@/features/combat/components/resolution/CombatEndModal';
 
-// Mock the hooks
-vi.mock('@/features/combat/hooks/useCombatStore', () => ({
-  useCombatStore: vi.fn(() => ({
-    combatEndStatus: {
+// Mock the combat store
+const mockCombatStore = {
+  combatEndStatus: {
+    isEnded: true,
+    victory: true,
+    reason: "You've overcome Shadow of Doubt!",
+  },
+  enemy: {
+    id: 'shadow-doubt',
+    name: 'Shadow of Doubt',
+    currentHP: 0,
+    maxHP: 30,
+    type: 'EMOTIONAL',
+    therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+  },
+  resources: {
+    lp: 10,
+    sp: 5,
+  },
+  clearCombatEnd: vi.fn(),
+  beginSyncTransaction: vi.fn(() => ({ success: false })),
+  commitSyncTransaction: vi.fn(),
+  rollbackSyncTransaction: vi.fn(),
+};
+
+vi.mock('@/features/combat/store/combat-store', () => ({
+  useCombatStore: vi.fn(() => mockCombatStore),
+}));
+
+vi.mock('@/store/game-store', () => ({
+  useGameStore: () => ({
+    guardianTrust: 50,
+    lightPoints: 10,
+    shadowPoints: 5,
+    playerEnergy: 100,
+    modifyLightPoints: vi.fn(),
+    modifyShadowPoints: vi.fn(),
+    modifyExperiencePoints: vi.fn(),
+    endCombat: vi.fn(),
+  }),
+}));
+
+describe('CombatEndModal', () => {
+  const mockClearCombatEnd = vi.fn();
+
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.clearAllMocks();
+
+    // Reset to default state
+    mockCombatStore.combatEndStatus = {
       isEnded: true,
       victory: true,
       reason: "You've overcome Shadow of Doubt!",
-    },
-    enemy: {
+    };
+    mockCombatStore.enemy = {
       id: 'shadow-doubt',
       name: 'Shadow of Doubt',
       currentHP: 0,
       maxHP: 30,
       type: 'EMOTIONAL',
       therapeuticInsight: 'Facing doubt with courage builds inner strength.'
-    },
-    clearCombatEnd: vi.fn(),
-  })),
-}));
-
-vi.mock('@/store/game-store', () => ({
-  useGameStore: () => ({
-    guardianTrust: 50,
-  }),
-}));
-
-// Import the mocked hook so we can manipulate it
-import { useCombatStore } from '@/features/combat/hooks/useCombatStore';
-
-describe('CombatEndModal', () => {
-  const mockUseCombatStore = vi.mocked(useCombatStore);
-  const mockClearCombatEnd = vi.fn();
-
-  beforeEach(() => {
-    // Reset mocks before each test
-    vi.clearAllMocks();
-    mockUseCombatStore.mockReturnValue({
-      combatEndStatus: {
-        isEnded: true,
-        victory: true,
-        reason: "You've overcome Shadow of Doubt!",
-      },
-      enemy: {
-        id: 'shadow-doubt',
-        name: 'Shadow of Doubt',
-        currentHP: 0,
-        maxHP: 30,
-        type: 'EMOTIONAL',
-        therapeuticInsight: 'Facing doubt with courage builds inner strength.'
-      },
-      clearCombatEnd: mockClearCombatEnd,
-    });
+    };
+    mockCombatStore.resources = {
+      lp: 10,
+      sp: 5,
+    };
+    mockCombatStore.clearCombatEnd = mockClearCombatEnd;
   });
 
   it('renders victory state correctly', () => {
@@ -67,22 +83,19 @@ describe('CombatEndModal', () => {
   });
 
   it('renders defeat state correctly', () => {
-    mockUseCombatStore.mockReturnValue({
-      combatEndStatus: {
-        isEnded: true,
-        victory: false,
-        reason: 'You retreat to gather your strength...',
-      },
-      enemy: {
-        id: 'shadow-doubt',
-        name: 'Shadow of Doubt',
-        currentHP: 15,
-        maxHP: 30,
-        type: 'EMOTIONAL',
-        therapeuticInsight: 'Facing doubt with courage builds inner strength.'
-      },
-      clearCombatEnd: mockClearCombatEnd,
-    });
+    mockCombatStore.combatEndStatus = {
+      isEnded: true,
+      victory: false,
+      reason: 'You retreat to gather your strength...',
+    };
+    mockCombatStore.enemy = {
+      id: 'shadow-doubt',
+      name: 'Shadow of Doubt',
+      currentHP: 15,
+      maxHP: 30,
+      type: 'EMOTIONAL',
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    };
 
     render(<CombatEndModal />);
 
@@ -100,22 +113,19 @@ describe('CombatEndModal', () => {
   });
 
   it('shows appropriate buttons for defeat', () => {
-    mockUseCombatStore.mockReturnValue({
-      combatEndStatus: {
-        isEnded: true,
-        victory: false,
-        reason: 'You retreat to gather your strength...',
-      },
-      enemy: {
-        id: 'shadow-doubt',
-        name: 'Shadow of Doubt',
-        currentHP: 15,
-        maxHP: 30,
-        type: 'EMOTIONAL',
-        therapeuticInsight: 'Facing doubt with courage builds inner strength.'
-      },
-      clearCombatEnd: mockClearCombatEnd,
-    });
+    mockCombatStore.combatEndStatus = {
+      isEnded: true,
+      victory: false,
+      reason: 'You retreat to gather your strength...',
+    };
+    mockCombatStore.enemy = {
+      id: 'shadow-doubt',
+      name: 'Shadow of Doubt',
+      currentHP: 15,
+      maxHP: 30,
+      type: 'EMOTIONAL',
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    };
 
     render(<CombatEndModal />);
 
@@ -124,63 +134,71 @@ describe('CombatEndModal', () => {
   });
 
   it('calls onClose when Continue button is clicked', async () => {
+    vi.useFakeTimers();
     const onClose = vi.fn();
     render(<CombatEndModal onClose={onClose} />);
+
+    // Wait for canClose to be true (1 second delay in component)
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+      await vi.runAllTimersAsync();
+    });
 
     const continueButton = screen.getByText('Continue Journey');
     fireEvent.click(continueButton);
 
-    await waitFor(() => {
-      expect(mockClearCombatEnd).toHaveBeenCalled();
-      expect(onClose).toHaveBeenCalled();
-    });
+    expect(mockClearCombatEnd).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+
+    vi.useRealTimers();
   });
 
   it('calls onClose when Reflect button is clicked', async () => {
+    vi.useFakeTimers();
     const onClose = vi.fn();
     render(<CombatEndModal onClose={onClose} />);
+
+    // Wait for canClose to be true (1 second delay in component)
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+      await vi.runAllTimersAsync();
+    });
 
     const reflectButton = screen.getByText('📝 Reflect on Victory');
     fireEvent.click(reflectButton);
 
-    await waitFor(() => {
-      expect(mockClearCombatEnd).toHaveBeenCalled();
-      expect(onClose).toHaveBeenCalled();
-    });
+    expect(mockClearCombatEnd).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+
+    vi.useRealTimers();
   });
 
   it('does not render when there is no enemy', () => {
-    mockUseCombatStore.mockReturnValue({
-      combatEndStatus: {
-        isEnded: true,
-        victory: true,
-        reason: 'Victory!',
-      },
-      enemy: null,
-      clearCombatEnd: mockClearCombatEnd,
-    });
+    mockCombatStore.combatEndStatus = {
+      isEnded: true,
+      victory: true,
+      reason: 'Victory!',
+    };
+    mockCombatStore.enemy = null;
 
     const { container } = render(<CombatEndModal />);
     expect(container.firstChild).toBeNull();
   });
 
   it('does not open when combat has not ended', () => {
-    mockUseCombatStore.mockReturnValue({
-      combatEndStatus: {
-        isEnded: false,
-        victory: false,
-        reason: '',
-      },
-      enemy: {
-        id: 'shadow-doubt',
-        name: 'Shadow of Doubt',
-        currentHP: 15,
-        maxHP: 30,
-        type: 'EMOTIONAL',
-        therapeuticInsight: 'Facing doubt with courage builds inner strength.'
-      },
-      clearCombatEnd: mockClearCombatEnd,
-    });
+    mockCombatStore.combatEndStatus = {
+      isEnded: false,
+      victory: false,
+      reason: '',
+    };
+    mockCombatStore.enemy = {
+      id: 'shadow-doubt',
+      name: 'Shadow of Doubt',
+      currentHP: 15,
+      maxHP: 30,
+      type: 'EMOTIONAL',
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    };
 
     render(<CombatEndModal />);
 
@@ -190,22 +208,19 @@ describe('CombatEndModal', () => {
   });
 
   it('respects forceVictory prop', () => {
-    mockUseCombatStore.mockReturnValue({
-      combatEndStatus: {
-        isEnded: true,
-        victory: false, // Store says defeat
-        reason: 'Defeat',
-      },
-      enemy: {
-        id: 'shadow-doubt',
-        name: 'Shadow of Doubt',
-        currentHP: 15,
-        maxHP: 30,
-        type: 'EMOTIONAL',
-        therapeuticInsight: 'Facing doubt with courage builds inner strength.'
-      },
-      clearCombatEnd: mockClearCombatEnd,
-    });
+    mockCombatStore.combatEndStatus = {
+      isEnded: true,
+      victory: false, // Store says defeat
+      reason: 'Defeat',
+    };
+    mockCombatStore.enemy = {
+      id: 'shadow-doubt',
+      name: 'Shadow of Doubt',
+      currentHP: 15,
+      maxHP: 30,
+      type: 'EMOTIONAL',
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    };
 
     render(<CombatEndModal forceVictory={true} />);
 
