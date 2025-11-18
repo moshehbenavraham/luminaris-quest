@@ -1,7 +1,7 @@
 {
   "name": "luminaris-quest",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "description": "Therapeutic AI-powered RPG adventure. Built with Bolt.new. See README.md, .bolt/prompt, and .cursor/rules/ for development standards.",
   "scripts": {
