@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components -- Toast function export needed by sonner */
+
 import { useTheme } from 'next-themes';
 import { Toaster as Sonner, toast } from 'sonner';
 

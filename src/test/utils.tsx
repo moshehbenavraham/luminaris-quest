@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components -- Test utilities export helper functions */
+
 import type { ReactElement } from 'react';
 import { render, waitFor, act } from '@testing-library/react';
 import type { RenderOptions } from '@testing-library/react';
@@ -6,17 +8,11 @@ import { vi } from 'vitest';
 
 // Custom render function that includes Router context
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <BrowserRouter>
-      {children}
-    </BrowserRouter>
-  );
+  return <BrowserRouter>{children}</BrowserRouter>;
 };
 
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
-) => render(ui, { wrapper: AllTheProviders, ...options });
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
+  render(ui, { wrapper: AllTheProviders, ...options });
 
 // ============================================================
 // React 19 Test Helpers
@@ -46,7 +42,7 @@ export const advanceTimersAndAct = async (ms: number): Promise<void> => {
  */
 export const actWait = async (
   callback: () => void | Promise<void>,
-  timeout = 3000
+  timeout = 3000,
 ): Promise<void> => {
   await act(async () => {
     await callback();
@@ -64,7 +60,7 @@ export const actWait = async (
  */
 export const renderWithAct = async (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  options?: Omit<RenderOptions, 'wrapper'>,
 ): Promise<ReturnType<typeof render>> => {
   let result: ReturnType<typeof render>;
   await act(async () => {

@@ -18,7 +18,8 @@
     "lighthouse": "node scripts/lighthouse-audit.js",
     "lighthouse:collect": "lhci collect",
     "lighthouse:assert": "lhci assert",
-    "lighthouse:full": "lhci autorun"
+    "lighthouse:full": "lhci autorun",
+    "prepare": "husky"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -56,7 +57,7 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.24",
     "input-otp": "^1.4.2",
-    "lucide-react": "^0.554.0",
+    "lucide-react": "^0.555.0",
     "next-themes": "^0.4.6",
     "openai": "^6.9.0",
     "react": "^19.2.0",
@@ -65,7 +66,8 @@
     "react-h5-audio-player": "^3.10.1",
     "react-hook-form": "^7.66.0",
     "react-resizable-panels": "^3.0.6",
-    "react-router-dom": "^7.9.6",
+    "react-router": "^7.10.0",
+    "react-router-dom": "^7.10.0",
     "recharts": "^3.4.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
@@ -92,8 +94,10 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "husky": "^9.1.7",
     "jest-axe": "^10.0.0",
     "jsdom": "^27.2.0",
+    "lint-staged": "^16.2.7",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
@@ -109,5 +113,21 @@
     "@rollup/rollup-darwin-x64": "^4.53.2",
     "@rollup/rollup-linux-x64-gnu": "^4.53.2",
     "@rollup/rollup-win32-x64-msvc": "^4.53.2"
+  },
+  "overrides": {
+    "tmp": "^0.2.5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{css,json,md}": [
+      "prettier --write"
+    ]
   }
 }

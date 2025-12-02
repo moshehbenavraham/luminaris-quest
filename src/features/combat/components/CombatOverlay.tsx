@@ -1,18 +1,19 @@
- 
+/* eslint-disable react-hooks/set-state-in-effect -- Combat end state sync pattern */
+
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
  * Modified: 2025-06-28
  * FAILED: Added CombatReflectionModal integration to show battle results screen
@@ -39,7 +40,7 @@ interface CombatOverlayProps {
 
 /**
  * CombatOverlay - Main orchestrator for the combat UI
- * 
+ *
  * This component:
  * - Manages the overall combat layout
  * - Coordinates between sub-components
@@ -47,9 +48,9 @@ interface CombatOverlayProps {
  * - Provides accessibility structure
  */
 export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': testId }) => {
-  const { 
-    isActive, 
-    enemy, 
+  const {
+    isActive,
+    enemy,
     hasHydrated,
     combatEndStatus,
     resources,
@@ -63,31 +64,31 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
     surrender,
     canUseAction,
     getActionCost,
-    getActionDescription
+    getActionDescription,
   } = useCombatStore();
-  
+
   // ⚠️ CLAUDE CODE FAILED ASSUMPTION ALERT ⚠️
   // The keyboard action visual feedback system below was added based on INCORRECT ASSUMPTIONS
   // that the overlay interaction issue was caused by keyboard event conflicts. This was NOT
   // the actual problem. The real interaction blocking issue remains UNFIXED.
   //
   // FAILED ASSUMPTION: Keyboard event handling was causing interaction problems - IT WASN'T
-  // FAILED ASSUMPTION: Visual feedback coordination would fix overlay blocking - IT DIDN'T  
+  // FAILED ASSUMPTION: Visual feedback coordination would fix overlay blocking - IT DIDN'T
   // FAILED ASSUMPTION: Duplicate event listeners were the root cause - THEY WEREN'T
   //
   // This entire implementation below was WASTED EFFORT addressing NON-EXISTENT problems.
-  
+
   // State for keyboard action visual feedback
   const [keyboardActiveAction, setKeyboardActiveAction] = useState<CombatAction | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // State for tracking modal visibility
   const [showReflectionModal, setShowReflectionModal] = useState(false);
-  
+
   // Handle keyboard action visual feedback
   const handleKeyboardAction = useCallback((action: CombatAction) => {
     setKeyboardActiveAction(action);
-    
+
     // Clear active state after animation
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -97,10 +98,10 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
       timeoutRef.current = null;
     }, 200);
   }, []);
-  
+
   // Enable keyboard shortcuts with visual feedback
   useCombatKeyboard(handleKeyboardAction);
-  
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -109,40 +110,41 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
       }
     };
   }, []);
-  
+
   // Show reflection modal when combat ends
+
   useEffect(() => {
     if (combatEndStatus.isEnded && enemy) {
       setShowReflectionModal(true);
     }
   }, [combatEndStatus.isEnded, enemy]);
-  
+
   // Don't render until hydrated to prevent SSR mismatch
   if (!hasHydrated) {
     return null;
   }
-  
+
   // Handle combat end state with modal (check this BEFORE checking isActive)
   if (combatEndStatus.isEnded && showReflectionModal) {
     return (
-      <CombatReflectionModal 
+      <CombatReflectionModal
         isOpen={showReflectionModal}
         onClose={() => setShowReflectionModal(false)}
         data-testid="combat-reflection-modal"
       />
     );
   }
-  
+
   // Don't render if not in combat
   if (!isActive || !enemy) {
     return null;
   }
-  
+
   return (
     <CombatBackdrop isActive={isActive} data-testid={testId}>
       <CombatContainer>
         {/* Mobile Layout (default) - only visible on small screens */}
-        <div className="flex flex-col gap-4 h-full lg:hidden">
+        <div className="flex h-full flex-col gap-4 lg:hidden">
           <EnemyCard
             enemy={enemy}
             statusEffects={statusEffects}
@@ -165,16 +167,12 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
             isPlayerTurn={isPlayerTurn}
             keyboardActiveAction={keyboardActiveAction} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - This prop was NOT needed
           />
-          <ControlPanel
-            onEndTurn={endTurn}
-            onSurrender={surrender}
-            isPlayerTurn={isPlayerTurn}
-          />
+          <ControlPanel onEndTurn={endTurn} onSurrender={surrender} isPlayerTurn={isPlayerTurn} />
         </div>
-        
+
         {/* Desktop Layout - only visible on large screens */}
-        <div className="hidden lg:grid lg:grid-cols-3 lg:gap-8 lg:h-full">
-          <div className="lg:col-span-2 space-y-6">
+        <div className="hidden lg:grid lg:h-full lg:grid-cols-3 lg:gap-8">
+          <div className="space-y-6 lg:col-span-2">
             <EnemyCard
               enemy={enemy}
               statusEffects={statusEffects}
@@ -199,11 +197,7 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
               playerLevel={playerLevel}
               isPlayerTurn={isPlayerTurn}
             />
-            <ControlPanel
-              onEndTurn={endTurn}
-              onSurrender={surrender}
-              isPlayerTurn={isPlayerTurn}
-            />
+            <ControlPanel onEndTurn={endTurn} onSurrender={surrender} isPlayerTurn={isPlayerTurn} />
           </div>
         </div>
       </CombatContainer>

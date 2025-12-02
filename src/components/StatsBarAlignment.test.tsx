@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -7,7 +9,7 @@ import '@testing-library/jest-dom';
 
 // Mock the game store
 vi.mock('@/store/game-store', () => ({
-  useGameStore: vi.fn()
+  useGameStore: vi.fn(),
 }));
 
 describe('StatsBar Visual Alignment', () => {
@@ -23,8 +25,8 @@ describe('StatsBar Visual Alignment', () => {
       getExperienceProgress: () => ({
         current: 120,
         toNext: 80,
-        percentage: 60
-      })
+        percentage: 60,
+      }),
     });
   });
 
@@ -37,13 +39,13 @@ describe('StatsBar Visual Alignment', () => {
 
     // Find all individual stat rows within the grid
     const statRows = statsGrid?.querySelectorAll(':scope > div > div');
-    
+
     // Should have 3 stat rows (health, energy, level)
     expect(statRows?.length).toBeGreaterThanOrEqual(3);
 
     // Check that each row has consistent flex layout
     if (statRows) {
-      Array.from(statRows).forEach(row => {
+      Array.from(statRows).forEach((row) => {
         // Each stat row should use flex layout
         expect(row).toHaveClass('flex', 'items-center');
       });
@@ -69,12 +71,12 @@ describe('StatsBar Visual Alignment', () => {
 
     // Find all progress bar containers
     const progressBars = container.querySelectorAll('.h-2.rounded-full.bg-gray-200');
-    
+
     // Should have 3 progress bars (health, energy, level)
     expect(progressBars).toHaveLength(3);
 
     // All progress bars should have the same width class
-    progressBars.forEach(bar => {
+    progressBars.forEach((bar) => {
       expect(bar).toHaveClass('w-20');
     });
   });
@@ -103,15 +105,15 @@ describe('StatsBar Visual Alignment', () => {
 
     // Find all right-side containers (containing bar and value)
     const rightContainers = container.querySelectorAll('.flex-1.justify-end');
-    
+
     // Should have 3 right-side containers
     expect(rightContainers).toHaveLength(3);
 
     // Each should contain a progress bar and a value
-    rightContainers.forEach(container => {
+    rightContainers.forEach((container) => {
       const progressBar = container.querySelector('.h-2.rounded-full');
       const value = container.querySelector('span');
-      
+
       expect(progressBar).toBeTruthy();
       expect(value).toBeTruthy();
     });
@@ -122,19 +124,20 @@ describe('StatsBar Visual Alignment', () => {
 
     // Find all icons (Shield, Zap, Star)
     const icons = container.querySelectorAll('svg.h-4.w-4');
-    
+
     // Filter for the stat icons (not combat resource icons)
-    const statIcons = Array.from(icons).filter(icon => 
-      icon.classList.contains('combat-text-heal') || 
-      icon.classList.contains('combat-text-mana') || 
-      icon.classList.contains('combat-text-critical')
+    const statIcons = Array.from(icons).filter(
+      (icon) =>
+        icon.classList.contains('combat-text-heal') ||
+        icon.classList.contains('combat-text-mana') ||
+        icon.classList.contains('combat-text-critical'),
     );
 
     // Should have 3 stat icons
     expect(statIcons).toHaveLength(3);
 
     // All should have flex-shrink-0 to maintain size
-    statIcons.forEach(icon => {
+    statIcons.forEach((icon) => {
       expect(icon).toHaveClass('flex-shrink-0');
     });
   });
@@ -151,8 +154,8 @@ describe('StatsBar Visual Alignment', () => {
       getExperienceProgress: () => ({
         current: 120,
         toNext: 80,
-        percentage: 60
-      })
+        percentage: 60,
+      }),
     });
 
     render(<StatsBar trust={50} showCombatResources={true} />);
@@ -173,20 +176,20 @@ describe('StatsBar Visual Alignment', () => {
 
     // Get all progress bar containers
     const progressBars = container.querySelectorAll('.h-2.rounded-full.bg-gray-200');
-    
+
     // Should have 3 progress bars
     expect(progressBars).toHaveLength(3);
 
     // Get the parent containers that hold bar + value
     const rightContainers = container.querySelectorAll('.flex-1.justify-end');
-    
+
     // All right containers should have identical structure
-    rightContainers.forEach(container => {
+    rightContainers.forEach((container) => {
       expect(container).toHaveClass('flex', 'items-center', 'gap-2', 'flex-1', 'justify-end');
-      
+
       // Each should have a progress bar as first child
       const progressBar = container.querySelector('.h-2.w-20.rounded-full');
       expect(progressBar).toBeTruthy();
     });
   });
-}); 
+});

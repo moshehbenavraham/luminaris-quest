@@ -1,4 +1,5 @@
- 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Database test utilities require flexible types for RPC responses and error handling */
+
 import { supabaseDiagnostics as supabase } from '@/lib/supabase-diagnostics';
 import { createLogger } from '@/lib/environment';
 
@@ -17,31 +18,31 @@ export async function testDatabaseConnection(): Promise<{
 }> {
   try {
     logger.debug('Testing database connection via RPC');
-    
+
     // Call the test_database_connection function
     const { data, error } = await (supabase as any).rpc('test_database_connection');
-    
+
     if (error) {
       logger.error('Database RPC test failed', error);
       return {
         success: false,
         message: `Database connection failed: ${error.message}`,
-        error
+        error,
       };
     }
-    
+
     logger.info('Database RPC test successful', data);
     return {
       success: true,
       message: 'Database connection successful',
-      data
+      data,
     };
   } catch (error: any) {
     logger.error('Database test threw exception', error);
     return {
       success: false,
       message: `Exception during database test: ${error.message}`,
-      error
+      error,
     };
   }
 }
@@ -61,22 +62,22 @@ export async function testTableAccess(): Promise<{
 }> {
   try {
     logger.debug('Testing table access');
-    
+
     // Test game_states table
     const { error: gameStatesError } = await supabase
       .from('game_states')
       .select('user_id', { count: 'exact', head: true });
-    
+
     // Test journal_entries table
     const { error: journalEntriesError } = await supabase
       .from('journal_entries')
       .select('id', { count: 'exact', head: true });
-    
+
     const gameStatesExists = !gameStatesError || gameStatesError.code === 'PGRST116';
     const journalEntriesExists = !journalEntriesError || journalEntriesError.code === 'PGRST116';
-    
+
     const allTablesExist = gameStatesExists && journalEntriesExists;
-    
+
     if (allTablesExist) {
       logger.info('All tables exist and are accessible');
       return {
@@ -84,28 +85,28 @@ export async function testTableAccess(): Promise<{
         message: 'All required tables exist and are accessible',
         tables: {
           game_states: gameStatesExists,
-          journal_entries: journalEntriesExists
-        }
+          journal_entries: journalEntriesExists,
+        },
       };
     } else {
       logger.warn('Some tables are missing or inaccessible', {
         game_states: gameStatesExists,
         journal_entries: journalEntriesExists,
         gameStatesError,
-        journalEntriesError
+        journalEntriesError,
       });
-      
+
       return {
         success: false,
         message: 'Some required tables are missing or inaccessible',
         tables: {
           game_states: gameStatesExists,
-          journal_entries: journalEntriesExists
+          journal_entries: journalEntriesExists,
         },
         error: {
           game_states: gameStatesError,
-          journal_entries: journalEntriesError
-        }
+          journal_entries: journalEntriesError,
+        },
       };
     }
   } catch (error: any) {
@@ -115,9 +116,9 @@ export async function testTableAccess(): Promise<{
       message: `Exception during table access test: ${error.message}`,
       tables: {
         game_states: false,
-        journal_entries: false
+        journal_entries: false,
       },
-      error
+      error,
     };
   }
 }
@@ -146,10 +147,10 @@ export async function runDatabaseTests(): Promise<{
 }> {
   const connectionTest = await testDatabaseConnection();
   const tableTest = await testTableAccess();
-  
+
   return {
     overallSuccess: connectionTest.success && tableTest.success,
     connectionTest,
-    tableTest
+    tableTest,
   };
 }

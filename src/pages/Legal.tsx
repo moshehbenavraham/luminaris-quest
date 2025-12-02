@@ -1,4 +1,5 @@
- 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Legal page content rendering requires flexible types */
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { legalContent } from '@/lib/legal-content';
 import { ExternalLink } from 'lucide-react';
@@ -8,16 +9,12 @@ const renderContent = (content: any) => {
     // Handle markdown headers (#### **text**)
     if (content.startsWith('#### ')) {
       const headerText = content.replace(/^#### \*\*(.*)\*\*$/, '$1').replace(/^#### (.*)$/, '$1');
-      return (
-        <h4 className="mt-4 mb-2 text-lg font-semibold text-foreground">
-          {headerText}
-        </h4>
-      );
+      return <h4 className="text-foreground mt-4 mb-2 text-lg font-semibold">{headerText}</h4>;
     }
 
     // Split content by markdown patterns
     const parts = content.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
-    
+
     return parts.map((part: string, i: number) => {
       // Handle markdown links [text](url)
       if (part.match(/\[.*\]\(.*\)/)) {
@@ -26,7 +23,7 @@ const renderContent = (content: any) => {
           <a
             key={i}
             href={url}
-            className="inline-flex items-center text-primary hover:underline"
+            className="text-primary inline-flex items-center hover:underline"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -34,17 +31,17 @@ const renderContent = (content: any) => {
           </a>
         );
       }
-      
+
       // Handle bold text **text**
       if (part.match(/\*\*.*\*\*/)) {
         const boldText = part.replace(/\*\*(.*)\*\*/, '$1');
         return (
-          <strong key={i} className="font-semibold text-foreground">
+          <strong key={i} className="text-foreground font-semibold">
             {boldText}
           </strong>
         );
       }
-      
+
       return <span key={i}>{part}</span>;
     });
   } else if (content.list) {
@@ -61,7 +58,7 @@ const renderContent = (content: any) => {
     // Handle nested content with title
     return (
       <div className="mt-4">
-        <h5 className="mb-2 font-medium text-foreground">{content.title}</h5>
+        <h5 className="text-foreground mb-2 font-medium">{content.title}</h5>
         <div className="space-y-2">
           {content.content.map((item: any, i: number) => (
             <div key={i}>{renderContent(item)}</div>
@@ -75,14 +72,14 @@ const renderContent = (content: any) => {
 
 const LegalSection = ({ section }: { section: any }) => (
   <section className="mb-8">
-    <h3 className="mb-3 text-xl font-semibold text-foreground">{section.title}</h3>
-    <div className="space-y-3 text-foreground/80">
+    <h3 className="text-foreground mb-3 text-xl font-semibold">{section.title}</h3>
+    <div className="text-foreground/80 space-y-3">
       {section.content.map((item: any, i: number) => {
         // Check if this is a markdown header
         if (typeof item === 'string' && item.startsWith('#### ')) {
           return <div key={i}>{renderContent(item)}</div>;
         }
-        
+
         return (
           <div key={i} className="leading-relaxed">
             {renderContent(item)}
@@ -100,7 +97,7 @@ export function Legal() {
         <h1 className="mb-4 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
           Legal Terms & Privacy Policy
         </h1>
-        <p className="text-xl text-muted-foreground">Last Updated: {legalContent.lastUpdated}</p>
+        <p className="text-muted-foreground text-xl">Last Updated: {legalContent.lastUpdated}</p>
       </div>
 
       <Tabs defaultValue="terms" className="w-full">
@@ -112,7 +109,7 @@ export function Legal() {
         </TabsList>
 
         <TabsContent value="terms" className="space-y-6">
-          <h2 className="text-3xl font-bold text-foreground">
+          <h2 className="text-foreground text-3xl font-bold">
             {legalContent.termsOfService.title}
           </h2>
           {legalContent.termsOfService.sections.map((section, i) => (
@@ -121,29 +118,29 @@ export function Legal() {
         </TabsContent>
 
         <TabsContent value="privacy" className="space-y-6">
-          <h2 className="text-3xl font-bold text-foreground">{legalContent.privacyPolicy.title}</h2>
+          <h2 className="text-foreground text-3xl font-bold">{legalContent.privacyPolicy.title}</h2>
           {legalContent.privacyPolicy.sections.map((section, i) => (
             <LegalSection key={i} section={section} />
           ))}
         </TabsContent>
 
         <TabsContent value="cookies" className="space-y-6">
-          <h2 className="text-3xl font-bold text-foreground">{legalContent.cookiePolicy.title}</h2>
+          <h2 className="text-foreground text-3xl font-bold">{legalContent.cookiePolicy.title}</h2>
           {legalContent.cookiePolicy.sections.map((section, i) => (
             <LegalSection key={i} section={section} />
           ))}
         </TabsContent>
 
         <TabsContent value="contact" className="space-y-6">
-          <h2 className="text-3xl font-bold text-foreground">{legalContent.contact.title}</h2>
+          <h2 className="text-foreground text-3xl font-bold">{legalContent.contact.title}</h2>
           {legalContent.contact.sections.map((section, i) => (
             <LegalSection key={i} section={section} />
           ))}
         </TabsContent>
       </Tabs>
 
-      <div className="mt-8 border-t pt-4 text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} Luminari's Quest. All rights reserved.</p>
+      <div className="text-muted-foreground mt-8 border-t pt-4 text-sm">
+        <p>© {new Date().getFullYear()} Luminari&apos;s Quest. All rights reserved.</p>
       </div>
     </div>
   );

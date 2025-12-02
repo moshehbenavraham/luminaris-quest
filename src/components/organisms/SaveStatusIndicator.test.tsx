@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -24,10 +26,10 @@ describe('SaveStatusIndicator', () => {
           hasUnsavedChanges: false,
           lastSaveTimestamp: Date.now(),
           retryCount: 0,
-          lastError: undefined
+          lastError: undefined,
         },
         saveToSupabase: mockSaveToSupabase,
-        clearSaveError: mockClearSaveError
+        clearSaveError: mockClearSaveError,
       };
       return selector(mockState);
     });
@@ -36,7 +38,7 @@ describe('SaveStatusIndicator', () => {
   describe('Status Display', () => {
     it('should show "All changes saved" when no unsaved changes', () => {
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('All changes saved')).toBeInTheDocument();
     });
 
@@ -48,16 +50,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
     });
 
@@ -69,16 +71,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('Saving...')).toBeInTheDocument();
     });
 
@@ -90,16 +92,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 2,
-            lastError: 'Network error'
+            lastError: 'Network error',
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('Save failed')).toBeInTheDocument();
     });
   });
@@ -113,16 +115,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: false,
             lastSaveTimestamp: Date.now() - 30000, // 30 seconds ago
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('Saved Just now')).toBeInTheDocument();
     });
 
@@ -134,16 +136,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: false,
             lastSaveTimestamp: Date.now() - 5 * 60 * 1000, // 5 minutes ago
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('Saved 5 min ago')).toBeInTheDocument();
     });
 
@@ -155,16 +157,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: undefined,
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByText('Not saved')).toBeInTheDocument();
     });
   });
@@ -178,22 +180,22 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByRole('button', { name: 'Save Now' })).toBeInTheDocument();
     });
 
     it('should not show "Save Now" button when no unsaved changes', () => {
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.queryByRole('button', { name: 'Save Now' })).not.toBeInTheDocument();
     });
 
@@ -205,16 +207,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       const saveButton = screen.getByRole('button', { name: 'Save Now' });
       fireEvent.click(saveButton);
 
@@ -231,10 +233,10 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
@@ -255,16 +257,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 1,
-            lastError: 'Network error'
+            lastError: 'Network error',
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
     });
 
@@ -276,16 +278,16 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 1,
-            lastError: 'Network error'
+            lastError: 'Network error',
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
 
       render(<SaveStatusIndicator />);
-      
+
       const retryButton = screen.getByRole('button', { name: 'Retry' });
       fireEvent.click(retryButton);
 
@@ -297,7 +299,7 @@ describe('SaveStatusIndicator', () => {
 
     it('should not show "Retry" button when no error', () => {
       render(<SaveStatusIndicator />);
-      
+
       expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
     });
   });
@@ -313,10 +315,10 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 2,
-            lastError: 'Network connection failed'
+            lastError: 'Network connection failed',
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
@@ -328,19 +330,22 @@ describe('SaveStatusIndicator', () => {
       await user.hover(retryButton);
 
       // Radix UI has a 700ms default delay before showing tooltips
-      await waitFor(() => {
-        // Radix UI renders tooltip content multiple times for accessibility, so use getAllByText
-        expect(screen.getAllByText('Save failed')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Network connection failed')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Retried 2 times')[0]).toBeInTheDocument();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          // Radix UI renders tooltip content multiple times for accessibility, so use getAllByText
+          expect(screen.getAllByText('Save failed')[0]).toBeInTheDocument();
+          expect(screen.getAllByText('Network connection failed')[0]).toBeInTheDocument();
+          expect(screen.getAllByText('Retried 2 times')[0]).toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
     });
   });
 
   describe('Visual States', () => {
     it('should have correct styling for different states', () => {
       const { rerender } = render(<SaveStatusIndicator />);
-      
+
       // Test idle state
       expect(screen.getByText('All changes saved')).toHaveClass('text-gray-400');
 
@@ -352,10 +357,10 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
@@ -371,10 +376,10 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
+            lastError: undefined,
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });
@@ -390,10 +395,10 @@ describe('SaveStatusIndicator', () => {
             hasUnsavedChanges: true,
             lastSaveTimestamp: Date.now(),
             retryCount: 1,
-            lastError: 'Error message'
+            lastError: 'Error message',
           },
           saveToSupabase: mockSaveToSupabase,
-          clearSaveError: mockClearSaveError
+          clearSaveError: mockClearSaveError,
         };
         return selector(mockState);
       });

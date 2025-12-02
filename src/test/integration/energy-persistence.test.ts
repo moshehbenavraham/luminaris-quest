@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, beforeEach, vi, Mock } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useGameStore } from '@/store/game-store';
@@ -7,10 +9,10 @@ import { supabase } from '@/integrations/supabase/client';
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
-      getUser: vi.fn()
+      getUser: vi.fn(),
     },
-    from: vi.fn()
-  }
+    from: vi.fn(),
+  },
 }));
 
 describe('Energy System Persistence', () => {
@@ -29,39 +31,39 @@ describe('Energy System Persistence', () => {
     // Setup mock chain
     mockOrderBy = vi.fn().mockReturnValue({
       data: [],
-      error: null
+      error: null,
     });
 
     mockSingle = vi.fn().mockReturnValue({
       data: null,
-      error: { code: 'PGRST116' } // No rows found
+      error: { code: 'PGRST116' }, // No rows found
     });
 
     mockEq = vi.fn().mockReturnValue({
       single: mockSingle,
-      order: mockOrderBy
+      order: mockOrderBy,
     });
 
     mockSelect = vi.fn().mockReturnValue({
       data: [],
-      error: null
+      error: null,
     });
 
     mockUpsert = vi.fn().mockReturnValue({
-      select: mockSelect
+      select: mockSelect,
     });
 
     mockFrom = vi.fn().mockReturnValue({
       upsert: mockUpsert,
       select: vi.fn().mockReturnValue({
-        eq: mockEq
-      })
+        eq: mockEq,
+      }),
     });
 
     (supabase.from as Mock).mockImplementation(mockFrom);
     (supabase.auth.getUser as Mock).mockResolvedValue({
       data: { user: mockUser },
-      error: null
+      error: null,
     });
 
     // Reset game store
@@ -89,9 +91,9 @@ describe('Energy System Persistence', () => {
       expect(mockUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
           player_energy: 75,
-          max_player_energy: 100
+          max_player_energy: 100,
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -101,7 +103,7 @@ describe('Energy System Persistence', () => {
       // Set energy to various values
       act(() => {
         result.current.modifyPlayerEnergy(-30); // 70
-        result.current.modifyPlayerEnergy(15);  // 85
+        result.current.modifyPlayerEnergy(15); // 85
       });
 
       await act(async () => {
@@ -111,9 +113,9 @@ describe('Energy System Persistence', () => {
       expect(mockUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
           player_energy: 85,
-          max_player_energy: 100
+          max_player_energy: 100,
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -132,9 +134,9 @@ describe('Energy System Persistence', () => {
       expect(mockUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
           player_energy: 0,
-          max_player_energy: 100
+          max_player_energy: 100,
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
 
       // Test at maximum
@@ -149,9 +151,9 @@ describe('Energy System Persistence', () => {
       expect(mockUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
           player_energy: 100,
-          max_player_energy: 100
+          max_player_energy: 100,
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -169,9 +171,9 @@ describe('Energy System Persistence', () => {
           milestones: JSON.stringify([]),
           scene_history: JSON.stringify([]),
           player_energy: 60,
-          max_player_energy: 100
+          max_player_energy: 100,
         },
-        error: null
+        error: null,
       });
 
       await act(async () => {
@@ -192,10 +194,10 @@ describe('Energy System Persistence', () => {
           player_level: 3,
           current_scene_index: 5,
           milestones: JSON.stringify([]),
-          scene_history: JSON.stringify([])
+          scene_history: JSON.stringify([]),
           // No energy fields
         },
-        error: null
+        error: null,
       });
 
       await act(async () => {
@@ -219,9 +221,9 @@ describe('Energy System Persistence', () => {
           milestones: JSON.stringify([]),
           scene_history: JSON.stringify([]),
           player_energy: null,
-          max_player_energy: null
+          max_player_energy: null,
         },
-        error: null
+        error: null,
       });
 
       await act(async () => {
@@ -256,9 +258,9 @@ describe('Energy System Persistence', () => {
         expect.objectContaining({
           guardian_trust: 75,
           player_energy: 50,
-          max_player_energy: 100
+          max_player_energy: 100,
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
 
       // Reset local state
@@ -275,9 +277,9 @@ describe('Energy System Persistence', () => {
           milestones: JSON.stringify([]),
           scene_history: JSON.stringify([]),
           player_energy: 50,
-          max_player_energy: 100
+          max_player_energy: 100,
         },
-        error: null
+        error: null,
       });
 
       // Load
@@ -305,8 +307,8 @@ describe('Energy System Persistence', () => {
       mockUpsert.mockReturnValueOnce({
         select: vi.fn().mockReturnValue({
           data: [{}],
-          error: null
-        })
+          error: null,
+        }),
       });
 
       await act(async () => {
@@ -334,8 +336,8 @@ describe('Energy System Persistence', () => {
       mockUpsert.mockReturnValue({
         select: vi.fn().mockReturnValue({
           data: null,
-          error: { message: 'Network error' }
-        })
+          error: { message: 'Network error' },
+        }),
       });
 
       act(() => {
@@ -348,7 +350,7 @@ describe('Energy System Persistence', () => {
 
       // Should still have the energy value
       expect(result.current.playerEnergy).toBe(50);
-      
+
       // Should mark save as having an error
       expect(result.current.saveState.status).toBe('error');
       expect(result.current.saveState.hasUnsavedChanges).toBe(true);
@@ -368,7 +370,7 @@ describe('Energy System Persistence', () => {
       // Mock load error
       mockSingle.mockReturnValueOnce({
         data: null,
-        error: { message: 'Database error' }
+        error: { message: 'Database error' },
       });
 
       await act(async () => {
@@ -381,4 +383,4 @@ describe('Energy System Persistence', () => {
       consoleErrorSpy.mockRestore();
     });
   });
-}); 
+});

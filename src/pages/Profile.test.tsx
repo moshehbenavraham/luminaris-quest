@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@/test/utils';
 import { Profile } from './Profile';
@@ -33,7 +35,7 @@ const mockGameStore = {
 
 vi.mock('@/store/game-store', () => ({
   useGameStore: () => mockGameStore,
-  useGameStoreBase: (selector?: any) => selector ? selector(mockGameStore) : mockGameStore,
+  useGameStoreBase: (selector?: any) => (selector ? selector(mockGameStore) : mockGameStore),
 }));
 
 // Mock the ImpactfulImage component
@@ -43,7 +45,7 @@ vi.mock('@/components/atoms/ImpactfulImage', () => ({
       data-testid="impactful-image"
       src={src}
       alt={alt}
-      data-priority={priority ? "true" : "false"}
+      data-priority={priority ? 'true' : 'false'}
       data-ratio={ratio}
       className={className}
       {...props}
@@ -58,20 +60,18 @@ vi.mock('@/components/JournalEntryCard', () => ({
   ),
 }));
 
-
-
 // Mock the database health module
 vi.mock('@/lib/database-health', () => ({
   getConnectionStatusIndicator: () => ({
     color: 'green',
     icon: '✓',
-    description: 'Connected'
+    description: 'Connected',
   }),
   useDatabaseHealth: () => ({
     isConnected: true,
     lastChecked: new Date(),
-    error: null
-  })
+    error: null,
+  }),
 }));
 
 // Mock the ImpactfulImage component to ensure it renders
@@ -101,7 +101,7 @@ describe('Profile Page - ImpactfulImage Integration', () => {
     const heroImage = screen.getByTestId('impactful-image');
     expect(heroImage).not.toBeNull();
     expect(heroImage.getAttribute('data-priority')).toBe('false');
-    expect(heroImage.getAttribute('data-ratio')).toBe(String(1/1));
+    expect(heroImage.getAttribute('data-ratio')).toBe(String(1 / 1));
     expect(heroImage.className).toContain('md:rounded-full');
     expect(heroImage.className).toContain('md:max-w-[280px]');
     expect(heroImage.className).toContain('mx-auto');
@@ -109,13 +109,13 @@ describe('Profile Page - ImpactfulImage Integration', () => {
 
   it('places ImpactfulImage at logical top-of-fold position', () => {
     render(<Profile />);
-    
+
     const heroImage = screen.getByTestId('impactful-image');
     const pageTitle = screen.getByText('Profile');
-    
+
     expect(heroImage).not.toBeNull();
     expect(pageTitle).not.toBeNull();
-    
+
     // Check that image appears after page title but before other content
     const heroImagePosition = Array.from(document.body.querySelectorAll('*')).indexOf(heroImage);
     const pageTitlePosition = Array.from(document.body.querySelectorAll('*')).indexOf(pageTitle);
@@ -124,10 +124,12 @@ describe('Profile Page - ImpactfulImage Integration', () => {
 
   it('uses correct image source from registry', () => {
     render(<Profile />);
-    
+
     const heroImage = screen.getByTestId('impactful-image');
     expect(heroImage.getAttribute('src')).toBe('/images/profile-hero.avif');
-    expect(heroImage.getAttribute('alt')).toBe('User profile interface showing personal journey and settings');
+    expect(heroImage.getAttribute('alt')).toBe(
+      'User profile interface showing personal journey and settings',
+    );
   });
 
   it('maintains existing Profile page functionality with image integration', () => {

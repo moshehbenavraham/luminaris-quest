@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { SoundManager, COMBAT_SOUND_EFFECTS } from '../utils/sound-manager';
 
@@ -8,7 +10,7 @@ class MockAudio {
   preload = 'none';
   currentTime = 0;
   paused = true;
-  
+
   private eventListeners: { [key: string]: Function[] } = {};
 
   constructor(src?: string) {
@@ -24,7 +26,7 @@ class MockAudio {
 
   removeEventListener(event: string, callback: Function) {
     if (this.eventListeners[event]) {
-      this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
+      this.eventListeners[event] = this.eventListeners[event].filter((cb) => cb !== callback);
     }
   }
 
@@ -44,7 +46,7 @@ class MockAudio {
   // Helper to trigger events
   triggerEvent(event: string) {
     if (this.eventListeners[event]) {
-      this.eventListeners[event].forEach(callback => callback());
+      this.eventListeners[event].forEach((callback) => callback());
     }
   }
 }
@@ -78,7 +80,7 @@ describe('SoundManager', () => {
       const manager = new SoundManager({
         volume: 0.5,
         muted: true,
-        preloadSounds: false
+        preloadSounds: false,
       });
       expect(manager.getVolume()).toBe(0.5);
       expect(manager.isMuted()).toBe(true);
@@ -91,11 +93,11 @@ describe('SoundManager', () => {
         id: 'test-sound',
         src: '/test.mp3',
         volume: 0.8,
-        preload: true
+        preload: true,
       };
 
       soundManager.registerSound(effect);
-      
+
       // Should not throw when trying to play registered sound
       expect(() => soundManager.playSound('test-sound')).not.toThrow();
     });
@@ -109,13 +111,13 @@ describe('SoundManager', () => {
 
       const effect = {
         id: 'error-sound',
-        src: '/error.mp3'
+        src: '/error.mp3',
       };
 
       soundManager.registerSound(effect);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to register sound effect: error-sound',
-        expect.any(Error)
+        expect.any(Error),
       );
 
       global.Audio = originalAudio;
@@ -126,7 +128,7 @@ describe('SoundManager', () => {
     beforeEach(() => {
       soundManager.registerSound({
         id: 'test-sound',
-        src: '/test.mp3'
+        src: '/test.mp3',
       });
     });
 
@@ -151,10 +153,10 @@ describe('SoundManager', () => {
       // Mock play method to reject
       const mockAudio = new MockAudio();
       mockAudio.play = vi.fn().mockRejectedValue(new Error('Autoplay blocked'));
-      
+
       soundManager.registerSound({
         id: 'error-sound',
-        src: '/error.mp3'
+        src: '/error.mp3',
       });
 
       await soundManager.playSound('error-sound');
@@ -179,12 +181,12 @@ describe('SoundManager', () => {
     it('should update volume for all registered sounds', () => {
       const effect1 = { id: 'sound1', src: '/sound1.mp3' };
       const effect2 = { id: 'sound2', src: '/sound2.mp3' };
-      
+
       soundManager.registerSound(effect1);
       soundManager.registerSound(effect2);
-      
+
       soundManager.setVolume(0.3);
-      
+
       // Volume should be applied to all sounds
       expect(soundManager.getVolume()).toBe(0.3);
     });
@@ -193,10 +195,10 @@ describe('SoundManager', () => {
   describe('Mute Control', () => {
     it('should mute and unmute sounds', () => {
       expect(soundManager.isMuted()).toBe(false);
-      
+
       soundManager.setMuted(true);
       expect(soundManager.isMuted()).toBe(true);
-      
+
       soundManager.setMuted(false);
       expect(soundManager.isMuted()).toBe(false);
     });
@@ -211,13 +213,13 @@ describe('SoundManager', () => {
       // Mock unsupported environment
       const originalAudio = global.Audio;
       delete (global as any).Audio;
-      
+
       const manager = new SoundManager();
       expect(manager.isAudioSupported()).toBe(false);
-      
+
       // Should not throw when registering sounds
       manager.registerSound({ id: 'test', src: '/test.mp3' });
-      
+
       global.Audio = originalAudio;
     });
   });
@@ -226,9 +228,9 @@ describe('SoundManager', () => {
     it('should dispose of all audio resources', () => {
       soundManager.registerSound({ id: 'test1', src: '/test1.mp3' });
       soundManager.registerSound({ id: 'test2', src: '/test2.mp3' });
-      
+
       soundManager.dispose();
-      
+
       // Should warn when trying to play disposed sounds
       soundManager.playSound('test1');
       expect(consoleSpy).toHaveBeenCalledWith('Sound effect not found: test1');
@@ -240,22 +242,22 @@ describe('COMBAT_SOUND_EFFECTS', () => {
   it('should contain all required combat sound effects', () => {
     const expectedSounds = [
       'illuminate',
-      'reflect', 
+      'reflect',
       'endure',
       'embrace',
       'shadow-attack',
       'victory',
-      'defeat'
+      'defeat',
     ];
 
-    const soundIds = COMBAT_SOUND_EFFECTS.map(effect => effect.id);
-    expectedSounds.forEach(expectedId => {
+    const soundIds = COMBAT_SOUND_EFFECTS.map((effect) => effect.id);
+    expectedSounds.forEach((expectedId) => {
       expect(soundIds).toContain(expectedId);
     });
   });
 
   it('should have valid sound effect configurations', () => {
-    COMBAT_SOUND_EFFECTS.forEach(effect => {
+    COMBAT_SOUND_EFFECTS.forEach((effect) => {
       expect(effect.id).toBeTruthy();
       expect(effect.src).toBeTruthy();
       expect(effect.src).toMatch(/^\/audio\/soundfx-/);
@@ -268,16 +270,16 @@ describe('COMBAT_SOUND_EFFECTS', () => {
 
   it('should use dedicated soundfx files with correct naming convention', () => {
     const expectedMappings = {
-      'illuminate': '/audio/soundfx-illuminate.mp3',
-      'reflect': '/audio/soundfx-reflect.mp3',
-      'endure': '/audio/soundfx-endure.mp3',
-      'embrace': '/audio/soundfx-embrace.mp3',
+      illuminate: '/audio/soundfx-illuminate.mp3',
+      reflect: '/audio/soundfx-reflect.mp3',
+      endure: '/audio/soundfx-endure.mp3',
+      embrace: '/audio/soundfx-embrace.mp3',
       'shadow-attack': '/audio/soundfx-shadow-attack.mp3',
-      'victory': '/audio/soundfx-victory.mp3',
-      'defeat': '/audio/soundfx-defeat.mp3'
+      victory: '/audio/soundfx-victory.mp3',
+      defeat: '/audio/soundfx-defeat.mp3',
     };
 
-    COMBAT_SOUND_EFFECTS.forEach(effect => {
+    COMBAT_SOUND_EFFECTS.forEach((effect) => {
       expect(expectedMappings[effect.id as keyof typeof expectedMappings]).toBe(effect.src);
     });
   });

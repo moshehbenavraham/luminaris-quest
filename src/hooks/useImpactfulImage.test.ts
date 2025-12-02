@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useImpactfulImage, useOptimizedImageSrc } from '../hooks/useImpactfulImage';
@@ -6,7 +8,7 @@ import { useIsMobile } from '../hooks/use-mobile';
 
 // Mock the use-mobile hook
 vi.mock('../hooks/use-mobile', () => ({
-  useIsMobile: vi.fn(() => false)
+  useIsMobile: vi.fn(() => false),
 }));
 
 // Mock Image constructor for format detection
@@ -56,7 +58,7 @@ function MockImage(this: any) {
         });
       },
       enumerable: true,
-      configurable: true
+      configurable: true,
     },
     onload: {
       get() {
@@ -66,7 +68,7 @@ function MockImage(this: any) {
         _onload = callback;
       },
       enumerable: true,
-      configurable: true
+      configurable: true,
     },
     onerror: {
       get() {
@@ -76,20 +78,20 @@ function MockImage(this: any) {
         _onerror = callback;
       },
       enumerable: true,
-      configurable: true
+      configurable: true,
     },
     addEventListener: {
       value: vi.fn(),
       writable: true,
       enumerable: true,
-      configurable: true
+      configurable: true,
     },
     removeEventListener: {
       value: vi.fn(),
       writable: true,
       enumerable: true,
-      configurable: true
-    }
+      configurable: true,
+    },
   });
 
   latestImageInstance = this;
@@ -99,7 +101,7 @@ function MockImage(this: any) {
 Object.defineProperty(global, 'Image', {
   value: MockImage,
   writable: true,
-  configurable: true
+  configurable: true,
 });
 
 describe('useImpactfulImage', () => {
@@ -110,7 +112,7 @@ describe('useImpactfulImage', () => {
     fallback: '/images/test-fallback.png',
     alt: 'Test image',
     aspectRatio: 16 / 9,
-    priority: false
+    priority: false,
   };
 
   beforeEach(() => {
@@ -143,12 +145,15 @@ describe('useImpactfulImage', () => {
       expect(result.current.isMobile).toBe(false);
 
       // Wait for client-side hydration and format detection
-      await waitFor(() => {
-        expect(result.current.src).toBe('/images/test.png');
-        expect(result.current.format).toBe('original');
-        expect(result.current.isOptimized).toBe(false);
-        expect(result.current.supportsModernFormats).toBe(false);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(result.current.src).toBe('/images/test.png');
+          expect(result.current.format).toBe('original');
+          expect(result.current.isOptimized).toBe(false);
+          expect(result.current.supportsModernFormats).toBe(false);
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('detects AVIF support and uses AVIF format', async () => {
@@ -159,12 +164,15 @@ describe('useImpactfulImage', () => {
       const { result } = renderHook(() => useImpactfulImage(mockImageAsset));
 
       // Wait for format detection to complete
-      await waitFor(() => {
-        expect(result.current.src).toBe('/images/test.avif');
-        expect(result.current.format).toBe('avif');
-        expect(result.current.isOptimized).toBe(true);
-        expect(result.current.supportsModernFormats).toBe(true);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(result.current.src).toBe('/images/test.avif');
+          expect(result.current.format).toBe('avif');
+          expect(result.current.isOptimized).toBe(true);
+          expect(result.current.supportsModernFormats).toBe(true);
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('falls back to WebP when AVIF is not supported', async () => {
@@ -175,19 +183,22 @@ describe('useImpactfulImage', () => {
       const { result } = renderHook(() => useImpactfulImage(mockImageAsset));
 
       // Wait for format detection to complete
-      await waitFor(() => {
-        expect(result.current.src).toBe('/images/test.webp');
-        expect(result.current.format).toBe('webp');
-        expect(result.current.isOptimized).toBe(true);
-        expect(result.current.supportsModernFormats).toBe(true);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(result.current.src).toBe('/images/test.webp');
+          expect(result.current.format).toBe('webp');
+          expect(result.current.isOptimized).toBe(true);
+          expect(result.current.supportsModernFormats).toBe(true);
+        },
+        { timeout: 3000 },
+      );
     });
   });
 
   describe('Format Override Options', () => {
     it('forces AVIF format when specified', async () => {
-      const { result } = renderHook(() => 
-        useImpactfulImage(mockImageAsset, { forceFormat: 'avif' })
+      const { result } = renderHook(() =>
+        useImpactfulImage(mockImageAsset, { forceFormat: 'avif' }),
       );
 
       await waitFor(() => {
@@ -197,8 +208,8 @@ describe('useImpactfulImage', () => {
     });
 
     it('forces WebP format when specified', async () => {
-      const { result } = renderHook(() => 
-        useImpactfulImage(mockImageAsset, { forceFormat: 'webp' })
+      const { result } = renderHook(() =>
+        useImpactfulImage(mockImageAsset, { forceFormat: 'webp' }),
       );
 
       await waitFor(() => {
@@ -208,8 +219,8 @@ describe('useImpactfulImage', () => {
     });
 
     it('forces original format when specified', async () => {
-      const { result } = renderHook(() => 
-        useImpactfulImage(mockImageAsset, { forceFormat: 'original' })
+      const { result } = renderHook(() =>
+        useImpactfulImage(mockImageAsset, { forceFormat: 'original' }),
       );
 
       await waitFor(() => {
@@ -221,11 +232,11 @@ describe('useImpactfulImage', () => {
     it('falls back to original when forced format is not available', async () => {
       const assetWithoutAvif: ImageAsset = {
         ...mockImageAsset,
-        avif: undefined
+        avif: undefined,
       };
 
-      const { result } = renderHook(() => 
-        useImpactfulImage(assetWithoutAvif, { forceFormat: 'avif' })
+      const { result } = renderHook(() =>
+        useImpactfulImage(assetWithoutAvif, { forceFormat: 'avif' }),
       );
 
       await waitFor(() => {
@@ -250,7 +261,7 @@ describe('useImpactfulImage', () => {
       vi.mocked(useIsMobile).mockReturnValue(true);
 
       const { result } = renderHook(() =>
-        useImpactfulImage(mockImageAsset, { optimizeForMobile: true })
+        useImpactfulImage(mockImageAsset, { optimizeForMobile: true }),
       );
 
       await waitFor(() => {
@@ -270,7 +281,7 @@ describe('useImpactfulImage', () => {
       const originalImage = global.Image;
 
       // Replace with a throwing constructor
-      (global as any).Image = function() {
+      (global as any).Image = function () {
         throw new Error('Image creation failed');
       };
 
@@ -284,7 +295,7 @@ describe('useImpactfulImage', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         'Error detecting image format support:',
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();
@@ -315,7 +326,7 @@ describe('useOptimizedImageSrc', () => {
     fallback: '/images/test-fallback.png',
     alt: 'Test image',
     aspectRatio: 16 / 9,
-    priority: false
+    priority: false,
   };
 
   it('returns optimized image source URL', async () => {

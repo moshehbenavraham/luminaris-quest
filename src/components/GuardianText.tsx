@@ -1,5 +1,6 @@
- 
-import { useState, useEffect } from 'react';
+/* eslint-disable react-hooks/set-state-in-effect -- Intentional: "show once" pattern requires state update in effect to trigger re-render that hides the intro message */
+
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Sparkles } from 'lucide-react';
 
@@ -10,16 +11,25 @@ interface GuardianTextProps {
   'data-testid'?: string;
 }
 
-export function GuardianText({ trust, message, className, 'data-testid': testId }: GuardianTextProps) {
+export function GuardianText({
+  trust,
+  message,
+  className,
+  'data-testid': testId,
+}: GuardianTextProps) {
+  const hasShownIntroRef = useRef(false);
   const [hasShownIntro, setHasShownIntro] = useState(false);
 
+  // Track intro message and update state when shown
+  // This pattern intentionally sets state in effect to trigger a re-render
+  // that hides the intro message after it's been displayed once
   useEffect(() => {
-    // Check if this is the initial guardian introduction
-    const isIntroMessage = message.includes('I am your guardian spirit');
-    if (isIntroMessage && !hasShownIntro) {
+    const isIntro = message.includes('I am your guardian spirit');
+    if (isIntro && !hasShownIntroRef.current) {
+      hasShownIntroRef.current = true;
       setHasShownIntro(true);
     }
-  }, [message, hasShownIntro]);
+  }, [message]);
 
   const getTrustColor = (trustLevel: number) => {
     if (trustLevel >= 80) return 'bg-green-500';
@@ -41,8 +51,8 @@ export function GuardianText({ trust, message, className, 'data-testid': testId 
   const normalizedTrust = Math.max(0, Math.min(100, trust));
 
   // Only show intro message once, then show scene outcomes
-  const isIntroMessage = message.includes('I am your guardian spirit');
-  const shouldShowMessage = !isIntroMessage || !hasShownIntro;
+  const currentIsIntro = message.includes('I am your guardian spirit');
+  const shouldShowMessage = !currentIsIntro || !hasShownIntro;
 
   return (
     <Card className={className} data-testid={testId}>
@@ -55,13 +65,13 @@ export function GuardianText({ trust, message, className, 'data-testid': testId 
       <CardContent className="space-y-6">
         {shouldShowMessage && message && (
           <div className="rounded-lg border-l-4 border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 p-4 dark:from-purple-950/20 dark:to-blue-950/20">
-            <blockquote className="text-lg font-medium italic leading-relaxed text-foreground">
-                            &ldquo;{message}&rdquo;
+            <blockquote className="text-foreground text-lg leading-relaxed font-medium italic">
+              &ldquo;{message}&rdquo;
             </blockquote>
           </div>
         )}
 
-        <div className="space-y-3 border-t border-muted pt-2">
+        <div className="border-muted space-y-3 border-t pt-2">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 font-medium">
               <Heart className="h-4 w-4 text-red-500" />
@@ -77,7 +87,7 @@ export function GuardianText({ trust, message, className, 'data-testid': testId 
             />
           </div>
 
-          <div className="text-center text-sm font-medium text-muted-foreground">
+          <div className="text-muted-foreground text-center text-sm font-medium">
             {normalizedTrust}/100
           </div>
         </div>

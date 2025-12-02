@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Test to verify NEW combat system triggers correctly on failed DC checks
  */
 
@@ -28,9 +30,9 @@ vi.mock('@/engine/scene-engine', async () => {
       choices: { bold: 'Attack!', cautious: 'Defend!' },
       shadowType: 'whisper-of-doubt',
       lpReward: 4,
-      spPenalty: 3
+      spPenalty: 3,
     })),
-    isLastScene: vi.fn(() => false)
+    isLastScene: vi.fn(() => false),
   };
 });
 
@@ -40,7 +42,7 @@ vi.mock('@/data/shadowManifestations', () => ({
     WHISPER_OF_DOUBT: 'whisper-of-doubt',
     VEIL_OF_ISOLATION: 'veil-of-isolation',
     STORM_OF_OVERWHELM: 'storm-of-overwhelm',
-    ECHO_OF_PAST_PAIN: 'echo-of-past-pain'
+    ECHO_OF_PAST_PAIN: 'echo-of-past-pain',
   },
   createShadowManifestation: vi.fn((id) => ({
     id,
@@ -52,8 +54,8 @@ vi.mock('@/data/shadowManifestations', () => ({
     description: 'A shadow that feeds on uncertainty',
     abilities: [],
     weaknesses: ['ILLUMINATE'],
-    resistances: []
-  }))
+    resistances: [],
+  })),
 }));
 
 // Mock the new combat overlay
@@ -88,8 +90,8 @@ describe('NEW Combat System Trigger Tests', () => {
       combatEndStatus: {
         isEnded: false,
         victory: false,
-        reason: ''
-      }
+        reason: '',
+      },
     });
   });
 
@@ -102,7 +104,7 @@ describe('NEW Combat System Trigger Tests', () => {
         guardianTrust={50}
         setGuardianTrust={setGuardianTrust}
         setGuardianMessage={setGuardianMessage}
-      />
+      />,
     );
 
     // Verify combat scene is displayed
@@ -148,7 +150,7 @@ describe('NEW Combat System Trigger Tests', () => {
         guardianTrust={50}
         setGuardianTrust={setGuardianTrust}
         setGuardianMessage={setGuardianMessage}
-      />
+      />,
     );
 
     // Click choice and fail the DC check
@@ -183,7 +185,7 @@ describe('NEW Combat System Trigger Tests', () => {
         guardianTrust={50}
         setGuardianTrust={vi.fn()}
         setGuardianMessage={setGuardianMessage}
-      />
+      />,
     );
 
     // Click choice and complete dice roll
@@ -206,9 +208,12 @@ describe('NEW Combat System Trigger Tests', () => {
     });
 
     // Verify success message was set (may be called asynchronously)
-    await waitFor(() => {
-      expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
+      },
+      { timeout: 2000 },
+    );
   });
 
   it('should handle missing shadow manifestation gracefully', async () => {
@@ -217,11 +222,7 @@ describe('NEW Combat System Trigger Tests', () => {
     (createShadowManifestation as any).mockReturnValueOnce(null);
 
     render(
-      <ChoiceList
-        guardianTrust={50}
-        setGuardianTrust={vi.fn()}
-        setGuardianMessage={vi.fn()}
-      />
+      <ChoiceList guardianTrust={50} setGuardianTrust={vi.fn()} setGuardianMessage={vi.fn()} />,
     );
 
     // Click choice and fail DC

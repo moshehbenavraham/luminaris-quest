@@ -1,4 +1,5 @@
- 
+/* eslint-disable react-refresh/only-export-components -- Variant function export needed by shadcn/ui */
+
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';

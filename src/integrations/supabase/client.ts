@@ -1,4 +1,5 @@
- 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Supabase client requires flexible types for logger and error handling */
+
 import { createClient, type SupabaseClientOptions } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -7,25 +8,30 @@ import type { Database } from './types';
  */
 export const detectEnvironment = (): 'local' | 'dev' | 'staging' | 'prod' => {
   if (typeof window === 'undefined') return 'prod';
-  
+
   const hostname = window.location.hostname;
   const url = window.location.href;
-  
+
   // Check for local development
   if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
     return 'local';
   }
-  
+
   // Check for staging/dev environments
-  if (hostname.includes('dev') || hostname.includes('staging') || url.includes('dev') || url.includes('staging')) {
+  if (
+    hostname.includes('dev') ||
+    hostname.includes('staging') ||
+    url.includes('dev') ||
+    url.includes('staging')
+  ) {
     return 'dev';
   }
-  
+
   // Check for staging specifically
   if (hostname.includes('staging')) {
     return 'staging';
   }
-  
+
   // Default to production
   return 'prod';
 };
@@ -41,13 +47,15 @@ interface EnvironmentConfig {
 
 const getEnvironmentConfig = (): EnvironmentConfig => {
   const environment = detectEnvironment();
-  
+
   // Get configuration from environment variables - fail fast if missing
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  
+
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing required Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+    throw new Error(
+      'Missing required Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY',
+    );
   }
 
   // Base configuration using environment variables
@@ -61,19 +69,19 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
         detectSessionInUrl: true,
         flowType: 'pkce',
         // Optimize token refresh behavior for production
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       },
       realtime: {
         params: {
-          eventsPerSecond: 2
-        }
+          eventsPerSecond: 2,
+        },
       },
       global: {
         headers: {
-          'X-Client-Info': `luminaris-quest-${environment}`
-        }
-      }
-    }
+          'X-Client-Info': `luminaris-quest-${environment}`,
+        },
+      },
+    },
   };
 
   // Environment-specific overrides
@@ -90,20 +98,20 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
             ...baseConfig.clientOptions.auth,
             debug: true,
             // More aggressive refresh for local development
-            autoRefreshToken: true
+            autoRefreshToken: true,
           },
           realtime: {
             params: {
-              eventsPerSecond: 10 // Higher rate for local development
-            }
+              eventsPerSecond: 10, // Higher rate for local development
+            },
           },
           global: {
             headers: {
               ...baseConfig.clientOptions.global?.headers,
-              'X-Client-Info': 'luminaris-quest-local'
-            }
-          }
-        }
+              'X-Client-Info': 'luminaris-quest-local',
+            },
+          },
+        },
       };
 
     case 'dev':
@@ -116,20 +124,20 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
             ...baseConfig.clientOptions.auth,
             debug: environment === 'dev',
             // Balanced refresh for dev/staging environments
-            autoRefreshToken: true
+            autoRefreshToken: true,
           },
           realtime: {
             params: {
-              eventsPerSecond: 5 // Moderate rate for staging
-            }
+              eventsPerSecond: 5, // Moderate rate for staging
+            },
           },
           global: {
             headers: {
               ...baseConfig.clientOptions.global?.headers,
-              'X-Client-Info': `luminaris-quest-${environment}`
-            }
-          }
-        }
+              'X-Client-Info': `luminaris-quest-${environment}`,
+            },
+          },
+        },
       };
 
     case 'prod':
@@ -142,20 +150,20 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
             ...baseConfig.clientOptions.auth,
             debug: false,
             // Conservative refresh for production
-            autoRefreshToken: true
+            autoRefreshToken: true,
           },
           realtime: {
             params: {
-              eventsPerSecond: 2 // Conservative rate for production
-            }
+              eventsPerSecond: 2, // Conservative rate for production
+            },
           },
           global: {
             headers: {
               ...baseConfig.clientOptions.global?.headers,
-              'X-Client-Info': 'luminaris-quest-prod'
-            }
-          }
-        }
+              'X-Client-Info': 'luminaris-quest-prod',
+            },
+          },
+        },
       };
   }
 };
@@ -165,7 +173,7 @@ const getEnvironmentConfig = (): EnvironmentConfig => {
  */
 const createSupabaseLogger = () => {
   const environment = detectEnvironment();
-  
+
   return {
     info: (message: string, data?: any) => {
       if (environment !== 'prod') {
@@ -180,7 +188,7 @@ const createSupabaseLogger = () => {
         message,
         error: environment === 'prod' ? error?.message || 'Unknown error' : error,
         timestamp: new Date().toISOString(),
-        environment
+        environment,
       };
       console.error(`[Supabase Error] ${message}`, errorData);
     },
@@ -188,7 +196,7 @@ const createSupabaseLogger = () => {
       if (environment === 'local' || environment === 'dev') {
         console.debug(`[Supabase Debug] ${message}`, data);
       }
-    }
+    },
   };
 };
 
@@ -200,16 +208,20 @@ const logger = createSupabaseLogger();
 const initializeSupabaseClient = () => {
   const config = getEnvironmentConfig();
   const environment = detectEnvironment();
-  
+
   logger.info('Initializing Supabase client', {
     environment,
     url: config.supabaseUrl,
-    hasEnvVars: !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY)
+    hasEnvVars: !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY),
   });
 
   try {
-    const client = createClient<Database>(config.supabaseUrl, config.supabaseKey, config.clientOptions);
-    
+    const client = createClient<Database>(
+      config.supabaseUrl,
+      config.supabaseKey,
+      config.clientOptions,
+    );
+
     // Add connection monitoring for non-production environments
     if (environment !== 'prod') {
       // Monitor auth state changes
@@ -224,13 +236,13 @@ const initializeSupabaseClient = () => {
         logger.debug('Token refreshed successfully', {
           environment,
           userId: session?.user?.id,
-          expiresAt: session?.expires_at
+          expiresAt: session?.expires_at,
         });
       } else if (event === 'SIGNED_OUT') {
         logger.debug('User signed out', { environment });
       }
     });
-    
+
     logger.info('Supabase client initialized successfully');
     return client;
   } catch (error: any) {
@@ -272,38 +284,35 @@ export const testSupabaseConnection = async (): Promise<{
   error?: string;
 }> => {
   const startTime = Date.now();
-  
+
   try {
     logger.debug('Testing Supabase connection');
-    
+
     // Simple test query that doesn't require authentication
-    const { error } = await supabase
-      .from('game_states')
-      .select('user_id')
-      .limit(1);
-    
+    const { error } = await supabase.from('game_states').select('user_id').limit(1);
+
     const responseTime = Date.now() - startTime;
-    
+
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows, which is fine for connection test
       throw new Error(error.message);
     }
-    
+
     logger.debug('Supabase connection test successful', { responseTime });
-    
+
     return {
       success: true,
-      responseTime
+      responseTime,
     };
   } catch (error: any) {
     const responseTime = Date.now() - startTime;
-    
+
     logger.error('Supabase connection test failed', error);
-    
+
     return {
       success: false,
       responseTime,
-      error: error.message || 'Connection test failed'
+      error: error.message || 'Connection test failed',
     };
   }
 };
@@ -313,7 +322,7 @@ export const supabaseConfig = {
   environment: detectEnvironment(),
   isLocal: isLocalEnvironment(),
   isDebug: isDebugMode(),
-  testConnection: testSupabaseConnection
+  testConnection: testSupabaseConnection,
 };
 
 // Import the supabase client like this:

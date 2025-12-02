@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,12 +14,10 @@ import {
 import { DiceRollOverlay } from './DiceRollOverlay';
 import { getLevelBenefits } from '@/store/game-store';
 
-// 🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST
-// NEW System (✅ USE THIS): @/features/combat/
-// OLD System (❌ DEPRECATED): @/components/combat/
-// See COMBAT_MIGRATION_GUIDE.md for details
+// Combat System: @/features/combat/
+// See COMBAT_MIGRATION_GUIDE.md for historical context
 import { CombatOverlay as NewCombatOverlay } from '@/features/combat';
-import { useNewCombatUI, useCombatStore } from '@/features/combat';
+import { useCombatStore } from '@/features/combat';
 import { generateSyncChecksum } from '@/features/combat';
 import { useGameStore } from '@/store/game-store';
 import { createShadowManifestation } from '@/data/shadowManifestations';
@@ -57,18 +54,15 @@ export function ChoiceList({
     playerHealth,
     playerLevel,
     playerEnergy,
-    maxPlayerEnergy
+    maxPlayerEnergy,
   } = useGameStore();
-  
+
   // Get startCombat from NEW combat store
   const { startCombat: startNewCombat } = useCombatStore();
-  
+
   const [showDiceRoll, setShowDiceRoll] = useState(false);
   const [diceResult, setDiceResult] = useState<DiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Check if we should use the new combat UI
-  const useNewCombat = useNewCombatUI();
 
   const currentScene = getScene(currentSceneIndex);
   const progress = getSceneProgress(currentSceneIndex);
@@ -113,10 +107,10 @@ export function ChoiceList({
     // Check if player has enough energy for this scene type
     const outcome = handleSceneOutcome(currentScene, true); // Get energy cost regardless of success
     const energyCost = Math.abs(outcome.energyChanges?.energyCost || 0);
-    
+
     if (playerEnergy < energyCost) {
       setGuardianMessage(
-        `You need ${energyCost} energy to attempt this ${currentScene.type} challenge, but you only have ${playerEnergy}. Rest and let your energy regenerate before trying again.`
+        `You need ${energyCost} energy to attempt this ${currentScene.type} challenge, but you only have ${playerEnergy}. Rest and let your energy regenerate before trying again.`,
       );
       return;
     }
@@ -135,15 +129,21 @@ export function ChoiceList({
 
     // Handle scene outcome with new integration system
     const scene = getScene(currentSceneIndex);
-    const outcome = handleSceneOutcome(scene, diceResult.success, diceResult.roll, currentSceneIndex);
+    const outcome = handleSceneOutcome(
+      scene,
+      diceResult.success,
+      diceResult.roll,
+      currentSceneIndex,
+    );
 
     // Update guardian trust and message based on result
     const baseTrustChange = diceResult.success ? 5 : -5;
     const levelBenefits = getLevelBenefits(playerLevel);
     // Apply trust gain multiplier only to positive changes
-    const multipliedTrustChange = baseTrustChange > 0 
-      ? Math.round(baseTrustChange * levelBenefits.trustGainMultiplier)
-      : baseTrustChange;
+    const multipliedTrustChange =
+      baseTrustChange > 0
+        ? Math.round(baseTrustChange * levelBenefits.trustGainMultiplier)
+        : baseTrustChange;
     const newTrust = Math.min(100, Math.max(0, guardianTrust + multipliedTrustChange));
     setGuardianTrust(newTrust);
 
@@ -159,7 +159,15 @@ export function ChoiceList({
         // Apply energy cost reduction benefit (reduce the cost by the benefit amount)
         const baseCost = outcome.energyChanges.energyCost; // This is negative
         const reducedCost = Math.min(0, baseCost + levelBenefits.energyCostReduction); // Less negative = reduced cost
-        console.log('Applying energy cost:', baseCost, '→', reducedCost, '(reduction:', levelBenefits.energyCostReduction, ')');
+        console.log(
+          'Applying energy cost:',
+          baseCost,
+          '→',
+          reducedCost,
+          '(reduction:',
+          levelBenefits.energyCostReduction,
+          ')',
+        );
         modifyPlayerEnergy(reducedCost);
       }
       if (outcome.energyChanges.energyReward && diceResult.success) {
@@ -182,7 +190,12 @@ export function ChoiceList({
 
     // Apply experience points (always awarded for scene attempts)
     if (outcome.experienceChanges?.xpGained) {
-      console.log('Applying XP change:', outcome.experienceChanges.xpGained, 'for:', outcome.experienceChanges.reason);
+      console.log(
+        'Applying XP change:',
+        outcome.experienceChanges.xpGained,
+        'for:',
+        outcome.experienceChanges.reason,
+      );
       modifyExperiencePoints(outcome.experienceChanges.xpGained, outcome.experienceChanges.reason);
     }
 
@@ -192,7 +205,7 @@ export function ChoiceList({
       success: diceResult.success,
       triggeredCombat: outcome.triggeredCombat,
       resourceChanges: outcome.resourceChanges,
-      energyChanges: outcome.energyChanges
+      energyChanges: outcome.energyChanges,
     });
 
     // Record the completed scene
@@ -218,7 +231,7 @@ export function ChoiceList({
       if (shadowEnemy) {
         // Generate sync checksum for combat store validation
         const syncChecksum = generateSyncChecksum(lightPoints, shadowPoints);
-        
+
         startNewCombat(shadowEnemy, {
           lightPoints,
           shadowPoints,
@@ -226,7 +239,7 @@ export function ChoiceList({
           playerLevel,
           playerEnergy,
           maxPlayerEnergy,
-          syncChecksum
+          syncChecksum,
         });
       }
     } else {
@@ -255,8 +268,6 @@ export function ChoiceList({
     );
   };
 
-
-
   if (isLastScene(currentSceneIndex) && !showDiceRoll) {
     return (
       <Card className="mx-auto w-full max-w-2xl">
@@ -268,8 +279,8 @@ export function ChoiceList({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg bg-muted p-4 text-center">
-            <p className="mb-2 text-sm text-muted-foreground">Final Trust Level</p>
+          <div className="bg-muted rounded-lg p-4 text-center">
+            <p className="text-muted-foreground mb-2 text-sm">Final Trust Level</p>
             <p className="text-2xl font-bold">{guardianTrust}/100</p>
           </div>
           <Button onClick={handleNewJourney} className="min-h-[44px] w-full py-3">
@@ -290,7 +301,7 @@ export function ChoiceList({
                 {getSceneIcon(currentScene.type)}
                 {currentScene.type.charAt(0).toUpperCase() + currentScene.type.slice(1)}
               </Badge>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {progress.current} of {progress.total}
               </span>
             </div>
@@ -302,49 +313,78 @@ export function ChoiceList({
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="prose prose-sm max-w-none">
-            <p className="leading-relaxed text-foreground">{currentScene.text}</p>
+            <p className="text-foreground leading-relaxed">{currentScene.text}</p>
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-1 border-b border-t border-muted py-2 text-center">
-              <p className="text-sm font-medium text-muted-foreground">
+            <div className="border-muted space-y-1 border-t border-b py-2 text-center">
+              <p className="text-muted-foreground text-sm font-medium">
                 Difficulty: {currentScene.dc}
               </p>
-              <p className="text-xs text-muted-foreground">Your choice will be tested by fate</p>
+              <p className="text-muted-foreground text-xs">Your choice will be tested by fate</p>
 
               {/* Show resource rewards/penalties and energy costs */}
-              <div className="flex justify-center gap-3 pt-1 flex-wrap">
+              <div className="flex flex-wrap justify-center gap-3 pt-1">
                 {/* Energy cost (always shown) */}
                 <div className="flex items-center gap-1 text-xs text-orange-600">
                   <Battery className="h-3 w-3" />
-                  <span>-{(() => {
-                    const cost = handleSceneOutcome(currentScene, true).energyChanges?.energyCost;
-                    return cost ? Math.abs(cost) : 0;
-                  })()} Energy</span>
+                  <span>
+                    -
+                    {(() => {
+                      const cost = handleSceneOutcome(currentScene, true).energyChanges?.energyCost;
+                      return cost ? Math.abs(cost) : 0;
+                    })()}{' '}
+                    Energy
+                  </span>
                 </div>
-                
+
                 {/* Energy reward on success */}
                 <div className="flex items-center gap-1 text-xs text-green-600">
                   <Battery className="h-3 w-3" />
-                  <span>+{handleSceneOutcome(currentScene, true).energyChanges?.energyReward || 0} Energy on success</span>
+                  <span>
+                    +{handleSceneOutcome(currentScene, true).energyChanges?.energyReward || 0}{' '}
+                    Energy on success
+                  </span>
                 </div>
-                
+
                 {(currentScene.lpReward || currentScene.type !== 'combat') && (
-                  <div className="flex items-center gap-1 text-xs combat-text-critical">
+                  <div className="combat-text-critical flex items-center gap-1 text-xs">
                     <Sparkles className="h-3 w-3" />
-                    <span>+{currentScene.lpReward || (currentScene.type === 'social' ? 3 : currentScene.type === 'skill' ? 2 : currentScene.type === 'exploration' ? 3 : 2)} LP on success</span>
+                    <span>
+                      +
+                      {currentScene.lpReward ||
+                        (currentScene.type === 'social'
+                          ? 3
+                          : currentScene.type === 'skill'
+                            ? 2
+                            : currentScene.type === 'exploration'
+                              ? 3
+                              : 2)}{' '}
+                      LP on success
+                    </span>
                   </div>
                 )}
                 {currentScene.type === 'combat' && (
-                  <div className="flex items-center gap-1 text-xs combat-text-damage">
+                  <div className="combat-text-damage flex items-center gap-1 text-xs">
                     <Sword className="h-3 w-3" />
                     <span>Combat on failure</span>
                   </div>
                 )}
                 {currentScene.type !== 'combat' && (
-                  <div className="flex items-center gap-1 text-xs combat-text-mana">
+                  <div className="combat-text-mana flex items-center gap-1 text-xs">
                     <Zap className="h-3 w-3" />
-                    <span>+{currentScene.spPenalty || (currentScene.type === 'social' ? 2 : currentScene.type === 'skill' ? 1 : currentScene.type === 'exploration' ? 2 : 1)} SP on failure</span>
+                    <span>
+                      +
+                      {currentScene.spPenalty ||
+                        (currentScene.type === 'social'
+                          ? 2
+                          : currentScene.type === 'skill'
+                            ? 1
+                            : currentScene.type === 'exploration'
+                              ? 2
+                              : 1)}{' '}
+                      SP on failure
+                    </span>
                   </div>
                 )}
               </div>
@@ -358,7 +398,9 @@ export function ChoiceList({
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="text-base font-medium leading-relaxed">{currentScene.choices.bold}</div>
+                  <div className="text-base leading-relaxed font-medium">
+                    {currentScene.choices.bold}
+                  </div>
                 </div>
               </Button>
 
@@ -369,7 +411,9 @@ export function ChoiceList({
                 variant="outline"
               >
                 <div className="w-full">
-                  <div className="text-base font-medium leading-relaxed">{currentScene.choices.cautious}</div>
+                  <div className="text-base leading-relaxed font-medium">
+                    {currentScene.choices.cautious}
+                  </div>
                 </div>
               </Button>
             </div>
@@ -381,12 +425,8 @@ export function ChoiceList({
         <DiceRollOverlay result={diceResult} onClose={handleDiceRollClose} />
       )}
 
-      {/* Combat Overlay - Use new combat system only */}
-      {useNewCombat && (
-        <NewCombatOverlay
-          data-testid="combat-overlay"
-        />
-      )}
+      {/* Combat Overlay */}
+      <NewCombatOverlay data-testid="combat-overlay" />
     </>
   );
 }

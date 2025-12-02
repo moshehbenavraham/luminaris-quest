@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Performance monitoring requires flexible types for analytics data */
 /*
  * MIT License
- 
+
  * Performance monitoring utilities for Luminari's Quest
- * 
+ *
  * Features:
  * - Web Vitals integration
  * - Performance budget monitoring
@@ -50,7 +51,7 @@ const PERFORMANCE_BUDGETS = {
   cls: { warning: 0.1, error: 0.25 },
   fcp: { warning: 1800, error: 3000 },
   ttfb: { warning: 800, error: 1800 },
-  imageSize: { warning: 800000, error: 1600000 } // bytes
+  imageSize: { warning: 800000, error: 1600000 }, // bytes
 };
 
 /**
@@ -58,7 +59,7 @@ const PERFORMANCE_BUDGETS = {
  */
 export function checkPerformanceBudget(
   metric: string,
-  value: number
+  value: number,
 ): PerformanceBudgetAlert | null {
   const budget = PERFORMANCE_BUDGETS[metric as keyof typeof PERFORMANCE_BUDGETS];
   if (!budget) return null;
@@ -82,7 +83,7 @@ export function checkPerformanceBudget(
     budget: budgetValue,
     severity,
     timestamp: Date.now(),
-    url: window.location.href
+    url: window.location.href,
   };
 }
 
@@ -98,18 +99,15 @@ export function reportWebVital(metric: WebVitalsMetric): void {
     value: metric.value,
     delta: metric.delta,
     id: metric.id,
-    url: window.location.href
+    url: window.location.href,
   });
 
   // Check performance budget
-  const budgetAlert = checkPerformanceBudget(
-    metric.name.toLowerCase(),
-    metric.value
-  );
+  const budgetAlert = checkPerformanceBudget(metric.name.toLowerCase(), metric.value);
 
   if (budgetAlert) {
     logger.warn('Performance budget exceeded', budgetAlert);
-    
+
     // In production, you would send this to your monitoring service
     if (featureFlags.enablePerformanceMonitoring()) {
       console.warn('Performance Budget Alert:', budgetAlert);
@@ -122,7 +120,7 @@ export function reportWebVital(metric: WebVitalsMetric): void {
     metric_name: metric.name,
     metric_value: metric.value,
     page_url: window.location.href,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -138,14 +136,14 @@ export function trackImageOptimization(): void {
   const images = document.querySelectorAll('img');
   let totalSize = 0;
   let optimizedCount = 0;
-  
-  images.forEach(img => {
+
+  images.forEach((img) => {
     // Check if image uses optimized formats (AVIF/WebP)
     const src = img.src || img.currentSrc;
     if (src && (src.includes('.avif') || src.includes('.webp'))) {
       optimizedCount++;
     }
-    
+
     // Estimate image size (this is approximate)
     // In a real implementation, you'd track actual transfer sizes
     if (img.naturalWidth && img.naturalHeight) {
@@ -160,7 +158,7 @@ export function trackImageOptimization(): void {
     totalImageSize: totalSize,
     compressionRatio: optimizedCount / images.length,
     timestamp: Date.now(),
-    url: window.location.href
+    url: window.location.href,
   };
 
   logger.info('Image optimization report', report);
@@ -174,7 +172,7 @@ export function trackImageOptimization(): void {
   // Report to analytics
   reportToAnalytics({
     event: 'image_optimization',
-    ...report
+    ...report,
   });
 }
 
@@ -191,21 +189,21 @@ export function generatePerformanceReport(metrics: Record<string, number>): Perf
       fid: metrics.fid,
       cls: metrics.cls,
       fcp: metrics.fcp,
-      ttfb: metrics.ttfb
+      ttfb: metrics.ttfb,
     },
     imageOptimization: {
       totalImageSize: 0,
       optimizedImages: 0,
       totalImages: 0,
-      compressionRatio: 0
-    }
+      compressionRatio: 0,
+    },
   };
 
   // Add image optimization data
   const images = document.querySelectorAll('img');
   let optimizedCount = 0;
-  
-  images.forEach(img => {
+
+  images.forEach((img) => {
     const src = img.src || img.currentSrc;
     if (src && (src.includes('.avif') || src.includes('.webp'))) {
       optimizedCount++;
@@ -216,7 +214,7 @@ export function generatePerformanceReport(metrics: Record<string, number>): Perf
     totalImages: images.length,
     optimizedImages: optimizedCount,
     totalImageSize: 0, // Would need actual size tracking
-    compressionRatio: optimizedCount / images.length
+    compressionRatio: optimizedCount / images.length,
   };
 
   return report;
@@ -230,7 +228,7 @@ function reportToAnalytics(data: Record<string, any>): void {
   if (featureFlags.enablePerformanceMonitoring()) {
     console.log('Analytics Report:', data);
   }
-  
+
   // Example integrations:
   // - Google Analytics 4: gtag('event', data.event, data)
   // - Mixpanel: mixpanel.track(data.event, data)
@@ -266,7 +264,7 @@ export function initializePerformanceMonitoring(): void {
         dom_content_loaded: navigation.domContentLoadedEventEnd - navigation.fetchStart,
         load_complete: navigation.loadEventEnd - navigation.fetchStart,
         url: window.location.href,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
   }

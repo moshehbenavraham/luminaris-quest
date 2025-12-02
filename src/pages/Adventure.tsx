@@ -1,4 +1,5 @@
- 
+/* eslint-disable react-hooks/set-state-in-effect -- SSR hydration and milestone sync patterns */
+
 import { useState, useCallback, useEffect } from 'react';
 import { ChoiceList } from '@/components/ChoiceList';
 import { GuardianText } from '@/components/GuardianText';
@@ -38,19 +39,21 @@ export function Adventure() {
   const [journalTrigger, setJournalTrigger] = useState<'milestone' | 'learning'>('milestone');
   const [currentMilestoneLevel, setCurrentMilestoneLevel] = useState<number | null>(null);
 
-  // Set isClient to true after mount
+  // Set isClient to true after mount for SSR hydration
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   // Simple milestone check when pendingMilestoneJournals changes
+
   useEffect(() => {
     if (!_hasHydrated || !isClient || showJournalModal) return;
-    
+
     if (pendingMilestoneJournals && pendingMilestoneJournals.size > 0) {
       const pendingLevels = Array.from(pendingMilestoneJournals) as number[];
       const levelToShow = pendingLevels[0];
-      
+
       setCurrentMilestoneLevel(levelToShow);
       setJournalTrigger('milestone');
       setShowJournalModal(true);
@@ -84,16 +87,19 @@ export function Adventure() {
     [addJournalEntry, currentSceneIndex, currentMilestoneLevel, markMilestoneJournalShown, saveNow],
   );
 
-  const handleSceneComplete = useCallback((_sceneId: string, success: boolean) => {
-    // Trigger a learning journal on scene failure
-    if (!success) {
-      setJournalTrigger('learning');
-      setShowJournalModal(true);
-    }
-    
-    // Trigger immediate save after scene completion
-    saveNow();
-  }, [saveNow]);
+  const handleSceneComplete = useCallback(
+    (_sceneId: string, success: boolean) => {
+      // Trigger a learning journal on scene failure
+      if (!success) {
+        setJournalTrigger('learning');
+        setShowJournalModal(true);
+      }
+
+      // Trigger immediate save after scene completion
+      saveNow();
+    },
+    [saveNow],
+  );
 
   const handleLearningMoment = useCallback(() => {
     setJournalTrigger('learning');
@@ -104,7 +110,7 @@ export function Adventure() {
   if (!isClient || !_hasHydrated) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-purple-500"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
@@ -124,11 +130,15 @@ export function Adventure() {
             ratio={adventureHeroImage.aspectRatio}
             priority={adventureHeroImage.priority}
             fallback={adventureHeroImage.fallback}
-            className="md:rounded-xl md:max-h-[420px]"
+            className="md:max-h-[420px] md:rounded-xl"
           />
 
           {/* Guardian Text with clear visual separation */}
-          <GuardianText trust={guardianTrust} message={guardianMessage} data-testid="guardian-text" />
+          <GuardianText
+            trust={guardianTrust}
+            message={guardianMessage}
+            data-testid="guardian-text"
+          />
 
           {/* Stats Bar - Shows LP/SP resources for combat awareness */}
           <StatsBar
@@ -139,9 +149,7 @@ export function Adventure() {
           />
 
           {/* Audio Player with consistent spacing */}
-          {ENABLE_AUDIO_PLAYER && (
-            <AudioPlayer tracks={audioPlaylist} />
-          )}
+          {ENABLE_AUDIO_PLAYER && <AudioPlayer tracks={audioPlaylist} />}
 
           {/* Choice List with adequate spacing for touch targets */}
           <ChoiceList

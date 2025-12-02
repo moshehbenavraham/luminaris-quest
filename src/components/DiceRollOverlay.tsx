@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,11 +9,11 @@ import { soundManager } from '@/utils/sound-manager';
 const DICE_SOUNDS = [
   { id: 'dice1', src: '/audio/dice 001.mp3', volume: 0.5, preload: true },
   { id: 'dice2', src: '/audio/dice 002.mp3', volume: 0.5, preload: true },
-  { id: 'dice3', src: '/audio/dice 003.mp3', volume: 0.5, preload: true }
+  { id: 'dice3', src: '/audio/dice 003.mp3', volume: 0.5, preload: true },
 ];
 
 // Register all dice sounds on module load
-DICE_SOUNDS.forEach(sound => soundManager.registerSound(sound));
+DICE_SOUNDS.forEach((sound) => soundManager.registerSound(sound));
 
 interface DiceRollOverlayProps {
   result: DiceResult;
@@ -22,7 +21,8 @@ interface DiceRollOverlayProps {
 }
 
 export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  // Initialize to true since component only renders when needed
+  const [isVisible, setIsVisible] = useState(true);
   const [showResult, setShowResult] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -31,8 +31,6 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
   }, [onClose]);
 
   useEffect(() => {
-    setIsVisible(true);
-
     // Play a random dice sound when rolling starts
     const randomDiceIndex = Math.floor(Math.random() * DICE_SOUNDS.length);
     const selectedSound = DICE_SOUNDS[randomDiceIndex];

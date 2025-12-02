@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@/test/utils';
 import { Adventure } from '@/pages/Adventure';
@@ -24,7 +26,7 @@ const mockGameStore = {
 
 vi.mock('@/store/game-store', () => ({
   useGameStore: () => mockGameStore,
-  useGameStoreBase: (selector?: any) => selector ? selector(mockGameStore) : mockGameStore,
+  useGameStoreBase: (selector?: any) => (selector ? selector(mockGameStore) : mockGameStore),
 }));
 
 // Mock StatsBar to use mock store values for testing
@@ -57,7 +59,7 @@ vi.mock('@/components/atoms/ImpactfulImage', () => ({
       data-testid="impactful-image"
       src={src}
       alt={alt}
-      data-priority={priority ? "true" : "false"}
+      data-priority={priority ? 'true' : 'false'}
       data-ratio={ratio}
       className={className}
       {...props}
@@ -71,7 +73,11 @@ vi.mock('@/components/ChoiceList', () => ({
 }));
 
 vi.mock('@/components/GuardianText', () => ({
-  GuardianText: (props: any) => <div data-testid="guardian-text" {...props}>Guardian Text Component</div>,
+  GuardianText: (props: any) => (
+    <div data-testid="guardian-text" {...props}>
+      Guardian Text Component
+    </div>
+  ),
 }));
 
 vi.mock('@/components/JournalModal', () => ({
@@ -99,7 +105,7 @@ describe('Adventure Page - Sub-step 5.1: Feature Flag Infrastructure', () => {
 
   it('renders the Adventure page with existing components', () => {
     render(<Adventure />);
-    
+
     // Verify existing components are still rendered
     expect(screen.getByTestId('guardian-text')).not.toBeNull();
     expect(screen.getByTestId('choice-list')).not.toBeNull();
@@ -274,7 +280,7 @@ describe('Adventure Page - ImpactfulImage Integration', () => {
     const heroImage = screen.getByTestId('impactful-image');
     expect(heroImage).not.toBeNull();
     expect(heroImage.getAttribute('data-priority')).toBe('false');
-    expect(heroImage.getAttribute('data-ratio')).toBe(String(16/9));
+    expect(heroImage.getAttribute('data-ratio')).toBe(String(16 / 9));
     expect(heroImage.className).toContain('md:rounded-xl');
     expect(heroImage.className).toContain('md:max-h-[420px]');
   });
@@ -290,7 +296,9 @@ describe('Adventure Page - ImpactfulImage Integration', () => {
 
     // Check that image appears before guardian text in DOM order
     const heroImagePosition = Array.from(document.body.querySelectorAll('*')).indexOf(heroImage);
-    const guardianTextPosition = Array.from(document.body.querySelectorAll('*')).indexOf(guardianText);
+    const guardianTextPosition = Array.from(document.body.querySelectorAll('*')).indexOf(
+      guardianText,
+    );
     expect(heroImagePosition).toBeLessThan(guardianTextPosition);
   });
 
@@ -299,7 +307,9 @@ describe('Adventure Page - ImpactfulImage Integration', () => {
 
     const heroImage = screen.getByTestId('impactful-image');
     expect(heroImage.getAttribute('src')).toBe('/images/adventure-hero.avif');
-    expect(heroImage.getAttribute('alt')).toBe('Adventure scene showing mystical landscapes and healing journey');
+    expect(heroImage.getAttribute('alt')).toBe(
+      'Adventure scene showing mystical landscapes and healing journey',
+    );
   });
 
   it('maintains existing Adventure page functionality with image integration', () => {

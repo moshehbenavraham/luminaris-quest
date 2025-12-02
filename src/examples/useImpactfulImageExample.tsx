@@ -4,7 +4,6 @@
  * Example usage of useImpactfulImage hook for enhanced responsive image selection
  */
 
-
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
 import { useImpactfulImage, useOptimizedImageSrc } from '@/hooks/useImpactfulImage';
 import { imageRegistry } from '@/data/imageRegistry';
@@ -23,7 +22,7 @@ export function BasicExample() {
       <p className="text-muted-foreground">
         Using useOptimizedImageSrc for simple image optimization
       </p>
-      
+
       <ImpactfulImage
         src={optimizedSrc}
         alt={homeHeroImage.alt}
@@ -42,15 +41,12 @@ export function BasicExample() {
  */
 export function AdvancedExample() {
   const homeHeroImage = imageRegistry.homeHero;
-  const {
-    src,
-    isOptimized,
-    format,
-    isMobile,
-    supportsModernFormats
-  } = useImpactfulImage(homeHeroImage, {
-    optimizeForMobile: true
-  });
+  const { src, isOptimized, format, isMobile, supportsModernFormats } = useImpactfulImage(
+    homeHeroImage,
+    {
+      optimizeForMobile: true,
+    },
+  );
 
   return (
     <div className="space-y-4">
@@ -58,7 +54,7 @@ export function AdvancedExample() {
       <p className="text-muted-foreground">
         Using full useImpactfulImage hook with optimization metadata
       </p>
-      
+
       {/* Image with optimized source */}
       <ImpactfulImage
         src={src}
@@ -68,21 +64,32 @@ export function AdvancedExample() {
         fallback={homeHeroImage.fallback}
         className="rounded-lg shadow-lg"
       />
-      
+
       {/* Optimization status display */}
-      <div className="bg-muted p-4 rounded-lg text-sm">
-        <h3 className="font-semibold mb-2">Optimization Status:</h3>
+      <div className="bg-muted rounded-lg p-4 text-sm">
+        <h3 className="mb-2 font-semibold">Optimization Status:</h3>
         <ul className="space-y-1">
-          <li>Format: <span className="font-mono">{format}</span></li>
-          <li>Optimized: <span className={isOptimized ? 'text-green-600' : 'text-yellow-600'}>
-            {isOptimized ? 'Yes' : 'No'}
-          </span></li>
-          <li>Mobile Device: <span className={isMobile ? 'text-blue-600' : 'text-gray-600'}>
-            {isMobile ? 'Yes' : 'No'}
-          </span></li>
-          <li>Modern Format Support: <span className={supportsModernFormats ? 'text-green-600' : 'text-gray-600'}>
-            {supportsModernFormats ? 'Yes' : 'No'}
-          </span></li>
+          <li>
+            Format: <span className="font-mono">{format}</span>
+          </li>
+          <li>
+            Optimized:{' '}
+            <span className={isOptimized ? 'text-green-600' : 'text-yellow-600'}>
+              {isOptimized ? 'Yes' : 'No'}
+            </span>
+          </li>
+          <li>
+            Mobile Device:{' '}
+            <span className={isMobile ? 'text-blue-600' : 'text-gray-600'}>
+              {isMobile ? 'Yes' : 'No'}
+            </span>
+          </li>
+          <li>
+            Modern Format Support:{' '}
+            <span className={supportsModernFormats ? 'text-green-600' : 'text-gray-600'}>
+              {supportsModernFormats ? 'Yes' : 'No'}
+            </span>
+          </li>
         </ul>
       </div>
     </div>
@@ -95,7 +102,7 @@ export function AdvancedExample() {
  */
 export function FormatOverrideExample() {
   const adventureImage = imageRegistry.adventureHero;
-  
+
   const avifResult = useImpactfulImage(adventureImage, { forceFormat: 'avif' });
   const webpResult = useImpactfulImage(adventureImage, { forceFormat: 'webp' });
   const originalResult = useImpactfulImage(adventureImage, { forceFormat: 'original' });
@@ -106,7 +113,7 @@ export function FormatOverrideExample() {
       <p className="text-muted-foreground">
         Comparing different format selections for the same image
       </p>
-      
+
       <div className="grid gap-6 md:grid-cols-3">
         {/* AVIF Version */}
         <div className="space-y-2">
@@ -119,11 +126,9 @@ export function FormatOverrideExample() {
             fallback={adventureImage.fallback}
             className="rounded-lg"
           />
-          <p className="text-xs text-muted-foreground">
-            Format: {avifResult.format}
-          </p>
+          <p className="text-muted-foreground text-xs">Format: {avifResult.format}</p>
         </div>
-        
+
         {/* WebP Version */}
         <div className="space-y-2">
           <h3 className="font-semibold">Forced WebP</h3>
@@ -135,11 +140,9 @@ export function FormatOverrideExample() {
             fallback={adventureImage.fallback}
             className="rounded-lg"
           />
-          <p className="text-xs text-muted-foreground">
-            Format: {webpResult.format}
-          </p>
+          <p className="text-muted-foreground text-xs">Format: {webpResult.format}</p>
         </div>
-        
+
         {/* Original Version */}
         <div className="space-y-2">
           <h3 className="font-semibold">Original</h3>
@@ -151,9 +154,7 @@ export function FormatOverrideExample() {
             fallback={adventureImage.fallback}
             className="rounded-lg"
           />
-          <p className="text-xs text-muted-foreground">
-            Format: {originalResult.format}
-          </p>
+          <p className="text-muted-foreground text-xs">Format: {originalResult.format}</p>
         </div>
       </div>
     </div>
@@ -166,10 +167,10 @@ export function FormatOverrideExample() {
  */
 export function ComparisonExample() {
   const profileImage = imageRegistry.profileHero;
-  
+
   // Traditional approach (manual format selection)
   const traditionalSrc = profileImage.avif || profileImage.webp || profileImage.src;
-  
+
   // Hook approach (intelligent format selection)
   const { src: hookSrc, format, isOptimized } = useImpactfulImage(profileImage);
 
@@ -179,7 +180,7 @@ export function ComparisonExample() {
       <p className="text-muted-foreground">
         Comparing manual format selection with intelligent hook-based selection
       </p>
-      
+
       <div className="grid gap-6 md:grid-cols-2">
         {/* Traditional Approach */}
         <div className="space-y-4">
@@ -190,15 +191,21 @@ export function ComparisonExample() {
             ratio={profileImage.aspectRatio}
             priority={false}
             fallback={profileImage.fallback}
-            className="md:rounded-full md:max-w-[280px] mx-auto"
+            className="mx-auto md:max-w-[280px] md:rounded-full"
           />
-          <div className="bg-muted p-3 rounded text-sm">
-            <p><strong>Method:</strong> Manual fallback chain</p>
-            <p><strong>Source:</strong> {traditionalSrc}</p>
-            <p><strong>Limitations:</strong> No browser capability detection</p>
+          <div className="bg-muted rounded p-3 text-sm">
+            <p>
+              <strong>Method:</strong> Manual fallback chain
+            </p>
+            <p>
+              <strong>Source:</strong> {traditionalSrc}
+            </p>
+            <p>
+              <strong>Limitations:</strong> No browser capability detection
+            </p>
           </div>
         </div>
-        
+
         {/* Hook Approach */}
         <div className="space-y-4">
           <h3 className="font-semibold">Hook Approach</h3>
@@ -208,14 +215,24 @@ export function ComparisonExample() {
             ratio={profileImage.aspectRatio}
             priority={false}
             fallback={profileImage.fallback}
-            className="md:rounded-full md:max-w-[280px] mx-auto"
+            className="mx-auto md:max-w-[280px] md:rounded-full"
           />
-          <div className="bg-muted p-3 rounded text-sm">
-            <p><strong>Method:</strong> Intelligent selection</p>
-            <p><strong>Source:</strong> {hookSrc}</p>
-            <p><strong>Format:</strong> {format}</p>
-            <p><strong>Optimized:</strong> {isOptimized ? 'Yes' : 'No'}</p>
-            <p><strong>Benefits:</strong> Browser capability detection, mobile optimization</p>
+          <div className="bg-muted rounded p-3 text-sm">
+            <p>
+              <strong>Method:</strong> Intelligent selection
+            </p>
+            <p>
+              <strong>Source:</strong> {hookSrc}
+            </p>
+            <p>
+              <strong>Format:</strong> {format}
+            </p>
+            <p>
+              <strong>Optimized:</strong> {isOptimized ? 'Yes' : 'No'}
+            </p>
+            <p>
+              <strong>Benefits:</strong> Browser capability detection, mobile optimization
+            </p>
           </div>
         </div>
       </div>
@@ -228,23 +245,23 @@ export function ComparisonExample() {
  */
 export function UseImpactfulImageExamples() {
   return (
-    <div className="container mx-auto px-4 py-8 space-y-12">
-      <div className="text-center space-y-4">
+    <div className="container mx-auto space-y-12 px-4 py-8">
+      <div className="space-y-4 text-center">
         <h1 className="text-4xl font-bold">useImpactfulImage Hook Examples</h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Demonstrating enhanced responsive image selection with intelligent format detection
-          and mobile-first optimization for Luminari's Quest.
+        <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
+          Demonstrating enhanced responsive image selection with intelligent format detection and
+          mobile-first optimization for Luminari&apos;s Quest.
         </p>
       </div>
-      
+
       <BasicExample />
       <AdvancedExample />
       <FormatOverrideExample />
       <ComparisonExample />
-      
-      <div className="bg-muted p-6 rounded-lg">
-        <h2 className="text-2xl font-bold mb-4">Key Benefits</h2>
-        <ul className="space-y-2 text-muted-foreground">
+
+      <div className="bg-muted rounded-lg p-6">
+        <h2 className="mb-4 text-2xl font-bold">Key Benefits</h2>
+        <ul className="text-muted-foreground space-y-2">
           <li>✅ Automatic browser capability detection (AVIF/WebP support)</li>
           <li>✅ Mobile-first responsive image optimization</li>
           <li>✅ Intelligent format selection for optimal performance</li>

@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/set-state-in-effect -- SSR hydration and format detection patterns */
+
 /*
  * MIT License
- 
+
  * useImpactfulImage - Enhanced responsive image selection hook for Luminari's Quest
  * 
  * Features:
@@ -43,12 +45,9 @@ export interface ImpactfulImageResult {
  */
 export function useImpactfulImage(
   imageAsset: ImageAsset,
-  options: UseImpactfulImageOptions = {}
+  options: UseImpactfulImageOptions = {},
 ): ImpactfulImageResult {
-  const {
-    optimizeForMobile = true,
-    forceFormat
-  } = options;
+  const { optimizeForMobile = true, forceFormat } = options;
 
   const isMobile = useIsMobile();
   const [supportsAvif, setSupportsAvif] = useState(false);
@@ -58,7 +57,7 @@ export function useImpactfulImage(
   // Detect browser format support
   useEffect(() => {
     setIsClient(true);
-    
+
     const detectFormatSupport = async () => {
       try {
         // Test AVIF support
@@ -66,7 +65,8 @@ export function useImpactfulImage(
           const img = new Image();
           img.onload = () => resolve(true);
           img.onerror = () => resolve(false);
-          img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgABogQEAwgMg8f8D///8WfhwB8+ErK42A=';
+          img.src =
+            'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgABogQEAwgMg8f8D///8WfhwB8+ErK42A=';
         });
         setSupportsAvif(await avifSupport);
 
@@ -75,7 +75,8 @@ export function useImpactfulImage(
           const img = new Image();
           img.onload = () => resolve(true);
           img.onerror = () => resolve(false);
-          img.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+          img.src =
+            'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
         });
         setSupportsWebp(await webpSupport);
       } catch (error) {
@@ -97,7 +98,7 @@ export function useImpactfulImage(
         isOptimized: false,
         format: 'original',
         isMobile: false,
-        supportsModernFormats: false
+        supportsModernFormats: false,
       };
     }
 
@@ -150,17 +151,9 @@ export function useImpactfulImage(
       isOptimized,
       format: selectedFormat,
       isMobile,
-      supportsModernFormats: supportsAvif || supportsWebp
+      supportsModernFormats: supportsAvif || supportsWebp,
     };
-  }, [
-    imageAsset,
-    isClient,
-    isMobile,
-    supportsAvif,
-    supportsWebp,
-    forceFormat,
-    optimizeForMobile
-  ]);
+  }, [imageAsset, isClient, isMobile, supportsAvif, supportsWebp, forceFormat, optimizeForMobile]);
 
   return result;
 }

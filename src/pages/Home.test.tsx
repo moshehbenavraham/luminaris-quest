@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@/test/utils';
 import { Home } from './Home';
@@ -9,7 +11,7 @@ vi.mock('@/components/atoms/ImpactfulImage', () => ({
       data-testid="impactful-image"
       src={src}
       alt={alt}
-      data-priority={priority ? "true" : "false"}
+      data-priority={priority ? 'true' : 'false'}
       data-ratio={ratio}
       className={className}
       {...props}
@@ -19,7 +21,11 @@ vi.mock('@/components/atoms/ImpactfulImage', () => ({
 
 // Mock the AuthForm component
 vi.mock('@/components/auth/AuthForm', () => ({
-  AuthForm: (props: any) => <div data-testid="auth-form" {...props}>Auth Form Component</div>,
+  AuthForm: (props: any) => (
+    <div data-testid="auth-form" {...props}>
+      Auth Form Component
+    </div>
+  ),
 }));
 
 describe('Home Page - ImpactfulImage Integration', () => {
@@ -35,13 +41,13 @@ describe('Home Page - ImpactfulImage Integration', () => {
 
   it('places ImpactfulImage above AuthForm in hero section', () => {
     render(<Home />);
-    
+
     const heroImage = screen.getByTestId('impactful-image');
     const authForm = screen.getByTestId('auth-form');
-    
+
     expect(heroImage).toBeInTheDocument();
     expect(authForm).toBeInTheDocument();
-    
+
     // Check that image appears before auth form in DOM order
     const heroImagePosition = Array.from(document.body.querySelectorAll('*')).indexOf(heroImage);
     const authFormPosition = Array.from(document.body.querySelectorAll('*')).indexOf(authForm);
@@ -50,16 +56,19 @@ describe('Home Page - ImpactfulImage Integration', () => {
 
   it('uses correct image source from registry', () => {
     render(<Home />);
-    
+
     const heroImage = screen.getByTestId('impactful-image');
     expect(heroImage).toHaveAttribute('src', '/images/home-hero.avif');
-    expect(heroImage).toHaveAttribute('alt', 'Luminari\'s Quest - A therapeutic RPG journey for healing and growth');
+    expect(heroImage).toHaveAttribute(
+      'alt',
+      "Luminari's Quest - A therapeutic RPG journey for healing and growth",
+    );
   });
 
   it('maintains existing page structure and content', () => {
     render(<Home />);
 
-    expect(screen.getByText('Welcome to Luminari\'s Quest')).toBeInTheDocument();
+    expect(screen.getByText("Welcome to Luminari's Quest")).toBeInTheDocument();
     expect(screen.getByText('Your journey to healing and growth begins here.')).toBeInTheDocument();
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();
   });

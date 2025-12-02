@@ -1,17 +1,22 @@
- 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Journal test page requires flexible types for test results and entries */
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw, Database, BookOpen } from 'lucide-react';
 import type { JournalEntry } from '@/components/JournalModal';
-import {
-  getJournalEntries,
-  runJournalPersistenceTests
-} from '@/lib/test-journal-persistence';
+import { getJournalEntries, runJournalPersistenceTests } from '@/lib/test-journal-persistence';
 import { useGameStore } from '@/store/game-store';
 
 export function JournalTest() {
@@ -19,14 +24,14 @@ export function JournalTest() {
   const [activeTab, setActiveTab] = useState('database');
   const [testResults, setTestResults] = useState<any>(null);
   const [journalEntries, setJournalEntries] = useState<any[]>([]);
-  
+
   // Get store actions for testing
-  const { 
-    addJournalEntry, 
-    deleteJournalEntry, 
+  const {
+    addJournalEntry,
+    deleteJournalEntry,
     journalEntries: storeEntries,
     saveToSupabase,
-    loadFromSupabase
+    loadFromSupabase,
   } = useGameStore();
 
   // Run database-level tests
@@ -35,7 +40,7 @@ export function JournalTest() {
     try {
       const results = await runJournalPersistenceTests();
       setTestResults(results);
-      
+
       // If entries test was successful, update journal entries
       if (results.entriesTest.success && results.entriesTest.entries) {
         setJournalEntries(results.entriesTest.entries);
@@ -44,7 +49,7 @@ export function JournalTest() {
       console.error('Error running tests:', error);
       setTestResults({
         overallSuccess: false,
-        error: error.message
+        error: error.message,
       });
     } finally {
       setIsLoading(false);
@@ -63,36 +68,36 @@ export function JournalTest() {
         content: 'Test journal entry from store',
         title: 'Store Test Entry',
         timestamp: new Date(),
-        tags: ['test', 'store']
+        tags: ['test', 'store'],
       };
-      
+
       // Add the entry to the store
       addJournalEntry(testEntry);
-      
+
       // Save to Supabase
       await saveToSupabase();
-      
+
       // Load from Supabase to verify
       await loadFromSupabase();
-      
+
       // Check if entry exists in store
-      const entryExists = storeEntries.some(entry => entry.id === testEntry.id);
-      
+      const entryExists = storeEntries.some((entry) => entry.id === testEntry.id);
+
       // Clean up - delete the test entry
       if (entryExists) {
         deleteJournalEntry(testEntry.id);
         await saveToSupabase();
       }
-      
+
       setTestResults({
         overallSuccess: entryExists,
         storeTest: {
           success: entryExists,
-          message: entryExists 
-            ? 'Store operations test successful' 
+          message: entryExists
+            ? 'Store operations test successful'
             : 'Failed to verify entry after save/load cycle',
-          entry: testEntry
-        }
+          entry: testEntry,
+        },
       });
     } catch (error: any) {
       console.error('Error testing store operations:', error);
@@ -101,8 +106,8 @@ export function JournalTest() {
         storeTest: {
           success: false,
           message: `Error testing store operations: ${error.message}`,
-          error: error.message
-        }
+          error: error.message,
+        },
       });
     } finally {
       setIsLoading(false);
@@ -130,7 +135,7 @@ export function JournalTest() {
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-8">
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight">Journal Persistence Test</h1>
-        <p className="text-xl text-muted-foreground">
+        <p className="text-muted-foreground text-xl">
           This page tests journal entry persistence between the application and Supabase.
         </p>
       </div>
@@ -150,11 +155,11 @@ export function JournalTest() {
                 <Database className="h-5 w-5" />
                 Database-Level Journal Tests
                 {testResults && !isLoading && (
-                  <Badge 
-                    variant={testResults.overallSuccess ? "default" : "destructive"}
+                  <Badge
+                    variant={testResults.overallSuccess ? 'default' : 'destructive'}
                     className="ml-2"
                   >
-                    {testResults.overallSuccess ? "All Tests Passed" : "Tests Failed"}
+                    {testResults.overallSuccess ? 'All Tests Passed' : 'Tests Failed'}
                   </Badge>
                 )}
               </CardTitle>
@@ -184,7 +189,7 @@ export function JournalTest() {
                       <span>{testResults.rpcTest?.message}</span>
                     </div>
                     {testResults.rpcTest?.data && (
-                      <div className="rounded-md bg-muted p-3">
+                      <div className="bg-muted rounded-md p-3">
                         <pre className="text-xs">
                           {JSON.stringify(testResults.rpcTest.data, null, 2)}
                         </pre>
@@ -195,8 +200,8 @@ export function JournalTest() {
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>RPC Test Error</AlertTitle>
                         <AlertDescription>
-                          {typeof testResults.rpcTest.error === 'string' 
-                            ? testResults.rpcTest.error 
+                          {typeof testResults.rpcTest.error === 'string'
+                            ? testResults.rpcTest.error
                             : JSON.stringify(testResults.rpcTest.error, null, 2)}
                         </AlertDescription>
                       </Alert>
@@ -219,8 +224,8 @@ export function JournalTest() {
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Direct Test Error</AlertTitle>
                         <AlertDescription>
-                          {typeof testResults.directTest.error === 'string' 
-                            ? testResults.directTest.error 
+                          {typeof testResults.directTest.error === 'string'
+                            ? testResults.directTest.error
                             : JSON.stringify(testResults.directTest.error, null, 2)}
                         </AlertDescription>
                       </Alert>
@@ -237,8 +242,8 @@ export function JournalTest() {
                         <XCircle className="h-5 w-5 text-red-600" />
                       )}
                       <span>
-                        {testResults.entriesTest?.success 
-                          ? `Found ${testResults.entriesTest.count || 0} journal entries` 
+                        {testResults.entriesTest?.success
+                          ? `Found ${testResults.entriesTest.count || 0} journal entries`
                           : testResults.entriesTest?.message}
                       </span>
                     </div>
@@ -247,8 +252,8 @@ export function JournalTest() {
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Entries Test Error</AlertTitle>
                         <AlertDescription>
-                          {typeof testResults.entriesTest.error === 'string' 
-                            ? testResults.entriesTest.error 
+                          {typeof testResults.entriesTest.error === 'string'
+                            ? testResults.entriesTest.error
                             : JSON.stringify(testResults.entriesTest.error, null, 2)}
                         </AlertDescription>
                       </Alert>
@@ -262,11 +267,13 @@ export function JournalTest() {
                       <AlertTitle>Troubleshooting Steps</AlertTitle>
                       <AlertDescription>
                         <ol className="list-decimal space-y-1 pl-5">
-                          <li>Verify that you're logged in</li>
+                          <li>Verify that you&apos;re logged in</li>
                           <li>Check that the database migration has been run</li>
                           <li>Verify your environment variables are correct</li>
                           <li>Check network connectivity to Supabase</li>
-                          <li>See <code>docs/SUPABASE_TROUBLESHOOTING.md</code> for more details</li>
+                          <li>
+                            See <code>docs/SUPABASE_TROUBLESHOOTING.md</code> for more details
+                          </li>
                         </ol>
                       </AlertDescription>
                     </Alert>
@@ -277,17 +284,14 @@ export function JournalTest() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>No Test Results</AlertTitle>
                   <AlertDescription>
-                    Click "Run Database Tests" to test journal persistence at the database level.
+                    Click &quot;Run Database Tests&quot; to test journal persistence at the database
+                    level.
                   </AlertDescription>
                 </Alert>
               )}
             </CardContent>
             <CardFooter>
-              <Button 
-                onClick={runDatabaseTests} 
-                disabled={isLoading}
-                className="min-h-[44px]"
-              >
+              <Button onClick={runDatabaseTests} disabled={isLoading} className="min-h-[44px]">
                 {isLoading ? <Spinner className="mr-2" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                 Run Database Tests
               </Button>
@@ -303,17 +307,15 @@ export function JournalTest() {
                 <BookOpen className="h-5 w-5" />
                 Store-Level Journal Tests
                 {testResults && activeTab === 'store' && !isLoading && (
-                  <Badge 
-                    variant={testResults.overallSuccess ? "default" : "destructive"}
+                  <Badge
+                    variant={testResults.overallSuccess ? 'default' : 'destructive'}
                     className="ml-2"
                   >
-                    {testResults.overallSuccess ? "Test Passed" : "Test Failed"}
+                    {testResults.overallSuccess ? 'Test Passed' : 'Test Failed'}
                   </Badge>
                 )}
               </CardTitle>
-              <CardDescription>
-                Testing journal persistence through the game store
-              </CardDescription>
+              <CardDescription>Testing journal persistence through the game store</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -339,30 +341,34 @@ export function JournalTest() {
                       <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Store Test Error</AlertTitle>
-                        <AlertDescription>
-                          {testResults.storeTest.error}
-                        </AlertDescription>
+                        <AlertDescription>{testResults.storeTest.error}</AlertDescription>
                       </Alert>
                     )}
                   </div>
 
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">Current Store State</h3>
-                    <div className="rounded-md bg-muted p-3">
-                      <p className="mb-2 text-sm font-medium">Journal Entries in Store: {storeEntries.length}</p>
+                    <div className="bg-muted rounded-md p-3">
+                      <p className="mb-2 text-sm font-medium">
+                        Journal Entries in Store: {storeEntries.length}
+                      </p>
                       {storeEntries.length > 0 ? (
                         <div className="max-h-60 overflow-y-auto">
                           <pre className="text-xs">
-                            {JSON.stringify(storeEntries.map(entry => ({
-                              id: entry.id,
-                              type: entry.type,
-                              title: entry.title,
-                              timestamp: entry.timestamp.toISOString()
-                            })), null, 2)}
+                            {JSON.stringify(
+                              storeEntries.map((entry) => ({
+                                id: entry.id,
+                                type: entry.type,
+                                title: entry.title,
+                                timestamp: entry.timestamp.toISOString(),
+                              })),
+                              null,
+                              2,
+                            )}
                           </pre>
                         </div>
                       ) : (
-                        <p className="text-sm text-muted-foreground">No journal entries in store</p>
+                        <p className="text-muted-foreground text-sm">No journal entries in store</p>
                       )}
                     </div>
                   </div>
@@ -370,8 +376,8 @@ export function JournalTest() {
                   <div className="space-y-2">
                     <h3 className="text-lg font-semibold">Test Operations</h3>
                     <div className="flex flex-wrap gap-2">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={async () => {
                           const testEntry: JournalEntry = {
@@ -381,15 +387,15 @@ export function JournalTest() {
                             content: 'Manual test journal entry',
                             title: 'Manual Test',
                             timestamp: new Date(),
-                            tags: ['manual', 'test']
+                            tags: ['manual', 'test'],
                           };
                           addJournalEntry(testEntry);
                         }}
                       >
                         Add Test Entry
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={async () => {
                           await saveToSupabase();
@@ -398,8 +404,8 @@ export function JournalTest() {
                       >
                         Save to Supabase
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={async () => {
                           await loadFromSupabase();
@@ -416,17 +422,14 @@ export function JournalTest() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>No Test Results</AlertTitle>
                   <AlertDescription>
-                    Click "Run Store Tests" to test journal persistence through the game store.
+                    Click &quot;Run Store Tests&quot; to test journal persistence through the game
+                    store.
                   </AlertDescription>
                 </Alert>
               )}
             </CardContent>
             <CardFooter>
-              <Button 
-                onClick={testStoreOperations} 
-                disabled={isLoading}
-                className="min-h-[44px]"
-              >
+              <Button onClick={testStoreOperations} disabled={isLoading} className="min-h-[44px]">
                 {isLoading ? <Spinner className="mr-2" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                 Run Store Tests
               </Button>
@@ -442,9 +445,7 @@ export function JournalTest() {
                 <BookOpen className="h-5 w-5" />
                 Journal Entries
               </CardTitle>
-              <CardDescription>
-                View journal entries stored in the database
-              </CardDescription>
+              <CardDescription>View journal entries stored in the database</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -466,8 +467,8 @@ export function JournalTest() {
                           </Badge>
                         </div>
                         <CardDescription className="text-xs">
-                          Created: {new Date(entry.created_at).toLocaleString()} • 
-                          Trust Level: {entry.trust_level}
+                          Created: {new Date(entry.created_at).toLocaleString()} • Trust Level:{' '}
+                          {entry.trust_level}
                           {entry.is_edited && entry.edited_at && (
                             <span className="ml-2">
                               • Edited: {new Date(entry.edited_at).toLocaleString()}
@@ -491,7 +492,7 @@ export function JournalTest() {
                   ))}
                 </div>
               ) : (
-                <div className="py-8 text-center text-muted-foreground">
+                <div className="text-muted-foreground py-8 text-center">
                   <BookOpen className="mx-auto mb-4 h-12 w-12 opacity-50" />
                   <p>No journal entries found in the database.</p>
                   <p className="mt-2 text-sm">
@@ -501,11 +502,7 @@ export function JournalTest() {
               )}
             </CardContent>
             <CardFooter>
-              <Button 
-                onClick={fetchJournalEntries} 
-                disabled={isLoading}
-                className="min-h-[44px]"
-              >
+              <Button onClick={fetchJournalEntries} disabled={isLoading} className="min-h-[44px]">
                 {isLoading ? <Spinner className="mr-2" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                 Refresh Journal Entries
               </Button>
@@ -515,17 +512,17 @@ export function JournalTest() {
       </Tabs>
 
       <div className="mt-8 flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.href = '/database-test'}
+        <Button
+          variant="outline"
+          onClick={() => (window.location.href = '/database-test')}
           className="min-h-[44px]"
         >
           <Database className="mr-2 h-4 w-4" />
           Database Connection Test
         </Button>
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.href = '/'}
+        <Button
+          variant="outline"
+          onClick={() => (window.location.href = '/')}
           className="min-h-[44px]"
         >
           Return to Home

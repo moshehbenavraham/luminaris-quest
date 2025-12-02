@@ -1,6 +1,9 @@
- 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { performEnhancedHealthCheck, getCurrentHealthStatus, type DatabaseHealthStatus } from '@/lib/database-health';
+import {
+  performEnhancedHealthCheck,
+  getCurrentHealthStatus,
+  type DatabaseHealthStatus,
+} from '@/lib/database-health';
 import { createLogger, environment, featureFlags } from '@/lib/environment';
 
 const logger = createLogger('DatabaseHealthHook');
@@ -20,18 +23,15 @@ export interface DatabaseHealthHookResult {
  * Custom hook for monitoring database health
  * Provides real-time database connectivity status and health monitoring
  */
-export const useDatabaseHealth = (options: {
-  enableAutoMonitoring?: boolean;
-  checkInterval?: number;
-  onHealthChange?: (isHealthy: boolean, status: DatabaseHealthStatus) => void;
-  onError?: (error: string) => void;
-} = {}): DatabaseHealthHookResult => {
-  const {
-    enableAutoMonitoring = true,
-    checkInterval,
-    onHealthChange,
-    onError
-  } = options;
+export const useDatabaseHealth = (
+  options: {
+    enableAutoMonitoring?: boolean;
+    checkInterval?: number;
+    onHealthChange?: (isHealthy: boolean, status: DatabaseHealthStatus) => void;
+    onError?: (error: string) => void;
+  } = {},
+): DatabaseHealthHookResult => {
+  const { enableAutoMonitoring = true, checkInterval, onHealthChange, onError } = options;
 
   const config = environment.config();
   const effectiveInterval = checkInterval || config.healthCheckInterval;
@@ -41,9 +41,9 @@ export const useDatabaseHealth = (options: {
     isConnected: false,
     responseTime: 0,
     lastChecked: 0,
-    environment: environment.current()
+    environment: environment.current(),
   });
-  
+
   const [isChecking, setIsChecking] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [isMonitoring, setIsMonitoring] = useState(false);
@@ -66,7 +66,7 @@ export const useDatabaseHealth = (options: {
 
     try {
       logger.debug('Performing database health check');
-      
+
       const result = await performEnhancedHealthCheck();
       const newStatus = getCurrentHealthStatus(result);
 
@@ -74,19 +74,19 @@ export const useDatabaseHealth = (options: {
 
       // Update state
       setHealthStatus(newStatus);
-      
+
       if (!result.success && result.error) {
         setLastError(result.error);
-        
+
         if (onError) {
           onError(result.error);
         }
-        
+
         logger.warn('Database health check failed', { error: result.error });
       } else {
-        logger.debug('Database health check successful', { 
+        logger.debug('Database health check successful', {
           responseTime: result.responseTime,
-          isConnected: newStatus.isConnected 
+          isConnected: newStatus.isConnected,
         });
       }
 
@@ -94,36 +94,36 @@ export const useDatabaseHealth = (options: {
       if (onHealthChange) {
         const previouslyHealthy = healthStatus.isConnected;
         const currentlyHealthy = newStatus.isConnected;
-        
+
         if (previouslyHealthy !== currentlyHealthy) {
           onHealthChange(currentlyHealthy, newStatus);
         }
       }
-      
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!mountedRef.current) return;
-      
-      const errorMessage = error.message || 'Health check failed';
+
+      const errorMessage = error instanceof Error ? error.message : 'Health check failed';
       setLastError(errorMessage);
-      
+
       // Update status to reflect error
-      setHealthStatus(prev => ({
+      setHealthStatus((prev) => ({
         ...prev,
         isConnected: false,
         error: errorMessage,
-        lastChecked: Date.now()
+        lastChecked: Date.now(),
       }));
-      
+
       if (onError) {
         onError(errorMessage);
       }
-      
+
       logger.error('Database health check threw exception', error);
     } finally {
       if (mountedRef.current) {
         setIsChecking(false);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- healthStatus.isConnected and isChecking are intentionally excluded to prevent infinite loops
   }, [onHealthChange, onError]);
 
   /**
@@ -140,9 +140,9 @@ export const useDatabaseHealth = (options: {
       return;
     }
 
-    logger.info('Starting database health monitoring', { 
+    logger.info('Starting database health monitoring', {
       interval: effectiveInterval,
-      environment: config.name 
+      environment: config.name,
     });
 
     setIsMonitoring(true);
@@ -158,12 +158,13 @@ export const useDatabaseHealth = (options: {
           logger.debug('Skipping health check - document hidden');
           return;
         }
-        
+
         checkHealth();
       }
     }, effectiveInterval);
 
-  }, [effectiveInterval, config.name]); // checkHealth is stable but included in deps causes issues
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- checkHealth is intentionally excluded to prevent recreation of interval on every callback change
+  }, [effectiveInterval, config.name]);
 
   /**
    * Stop periodic health monitoring
@@ -213,7 +214,7 @@ export const useDatabaseHealth = (options: {
     checkHealth,
     startMonitoring,
     stopMonitoring,
-    isMonitoring
+    isMonitoring,
   };
 };
 
@@ -227,13 +228,13 @@ export const useDatabaseStatus = (): {
   error?: string;
 } => {
   const { healthStatus, isHealthy } = useDatabaseHealth({
-    enableAutoMonitoring: true
+    enableAutoMonitoring: true,
   });
 
   return {
     isHealthy,
     isConnected: healthStatus.isConnected,
     responseTime: healthStatus.responseTime,
-    error: healthStatus.error
+    error: healthStatus.error,
   };
 };

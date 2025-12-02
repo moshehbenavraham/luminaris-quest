@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Journal persistence test utilities require flexible types for RPC responses and error handling */
 /*
  * MIT License
- 
+
  * Journal persistence testing utilities for Luminari's Quest
- * 
+ *
  * Features:
  * - Direct database testing of journal entry persistence
  * - Diagnostic functions for troubleshooting
@@ -20,7 +21,7 @@ const logger = createLogger('JournalPersistenceTest');
  */
 export async function testJournalPersistence(
   testContent: string = 'Test journal entry from client',
-  testTitle: string = 'Client Test Entry'
+  testTitle: string = 'Client Test Entry',
 ): Promise<{
   success: boolean;
   message: string;
@@ -29,34 +30,34 @@ export async function testJournalPersistence(
 }> {
   try {
     logger.debug('Testing journal persistence via RPC');
-    
+
     // Call the test_journal_persistence function
     const { data, error } = await (supabase as any).rpc('test_journal_persistence', {
       test_content: testContent,
-      test_title: testTitle
+      test_title: testTitle,
     });
-    
+
     if (error) {
       logger.error('Journal persistence test failed', error);
       return {
         success: false,
         message: `Journal persistence test failed: ${error.message}`,
-        error
+        error,
       };
     }
-    
+
     logger.info('Journal persistence test successful', data);
     return {
       success: true,
       message: 'Journal persistence test successful',
-      data
+      data,
     };
   } catch (error: any) {
     logger.error('Journal persistence test threw exception', error);
     return {
       success: false,
       message: `Exception during journal persistence test: ${error.message}`,
-      error
+      error,
     };
   }
 }
@@ -65,9 +66,7 @@ export async function testJournalPersistence(
  * Get journal entries for the current user
  * This is useful for verifying that entries are being saved correctly
  */
-export async function getJournalEntries(
-  limit: number = 10
-): Promise<{
+export async function getJournalEntries(limit: number = 10): Promise<{
   success: boolean;
   message: string;
   entries?: any[];
@@ -76,38 +75,38 @@ export async function getJournalEntries(
 }> {
   try {
     logger.debug('Getting journal entries via RPC');
-    
+
     // Call the get_journal_entries_for_user function
     const { data, error } = await (supabase as any).rpc('get_journal_entries_for_user', {
-      limit_count: limit
+      limit_count: limit,
     });
-    
+
     if (error) {
       logger.error('Failed to get journal entries', error);
       return {
         success: false,
         message: `Failed to get journal entries: ${error.message}`,
-        error
+        error,
       };
     }
-    
+
     logger.info('Successfully retrieved journal entries', {
       count: data.count,
-      success: data.success
+      success: data.success,
     });
-    
+
     return {
       success: true,
       message: 'Journal entries retrieved successfully',
       entries: data.entries || [],
-      count: data.count || 0
+      count: data.count || 0,
     };
   } catch (error: any) {
     logger.error('Get journal entries threw exception', error);
     return {
       success: false,
       message: `Exception while getting journal entries: ${error.message}`,
-      error
+      error,
     };
   }
 }
@@ -124,57 +123,63 @@ export async function testDirectJournalCreation(): Promise<{
 }> {
   try {
     logger.debug('Testing direct journal creation');
-    
+
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
     if (userError || !user) {
       return {
         success: false,
         message: 'Authentication required for journal creation test',
-        error: userError
+        error: userError,
       };
     }
-    
+
     // Create a test entry ID
     const testEntryId = `direct-test-${Date.now()}`;
-    
+
     // Create a test journal entry
-    const { data, error } = await supabase.from('journal_entries').insert({
-      id: testEntryId,
-      user_id: user.id,
-      type: 'learning',
-      trust_level: 50,
-      content: 'Direct test journal entry',
-      title: 'Direct Test',
-      tags: ['direct', 'test'],
-      created_at: new Date().toISOString()
-    }).select();
-    
+    const { data, error } = await supabase
+      .from('journal_entries')
+      .insert({
+        id: testEntryId,
+        user_id: user.id,
+        type: 'learning',
+        trust_level: 50,
+        content: 'Direct test journal entry',
+        title: 'Direct Test',
+        tags: ['direct', 'test'],
+        created_at: new Date().toISOString(),
+      })
+      .select();
+
     if (error) {
       logger.error('Direct journal creation failed', error);
       return {
         success: false,
         message: `Direct journal creation failed: ${error.message}`,
-        error
+        error,
       };
     }
-    
+
     // Delete the test entry to clean up
     await supabase.from('journal_entries').delete().eq('id', testEntryId);
-    
+
     logger.info('Direct journal creation test successful');
     return {
       success: true,
       message: 'Direct journal creation test successful',
-      data
+      data,
     };
   } catch (error: any) {
     logger.error('Direct journal creation test threw exception', error);
     return {
       success: false,
       message: `Exception during direct journal creation test: ${error.message}`,
-      error
+      error,
     };
   }
 }
@@ -207,11 +212,11 @@ export async function runJournalPersistenceTests(): Promise<{
   const rpcTest = await testJournalPersistence();
   const entriesTest = await getJournalEntries();
   const directTest = await testDirectJournalCreation();
-  
+
   return {
     overallSuccess: rpcTest.success && entriesTest.success && directTest.success,
     rpcTest,
     entriesTest,
-    directTest
+    directTest,
   };
 }

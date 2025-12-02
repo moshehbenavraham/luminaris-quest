@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/set-state-in-effect -- Virtualization state sync pattern */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -27,13 +29,14 @@ export const CombatLog: React.FC<CombatLogProps> = ({
   entries,
   maxVisible = 50,
   autoScroll = true,
-  className
+  className,
 }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [visibleEntries, setVisibleEntries] = useState<CombatLogEntry[]>([]);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(autoScroll);
 
   // Simple virtualization: only show the last maxVisible entries
+
   useEffect(() => {
     const startIndex = Math.max(0, entries.length - maxVisible);
     setVisibleEntries(entries.slice(startIndex));
@@ -42,7 +45,9 @@ export const CombatLog: React.FC<CombatLogProps> = ({
   // Auto-scroll to bottom when new entries are added
   useEffect(() => {
     if (shouldAutoScroll && scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      const scrollContainer = scrollAreaRef.current.querySelector(
+        '[data-radix-scroll-area-viewport]',
+      );
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
@@ -71,9 +76,7 @@ export const CombatLog: React.FC<CombatLogProps> = ({
   const getEntryStyles = (entry: CombatLogEntry) => {
     switch (entry.type) {
       case 'action':
-        return entry.actor === 'player' 
-          ? 'text-blue-300' 
-          : 'text-red-300';
+        return entry.actor === 'player' ? 'text-blue-300' : 'text-red-300';
       case 'damage':
         return 'text-red-400 font-medium';
       case 'heal':
@@ -94,7 +97,7 @@ export const CombatLog: React.FC<CombatLogProps> = ({
     return date.toLocaleTimeString('en-US', {
       hour12: false,
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   };
 
@@ -105,32 +108,28 @@ export const CombatLog: React.FC<CombatLogProps> = ({
   };
 
   return (
-    <div 
-      className={cn(
-        'bg-black/80 border border-gray-700 rounded-lg',
-        'backdrop-blur-sm',
-        className
-      )}
+    <div
+      className={cn('rounded-lg border border-gray-700 bg-black/80', 'backdrop-blur-sm', className)}
     >
-      <div className="px-3 py-2 border-b border-gray-700 bg-gray-800/50">
+      <div className="border-b border-gray-700 bg-gray-800/50 px-3 py-2">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-300">Combat Log</span>
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-gray-500">
-              {entries.length} entries
-            </span>
+            <span className="text-xs text-gray-500">{entries.length} entries</span>
             {!shouldAutoScroll && (
               <button
                 onClick={() => {
                   setShouldAutoScroll(true);
                   if (scrollAreaRef.current) {
-                    const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+                    const scrollContainer = scrollAreaRef.current.querySelector(
+                      '[data-radix-scroll-area-viewport]',
+                    );
                     if (scrollContainer) {
                       scrollContainer.scrollTop = scrollContainer.scrollHeight;
                     }
                   }
                 }}
-                className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                className="text-xs text-blue-400 transition-colors hover:text-blue-300"
               >
                 ↓ Jump to Bottom
               </button>
@@ -138,16 +137,12 @@ export const CombatLog: React.FC<CombatLogProps> = ({
           </div>
         </div>
       </div>
-      
-      <ScrollArea 
-        ref={scrollAreaRef}
-        className="h-64 p-3" 
-        onScrollCapture={handleScroll}
-      >
+
+      <ScrollArea ref={scrollAreaRef} className="h-64 p-3" onScrollCapture={handleScroll}>
         <div className="space-y-2">
           {visibleEntries.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <div className="text-2xl mb-2">⚔️</div>
+            <div className="py-8 text-center text-gray-500">
+              <div className="mb-2 text-2xl">⚔️</div>
               <div className="text-sm">Combat log is empty</div>
             </div>
           ) : (
@@ -156,26 +151,22 @@ export const CombatLog: React.FC<CombatLogProps> = ({
                 key={entry.id}
                 className={cn(
                   'flex items-start space-x-2 text-sm',
-                  'hover:bg-white/5 rounded px-2 py-1 transition-colors',
-                  getEntryStyles(entry)
+                  'rounded px-2 py-1 transition-colors hover:bg-white/5',
+                  getEntryStyles(entry),
                 )}
               >
-                <div className="flex-shrink-0 text-xs mt-0.5">
-                  {getEntryIcon(entry)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="break-words">
-                    {entry.message}
-                  </div>
+                <div className="mt-0.5 flex-shrink-0 text-xs">{getEntryIcon(entry)}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="break-words">{entry.message}</div>
                   {entry.metadata && (
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="mt-1 text-xs text-gray-500">
                       {entry.metadata.damage && `Damage: ${entry.metadata.damage}`}
                       {entry.metadata.healing && `Healing: ${entry.metadata.healing}`}
                       {entry.metadata.statusEffect && `Status: ${entry.metadata.statusEffect}`}
                     </div>
                   )}
                 </div>
-                <div className="flex-shrink-0 text-xs text-gray-500 font-mono">
+                <div className="flex-shrink-0 font-mono text-xs text-gray-500">
                   {formatTimestamp(entry.timestamp)}
                 </div>
               </div>
@@ -186,4 +177,3 @@ export const CombatLog: React.FC<CombatLogProps> = ({
     </div>
   );
 };
-

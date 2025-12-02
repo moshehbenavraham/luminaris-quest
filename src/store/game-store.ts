@@ -1,30 +1,19 @@
+/* eslint-disable react-hooks/set-state-in-effect -- SSR hydration pattern in useGameStore hook */
+/* eslint-disable @typescript-eslint/no-explicit-any -- Complex state management with Supabase JSONB fields and error handling */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useEffect, useState } from 'react';
 import type { JournalEntry } from '@/components/JournalModal';
-import type { DatabaseHealthStatus /* , DatabaseHealthCheckResult */ } from '@/lib/database-health';
-// TEMPORARILY COMMENTED OUT FOR BUILD: DatabaseHealthCheckResult import temporarily commented to fix TS6196 build error
+import type { DatabaseHealthStatus } from '@/lib/database-health';
 import {
-  // performHealthCheck, // TEMPORARILY COMMENTED OUT FOR BUILD: performHealthCheck import temporarily commented to fix TS6133 build error
   performEnhancedHealthCheck,
   getCurrentHealthStatus,
-  detectEnvironment
+  detectEnvironment,
 } from '@/lib/database-health';
 import { supabase } from '@/integrations/supabase/client';
-import { createLogger as createEnvLogger, getEnvironmentConfig, /* environment, */ /* , performanceMonitor */ } from '@/lib/environment';
-import { createShadowManifestation } from '@/data/shadowManifestations';
+import { createLogger as createEnvLogger, getEnvironmentConfig } from '@/lib/environment';
 import { isLastScene } from '@/engine/scene-engine';
-import {
-  executePlayerAction,
-  executeShadowAction,
-  decideShadowAction,
-  checkCombatEnd,
-  canPerformAction,
-  processStatusEffects
-} from '@/engine/combat-engine';
-import { soundManager } from '@/utils/sound-manager';
-// TEMPORARILY COMMENTED OUT FOR BUILD: environment and performanceMonitor imports temporarily commented to fix TS6133 build error
 
 // Save operation status types
 export type SaveStatus = 'idle' | 'saving' | 'success' | 'error';
@@ -43,7 +32,7 @@ export enum SaveErrorType {
   PERMISSION_ERROR = 'PERMISSION_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
 export interface SaveError {
@@ -58,11 +47,8 @@ const RETRY_CONFIG = {
   maxAttempts: 3,
   baseDelay: 1000, // 1 second
   maxDelay: 10000, // 10 seconds
-  backoffMultiplier: 2
+  backoffMultiplier: 2,
 };
-
-// Use shared environment detection
-// const getEnvironment = environment.current; // TEMPORARILY COMMENTED OUT FOR BUILD: getEnvironment variable temporarily commented to fix TS6133 build error
 
 // Use shared environment-aware logger
 const logger = createEnvLogger('GameStore');
@@ -70,44 +56,52 @@ const logger = createEnvLogger('GameStore');
 // Error classification utility
 const classifyError = (error: any): SaveErrorType => {
   if (!error) return SaveErrorType.UNKNOWN_ERROR;
-  
+
   const message = error.message?.toLowerCase() || '';
   const code = error.code?.toLowerCase() || '';
-  
+
   // Network-related errors
-  if (message.includes('network') ||
-      message.includes('timeout') ||
-      message.includes('connection') ||
-      message.includes('fetch') ||
-      code.includes('network')) {
+  if (
+    message.includes('network') ||
+    message.includes('timeout') ||
+    message.includes('connection') ||
+    message.includes('fetch') ||
+    code.includes('network')
+  ) {
     return SaveErrorType.NETWORK_ERROR;
   }
-  
+
   // Authentication errors
-  if (message.includes('auth') ||
-      message.includes('unauthorized') ||
-      message.includes('forbidden') ||
-      code === 'unauthorized' ||
-      code === 'forbidden') {
+  if (
+    message.includes('auth') ||
+    message.includes('unauthorized') ||
+    message.includes('forbidden') ||
+    code === 'unauthorized' ||
+    code === 'forbidden'
+  ) {
     return SaveErrorType.AUTHENTICATION_ERROR;
   }
-  
+
   // Permission errors
-  if (message.includes('permission') ||
-      message.includes('access denied') ||
-      code.includes('permission')) {
+  if (
+    message.includes('permission') ||
+    message.includes('access denied') ||
+    code.includes('permission')
+  ) {
     return SaveErrorType.PERMISSION_ERROR;
   }
-  
+
   // Validation errors
-  if (message.includes('validation') ||
-      message.includes('constraint') ||
-      message.includes('invalid') ||
-      code.includes('constraint') ||
-      code.includes('check')) {
+  if (
+    message.includes('validation') ||
+    message.includes('constraint') ||
+    message.includes('invalid') ||
+    code.includes('constraint') ||
+    code.includes('check')
+  ) {
     return SaveErrorType.VALIDATION_ERROR;
   }
-  
+
   return SaveErrorType.UNKNOWN_ERROR;
 };
 
@@ -151,8 +145,8 @@ export interface CompletedScene {
 
 // Light & Shadow Combat System Types
 export interface LightShadowResources {
-  lp: number;  // Light Points - Positive emotional resources
-  sp: number;  // Shadow Points - Challenges that can become growth
+  lp: number; // Light Points - Positive emotional resources
+  sp: number; // Shadow Points - Challenges that can become growth
 }
 
 export type CombatAction = 'ILLUMINATE' | 'REFLECT' | 'ENDURE' | 'EMBRACE';
@@ -189,6 +183,20 @@ export interface CombatLogEntry {
   effect: string;
   resourceChange: Partial<LightShadowResources> & { enemyHP?: number; healthDamage?: number };
   message: string;
+}
+
+// Player Statistics for therapeutic analytics persistence
+export interface PlayerStatistics {
+  combatActions: {
+    ILLUMINATE: number;
+    REFLECT: number;
+    ENDURE: number;
+    EMBRACE: number;
+  };
+  totalCombatsWon: number;
+  totalCombatsLost: number;
+  totalTurnsPlayed: number;
+  averageCombatLength: number;
 }
 
 export interface CombatState {
@@ -237,8 +245,11 @@ export interface GameState {
   shadowPoints: number;
 
   // Experience Points System
-  experiencePoints: number;        // Current XP total
-  experienceToNext: number;        // XP needed for next level
+  experiencePoints: number; // Current XP total
+  experienceToNext: number; // XP needed for next level
+
+  // Player Statistics for therapeutic analytics
+  playerStatistics: PlayerStatistics;
 
   // Combat System State
   combat: CombatState;
@@ -248,7 +259,7 @@ export interface GameState {
 
   // Database health check state
   healthStatus: DatabaseHealthStatus;
-  
+
   // Actions
   setGuardianTrust: (trust: number) => void;
   addJournalEntry: (entry: JournalEntry) => void;
@@ -256,12 +267,12 @@ export interface GameState {
   deleteJournalEntry: (id: string) => void;
   completeScene: (scene: CompletedScene) => void;
   advanceScene: () => void;
-  saveToSupabase: () => Promise<void>;
+  saveToSupabase: () => Promise<boolean>;
   loadFromSupabase: () => Promise<void>;
   resetGame: () => void;
   updateMilestone: (level: number) => void;
   markMilestoneJournalShown: (level: number) => void;
-  
+
   // Player Health Management
   modifyPlayerHealth: (delta: number) => void;
   healPlayerHealth: (amount: number) => void;
@@ -281,21 +292,26 @@ export interface GameState {
   getPlayerLevel: () => number;
   getExperienceProgress: () => { current: number; toNext: number; percentage: number };
 
-  // Combat System Actions
-  startCombat: (enemyId: string, sceneDC?: number) => void;
-  executeCombatAction: (action: CombatAction) => void;
-  endTurn: () => void;
+  // Player Statistics Management
+  updateCombatStatistics: (
+    actions: Record<CombatAction, number>,
+    victory: boolean,
+    turnsPlayed: number,
+  ) => void;
+  getPlayerStatistics: () => PlayerStatistics;
+
+  // Combat System Actions (simplified - new combat system in @/features/combat)
   endCombat: (victory: boolean) => void;
-  
+
   // Save state utilities
   checkUnsavedChanges: () => boolean;
   clearSaveError: () => void;
-  
+
   // Health check actions
   performHealthCheck: () => Promise<void>;
   startHealthMonitoring: () => void;
   stopHealthMonitoring: () => void;
-  
+
   // Internal state (not persisted)
   _hasHydrated: boolean;
   _setHasHydrated: (hasHydrated: boolean) => void;
@@ -303,7 +319,7 @@ export interface GameState {
   _isHealthMonitoringActive: boolean;
   _energyRegenInterval?: NodeJS.Timeout;
   _isEnergyRegenActive: boolean;
-  
+
   // Energy regeneration actions
   startEnergyRegeneration: () => void;
   stopEnergyRegeneration: () => void;
@@ -326,30 +342,30 @@ const getXPRequiredForLevel = (level: number): number => {
 const calculateLevelProgression = (totalXP: number) => {
   let level = 1;
   let xpForCurrentLevel = 0;
-  
+
   while (totalXP >= xpForCurrentLevel + getXPRequiredForLevel(level)) {
     xpForCurrentLevel += getXPRequiredForLevel(level);
     level++;
   }
-  
+
   const currentLevelXP = totalXP - xpForCurrentLevel;
   const xpNeededForNextLevel = getXPRequiredForLevel(level);
   const xpToNext = xpNeededForNextLevel - currentLevelXP;
-  
+
   return {
     level,
     currentLevelXP,
-    xpToNext
+    xpToNext,
   };
 };
 
 // Level benefits calculation
 export const getLevelBenefits = (level: number) => {
   return {
-    maxEnergyBonus: Math.floor((level - 1) / 2) * 10,      // +10 energy every 2 levels
-    startingLPBonus: Math.floor((level - 1) / 3) * 5,      // +5 LP every 3 levels
-    energyCostReduction: Math.floor((level - 1) / 4),      // -1 energy cost every 4 levels
-    trustGainMultiplier: 1 + (Math.floor((level - 1) / 5) * 0.2) // +20% trust every 5 levels
+    maxEnergyBonus: Math.floor((level - 1) / 2) * 10, // +10 energy every 2 levels
+    startingLPBonus: Math.floor((level - 1) / 3) * 5, // +5 LP every 3 levels
+    energyCostReduction: Math.floor((level - 1) / 4), // -1 energy cost every 4 levels
+    trustGainMultiplier: 1 + Math.floor((level - 1) / 5) * 0.2, // +20% trust every 5 levels
   };
 };
 
@@ -382,6 +398,20 @@ export const useGameStoreBase = create<GameState>()(
       experiencePoints: 0,
       experienceToNext: 100, // XP needed for level 2
 
+      // Player Statistics for therapeutic analytics
+      playerStatistics: {
+        combatActions: {
+          ILLUMINATE: 0,
+          REFLECT: 0,
+          ENDURE: 0,
+          EMBRACE: 0,
+        },
+        totalCombatsWon: 0,
+        totalCombatsLost: 0,
+        totalTurnsPlayed: 0,
+        averageCombatLength: 0,
+      },
+
       // Combat System State
       combat: {
         inCombat: false,
@@ -406,27 +436,27 @@ export const useGameStoreBase = create<GameState>()(
           ILLUMINATE: 0,
           REFLECT: 0,
           ENDURE: 0,
-          EMBRACE: 0
+          EMBRACE: 0,
         },
         growthInsights: [],
-        combatReflections: []
+        combatReflections: [],
       },
-      
+
       // Save operation state
       saveState: {
         status: 'idle',
         retryCount: 0,
-        hasUnsavedChanges: false
+        hasUnsavedChanges: false,
       },
-      
+
       // Database health check state
       healthStatus: {
         isConnected: false,
         responseTime: 0,
         lastChecked: 0,
-        environment: detectEnvironment()
+        environment: detectEnvironment(),
       },
-      
+
       _hasHydrated: false,
       _isHealthMonitoringActive: false,
       _energyRegenInterval: undefined,
@@ -437,7 +467,7 @@ export const useGameStoreBase = create<GameState>()(
         const clampedTrust = Math.max(0, Math.min(100, trust));
         set((state) => ({
           guardianTrust: clampedTrust,
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
 
         // Check for milestone achievements
@@ -460,7 +490,7 @@ export const useGameStoreBase = create<GameState>()(
           // No limit on journal entries - store them all
           return {
             journalEntries: newEntries,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
 
@@ -474,7 +504,7 @@ export const useGameStoreBase = create<GameState>()(
               ? { ...entry, ...updates, isEdited: true, editedAt: new Date() }
               : entry,
           ),
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
 
         // Don't auto-save - let the app decide when to save
@@ -483,7 +513,7 @@ export const useGameStoreBase = create<GameState>()(
       deleteJournalEntry: (id: string) => {
         set((state) => ({
           journalEntries: state.journalEntries.filter((entry) => entry.id !== id),
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
 
         // Don't auto-save - let the app decide when to save
@@ -492,14 +522,14 @@ export const useGameStoreBase = create<GameState>()(
       completeScene: (scene: CompletedScene) => {
         set((state) => ({
           sceneHistory: [...state.sceneHistory, scene],
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
       },
 
       advanceScene: () => {
         set((state) => ({
           currentSceneIndex: state.currentSceneIndex + 1,
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
       },
 
@@ -507,19 +537,19 @@ export const useGameStoreBase = create<GameState>()(
         set((state) => {
           // Check which milestones need to be achieved
           const milestonesToAchieve = state.milestones.filter(
-            (milestone) => trustLevel >= milestone.level && !milestone.achieved
+            (milestone) => trustLevel >= milestone.level && !milestone.achieved,
           );
-          
+
           // If no milestones to achieve, return unchanged state
           if (milestonesToAchieve.length === 0) {
             return state; // Return same state reference - no change
           }
-          
+
           // Check if we actually need to add new pending journals
           const levelsToAdd = milestonesToAchieve
-            .map(m => m.level)
-            .filter(level => !state.pendingMilestoneJournals.has(level));
-          
+            .map((m) => m.level)
+            .filter((level) => !state.pendingMilestoneJournals.has(level));
+
           // If nothing new to add to pending journals, just update milestones
           if (levelsToAdd.length === 0) {
             const updatedMilestones = state.milestones.map((milestone) => {
@@ -532,17 +562,17 @@ export const useGameStoreBase = create<GameState>()(
               }
               return milestone;
             });
-            
+
             return {
               milestones: updatedMilestones,
-              saveState: { ...state.saveState, hasUnsavedChanges: true }
+              saveState: { ...state.saveState, hasUnsavedChanges: true },
             };
           }
-          
+
           // Only create new Set if we're actually adding new levels
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
-          levelsToAdd.forEach(level => newPendingJournals.add(level));
-          
+          levelsToAdd.forEach((level) => newPendingJournals.add(level));
+
           const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
               return {
@@ -557,7 +587,7 @@ export const useGameStoreBase = create<GameState>()(
           return {
             milestones: updatedMilestones,
             pendingMilestoneJournals: newPendingJournals,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -568,7 +598,7 @@ export const useGameStoreBase = create<GameState>()(
           if (!state.pendingMilestoneJournals.has(level)) {
             return state; // Return same state reference - no change
           }
-          
+
           // Create new Set and remove the level
           const newPendingJournals = new Set(state.pendingMilestoneJournals);
           newPendingJournals.delete(level);
@@ -600,6 +630,19 @@ export const useGameStoreBase = create<GameState>()(
           // Reset experience points
           experiencePoints: 0,
           experienceToNext: 100,
+          // Reset player statistics
+          playerStatistics: {
+            combatActions: {
+              ILLUMINATE: 0,
+              REFLECT: 0,
+              ENDURE: 0,
+              EMBRACE: 0,
+            },
+            totalCombatsWon: 0,
+            totalCombatsLost: 0,
+            totalTurnsPlayed: 0,
+            averageCombatLength: 0,
+          },
           // Reset combat state
           combat: {
             inCombat: false,
@@ -624,12 +667,12 @@ export const useGameStoreBase = create<GameState>()(
               ILLUMINATE: 0,
               REFLECT: 0,
               ENDURE: 0,
-              EMBRACE: 0
+              EMBRACE: 0,
             },
             growthInsights: [],
-            combatReflections: []
+            combatReflections: [],
           },
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
         // Also clear from storage to prevent rehydration of bad state
         localStorage.removeItem('luminari-game-state');
@@ -638,16 +681,19 @@ export const useGameStoreBase = create<GameState>()(
       // Player Health Management
       modifyPlayerHealth: (delta: number) => {
         set((state) => {
-          const newHealth = Math.max(0, Math.min(state.maxPlayerHealth, state.playerHealth + delta));
+          const newHealth = Math.max(
+            0,
+            Math.min(state.maxPlayerHealth, state.playerHealth + delta),
+          );
           logger.debug('Modified player health', {
             previous: state.playerHealth,
             delta,
             new: newHealth,
-            max: state.maxPlayerHealth
+            max: state.maxPlayerHealth,
           });
           return {
             playerHealth: newHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -660,11 +706,11 @@ export const useGameStoreBase = create<GameState>()(
             previous: state.playerHealth,
             healAmount,
             new: newHealth,
-            max: state.maxPlayerHealth
+            max: state.maxPlayerHealth,
           });
           return {
             playerHealth: newHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -675,11 +721,11 @@ export const useGameStoreBase = create<GameState>()(
           logger.debug('Set player health', {
             previous: state.playerHealth,
             new: newHealth,
-            max: state.maxPlayerHealth
+            max: state.maxPlayerHealth,
           });
           return {
             playerHealth: newHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -687,7 +733,10 @@ export const useGameStoreBase = create<GameState>()(
       // Player Energy Management
       modifyPlayerEnergy: (delta: number) => {
         set((state) => {
-          const newEnergy = Math.max(0, Math.min(state.maxPlayerEnergy, state.playerEnergy + delta));
+          const newEnergy = Math.max(
+            0,
+            Math.min(state.maxPlayerEnergy, state.playerEnergy + delta),
+          );
           return {
             playerEnergy: newEnergy,
             saveState: { ...state.saveState, hasUnsavedChanges: true },
@@ -709,14 +758,14 @@ export const useGameStoreBase = create<GameState>()(
       modifyLightPoints: (delta: number) => {
         set((state) => {
           const newLightPoints = Math.max(0, state.lightPoints + delta);
-          logger.debug('Modified light points', { 
-            previous: state.lightPoints, 
-            delta, 
-            new: newLightPoints 
+          logger.debug('Modified light points', {
+            previous: state.lightPoints,
+            delta,
+            new: newLightPoints,
           });
           return {
             lightPoints: newLightPoints,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -724,14 +773,14 @@ export const useGameStoreBase = create<GameState>()(
       modifyShadowPoints: (delta: number) => {
         set((state) => {
           const newShadowPoints = Math.max(0, state.shadowPoints + delta);
-          logger.debug('Modified shadow points', { 
-            previous: state.shadowPoints, 
-            delta, 
-            new: newShadowPoints 
+          logger.debug('Modified shadow points', {
+            previous: state.shadowPoints,
+            delta,
+            new: newShadowPoints,
           });
           return {
             shadowPoints: newShadowPoints,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -742,7 +791,7 @@ export const useGameStoreBase = create<GameState>()(
           if (shadowToConvert === 0) {
             logger.warn('No shadow points to convert', {
               requested: amount,
-              available: state.shadowPoints
+              available: state.shadowPoints,
             });
             return state;
           }
@@ -753,13 +802,13 @@ export const useGameStoreBase = create<GameState>()(
           logger.info('Converted shadow points to light', {
             converted: shadowToConvert,
             shadowPoints: { from: state.shadowPoints, to: newShadowPoints },
-            lightPoints: { from: state.lightPoints, to: newLightPoints }
+            lightPoints: { from: state.lightPoints, to: newLightPoints },
           });
 
           return {
             shadowPoints: newShadowPoints,
             lightPoints: newLightPoints,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -770,44 +819,44 @@ export const useGameStoreBase = create<GameState>()(
           const newTotalXP = Math.max(0, state.experiencePoints + delta);
           const { level, xpToNext } = calculateLevelProgression(newTotalXP);
           const leveledUp = level > state.playerLevel;
-          
+
           logger.debug('Modified experience points', {
             previous: state.experiencePoints,
             delta,
             new: newTotalXP,
             level,
             leveledUp,
-            reason
+            reason,
           });
-          
+
           const baseUpdate = {
             experiencePoints: newTotalXP,
             experienceToNext: xpToNext,
             playerLevel: level,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
 
           if (leveledUp && reason) {
             // Calculate and apply level benefits
             const newBenefits = getLevelBenefits(level);
             const oldBenefits = getLevelBenefits(state.playerLevel);
-            
+
             // Prepare benefit updates
             const benefitUpdates: any = {};
-            
+
             // Apply new max energy bonus
             const energyBonus = newBenefits.maxEnergyBonus - oldBenefits.maxEnergyBonus;
             if (energyBonus > 0) {
               benefitUpdates.maxPlayerEnergy = state.maxPlayerEnergy + energyBonus;
               benefitUpdates.playerEnergy = state.playerEnergy + energyBonus; // Give current energy boost too
             }
-            
+
             // Apply starting LP bonus (if gained new bonus levels)
             const lpBonus = newBenefits.startingLPBonus - oldBenefits.startingLPBonus;
             if (lpBonus > 0) {
               benefitUpdates.lightPoints = Math.max(state.lightPoints, state.lightPoints + lpBonus);
             }
-            
+
             // Create level-up journal entry with benefits description
             const benefitsText = [];
             if (energyBonus > 0) benefitsText.push(`+${energyBonus} max energy`);
@@ -819,11 +868,12 @@ export const useGameStoreBase = create<GameState>()(
               benefitsText.push(`+20% trust gain bonus`);
             }
             benefitsText.push(`+1 bonus to all dice rolls`);
-            
-            const benefitsDescription = benefitsText.length > 0 
-              ? `\n\nNew benefits gained:\n• ${benefitsText.join('\n• ')}`
-              : '';
-            
+
+            const benefitsDescription =
+              benefitsText.length > 0
+                ? `\n\nNew benefits gained:\n• ${benefitsText.join('\n• ')}`
+                : '';
+
             // Trigger level-up celebration and journal prompt
             get().addJournalEntry({
               id: `level-up-${level}-${Date.now()}`,
@@ -832,287 +882,90 @@ export const useGameStoreBase = create<GameState>()(
               content: `Your journey of growth continues. Reflect on how far you've come.\n\nReason for advancement: ${reason}${benefitsDescription}`,
               trustLevel: state.guardianTrust,
               tags: ['level-up', 'achievement'],
-              timestamp: new Date()
+              timestamp: new Date(),
             });
-            
+
             return {
               ...baseUpdate,
-              ...benefitUpdates
+              ...benefitUpdates,
             };
           }
-          
+
           return baseUpdate;
         });
       },
 
       getPlayerLevel: () => get().playerLevel,
-      
+
       getExperienceProgress: () => {
         const toNext = get().experienceToNext;
         const totalNeededForNextLevel = getXPRequiredForLevel(get().playerLevel);
         const currentLevelProgress = totalNeededForNextLevel - toNext;
-        
+
         return {
           current: currentLevelProgress, // XP progress in current level
-          toNext: toNext,               // XP remaining to next level
-          percentage: (currentLevelProgress / totalNeededForNextLevel) * 100
+          toNext: toNext, // XP remaining to next level
+          percentage: (currentLevelProgress / totalNeededForNextLevel) * 100,
         };
       },
 
-      // Combat System Actions
-      // ⚠️⚠️⚠️ DEPRECATED COMBAT SYSTEM - DO NOT USE ⚠️⚠️⚠️
-      // This is the OLD combat system - only used with ?legacyCombat=1
-      // For NEW development, use useCombatStore from @/features/combat
-      // See docs/archive/COMBAT_MIGRATION_GUIDE.md for migration details
-      startCombat: (enemyId: string, sceneDC?: number) => {
+      // Player Statistics Management
+      updateCombatStatistics: (
+        actions: Record<CombatAction, number>,
+        victory: boolean,
+        turnsPlayed: number,
+      ) => {
         set((state) => {
-          const effectiveSceneDC = sceneDC || 12; // Default DC if not provided
-          logger.info('Starting combat', { enemyId, sceneDC: effectiveSceneDC });
+          const currentStats = state.playerStatistics;
+          const totalCombats = currentStats.totalCombatsWon + currentStats.totalCombatsLost + 1;
 
-          // Create actual shadow manifestation using the shadow data system
-          const shadowEnemy = createShadowManifestation(enemyId);
+          // Calculate new average combat length
+          const newAverageCombatLength =
+            (currentStats.averageCombatLength * (totalCombats - 1) + turnsPlayed) / totalCombats;
 
-          if (!shadowEnemy) {
-            logger.error('Failed to create shadow manifestation', { enemyId });
-            // Fallback to prevent crash - this should not happen in normal gameplay
-            return state;
-          }
-
-          logger.info('Shadow manifestation created', {
-            shadowId: shadowEnemy.id,
-            shadowName: shadowEnemy.name,
-            shadowHP: shadowEnemy.maxHP,
-            sceneDC: effectiveSceneDC
+          logger.info('Updating combat statistics', {
+            actions,
+            victory,
+            turnsPlayed,
+            totalCombats,
+            newAverageCombatLength,
           });
 
           return {
-            ...state,
-            combat: {
-              ...state.combat,
-              inCombat: true,
-              currentEnemy: shadowEnemy,
-              resources: { lp: state.lightPoints, sp: state.shadowPoints },
-              turn: 1,
-              sceneDC: effectiveSceneDC,
-              log: [{
-                turn: 0,
-                actor: 'SHADOW',
-                action: 'MANIFEST',
-                effect: 'Combat begins',
-                resourceChange: {},
-                message: `${shadowEnemy.name} emerges from the shadows of your mind...`
-              }]
+            playerStatistics: {
+              combatActions: {
+                ILLUMINATE: currentStats.combatActions.ILLUMINATE + (actions.ILLUMINATE || 0),
+                REFLECT: currentStats.combatActions.REFLECT + (actions.REFLECT || 0),
+                ENDURE: currentStats.combatActions.ENDURE + (actions.ENDURE || 0),
+                EMBRACE: currentStats.combatActions.EMBRACE + (actions.EMBRACE || 0),
+              },
+              totalCombatsWon: currentStats.totalCombatsWon + (victory ? 1 : 0),
+              totalCombatsLost: currentStats.totalCombatsLost + (victory ? 0 : 1),
+              totalTurnsPlayed: currentStats.totalTurnsPlayed + turnsPlayed,
+              averageCombatLength: newAverageCombatLength,
             },
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
 
-      executeCombatAction: (action: CombatAction) => {
-        set((state) => {
-          if (!state.combat.inCombat || !state.combat.currentEnemy) {
-            logger.warn('Attempted combat action outside of combat', { action });
-            return state;
-          }
+      getPlayerStatistics: () => get().playerStatistics,
 
-          logger.info('Executing combat action', { action, turn: state.combat.turn });
-
-          // Validate action can be performed
-          const validation = canPerformAction(action, state.combat, state.guardianTrust);
-          if (!validation.canPerform) {
-            logger.warn('Cannot perform combat action', { action, reason: validation.reason });
-            return state;
-          }
-
-          // Execute player action using combat engine
-          const playerResult = executePlayerAction(action, state.combat, state.guardianTrust, state.playerLevel);
-          let newCombatState = { ...playerResult.newState };
-
-          // Apply health healing if the action healed health (REFLECT action)
-          let newPlayerHealth = state.playerHealth;
-          if (playerResult.healthHeal && playerResult.healthHeal > 0) {
-            newPlayerHealth = Math.min(state.maxPlayerHealth, state.playerHealth + playerResult.healthHeal);
-            logger.info('Player healed from REFLECT action', {
-              healAmount: playerResult.healthHeal,
-              newHealth: newPlayerHealth,
-              previousHealth: state.playerHealth
-            });
-          }
-
-          // Update preferred actions tracking (ensure immutability)
-          const newPreferredActions = {
-            ...newCombatState.preferredActions,
-            [action]: (newCombatState.preferredActions[action] || 0) + 1
-          };
-          newCombatState = {
-            ...newCombatState,
-            preferredActions: newPreferredActions
-          };
-
-          // Add player action to combat log
-          const combatLog = [...newCombatState.log, playerResult.logEntry];
-
-          // Update the state after player action
-          const stateAfterPlayerAction = {
-            ...state,
-            playerHealth: newPlayerHealth,  // Apply health healing
-            combat: {
-              ...newCombatState,
-              log: combatLog
-            },
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
-          };
-
-          // Check if combat ended after player action
-          const combatEndStatus = checkCombatEnd(newCombatState);
-          if (combatEndStatus.isEnded) {
-            get().endCombat(combatEndStatus.victory!);
-            return stateAfterPlayerAction;
-          }
-
-          return stateAfterPlayerAction;
-        });
-      },
-
-      endTurn: () => {
-        set((state) => {
-          if (!state.combat.inCombat || !state.combat.currentEnemy) {
-            logger.warn('Attempted to end turn outside of combat');
-            return state;
-          }
-
-          logger.info('Ending turn and initiating shadow action', { turn: state.combat.turn });
-
-          let newCombatState = { ...state.combat };
-
-          // Execute shadow action if enemy is still alive
-          let healthDamageDealt = 0;
-          if (newCombatState.currentEnemy && newCombatState.currentEnemy.currentHP > 0) {
-            const shadowAction = decideShadowAction(newCombatState.currentEnemy, newCombatState);
-            if (shadowAction) {
-              const shadowResult = executeShadowAction(shadowAction, newCombatState, state.guardianTrust);
-              newCombatState = { ...shadowResult.newState };
-              healthDamageDealt = shadowResult.healthDamage;
-
-              // Add shadow action to combat log
-              newCombatState.log = [...newCombatState.log, shadowResult.logEntry];
-
-              // Play shadow attack sound effect
-              try {
-                soundManager.playSound('shadow-attack', 2);
-              } catch (error) {
-                logger.warn('Failed to play shadow attack sound:', error);
-              }
-            }
-          }
-
-          // Process status effects at turn end
-          newCombatState = processStatusEffects(newCombatState);
-
-          // Increment turn counter
-          newCombatState = {
-            ...newCombatState,
-            turn: newCombatState.turn + 1
-          };
-
-          // Apply health damage from shadow action
-          const newPlayerHealth = Math.max(0, state.playerHealth - healthDamageDealt);
-
-          // Log health damage if any was dealt
-          if (healthDamageDealt > 0) {
-            logger.info('Player took health damage from shadow action', {
-              damage: healthDamageDealt,
-              newHealth: newPlayerHealth,
-              previousHealth: state.playerHealth
-            });
-          }
-
-          // Final combat end check after shadow action
-          const combatEndStatus = checkCombatEnd(newCombatState);
-          if (combatEndStatus.isEnded) {
-            get().endCombat(combatEndStatus.victory!);
-          }
-
-          return {
-            combat: newCombatState,
-            playerHealth: newPlayerHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
-          };
-        });
-      },
-
-      // ⚠️⚠️⚠️ DEPRECATED - Part of OLD combat system ⚠️⚠️⚠️
+      // Simplified endCombat - called by new combat system (CombatEndModal)
+      // Advances scene on victory and restores player health
       endCombat: (victory: boolean) => {
         set((state) => {
-          if (!state.combat.inCombat) {
-            logger.warn('Attempted to end combat when not in combat');
-            return state;
-          }
+          logger.info('Ending combat', { victory });
 
-          logger.info('Ending combat', { victory, turns: state.combat.turn });
-
-          // Sync combat resources back to main game state
-          const finalLightPoints = state.combat.resources.lp;
-          const finalShadowPoints = state.combat.resources.sp;
-
-          // Add victory rewards if applicable
-          let bonusLP = 0;
-          if (victory && state.combat.currentEnemy) {
-            bonusLP = state.combat.currentEnemy.victoryReward.lpBonus;
-          }
-
-          // Create final combat log entry
-          const finalLogEntry: CombatLogEntry = {
-            turn: state.combat.turn,
-            actor: victory ? 'PLAYER' : 'SHADOW',
-            action: victory ? 'VICTORY' : 'DEFEAT',
-            effect: victory ? 'Combat won' : 'Combat lost',
-            resourceChange: { lp: bonusLP },
-            message: victory
-              ? 'You have overcome this shadow and grown stronger!'
-              : 'Though defeated, you have learned valuable lessons...'
-          };
-
-          // Advance scene after successful combat (victory or learning from defeat)
-          // ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
-          // Modified: 2025-06-28 - Changed to only advance scene on victory (not defeat)
-          // FAILED: This change was made to fix defeat handling but NO battle results screen
-          // appears after combat. User still reports no battle results screen.
-          // STATUS: FAILED ATTEMPT - Battle results screen still missing
-          const shouldAdvanceScene = victory; // Only advance on victory
-          const newSceneIndex = shouldAdvanceScene && !isLastScene(state.currentSceneIndex)
+          const shouldAdvanceScene = victory && !isLastScene(state.currentSceneIndex);
+          const newSceneIndex = shouldAdvanceScene
             ? state.currentSceneIndex + 1
             : state.currentSceneIndex;
 
           return {
-            lightPoints: finalLightPoints + bonusLP,
-            shadowPoints: finalShadowPoints,
             playerHealth: 100, // Restore health to full after combat
             currentSceneIndex: newSceneIndex,
-            combat: {
-              inCombat: false,
-              currentEnemy: null,
-              resources: { lp: 0, sp: 0 },
-              turn: 0,
-              log: [...state.combat.log, finalLogEntry],
-
-              // Reset scene context
-              sceneDC: 0,
-
-              // Reset status effects
-              damageMultiplier: 1,
-              damageReduction: 1,
-              healingBlocked: 0,
-              lpGenerationBlocked: 0,
-              skipNextTurn: false,
-              consecutiveEndures: 0,
-
-              // Keep therapeutic tracking
-              preferredActions: state.combat.preferredActions,
-              growthInsights: state.combat.growthInsights,
-              combatReflections: state.combat.combatReflections
-            },
-            saveState: { ...state.saveState, hasUnsavedChanges: true }
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
         });
       },
@@ -1124,9 +977,11 @@ export const useGameStoreBase = create<GameState>()(
       // Save state utilities
       checkUnsavedChanges: () => {
         const state = get();
-        return state.saveState.hasUnsavedChanges ||
-               state.saveState.status === 'error' ||
-               state.saveState.lastSaveTimestamp === undefined;
+        return (
+          state.saveState.hasUnsavedChanges ||
+          state.saveState.status === 'error' ||
+          state.saveState.lastSaveTimestamp === undefined
+        );
       },
 
       clearSaveError: () => {
@@ -1135,24 +990,27 @@ export const useGameStoreBase = create<GameState>()(
             ...state.saveState,
             status: 'idle',
             lastError: undefined,
-            retryCount: 0
-          }
+            retryCount: 0,
+          },
         }));
       },
 
-      saveToSupabase: async () => {
+      saveToSupabase: async (): Promise<boolean> => {
         const state = get();
-        
+
         // Don't save if already saving or no user is authenticated
         if (state.saveState.status === 'saving') {
           logger.debug('Save already in progress, skipping');
-          return;
+          return false;
         }
 
         // Get current user before starting save process
         try {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
-          
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
+
           if (userError || !user) {
             logger.warn('No authenticated user, skipping save', userError);
             set((state) => ({
@@ -1160,37 +1018,40 @@ export const useGameStoreBase = create<GameState>()(
                 ...state.saveState,
                 status: 'error',
                 lastError: userError?.message || 'No authenticated user',
-                hasUnsavedChanges: true
-              }
+                hasUnsavedChanges: true,
+              },
             }));
-            return;
+            return false;
           }
         } catch (error) {
           logger.error('Error checking authentication before save', error);
-          return;
+          return false;
         }
 
-        const attemptSave = async (attempt: number = 1): Promise<void> => {
+        const attemptSave = async (attempt: number = 1): Promise<boolean> => {
           try {
             // Update save state to saving
             set((state) => ({
               saveState: {
                 ...state.saveState,
                 status: 'saving',
-                retryCount: attempt - 1
-              }
+                retryCount: attempt - 1,
+              },
             }));
 
             logger.debug(`Save attempt ${attempt}/${RETRY_CONFIG.maxAttempts}`);
 
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            const {
+              data: { user },
+              error: userError,
+            } = await supabase.auth.getUser();
 
             if (userError || !user) {
               logger.error('Authentication error during save', userError);
               throw {
                 type: SaveErrorType.AUTHENTICATION_ERROR,
                 message: userError?.message || 'No user authenticated - cannot save game state',
-                originalError: userError
+                originalError: userError,
               };
             }
 
@@ -1215,6 +1076,8 @@ export const useGameStoreBase = create<GameState>()(
               // Experience points system
               experience_points: currentState.experiencePoints,
               experience_to_next: currentState.experienceToNext,
+              // Player statistics for therapeutic analytics
+              player_statistics: currentState.playerStatistics,
               updated_at: new Date().toISOString(),
             };
 
@@ -1223,26 +1086,26 @@ export const useGameStoreBase = create<GameState>()(
               guardianTrust: gameState.guardian_trust,
               journalCount: currentState.journalEntries.length,
               playerEnergy: gameState.player_energy,
-              maxPlayerEnergy: gameState.max_player_energy
+              maxPlayerEnergy: gameState.max_player_energy,
             });
 
             // Save game state with timeout
-            const { data: savedState, error: stateError } = await Promise.race([
+            const { data: savedState, error: stateError } = (await Promise.race([
               supabase.from('game_states').upsert(gameState, { onConflict: 'user_id' }).select(),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Save timeout')), 30000)
-              )
-            ]) as any;
+                setTimeout(() => reject(new Error('Save timeout')), 30000),
+              ),
+            ])) as any;
 
             if (stateError) {
               logger.error('Failed to save game state', stateError);
               throw {
                 type: classifyError(stateError),
                 message: `Failed to save game state: ${stateError.message}`,
-                originalError: stateError
+                originalError: stateError,
               };
             }
-            
+
             logger.debug('Game state saved successfully', savedState);
 
             // Save journal entries if any exist
@@ -1250,53 +1113,54 @@ export const useGameStoreBase = create<GameState>()(
               // Format journal entries for database
               const journalEntries = currentState.journalEntries.map((entry) => {
                 // Ensure timestamp is an ISO string
-                const timestamp = entry.timestamp instanceof Date 
-                  ? entry.timestamp.toISOString() 
-                  : entry.timestamp;
-                
+                const timestamp =
+                  entry.timestamp instanceof Date ? entry.timestamp.toISOString() : entry.timestamp;
+
                 // Ensure editedAt is an ISO string if it exists
-                const editedAt = entry.editedAt instanceof Date 
-                  ? entry.editedAt.toISOString() 
-                  : entry.editedAt;
-                
+                const editedAt =
+                  entry.editedAt instanceof Date ? entry.editedAt.toISOString() : entry.editedAt;
+
                 return {
-                id: entry.id,
-                user_id: user.id,
-                type: entry.type,
-                trust_level: entry.trustLevel,
-                content: entry.content,
-                title: entry.title,
-                scene_id: entry.sceneId || null,
-                tags: Array.isArray(entry.tags) ? entry.tags : [],
-                is_edited: entry.isEdited || false,
-                created_at: timestamp,
-                edited_at: editedAt || null,
+                  id: entry.id,
+                  user_id: user.id,
+                  type: entry.type,
+                  trust_level: entry.trustLevel,
+                  content: entry.content,
+                  title: entry.title,
+                  scene_id: entry.sceneId || null,
+                  tags: Array.isArray(entry.tags) ? entry.tags : [],
+                  is_edited: entry.isEdited || false,
+                  created_at: timestamp,
+                  edited_at: editedAt || null,
                 };
               });
 
-              logger.debug('Saving journal entries', { 
+              logger.debug('Saving journal entries', {
                 count: journalEntries.length,
-                firstEntry: journalEntries[0]?.id
+                firstEntry: journalEntries[0]?.id,
               });
 
-              const { data: savedEntries, error: journalError } = await Promise.race([
-                supabase.from('journal_entries').upsert(journalEntries, { onConflict: 'id' }).select(),
+              const { data: savedEntries, error: journalError } = (await Promise.race([
+                supabase
+                  .from('journal_entries')
+                  .upsert(journalEntries, { onConflict: 'id' })
+                  .select(),
                 new Promise((_, reject) =>
-                  setTimeout(() => reject(new Error('Journal save timeout')), 30000)
-                )
-              ]) as any;
+                  setTimeout(() => reject(new Error('Journal save timeout')), 30000),
+                ),
+              ])) as any;
 
               if (journalError) {
                 logger.error('Failed to save journal entries', journalError);
                 throw {
                   type: classifyError(journalError),
                   message: `Failed to save journal entries: ${journalError.message}`,
-                  originalError: journalError
+                  originalError: journalError,
                 };
               }
-              
-              logger.debug('Journal entries saved successfully', { 
-                count: savedEntries?.length || 0 
+
+              logger.debug('Journal entries saved successfully', {
+                count: savedEntries?.length || 0,
               });
             }
 
@@ -1304,7 +1168,7 @@ export const useGameStoreBase = create<GameState>()(
             logger.info('Game state saved successfully', {
               saveTime: `${saveTime}ms`,
               attempt,
-              journalCount: currentState.journalEntries.length
+              journalCount: currentState.journalEntries.length,
             });
 
             // Update save state to success
@@ -1315,49 +1179,50 @@ export const useGameStoreBase = create<GameState>()(
                 lastSaveTimestamp: Date.now(),
                 lastError: undefined,
                 retryCount: 0,
-                hasUnsavedChanges: false
-              }
+                hasUnsavedChanges: false,
+              },
             }));
 
+            return true;
           } catch (error: any) {
             const saveError: SaveError = {
               type: error.type || SaveErrorType.UNKNOWN_ERROR,
               message: error.message || 'Unknown save error',
               originalError: error.originalError || error,
-              timestamp: Date.now()
+              timestamp: Date.now(),
             };
 
             const {
               data: { user },
             } = await supabase.auth.getUser();
-            
+
             logger.error('Save attempt failed', saveError, {
               attempt,
-              userId: user?.id || 'unknown'
+              userId: user?.id || 'unknown',
             });
 
             // Determine if we should retry
-            const shouldRetry = attempt < RETRY_CONFIG.maxAttempts &&
-                              isRetryableError(saveError.type);
+            const shouldRetry =
+              attempt < RETRY_CONFIG.maxAttempts && isRetryableError(saveError.type);
 
             if (shouldRetry) {
               const delay = Math.min(
                 RETRY_CONFIG.baseDelay * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt - 1),
-                RETRY_CONFIG.maxDelay
+                RETRY_CONFIG.maxDelay,
               );
-              
+
               logger.info(`Retrying save in ${delay}ms`, { attempt: attempt + 1 });
-              
+
               // Wait before retry
-              await new Promise(resolve => setTimeout(resolve, delay));
-              
+              await new Promise((resolve) => setTimeout(resolve, delay));
+
               // Recursive retry
               return attemptSave(attempt + 1);
             } else {
               // Max attempts reached or non-retryable error
               logger.error('Save failed permanently', saveError, {
                 maxAttemptsReached: attempt >= RETRY_CONFIG.maxAttempts,
-                isRetryable: isRetryableError(saveError.type)
+                isRetryable: isRetryableError(saveError.type),
               });
 
               // Update save state to error
@@ -1367,21 +1232,25 @@ export const useGameStoreBase = create<GameState>()(
                   status: 'error',
                   lastError: saveError.message,
                   retryCount: attempt,
-                  hasUnsavedChanges: true
-                }
+                  hasUnsavedChanges: true,
+                },
               }));
 
               // Don't throw - we want the game to continue even if save fails
+              return false;
             }
           }
         };
 
-        await attemptSave();
+        return await attemptSave();
       },
 
       loadFromSupabase: async () => {
         try {
-          const { data: { user }, error: userError } = await supabase.auth.getUser();
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser();
 
           if (userError || !user) {
             logger.warn('No user authenticated - skipping load', userError);
@@ -1403,9 +1272,9 @@ export const useGameStoreBase = create<GameState>()(
             throw stateError;
           }
 
-          logger.debug('Game state loaded', { 
+          logger.debug('Game state loaded', {
             found: !!gameState,
-            guardianTrust: gameState?.guardian_trust || 0
+            guardianTrust: gameState?.guardian_trust || 0,
           });
 
           // Load journal entries
@@ -1420,22 +1289,22 @@ export const useGameStoreBase = create<GameState>()(
             throw journalError;
           }
 
-          logger.debug('Journal entries loaded', { 
-            count: journalEntries?.length || 0
+          logger.debug('Journal entries loaded', {
+            count: journalEntries?.length || 0,
           });
 
           if (gameState || journalEntries) {
             // Parse JSON fields from database
-            const parsedMilestones = gameState?.milestones 
-              ? (typeof gameState.milestones === 'string' 
-                  ? JSON.parse(gameState.milestones) 
-                  : gameState.milestones)
+            const parsedMilestones = gameState?.milestones
+              ? typeof gameState.milestones === 'string'
+                ? JSON.parse(gameState.milestones)
+                : gameState.milestones
               : initialMilestones;
-              
+
             const parsedSceneHistory = gameState?.scene_history
-              ? (typeof gameState.scene_history === 'string'
-                  ? JSON.parse(gameState.scene_history)
-                  : gameState.scene_history)
+              ? typeof gameState.scene_history === 'string'
+                ? JSON.parse(gameState.scene_history)
+                : gameState.scene_history
               : [];
 
             set({
@@ -1454,46 +1323,54 @@ export const useGameStoreBase = create<GameState>()(
                 // Experience points system
                 experiencePoints: (gameState as any).experience_points ?? get().experiencePoints,
                 experienceToNext: (gameState as any).experience_to_next ?? get().experienceToNext,
+                // Player statistics for therapeutic analytics
+                playerStatistics: (gameState as any).player_statistics ?? get().playerStatistics,
               }),
               journalEntries:
-                journalEntries?.map((entry) => ({
-                  id: entry.id,
-                  type: entry.type as 'milestone' | 'learning',
-                  trustLevel: entry.trust_level,
-                  content: entry.content,
-                  title: entry.title,
-                  timestamp: entry.created_at ? new Date(entry.created_at) : new Date(),
-                  sceneId: entry.scene_id || undefined,
-                  tags: Array.isArray(entry.tags) ? entry.tags.filter((tag): tag is string => typeof tag === 'string') : [],
-                  isEdited: entry.is_edited || false,
-                  editedAt: entry.edited_at ? new Date(entry.edited_at) : undefined,
-                } as JournalEntry)) || [],
-                saveState: {
-                  status: 'success',
-                  lastSaveTimestamp: Date.now(),
-                  retryCount: 0,
-                  hasUnsavedChanges: false
-                }
+                journalEntries?.map(
+                  (entry) =>
+                    ({
+                      id: entry.id,
+                      type: entry.type as 'milestone' | 'learning',
+                      trustLevel: entry.trust_level,
+                      content: entry.content,
+                      title: entry.title,
+                      timestamp: entry.created_at ? new Date(entry.created_at) : new Date(),
+                      sceneId: entry.scene_id || undefined,
+                      tags: Array.isArray(entry.tags)
+                        ? entry.tags.filter((tag): tag is string => typeof tag === 'string')
+                        : [],
+                      isEdited: entry.is_edited || false,
+                      editedAt: entry.edited_at ? new Date(entry.edited_at) : undefined,
+                    }) as JournalEntry,
+                ) || [],
+              saveState: {
+                status: 'success',
+                lastSaveTimestamp: Date.now(),
+                retryCount: 0,
+                hasUnsavedChanges: false,
+              },
             });
 
             logger.info('Game state loaded from Supabase successfully', {
               guardianTrust: gameState?.guardian_trust || 0,
-              journalCount: journalEntries?.length || 0
+              journalCount: journalEntries?.length || 0,
             });
           }
         } catch (error) {
           logger.error('Failed to load from Supabase:', error);
-          
+
           // Update save state to reflect error
           set((state) => ({
             saveState: {
               ...state.saveState,
               status: 'error',
-              lastError: error instanceof Error ? error.message : 'Unknown error loading from Supabase',
-              hasUnsavedChanges: true
-            }
+              lastError:
+                error instanceof Error ? error.message : 'Unknown error loading from Supabase',
+              hasUnsavedChanges: true,
+            },
           }));
-          
+
           // Don't throw - we want the game to continue even if load fails
         }
       },
@@ -1502,59 +1379,57 @@ export const useGameStoreBase = create<GameState>()(
       performHealthCheck: async () => {
         try {
           logger.debug('Performing database health check');
-          
+
           const result = await performEnhancedHealthCheck();
           const newHealthStatus = getCurrentHealthStatus(result);
-          
-          set((_state) => ({
-            // TEMPORARILY COMMENTED OUT FOR BUILD: state parameter renamed to _state to fix TS6133 build error
-            healthStatus: newHealthStatus
+
+          set(() => ({
+            healthStatus: newHealthStatus,
           }));
-          
+
           if (result.success) {
             logger.debug('Health check successful', {
               responseTime: result.responseTime,
-              environment: newHealthStatus.environment
+              environment: newHealthStatus.environment,
             });
           } else {
             logger.warn('Health check failed', {
               error: result.error,
-              responseTime: result.responseTime
+              responseTime: result.responseTime,
             });
           }
         } catch (error: any) {
           logger.error('Health check threw exception', error);
-          
-          set((_state) => ({
-            // TEMPORARILY COMMENTED OUT FOR BUILD: state parameter renamed to _state to fix TS6133 build error
+
+          set(() => ({
             healthStatus: {
               isConnected: false,
               responseTime: 0,
               lastChecked: Date.now(),
               error: error.message || 'Health check failed',
-              environment: detectEnvironment()
-            }
+              environment: detectEnvironment(),
+            },
           }));
         }
       },
 
       startHealthMonitoring: () => {
         const state = get();
-        
+
         // Don't start monitoring if already running
         if (state._isHealthMonitoringActive || state._healthCheckInterval) {
           logger.debug('Health monitoring already running');
           return;
         }
-        
+
         logger.info('Starting database health monitoring');
-        
+
         // Mark as active immediately to prevent race conditions
         set({ _isHealthMonitoringActive: true });
-        
+
         // Perform initial health check
         get().performHealthCheck();
-        
+
         // Set up periodic health checks using environment-specific interval
         const config = getEnvironmentConfig();
         const interval = setInterval(() => {
@@ -1568,20 +1443,20 @@ export const useGameStoreBase = create<GameState>()(
 
           currentState.performHealthCheck();
         }, config.healthCheckInterval);
-        
+
         // Store interval reference
         set({ _healthCheckInterval: interval });
       },
 
       stopHealthMonitoring: () => {
         const state = get();
-        
+
         if (state._healthCheckInterval) {
           logger.info('Stopping database health monitoring');
           clearInterval(state._healthCheckInterval);
-          set({ 
+          set({
             _healthCheckInterval: undefined,
-            _isHealthMonitoringActive: false 
+            _isHealthMonitoringActive: false,
           });
         }
       },
@@ -1589,24 +1464,24 @@ export const useGameStoreBase = create<GameState>()(
       // Energy regeneration actions
       startEnergyRegeneration: () => {
         const state = get();
-        
+
         // CRITICAL: Check and prevent duplicate starts atomically
         if (state._isEnergyRegenActive) {
           logger.debug('Energy regeneration already active, skipping start');
           return;
         }
-        
+
         // CRITICAL: Always clear existing interval first if it exists (atomic cleanup)
         if (state._energyRegenInterval) {
           clearInterval(state._energyRegenInterval);
           logger.warn('Cleared existing energy regeneration interval');
         }
-        
+
         logger.info('Starting energy regeneration');
-        
+
         // Set active flag immediately to prevent race conditions
         set({ _isEnergyRegenActive: true });
-        
+
         // Set up periodic regeneration using environment-specific interval
         const config = getEnvironmentConfig();
         const interval = setInterval(() => {
@@ -1620,51 +1495,47 @@ export const useGameStoreBase = create<GameState>()(
 
           currentState.regenerateEnergy();
         }, config.energyRegenInterval);
-        
+
         // Store interval reference atomically
         set({ _energyRegenInterval: interval });
       },
 
       stopEnergyRegeneration: () => {
         const state = get();
-        
+
         // Always reset flags, even if no interval exists (cleanup any inconsistent state)
         if (state._energyRegenInterval) {
           logger.info('Stopping energy regeneration');
           clearInterval(state._energyRegenInterval);
         } else if (state._isEnergyRegenActive) {
-          logger.warn('Clearing inconsistent energy regeneration state (active flag but no interval)');
+          logger.warn(
+            'Clearing inconsistent energy regeneration state (active flag but no interval)',
+          );
         }
-        
+
         // Atomically reset both flags regardless of current state
-        set({ 
+        set({
           _energyRegenInterval: undefined,
-          _isEnergyRegenActive: false 
+          _isEnergyRegenActive: false,
         });
       },
 
       regenerateEnergy: () => {
         const state = get();
-        
-        // Don't regenerate if in combat
-        if (state.combat.inCombat) {
-          logger.debug('Energy regeneration paused - in combat');
-          return;
-        }
-        
+
         // Don't regenerate if already at max energy
         if (state.playerEnergy >= state.maxPlayerEnergy) {
           logger.debug('Energy regeneration skipped - already at max energy');
           return;
         }
-        
+
         // Regenerate 1 energy
         const newEnergy = Math.min(state.maxPlayerEnergy, state.playerEnergy + 1);
         set((state) => ({
           playerEnergy: newEnergy,
-          saveState: { ...state.saveState, hasUnsavedChanges: true }
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
-        
+
         logger.debug(`Energy regenerated: ${state.playerEnergy} -> ${newEnergy}`);
       },
     }),
@@ -1766,19 +1637,22 @@ export const useGameStore = () => {
       experiencePoints: store.experiencePoints,
       experienceToNext: store.experienceToNext,
 
+      // Player Statistics - Use actual store values for real-time updates
+      playerStatistics: store.playerStatistics,
+
       // Combat System State - Use actual store values for real-time updates
       combat: store.combat,
 
       saveState: {
         status: 'idle',
         retryCount: 0,
-        hasUnsavedChanges: false
+        hasUnsavedChanges: false,
       } as SaveState,
       healthStatus: {
         isConnected: false,
         responseTime: 0,
         lastChecked: 0,
-        environment: detectEnvironment()
+        environment: detectEnvironment(),
       } as DatabaseHealthStatus,
       setGuardianTrust: store.setGuardianTrust,
       addJournalEntry: store.addJournalEntry,
@@ -1811,10 +1685,11 @@ export const useGameStore = () => {
       getPlayerLevel: store.getPlayerLevel,
       getExperienceProgress: store.getExperienceProgress,
 
-      // Combat System Actions
-      startCombat: store.startCombat,
-      executeCombatAction: store.executeCombatAction,
-      endTurn: store.endTurn,
+      // Player Statistics Management
+      updateCombatStatistics: store.updateCombatStatistics,
+      getPlayerStatistics: store.getPlayerStatistics,
+
+      // Combat System Actions (simplified)
       endCombat: store.endCombat,
 
       checkUnsavedChanges: store.checkUnsavedChanges,

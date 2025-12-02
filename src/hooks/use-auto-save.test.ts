@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useAutoSave } from '@/hooks/use-auto-save';
@@ -12,23 +14,23 @@ vi.mock('@/lib/environment', () => ({
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn()
+    error: vi.fn(),
   }),
   environment: {
     current: 'test',
     isProduction: false,
     isDevelopment: false,
     isStaging: false,
-    isLocal: true
+    isLocal: true,
   },
   featureFlags: {
-    enablePerformanceMonitoring: vi.fn(() => false)
+    enablePerformanceMonitoring: vi.fn(() => false),
   },
   getEnvironmentConfig: vi.fn(() => ({
     name: 'test',
     enableLogging: false,
-    apiTimeout: 5000
-  }))
+    apiTimeout: 5000,
+  })),
 }));
 
 vi.mock('@/lib/database-health', () => ({
@@ -38,8 +40,8 @@ vi.mock('@/lib/database-health', () => ({
     isConnected: true,
     responseTime: 0,
     lastChecked: Date.now(),
-    environment: 'test'
-  }))
+    environment: 'test',
+  })),
 }));
 
 const mockUseGameStore = vi.mocked(useGameStoreBase);
@@ -52,12 +54,12 @@ describe('useAutoSave', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    
+
     // Setup default mocks
     mockUseSupabase.mockReturnValue({
       user: mockUser,
       loading: false,
-      supabase: {} as any
+      supabase: {} as any,
     });
 
     mockUseGameStore.mockImplementation((selector: any) => {
@@ -68,8 +70,8 @@ describe('useAutoSave', () => {
           status: 'idle' as const,
           lastSaveTimestamp: Date.now(),
           retryCount: 0,
-          lastError: undefined
-        }
+          lastError: undefined,
+        },
       };
       return selector(mockState);
     });
@@ -77,19 +79,19 @@ describe('useAutoSave', () => {
     // Mock window methods
     Object.defineProperty(window, 'addEventListener', {
       value: vi.fn(),
-      writable: true
+      writable: true,
     });
     Object.defineProperty(window, 'removeEventListener', {
       value: vi.fn(),
-      writable: true
+      writable: true,
     });
     Object.defineProperty(document, 'hidden', {
       value: false,
-      writable: true
+      writable: true,
     });
     Object.defineProperty(document, 'hasFocus', {
       value: vi.fn(() => true),
-      writable: true
+      writable: true,
     });
   });
 
@@ -101,7 +103,7 @@ describe('useAutoSave', () => {
   describe('Basic functionality', () => {
     it('should initialize without errors', () => {
       const { result } = renderHook(() => useAutoSave());
-      
+
       expect(result.current).toBeDefined();
       expect(result.current.saveNow).toBeInstanceOf(Function);
       expect(result.current.saveStatus).toBe('idle');
@@ -112,11 +114,11 @@ describe('useAutoSave', () => {
       mockUseSupabase.mockReturnValue({
         user: null,
         loading: false,
-        supabase: {} as any
+        supabase: {} as any,
       });
 
       const { result } = renderHook(() => useAutoSave());
-      
+
       act(() => {
         result.current.saveNow();
       });
@@ -126,7 +128,7 @@ describe('useAutoSave', () => {
 
     it('should not save when disabled', () => {
       const { result } = renderHook(() => useAutoSave({ enabled: false }));
-      
+
       act(() => {
         result.current.saveNow();
       });
@@ -145,8 +147,8 @@ describe('useAutoSave', () => {
             status: 'idle' as const,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
-          }
+            lastError: undefined,
+          },
         };
         return selector(mockState);
       });
@@ -176,14 +178,14 @@ describe('useAutoSave', () => {
             status: 'saving' as const,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
-          }
+            lastError: undefined,
+          },
         };
         return selector(mockState);
       });
 
       const { result } = renderHook(() => useAutoSave());
-      
+
       act(() => {
         result.current.saveNow();
       });
@@ -195,20 +197,17 @@ describe('useAutoSave', () => {
   describe('Periodic auto-save', () => {
     it('should set up periodic save interval', () => {
       const setIntervalSpy = vi.spyOn(global, 'setInterval');
-      
+
       renderHook(() => useAutoSave({ interval: 30000 }));
 
-      expect(setIntervalSpy).toHaveBeenCalledWith(
-        expect.any(Function),
-        30000
-      );
+      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 30000);
     });
 
     it('should clear interval on unmount', () => {
       const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
-      
+
       const { unmount } = renderHook(() => useAutoSave());
-      
+
       unmount();
 
       expect(clearIntervalSpy).toHaveBeenCalled();
@@ -223,8 +222,8 @@ describe('useAutoSave', () => {
             status: 'idle' as const,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
-          }
+            lastError: undefined,
+          },
         };
         return selector(mockState);
       });
@@ -256,26 +255,20 @@ describe('useAutoSave', () => {
   describe('beforeunload handling', () => {
     it('should set up beforeunload listener', () => {
       const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-      
+
       renderHook(() => useAutoSave());
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        'beforeunload',
-        expect.any(Function)
-      );
+      expect(addEventListenerSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
     });
 
     it('should remove beforeunload listener on unmount', () => {
       const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-      
+
       const { unmount } = renderHook(() => useAutoSave());
-      
+
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith(
-        'beforeunload',
-        expect.any(Function)
-      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
     });
   });
 
@@ -289,14 +282,14 @@ describe('useAutoSave', () => {
             status: 'idle' as const,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
-          }
+            lastError: undefined,
+          },
         };
         return selector(mockState);
       });
 
       const { result } = renderHook(() => useAutoSave());
-      
+
       await act(async () => {
         result.current.saveNow();
       });
@@ -306,7 +299,7 @@ describe('useAutoSave', () => {
 
     it('should not save when no unsaved changes', () => {
       const { result } = renderHook(() => useAutoSave());
-      
+
       act(() => {
         result.current.saveNow();
       });
@@ -319,7 +312,7 @@ describe('useAutoSave', () => {
     it('should handle save errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockSaveToSupabase.mockRejectedValueOnce(new Error('Save failed'));
-      
+
       mockUseGameStore.mockImplementation((selector: any) => {
         const mockState = {
           saveToSupabase: mockSaveToSupabase,
@@ -328,14 +321,14 @@ describe('useAutoSave', () => {
             status: 'idle' as const,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
-          }
+            lastError: undefined,
+          },
         };
         return selector(mockState);
       });
 
       const { result } = renderHook(() => useAutoSave());
-      
+
       await act(async () => {
         result.current.saveNow();
       });
@@ -348,18 +341,15 @@ describe('useAutoSave', () => {
   describe('Configuration options', () => {
     it('should respect custom interval setting', () => {
       const setIntervalSpy = vi.spyOn(global, 'setInterval');
-      
+
       renderHook(() => useAutoSave({ interval: 60000 }));
 
-      expect(setIntervalSpy).toHaveBeenCalledWith(
-        expect.any(Function),
-        60000
-      );
+      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 60000);
     });
 
     it('should respect custom debounce delay', () => {
       const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
-      
+
       mockUseGameStore.mockImplementation((selector: any) => {
         const mockState = {
           saveToSupabase: mockSaveToSupabase,
@@ -368,18 +358,15 @@ describe('useAutoSave', () => {
             status: 'idle' as const,
             lastSaveTimestamp: Date.now(),
             retryCount: 0,
-            lastError: undefined
-          }
+            lastError: undefined,
+          },
         };
         return selector(mockState);
       });
 
       renderHook(() => useAutoSave({ debounceDelay: 10000 }));
 
-      expect(setTimeoutSpy).toHaveBeenCalledWith(
-        expect.any(Function),
-        10000
-      );
+      expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 10000);
     });
   });
 });

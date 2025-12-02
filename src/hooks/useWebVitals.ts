@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Performance APIs require flexible types for PerformanceEntry extensions */
 /*
  * MIT License
- 
+
  * Web Vitals tracking hook for Luminari's Quest
- * 
+ *
  * Features:
  * - Core Web Vitals monitoring (LCP, FID, CLS)
  * - Performance metrics tracking
@@ -52,7 +53,7 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
   const {
     enableLogging = featureFlags.enablePerformanceMonitoring(),
     onMetric,
-    enableReporting = true
+    enableReporting = true,
   } = options;
 
   const metricsRef = useRef<Partial<WebVitalsData>>({});
@@ -81,7 +82,7 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
         value: metric.value,
         delta: metric.delta,
         id: metric.id,
-        url: window.location.href
+        url: window.location.href,
       });
     }
 
@@ -106,7 +107,7 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
         metric_name: metric.name,
         metric_value: metric.value,
         page_url: window.location.href,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     }
   };
@@ -119,65 +120,64 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
 
     // Initialize basic performance observers (defined here to avoid forward reference - React 19)
     const initPerformanceObservers = () => {
-    // Largest Contentful Paint (LCP)
-    if ('PerformanceObserver' in window) {
-      try {
-        const lcpObserver = new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1] as any;
-          
-          if (lastEntry) {
-            reportMetric({
-              name: 'LCP',
-              value: lastEntry.startTime,
-              delta: lastEntry.startTime,
-              id: `lcp-${Date.now()}`,
-              entries: [lastEntry]
-            });
-          }
-        });
-        lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+      // Largest Contentful Paint (LCP)
+      if ('PerformanceObserver' in window) {
+        try {
+          const lcpObserver = new PerformanceObserver((list) => {
+            const entries = list.getEntries();
+            const lastEntry = entries[entries.length - 1] as any;
 
-        // First Contentful Paint (FCP)
-        const fcpObserver = new PerformanceObserver((list) => {
-          const entries = list.getEntries();
-          const fcpEntry = entries.find(entry => entry.name === 'first-contentful-paint');
-          
-          if (fcpEntry) {
-            reportMetric({
-              name: 'FCP',
-              value: fcpEntry.startTime,
-              delta: fcpEntry.startTime,
-              id: `fcp-${Date.now()}`,
-              entries: [fcpEntry]
-            });
-          }
-        });
-        fcpObserver.observe({ entryTypes: ['paint'] });
-
-        // Cumulative Layout Shift (CLS)
-        let clsValue = 0;
-        const clsObserver = new PerformanceObserver((list) => {
-          for (const entry of list.getEntries() as any[]) {
-            if (!entry.hadRecentInput) {
-              clsValue += entry.value;
+            if (lastEntry) {
+              reportMetric({
+                name: 'LCP',
+                value: lastEntry.startTime,
+                delta: lastEntry.startTime,
+                id: `lcp-${Date.now()}`,
+                entries: [lastEntry],
+              });
             }
-          }
-          
-          reportMetric({
-            name: 'CLS',
-            value: clsValue,
-            delta: clsValue,
-            id: `cls-${Date.now()}`,
-            entries: list.getEntries()
           });
-        });
-        clsObserver.observe({ entryTypes: ['layout-shift'] });
+          lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
 
-      } catch (error) {
-        logger.warn('Failed to initialize performance observers', error);
+          // First Contentful Paint (FCP)
+          const fcpObserver = new PerformanceObserver((list) => {
+            const entries = list.getEntries();
+            const fcpEntry = entries.find((entry) => entry.name === 'first-contentful-paint');
+
+            if (fcpEntry) {
+              reportMetric({
+                name: 'FCP',
+                value: fcpEntry.startTime,
+                delta: fcpEntry.startTime,
+                id: `fcp-${Date.now()}`,
+                entries: [fcpEntry],
+              });
+            }
+          });
+          fcpObserver.observe({ entryTypes: ['paint'] });
+
+          // Cumulative Layout Shift (CLS)
+          let clsValue = 0;
+          const clsObserver = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries() as any[]) {
+              if (!entry.hadRecentInput) {
+                clsValue += entry.value;
+              }
+            }
+
+            reportMetric({
+              name: 'CLS',
+              value: clsValue,
+              delta: clsValue,
+              id: `cls-${Date.now()}`,
+              entries: list.getEntries(),
+            });
+          });
+          clsObserver.observe({ entryTypes: ['layout-shift'] });
+        } catch (error) {
+          logger.warn('Failed to initialize performance observers', error);
+        }
       }
-    }
     };
 
     // Call the performance observers initialization
@@ -193,6 +193,7 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
         // Cleanup logic would go here
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reportMetric is stable ref pattern, including it causes infinite loop
   }, [enableReporting]);
 
   // Get current metrics snapshot
@@ -203,17 +204,19 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
   // Manual trigger for performance measurement
   const measurePerformance = () => {
     if ('performance' in window && 'getEntriesByType' in performance) {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      
+      const navigation = performance.getEntriesByType(
+        'navigation',
+      )[0] as PerformanceNavigationTiming;
+
       if (navigation) {
         const ttfb = navigation.responseStart - navigation.requestStart;
-        
+
         reportMetric({
           name: 'TTFB',
           value: ttfb,
           delta: ttfb,
           id: `ttfb-${Date.now()}`,
-          entries: [navigation]
+          entries: [navigation],
         });
       }
     }
@@ -222,6 +225,6 @@ export function useWebVitals(options: UseWebVitalsOptions = {}) {
   return {
     getMetrics,
     measurePerformance,
-    reportMetric
+    reportMetric,
   };
 }

@@ -1,4 +1,3 @@
- 
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '@/store/game-store';
 
@@ -14,22 +13,23 @@ export const useHealthMonitoring = () => {
   useEffect(() => {
     // Only initialize once
     if (initialized.current) return;
-    
+
     initialized.current = true;
-    
+
     // Start health monitoring when the app initializes
     startHealthMonitoring();
-    
+
     // Cleanup function to stop monitoring when the app unmounts
     return () => {
       // We don't stop monitoring here as it's handled at the store level
       // This prevents multiple stop/start cycles
     };
-  }, []); // Empty deps to run only once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally empty: only run once on mount
+  }, []);
 
   // Return the health check function in case components need to trigger manual checks
   return {
-    performHealthCheck
+    performHealthCheck,
   };
 };
 
@@ -39,7 +39,7 @@ export const useHealthMonitoring = () => {
  */
 export const useHealthStatus = () => {
   const { healthStatus, performHealthCheck } = useGameStore();
-  
+
   return {
     healthStatus,
     performHealthCheck,
@@ -47,6 +47,6 @@ export const useHealthStatus = () => {
     responseTime: healthStatus.responseTime,
     lastChecked: healthStatus.lastChecked,
     error: healthStatus.error,
-    environment: healthStatus.environment
+    environment: healthStatus.environment,
   };
 };

@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   checkPerformanceBudget,
   reportWebVital,
   trackImageOptimization,
   generatePerformanceReport,
-  initializePerformanceMonitoring
+  initializePerformanceMonitoring,
 } from '../lib/performance-monitoring';
 import { featureFlags } from '../lib/environment';
 import type { WebVitalsMetric } from '../hooks/useWebVitals';
@@ -21,24 +23,24 @@ vi.mock('../lib/environment', () => ({
     enableErrorReporting: true,
     healthCheckInterval: 30000,
     retryAttempts: 2,
-    timeoutMs: 15000
+    timeoutMs: 15000,
   })),
   createLogger: vi.fn(() => ({
     info: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-    error: vi.fn()
+    error: vi.fn(),
   })),
   featureFlags: {
-    enablePerformanceMonitoring: vi.fn(() => true)
-  }
+    enablePerformanceMonitoring: vi.fn(() => true),
+  },
 }));
 
 // Mock DOM APIs
 const mockImages = [
   { src: '/images/test.avif', naturalWidth: 800, naturalHeight: 600 },
   { src: '/images/test.webp', naturalWidth: 800, naturalHeight: 600 },
-  { src: '/images/test.png', naturalWidth: 800, naturalHeight: 600 }
+  { src: '/images/test.png', naturalWidth: 800, naturalHeight: 600 },
 ];
 
 describe('Performance Monitoring', () => {
@@ -52,35 +54,35 @@ describe('Performance Monitoring', () => {
           requestStart: 50,
           domContentLoadedEventEnd: 500,
           loadEventEnd: 800,
-          fetchStart: 0
-        }
-      ])
+          fetchStart: 0,
+        },
+      ]),
     };
 
     global.window = {
       location: {
         href: 'https://test.com',
-        hostname: 'test.com'
+        hostname: 'test.com',
       },
       navigator: { userAgent: 'test-agent' },
       addEventListener: vi.fn(),
-      performance: mockPerformance
+      performance: mockPerformance,
     } as any;
 
     // Ensure performance is properly accessible
     Object.defineProperty(global.window, 'performance', {
       value: mockPerformance,
       writable: true,
-      configurable: true
+      configurable: true,
     });
 
     global.document = {
       readyState: 'complete',
-      querySelectorAll: vi.fn(() => mockImages)
+      querySelectorAll: vi.fn(() => mockImages),
     } as any;
 
     global.navigator = {
-      userAgent: 'test-agent'
+      userAgent: 'test-agent',
     } as any;
 
     // Clear all mocks
@@ -95,7 +97,7 @@ describe('Performance Monitoring', () => {
 
     it('should return warning alert for metrics exceeding warning threshold', () => {
       const result = checkPerformanceBudget('lcp', 3000);
-      
+
       expect(result).toBeDefined();
       expect(result?.severity).toBe('warning');
       expect(result?.metric).toBe('lcp');
@@ -105,7 +107,7 @@ describe('Performance Monitoring', () => {
 
     it('should return error alert for metrics exceeding error threshold', () => {
       const result = checkPerformanceBudget('lcp', 5000);
-      
+
       expect(result).toBeDefined();
       expect(result?.severity).toBe('error');
       expect(result?.metric).toBe('lcp');
@@ -126,7 +128,7 @@ describe('Performance Monitoring', () => {
         value: 2000,
         delta: 2000,
         id: 'test-lcp',
-        entries: []
+        entries: [],
       };
 
       expect(() => reportWebVital(metric)).not.toThrow();
@@ -138,7 +140,7 @@ describe('Performance Monitoring', () => {
         value: 5000,
         delta: 5000,
         id: 'test-lcp-high',
-        entries: []
+        entries: [],
       };
 
       expect(() => reportWebVital(metric)).not.toThrow();
@@ -165,7 +167,7 @@ describe('Performance Monitoring', () => {
         fid: 50,
         cls: 0.05,
         fcp: 1500,
-        ttfb: 300
+        ttfb: 300,
       };
 
       const report = generatePerformanceReport(metrics);
@@ -203,13 +205,13 @@ describe('Performance Monitoring', () => {
           requestStart: 50,
           domContentLoadedEventEnd: 500,
           loadEventEnd: 800,
-          fetchStart: 0
-        }
+          fetchStart: 0,
+        },
       ]);
 
       // Set up the performance API mock
       global.window.performance = {
-        getEntriesByType: mockGetEntriesByType
+        getEntriesByType: mockGetEntriesByType,
       } as any;
 
       // Call the function

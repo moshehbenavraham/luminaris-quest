@@ -1,4 +1,3 @@
- 
 import { useEffect, useRef, useCallback } from 'react';
 import { useGameStoreBase } from '@/store/game-store';
 import { useSupabase } from '@/lib/providers/supabase-context';
@@ -23,16 +22,12 @@ interface AutoSaveOptions {
  * Includes debouncing, retry logic, and beforeunload handling
  */
 export function useAutoSave(options: AutoSaveOptions = {}) {
-  const {
-    enabled = true,
-    interval = AUTO_SAVE_INTERVAL,
-    debounceDelay = DEBOUNCE_DELAY
-  } = options;
+  const { enabled = true, interval = AUTO_SAVE_INTERVAL, debounceDelay = DEBOUNCE_DELAY } = options;
 
   const { user } = useSupabase();
-  const saveToSupabase = useGameStoreBase(state => state.saveToSupabase);
-  const hasUnsavedChanges = useGameStoreBase(state => state.saveState.hasUnsavedChanges);
-  const saveStatus = useGameStoreBase(state => state.saveState.status);
+  const saveToSupabase = useGameStoreBase((state) => state.saveToSupabase);
+  const hasUnsavedChanges = useGameStoreBase((state) => state.saveState.hasUnsavedChanges);
+  const saveStatus = useGameStoreBase((state) => state.saveState.status);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
@@ -72,16 +67,19 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
     try {
       logger.info('Auto-save triggered', {
         retryCount: retryCountRef.current,
-        timeSinceLastSave: Date.now() - lastSaveTimeRef.current
+        timeSinceLastSave: Date.now() - lastSaveTimeRef.current,
       });
 
-      await saveToSupabase();
+      const success = await saveToSupabase();
 
-      // Reset retry count on success
-      retryCountRef.current = 0;
-      lastSaveTimeRef.current = Date.now();
-
-      logger.info('Auto-save completed successfully');
+      if (success) {
+        // Reset retry count on success
+        retryCountRef.current = 0;
+        lastSaveTimeRef.current = Date.now();
+        logger.info('Auto-save completed successfully');
+      } else {
+        throw new Error('Save returned false status');
+      }
     } catch (error) {
       logger.error('Auto-save failed', error);
 
@@ -98,7 +96,7 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
         }, retryDelay);
       } else {
         logger.error('Auto-save max retries exceeded', {
-          attempts: retryCountRef.current
+          attempts: retryCountRef.current,
         });
         // Reset retry count for next auto-save cycle
         retryCountRef.current = 0;
@@ -131,7 +129,7 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
    */
   const saveOnEvent = useCallback(() => {
     if (!enabled || !user || !hasUnsavedChanges) return;
-    
+
     logger.debug('Event-triggered save requested');
     performSave();
   }, [enabled, user, hasUnsavedChanges, performSave]);
@@ -139,19 +137,22 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
   /**
    * Handle beforeunload to save before leaving
    */
-  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
-    if (!hasUnsavedChanges || !enabled || !user) return;
+  const handleBeforeUnload = useCallback(
+    (e: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges || !enabled || !user) return;
 
-    // Try to save synchronously (best effort)
-    logger.warn('Page unloading with unsaved changes, attempting save');
-    
-    // Show browser warning
-    e.preventDefault();
-    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-    
-    // Attempt save (may not complete)
-    performSave();
-  }, [hasUnsavedChanges, enabled, user, performSave]);
+      // Try to save synchronously (best effort)
+      logger.warn('Page unloading with unsaved changes, attempting save');
+
+      // Show browser warning
+      e.preventDefault();
+      e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+
+      // Attempt save (may not complete)
+      performSave();
+    },
+    [hasUnsavedChanges, enabled, user, performSave],
+  );
 
   // Set up auto-save when changes are detected
   useEffect(() => {
@@ -204,6 +205,6 @@ export function useAutoSave(options: AutoSaveOptions = {}) {
   return {
     saveNow: saveOnEvent,
     saveStatus,
-    hasUnsavedChanges
+    hasUnsavedChanges,
   };
 }

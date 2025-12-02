@@ -1,7 +1,15 @@
- 
+/* eslint-disable @typescript-eslint/no-explicit-any -- Database test page requires flexible types for test results and user data */
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
@@ -17,21 +25,24 @@ export function DatabaseTest() {
     user?: any;
     error?: string;
   }>({
-    isAuthenticated: false
+    isAuthenticated: false,
   });
 
   const runTests = async () => {
     setIsLoading(true);
     try {
       // Check authentication status
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
       setAuthStatus({
         isAuthenticated: !!user,
         user,
-        error: authError?.message
+        error: authError?.message,
       });
-      
+
       // Run database tests
       const results = await runDatabaseTests();
       setTestResults(results);
@@ -39,7 +50,7 @@ export function DatabaseTest() {
       console.error('Error running tests:', error);
       setTestResults({
         overallSuccess: false,
-        error: error.message
+        error: error.message,
       });
     } finally {
       setIsLoading(false);
@@ -54,7 +65,7 @@ export function DatabaseTest() {
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-8">
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight">Database Connection Test</h1>
-        <p className="text-xl text-muted-foreground">
+        <p className="text-muted-foreground text-xl">
           This page tests the connection to your Supabase database and verifies table access.
         </p>
       </div>
@@ -65,9 +76,13 @@ export function DatabaseTest() {
           <CardTitle className="flex items-center gap-2">
             Authentication Status
             {authStatus.isAuthenticated ? (
-              <Badge variant="default" className="ml-2">Authenticated</Badge>
+              <Badge variant="default" className="ml-2">
+                Authenticated
+              </Badge>
             ) : (
-              <Badge variant="destructive" className="ml-2">Not Authenticated</Badge>
+              <Badge variant="destructive" className="ml-2">
+                Not Authenticated
+              </Badge>
             )}
           </CardTitle>
           <CardDescription>
@@ -81,12 +96,8 @@ export function DatabaseTest() {
                 <CheckCircle className="h-5 w-5" />
                 <span>User is authenticated</span>
               </div>
-              <div className="text-sm text-muted-foreground">
-                User ID: {authStatus.user?.id}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Email: {authStatus.user?.email}
-              </div>
+              <div className="text-muted-foreground text-sm">User ID: {authStatus.user?.id}</div>
+              <div className="text-muted-foreground text-sm">Email: {authStatus.user?.email}</div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -95,25 +106,23 @@ export function DatabaseTest() {
                 <span>User is not authenticated</span>
               </div>
               {authStatus.error && (
-                <div className="text-sm text-red-600">
-                  Error: {authStatus.error}
-                </div>
+                <div className="text-sm text-red-600">Error: {authStatus.error}</div>
               )}
               <Alert variant="destructive" className="mt-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Authentication Required</AlertTitle>
                 <AlertDescription>
-                  You need to be logged in to access database tables due to Row Level Security (RLS) policies.
-                  Please log in on the home page first.
+                  You need to be logged in to access database tables due to Row Level Security (RLS)
+                  policies. Please log in on the home page first.
                 </AlertDescription>
               </Alert>
             </div>
           )}
         </CardContent>
         <CardFooter>
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.href = '/'}
+          <Button
+            variant="outline"
+            onClick={() => (window.location.href = '/')}
             className="min-h-[44px]"
           >
             Go to Login Page
@@ -127,17 +136,15 @@ export function DatabaseTest() {
           <CardTitle className="flex items-center justify-between">
             <span>Database Test Results</span>
             {testResults && !isLoading && (
-              <Badge 
-                variant={testResults.overallSuccess ? "default" : "destructive"}
+              <Badge
+                variant={testResults.overallSuccess ? 'default' : 'destructive'}
                 className="ml-2"
               >
-                {testResults.overallSuccess ? "All Tests Passed" : "Tests Failed"}
+                {testResults.overallSuccess ? 'All Tests Passed' : 'Tests Failed'}
               </Badge>
             )}
           </CardTitle>
-          <CardDescription>
-            Testing database connectivity and table access
-          </CardDescription>
+          <CardDescription>Testing database connectivity and table access</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -161,7 +168,7 @@ export function DatabaseTest() {
                   <span>{testResults.connectionTest?.message}</span>
                 </div>
                 {testResults.connectionTest?.data && (
-                  <div className="rounded-md bg-muted p-3">
+                  <div className="bg-muted rounded-md p-3">
                     <pre className="text-xs">
                       {JSON.stringify(testResults.connectionTest.data, null, 2)}
                     </pre>
@@ -172,8 +179,8 @@ export function DatabaseTest() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Connection Error</AlertTitle>
                     <AlertDescription>
-                      {typeof testResults.connectionTest.error === 'string' 
-                        ? testResults.connectionTest.error 
+                      {typeof testResults.connectionTest.error === 'string'
+                        ? testResults.connectionTest.error
                         : JSON.stringify(testResults.connectionTest.error, null, 2)}
                     </AlertDescription>
                   </Alert>
@@ -191,7 +198,7 @@ export function DatabaseTest() {
                   )}
                   <span>{testResults.tableTest?.message}</span>
                 </div>
-                
+
                 {testResults.tableTest?.tables && (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -212,7 +219,7 @@ export function DatabaseTest() {
                     </div>
                   </div>
                 )}
-                
+
                 {testResults.tableTest?.error && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
@@ -221,12 +228,14 @@ export function DatabaseTest() {
                       <div className="space-y-2">
                         {testResults.tableTest.error.game_states && (
                           <div>
-                            <strong>game_states:</strong> {testResults.tableTest.error.game_states.message}
+                            <strong>game_states:</strong>{' '}
+                            {testResults.tableTest.error.game_states.message}
                           </div>
                         )}
                         {testResults.tableTest.error.journal_entries && (
                           <div>
-                            <strong>journal_entries:</strong> {testResults.tableTest.error.journal_entries.message}
+                            <strong>journal_entries:</strong>{' '}
+                            {testResults.tableTest.error.journal_entries.message}
                           </div>
                         )}
                       </div>
@@ -242,11 +251,13 @@ export function DatabaseTest() {
                   <AlertTitle>Troubleshooting Steps</AlertTitle>
                   <AlertDescription>
                     <ol className="list-decimal space-y-1 pl-5">
-                      <li>Verify that you're logged in (authentication status above)</li>
+                      <li>Verify that you&apos;re logged in (authentication status above)</li>
                       <li>Check that the database migration has been run</li>
                       <li>Verify your environment variables are correct</li>
                       <li>Check network connectivity to Supabase</li>
-                      <li>See <code>docs/SUPABASE_TROUBLESHOOTING.md</code> for more details</li>
+                      <li>
+                        See <code>docs/SUPABASE_TROUBLESHOOTING.md</code> for more details
+                      </li>
                     </ol>
                   </AlertDescription>
                 </Alert>
@@ -263,17 +274,13 @@ export function DatabaseTest() {
           )}
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button 
-            onClick={runTests} 
-            disabled={isLoading}
-            className="min-h-[44px]"
-          >
+          <Button onClick={runTests} disabled={isLoading} className="min-h-[44px]">
             {isLoading ? <Spinner className="mr-2" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             Run Tests Again
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.href = '/'}
+          <Button
+            variant="outline"
+            onClick={() => (window.location.href = '/')}
             className="min-h-[44px]"
           >
             Return to Home

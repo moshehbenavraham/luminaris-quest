@@ -15,7 +15,7 @@ const mockCombatStore = {
     currentHP: 0,
     maxHP: 30,
     type: 'EMOTIONAL',
-    therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    therapeuticInsight: 'Facing doubt with courage builds inner strength.',
   },
   resources: {
     lp: 10,
@@ -40,6 +40,7 @@ vi.mock('@/store/game-store', () => ({
     modifyLightPoints: vi.fn(),
     modifyShadowPoints: vi.fn(),
     modifyExperiencePoints: vi.fn(),
+    updateCombatStatistics: vi.fn(),
     endCombat: vi.fn(),
   }),
 }));
@@ -63,7 +64,7 @@ describe('CombatEndModal', () => {
       currentHP: 0,
       maxHP: 30,
       type: 'EMOTIONAL',
-      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.',
     };
     mockCombatStore.resources = {
       lp: 10,
@@ -94,7 +95,7 @@ describe('CombatEndModal', () => {
       currentHP: 15,
       maxHP: 30,
       type: 'EMOTIONAL',
-      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.',
     };
 
     render(<CombatEndModal />);
@@ -124,7 +125,7 @@ describe('CombatEndModal', () => {
       currentHP: 15,
       maxHP: 30,
       type: 'EMOTIONAL',
-      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.',
     };
 
     render(<CombatEndModal />);
@@ -197,7 +198,7 @@ describe('CombatEndModal', () => {
       currentHP: 15,
       maxHP: 30,
       type: 'EMOTIONAL',
-      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.',
     };
 
     render(<CombatEndModal />);
@@ -219,7 +220,7 @@ describe('CombatEndModal', () => {
       currentHP: 15,
       maxHP: 30,
       type: 'EMOTIONAL',
-      therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+      therapeuticInsight: 'Facing doubt with courage builds inner strength.',
     };
 
     render(<CombatEndModal forceVictory={true} />);

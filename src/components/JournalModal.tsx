@@ -1,9 +1,18 @@
- 
-import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useEffect, useRef, useCallback } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Heart, BookOpen, Sparkles, TrendingUp } from 'lucide-react';
+
+// Generate unique ID outside of render for purity
+let idCounter = 0;
+const generateId = () => `journal-${Date.now()}-${++idCounter}`;
 
 export interface JournalEntry {
   id: string;
@@ -77,46 +86,42 @@ export function JournalModal({
   onSaveEntry,
   'data-testid': testId,
 }: JournalModalProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [savedForThisOpen, setSavedForThisOpen] = useState(false);
+  const savedForThisOpenRef = useRef(false);
   const journalContent = getJournalContent(trustLevel, triggerType);
 
-  useEffect(() => {
-    if (isOpen && !savedForThisOpen) {
-      setIsVisible(true);
-      setSavedForThisOpen(true);
-      
-      // Save the journal entry when modal opens
-      const entry: JournalEntry = {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        type: triggerType,
-        trustLevel,
-        content: journalContent.content,
-        timestamp: new Date(),
-        title: journalContent.title,
-      };
-      
-      onSaveEntry(entry);
-    } else if (!isOpen && savedForThisOpen) {
-      // Reset for next open
-      setSavedForThisOpen(false);
-    }
-  }, [isOpen, savedForThisOpen, triggerType, trustLevel, journalContent.content, journalContent.title, onSaveEntry]);
+  // Memoize the save callback to prevent effect re-runs
+  const handleSaveEntry = useCallback(() => {
+    const entry: JournalEntry = {
+      id: generateId(),
+      type: triggerType,
+      trustLevel,
+      content: journalContent.content,
+      timestamp: new Date(),
+      title: journalContent.title,
+    };
+    onSaveEntry(entry);
+  }, [triggerType, trustLevel, journalContent.content, journalContent.title, onSaveEntry]);
 
-  const handleClose = () => {
-    setIsVisible(false);
-    onClose();
-  };
+  // Auto-save entry when modal opens (only once per open cycle)
+  useEffect(() => {
+    if (isOpen && !savedForThisOpenRef.current) {
+      savedForThisOpenRef.current = true;
+      handleSaveEntry();
+    } else if (!isOpen) {
+      // Reset flag when closed so next open will save again
+      savedForThisOpenRef.current = false;
+    }
+  }, [isOpen, handleSaveEntry]);
 
   return (
     <>
       {/* Always render a hidden element with test ID for testing purposes */}
       {!isOpen && <div data-testid={testId} style={{ display: 'none' }} />}
 
-      <Dialog open={isOpen} onOpenChange={handleClose} data-testid={isOpen ? testId : undefined}>
+      <Dialog open={isOpen} onOpenChange={onClose} data-testid={isOpen ? testId : undefined}>
         <DialogContent
           className={`transition-all duration-300 sm:max-w-md ${
-            isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+            isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
         >
           <DialogHeader>
@@ -124,41 +129,39 @@ export function JournalModal({
               {journalContent.icon}
               Journal Entry
             </DialogTitle>
-            <DialogDescription>
-              A moment of reflection on your healing journey
-            </DialogDescription>
+            <DialogDescription>A moment of reflection on your healing journey</DialogDescription>
           </DialogHeader>
 
-        <Card className="border-none shadow-none">
-          <CardContent className="space-y-4 p-0">
-            <div className="space-y-2 text-center">
-              <h3 className="text-lg font-semibold text-foreground">{journalContent.title}</h3>
-              <div className="text-sm text-muted-foreground">Trust Level: {trustLevel}/100</div>
-            </div>
+          <Card className="border-none shadow-none">
+            <CardContent className="space-y-4 p-0">
+              <div className="space-y-2 text-center">
+                <h3 className="text-foreground text-lg font-semibold">{journalContent.title}</h3>
+                <div className="text-muted-foreground text-sm">Trust Level: {trustLevel}/100</div>
+              </div>
 
-            <div className="rounded-lg border-l-4 border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 p-4 dark:from-purple-950/20 dark:to-blue-950/20">
-              <blockquote className="text-base italic leading-relaxed text-foreground">
-                                &ldquo;{journalContent.content}&rdquo;
-              </blockquote>
-            </div>
+              <div className="rounded-lg border-l-4 border-purple-400 bg-gradient-to-r from-purple-50 to-blue-50 p-4 dark:from-purple-950/20 dark:to-blue-950/20">
+                <blockquote className="text-foreground text-base leading-relaxed italic">
+                  &ldquo;{journalContent.content}&rdquo;
+                </blockquote>
+              </div>
 
-            <div className="text-center text-xs text-muted-foreground">
-              {new Date().toLocaleDateString()} • {new Date().toLocaleTimeString()}
-            </div>
-          </CardContent>
-        </Card>
+              <div className="text-muted-foreground text-center text-xs">
+                {new Date().toLocaleDateString()} • {new Date().toLocaleTimeString()}
+              </div>
+            </CardContent>
+          </Card>
 
-        <div className="flex justify-center pt-4">
-          <Button
-            onClick={handleClose}
-            className="w-full"
-            aria-label="Close journal entry and continue"
-          >
-            Continue Journey
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="flex justify-center pt-4">
+            <Button
+              onClick={onClose}
+              className="w-full"
+              aria-label="Close journal entry and continue"
+            >
+              Continue Journey
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

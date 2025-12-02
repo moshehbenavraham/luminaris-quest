@@ -1,47 +1,49 @@
 # Combat System Migration Guide
 
-## ⚠️ CRITICAL: Two Combat Systems Exist
+## ✅ MIGRATION COMPLETE (2025-12-02)
 
-This project contains **TWO SEPARATE COMBAT SYSTEMS**. Understanding the distinction between them is crucial to avoid wasted development time.
+The legacy combat system has been fully removed. This document is preserved for historical context.
+
+**What was removed:**
+
+- `/src/components/combat/` - 7 components (~1,700 lines)
+- `/src/hooks/useCombat.ts` - Legacy combat hook (~213 lines)
+- Legacy combat integration tests (~20 test files)
+- ~200 lines of legacy combat code from `game-store.ts`
+
+**Current Combat System:**
+
+- **Location**: `/src/features/combat/`
+- **Store**: Uses dedicated `combat-store.ts` (Zustand)
+- **Architecture**: Mobile-first, component-based, fully tested
 
 ---
 
-## 🚨 System Overview
+## Historical Context (Pre-Migration)
 
-### 1. **DEPRECATED Combat System** (Old)
-- **Location**: `/src/components/combat/`
-- **Store**: Uses main `game-store.ts` combat slice
-- **Status**: DEPRECATED - DO NOT MODIFY
-- **Activation**: URL parameter `?legacyCombat=1`
-- **Components**:
-  ```
-  src/components/combat/
-  ├── ActionSelector.tsx      # Old action selection UI
-  ├── CombatLog.tsx          # Old combat log display
-  ├── CombatOverlay.tsx      # Old main combat UI
-  ├── CombatReflectionModal.tsx # Old post-combat modal
-  ├── DamageIndicator.tsx    # Old damage display
-  └── ResourceDisplay.tsx    # Old resource UI
-  ```
+### Previous Architecture (Now Deleted)
 
-### 2. **NEW Combat System** (Current)
+The old combat system was located at `/src/components/combat/` and used the main `game-store.ts` combat slice. It was only accessible via `?legacyCombat=1` URL parameter.
+
+### Current Combat System
+
 - **Location**: `/src/features/combat/`
 - **Store**: Uses dedicated `combat-store.ts` (Zustand)
-- **Status**: ACTIVE - All new development here
+- **Status**: ACTIVE - All development here
 - **Activation**: Default (no URL parameter needed)
 - **Architecture**: Mobile-first, component-based, fully tested
 - **Components**:
   ```
   src/features/combat/
   ├── store/
-  │   └── combat-store.ts    # NEW dedicated combat store
+  │   └── combat-store.ts    # Dedicated combat store
   ├── components/
-  │   ├── CombatOverlay.tsx  # NEW main orchestrator
-  │   ├── CombatBackdrop.tsx # NEW backdrop system
-  │   └── [40+ components]   # NEW modular architecture
+  │   ├── CombatOverlay.tsx  # Main orchestrator
+  │   ├── CombatBackdrop.tsx # Backdrop system
+  │   └── [40+ components]   # Modular architecture
   └── hooks/
-      ├── useCombatStore.ts  # NEW store hooks
-      └── [other hooks]      # NEW utility hooks
+      ├── useCombatStore.ts  # Store hooks
+      └── [other hooks]      # Utility hooks
   ```
 
 ---
@@ -49,24 +51,27 @@ This project contains **TWO SEPARATE COMBAT SYSTEMS**. Understanding the distinc
 ## 🔴 CRITICAL DIFFERENCES
 
 ### Store Management
-| Aspect | OLD System | NEW System |
-|--------|------------|------------|
-| Store Location | `game-store.ts` | `combat-store.ts` |
-| Store Type | Part of main store | Dedicated Zustand store |
-| State Path | `gameStore.combat.*` | `useCombatStore().*` |
-| Start Combat | `gameStore.startCombat()` | `useCombatStore().startCombat()` |
-| End Combat | `gameStore.endCombat()` | `useCombatStore().endCombat()` |
+
+| Aspect         | OLD System                | NEW System                       |
+| -------------- | ------------------------- | -------------------------------- |
+| Store Location | `game-store.ts`           | `combat-store.ts`                |
+| Store Type     | Part of main store        | Dedicated Zustand store          |
+| State Path     | `gameStore.combat.*`      | `useCombatStore().*`             |
+| Start Combat   | `gameStore.startCombat()` | `useCombatStore().startCombat()` |
+| End Combat     | `gameStore.endCombat()`   | `useCombatStore().endCombat()`   |
 
 ### Component Architecture
-| Aspect | OLD System | NEW System |
-|--------|------------|------------|
-| File Count | 6 monolithic files | 40+ modular components |
-| Component Size | 500+ LOC per file | <300 LOC per file |
-| Organization | Flat structure | Atomic design (atoms/molecules/organisms) |
-| Styling | Mixed approaches | Tailwind-only |
-| Responsiveness | Desktop-first | Mobile-first |
+
+| Aspect         | OLD System         | NEW System                                |
+| -------------- | ------------------ | ----------------------------------------- |
+| File Count     | 6 monolithic files | 40+ modular components                    |
+| Component Size | 500+ LOC per file  | <300 LOC per file                         |
+| Organization   | Flat structure     | Atomic design (atoms/molecules/organisms) |
+| Styling        | Mixed approaches   | Tailwind-only                             |
+| Responsiveness | Desktop-first      | Mobile-first                              |
 
 ### Feature Flags
+
 ```typescript
 // How the system determines which to use:
 const useNewCombatUI = () => {
@@ -80,6 +85,7 @@ const useNewCombatUI = () => {
 ## ⚠️ COMMON MISTAKES TO AVOID
 
 ### 1. **Wrong Store Usage**
+
 ```typescript
 // ❌ WRONG - Using old store with new system
 import { useGameStore } from '@/store/game-store';
@@ -91,6 +97,7 @@ const { startCombat } = useCombatStore();
 ```
 
 ### 2. **Wrong Component Import**
+
 ```typescript
 // ❌ WRONG - Importing old component
 import { CombatOverlay } from '@/components/combat/CombatOverlay';
@@ -100,6 +107,7 @@ import { CombatOverlay } from '@/features/combat';
 ```
 
 ### 3. **Modifying Deprecated Code**
+
 ```typescript
 // ❌ NEVER modify files in /src/components/combat/
 // These are DEPRECATED and only exist for backwards compatibility
@@ -113,6 +121,7 @@ import { CombatOverlay } from '@/features/combat';
 ## 📋 Migration Status
 
 ### What's Migrated
+
 - ✅ Core combat functionality
 - ✅ Combat UI components
 - ✅ Resource management (HP/LP/SP)
@@ -125,6 +134,7 @@ import { CombatOverlay } from '@/features/combat';
 - ✅ Post-combat flow
 
 ### What's NOT Migrated
+
 - ❌ Old save game compatibility (different store structure)
 - ❌ Some edge case behaviors may differ
 
@@ -133,14 +143,20 @@ import { CombatOverlay } from '@/features/combat';
 ## 🔧 How Combat Is Triggered
 
 ### In ChoiceList.tsx:
+
 ```typescript
 // NEW System (Default)
 if (useNewCombatUI()) {
   const { startCombat } = useCombatStore();
-  startCombat(shadowManifestation, {
-    lp: gameStore.lightPoints,
-    sp: gameStore.shadowPoints
-  }, gameStore.playerHealth, gameStore.playerLevel);
+  startCombat(
+    shadowManifestation,
+    {
+      lp: gameStore.lightPoints,
+      sp: gameStore.shadowPoints,
+    },
+    gameStore.playerHealth,
+    gameStore.playerLevel,
+  );
 }
 
 // OLD System (Legacy)
@@ -154,6 +170,7 @@ else {
 ## 🚨 FAILED FIX WARNINGS
 
 ### Known Failed Attempts
+
 1. **Combat Overlay Interaction Issue**
    - **Attempted**: Removing duplicate keyboard handling
    - **Result**: FAILED - Wrong root cause identified

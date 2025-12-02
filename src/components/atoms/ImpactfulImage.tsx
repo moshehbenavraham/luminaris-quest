@@ -16,7 +16,10 @@ import * as React from 'react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { cn } from '@/lib/utils';
 
-export interface ImpactfulImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt' | 'className'> {
+export interface ImpactfulImageProps extends Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  'src' | 'alt' | 'className'
+> {
   /** Image path */
   src: string;
   /** Accessible description */
@@ -37,110 +40,112 @@ export interface ImpactfulImageProps extends Omit<React.ImgHTMLAttributes<HTMLIm
   objectPosition?: string;
 }
 
-export const ImpactfulImage = React.forwardRef<
-  HTMLImageElement,
-  ImpactfulImageProps
->(({
-  src,
-  alt,
-  ratio = 16 / 9,
-  forceAspectRatio = false,
-  priority = false,
-  className,
-  fallback,
-  blurDataUrl,
-  objectPosition = "center",
-  ...props
-}, ref) => {
-  const [currentSrc, setCurrentSrc] = React.useState(src);
-  const [hasError, setHasError] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
+export const ImpactfulImage = React.forwardRef<HTMLImageElement, ImpactfulImageProps>(
+  (
+    {
+      src,
+      alt,
+      ratio = 16 / 9,
+      forceAspectRatio = false,
+      priority = false,
+      className,
+      fallback,
+      blurDataUrl,
+      objectPosition = 'center',
+      ...props
+    },
+    ref,
+  ) => {
+    const [currentSrc, setCurrentSrc] = React.useState(src);
+    const [hasError, setHasError] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(true);
 
-  // Reset state when src changes
-  React.useEffect(() => {
-    setCurrentSrc(src);
-    setHasError(false);
-    setIsLoading(true);
-  }, [src]);
+    // Reset state when src changes
+    React.useEffect(() => {
+      setCurrentSrc(src);
+      setHasError(false);
+      setIsLoading(true);
+    }, [src]);
 
-  const handleError = React.useCallback(() => {
-    if (!hasError && fallback && currentSrc !== fallback) {
-      setCurrentSrc(fallback);
-      setHasError(true);
-    }
-  }, [hasError, fallback, currentSrc]);
+    const handleError = React.useCallback(() => {
+      if (!hasError && fallback && currentSrc !== fallback) {
+        setCurrentSrc(fallback);
+        setHasError(true);
+      }
+    }, [hasError, fallback, currentSrc]);
 
-  const handleLoad = React.useCallback(() => {
-    setIsLoading(false);
-  }, []);
+    const handleLoad = React.useCallback(() => {
+      setIsLoading(false);
+    }, []);
 
-  const imageClasses = cn(
-    // Mobile-first responsive design
-    "w-full h-auto object-cover transition-opacity duration-300",
-    // Loading state styling
-    isLoading && "opacity-0",
-    !isLoading && "opacity-100",
-    className
-  );
-
-  // Progressive loading with blur-up pattern
-  const blurPlaceholderStyle = blurDataUrl ? {
-    backgroundImage: `url(${blurDataUrl})`,
-    backgroundSize: 'cover',
-    backgroundPosition: objectPosition,
-    backgroundRepeat: 'no-repeat',
-  } : {};
-
-  const containerStyle = {
-    ...blurPlaceholderStyle,
-    position: 'relative' as const,
-  };
-
-  const imageElement = (
-    <div style={containerStyle} className="overflow-hidden">
-      {blurDataUrl && isLoading && (
-        <div
-          className="absolute inset-0 bg-cover bg-no-repeat filter blur-sm"
-          style={{ backgroundImage: `url(${blurDataUrl})`, backgroundPosition: objectPosition }}
-          aria-hidden="true"
-        />
-      )}
-      <img
-        ref={ref}
-        src={currentSrc}
-        alt={alt}
-        className={imageClasses}
-        style={{ objectPosition }}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        sizes="(min-width: 768px) 768px, 100vw"
-        onError={handleError}
-        onLoad={handleLoad}
-        role="img"
-        aria-describedby={hasError && fallback ? `${alt}-error` : undefined}
-        data-priority={priority ? "true" : "false"}
-        data-ratio={ratio ? String(ratio) : undefined}
-        {...({ fetchpriority: priority ? "high" : "auto" } as any)}
-        {...props}
-      />
-      {hasError && fallback && (
-        <span id={`${alt}-error`} className="sr-only">
-          Image failed to load, showing fallback image
-        </span>
-      )}
-    </div>
-  );
-
-  // Only wrap in AspectRatio if explicitly requested
-  if (ratio && forceAspectRatio) {
-    return (
-      <AspectRatio ratio={ratio}>
-        {imageElement}
-      </AspectRatio>
+    const imageClasses = cn(
+      // Mobile-first responsive design
+      'w-full h-auto object-cover transition-opacity duration-300',
+      // Loading state styling
+      isLoading && 'opacity-0',
+      !isLoading && 'opacity-100',
+      className,
     );
-  }
 
-  return imageElement;
-});
+    // Progressive loading with blur-up pattern
+    const blurPlaceholderStyle = blurDataUrl
+      ? {
+          backgroundImage: `url(${blurDataUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: objectPosition,
+          backgroundRepeat: 'no-repeat',
+        }
+      : {};
 
-ImpactfulImage.displayName = "ImpactfulImage";
+    const containerStyle = {
+      ...blurPlaceholderStyle,
+      position: 'relative' as const,
+    };
+
+    const imageElement = (
+      <div style={containerStyle} className="overflow-hidden">
+        {blurDataUrl && isLoading && (
+          <div
+            className="absolute inset-0 bg-cover bg-no-repeat blur-sm filter"
+            style={{ backgroundImage: `url(${blurDataUrl})`, backgroundPosition: objectPosition }}
+            aria-hidden="true"
+          />
+        )}
+        <img
+          ref={ref}
+          src={currentSrc}
+          alt={alt}
+          className={imageClasses}
+          style={{ objectPosition }}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          sizes="(min-width: 768px) 768px, 100vw"
+          onError={handleError}
+          onLoad={handleLoad}
+          role="img"
+          aria-describedby={hasError && fallback ? `${alt}-error` : undefined}
+          data-priority={priority ? 'true' : 'false'}
+          data-ratio={ratio ? String(ratio) : undefined}
+          {...({
+            fetchpriority: priority ? 'high' : 'auto',
+          } as React.HTMLAttributes<HTMLImageElement>)}
+          {...props}
+        />
+        {hasError && fallback && (
+          <span id={`${alt}-error`} className="sr-only">
+            Image failed to load, showing fallback image
+          </span>
+        )}
+      </div>
+    );
+
+    // Only wrap in AspectRatio if explicitly requested
+    if (ratio && forceAspectRatio) {
+      return <AspectRatio ratio={ratio}>{imageElement}</AspectRatio>;
+    }
+
+    return imageElement;
+  },
+);
+
+ImpactfulImage.displayName = 'ImpactfulImage';
