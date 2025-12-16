@@ -6,9 +6,9 @@ import {
   veilOfIsolation,
   stormOfOverwhelm,
   echoOfPastPain,
-  SHADOW_IDS
+  SHADOW_IDS,
 } from '../data/shadowManifestations';
-import type { CombatState } from '../store/game-store';
+import type { CombatState } from '@/types';
 
 describe('Shadow Manifestations', () => {
   let mockCombatState: CombatState;
@@ -30,10 +30,10 @@ describe('Shadow Manifestations', () => {
         ILLUMINATE: 0,
         REFLECT: 0,
         ENDURE: 0,
-        EMBRACE: 0
+        EMBRACE: 0,
       },
       growthInsights: [],
-      combatReflections: []
+      combatReflections: [],
     };
   });
 
@@ -61,7 +61,7 @@ describe('Shadow Manifestations', () => {
     });
 
     it('should have therapeutic insights for each shadow', () => {
-      Object.values(shadowManifestations).forEach(shadow => {
+      Object.values(shadowManifestations).forEach((shadow) => {
         expect(shadow.therapeuticInsight).toBeTruthy();
         expect(shadow.therapeuticInsight.length).toBeGreaterThan(20);
       });
@@ -77,9 +77,9 @@ describe('Shadow Manifestations', () => {
 
   describe('Shadow Abilities', () => {
     it('should have 2 abilities per shadow', () => {
-      Object.values(shadowManifestations).forEach(shadow => {
+      Object.values(shadowManifestations).forEach((shadow) => {
         expect(shadow.abilities).toHaveLength(2);
-        shadow.abilities.forEach(ability => {
+        shadow.abilities.forEach((ability) => {
           expect(ability.id).toBeTruthy();
           expect(ability.name).toBeTruthy();
           expect(ability.cooldown).toBeGreaterThan(0);
@@ -91,20 +91,20 @@ describe('Shadow Manifestations', () => {
 
     describe('Doubt Shadow Abilities', () => {
       it('should have self-questioning ability that drains LP and blocks LP generation', () => {
-        const ability = whisperOfDoubt.abilities.find(a => a.id === 'self-questioning');
+        const ability = whisperOfDoubt.abilities.find((a) => a.id === 'self-questioning');
         expect(ability).toBeDefined();
-        
+
         const initialLP = mockCombatState.resources.lp;
         ability!.effect(mockCombatState);
-        
+
         expect(mockCombatState.resources.lp).toBe(initialLP - 1);
         expect(mockCombatState.lpGenerationBlocked).toBeGreaterThanOrEqual(2);
       });
 
       it('should have magnification ability that doubles damage', () => {
-        const ability = whisperOfDoubt.abilities.find(a => a.id === 'magnification');
+        const ability = whisperOfDoubt.abilities.find((a) => a.id === 'magnification');
         expect(ability).toBeDefined();
-        
+
         ability!.effect(mockCombatState);
         expect(mockCombatState.damageMultiplier).toBe(2);
       });
@@ -112,21 +112,21 @@ describe('Shadow Manifestations', () => {
 
     describe('Isolation Shadow Abilities', () => {
       it('should have withdrawal ability that blocks healing', () => {
-        const ability = veilOfIsolation.abilities.find(a => a.id === 'withdrawal');
+        const ability = veilOfIsolation.abilities.find((a) => a.id === 'withdrawal');
         expect(ability).toBeDefined();
-        
+
         ability!.effect(mockCombatState);
         expect(mockCombatState.healingBlocked).toBeGreaterThanOrEqual(3);
       });
 
       it('should have loneliness ability that converts LP to SP', () => {
-        const ability = veilOfIsolation.abilities.find(a => a.id === 'loneliness');
+        const ability = veilOfIsolation.abilities.find((a) => a.id === 'loneliness');
         expect(ability).toBeDefined();
-        
+
         const initialLP = mockCombatState.resources.lp;
         const initialSP = mockCombatState.resources.sp;
         ability!.effect(mockCombatState);
-        
+
         const lpLost = initialLP - mockCombatState.resources.lp;
         const spGained = mockCombatState.resources.sp - initialSP;
         expect(lpLost).toBe(spGained);
@@ -137,21 +137,21 @@ describe('Shadow Manifestations', () => {
 
     describe('Overwhelm Shadow Abilities', () => {
       it('should have cascade ability that forces skip turn', () => {
-        const ability = stormOfOverwhelm.abilities.find(a => a.id === 'cascade');
+        const ability = stormOfOverwhelm.abilities.find((a) => a.id === 'cascade');
         expect(ability).toBeDefined();
-        
+
         ability!.effect(mockCombatState);
         expect(mockCombatState.skipNextTurn).toBe(true);
       });
 
       it('should have pressure ability that drains resources', () => {
-        const ability = stormOfOverwhelm.abilities.find(a => a.id === 'pressure');
+        const ability = stormOfOverwhelm.abilities.find((a) => a.id === 'pressure');
         expect(ability).toBeDefined();
-        
+
         const initialLP = mockCombatState.resources.lp;
         const initialSP = mockCombatState.resources.sp;
         ability!.effect(mockCombatState);
-        
+
         expect(mockCombatState.resources.lp).toBeLessThan(initialLP);
         expect(mockCombatState.resources.sp).toBeLessThan(initialSP);
       });
@@ -159,20 +159,20 @@ describe('Shadow Manifestations', () => {
 
     describe('Past Pain Shadow Abilities', () => {
       it('should have flashback ability that increases vulnerability and generates SP', () => {
-        const ability = echoOfPastPain.abilities.find(a => a.id === 'flashback');
+        const ability = echoOfPastPain.abilities.find((a) => a.id === 'flashback');
         expect(ability).toBeDefined();
-        
+
         const initialSP = mockCombatState.resources.sp;
         ability!.effect(mockCombatState);
-        
+
         expect(mockCombatState.damageReduction).toBe(0.5);
         expect(mockCombatState.resources.sp).toBe(initialSP + 2);
       });
 
       it('should have rumination ability that blocks LP generation and healing', () => {
-        const ability = echoOfPastPain.abilities.find(a => a.id === 'rumination');
+        const ability = echoOfPastPain.abilities.find((a) => a.id === 'rumination');
         expect(ability).toBeDefined();
-        
+
         ability!.effect(mockCombatState);
         expect(mockCombatState.lpGenerationBlocked).toBeGreaterThanOrEqual(3);
         expect(mockCombatState.healingBlocked).toBeGreaterThanOrEqual(2);
@@ -191,7 +191,7 @@ describe('Shadow Manifestations', () => {
     it('should reset ability cooldowns to 0', () => {
       const shadow = createShadowManifestation(SHADOW_IDS.VEIL_OF_ISOLATION);
       expect(shadow).toBeDefined();
-      shadow!.abilities.forEach(ability => {
+      shadow!.abilities.forEach((ability) => {
         expect(ability.currentCooldown).toBe(0);
       });
     });
@@ -204,14 +204,14 @@ describe('Shadow Manifestations', () => {
     it('should create independent copies (no reference sharing)', () => {
       const shadow1 = createShadowManifestation(SHADOW_IDS.STORM_OF_OVERWHELM);
       const shadow2 = createShadowManifestation(SHADOW_IDS.STORM_OF_OVERWHELM);
-      
+
       expect(shadow1).not.toBe(shadow2);
       expect(shadow1!.abilities).not.toBe(shadow2!.abilities);
-      
+
       // Modify one shadow and ensure the other is unaffected
       shadow1!.currentHP = 10;
       shadow1!.abilities[0].currentCooldown = 5;
-      
+
       expect(shadow2!.currentHP).toBe(shadow2!.maxHP);
       expect(shadow2!.abilities[0].currentCooldown).toBe(0);
     });
@@ -235,22 +235,22 @@ describe('Shadow Manifestations', () => {
 
   describe('Therapeutic Design Validation', () => {
     it('should have meaningful therapeutic insights', () => {
-      Object.values(shadowManifestations).forEach(shadow => {
+      Object.values(shadowManifestations).forEach((shadow) => {
         expect(shadow.therapeuticInsight).toMatch(/\w+/);
         expect(shadow.therapeuticInsight.length).toBeGreaterThan(50);
       });
     });
 
     it('should have growth-oriented victory messages', () => {
-      Object.values(shadowManifestations).forEach(shadow => {
+      Object.values(shadowManifestations).forEach((shadow) => {
         expect(shadow.victoryReward.growthMessage).toMatch(/\w+/);
         expect(shadow.victoryReward.permanentBenefit).toMatch(/\w+/);
       });
     });
 
     it('should have balanced cooldowns for abilities', () => {
-      Object.values(shadowManifestations).forEach(shadow => {
-        shadow.abilities.forEach(ability => {
+      Object.values(shadowManifestations).forEach((shadow) => {
+        shadow.abilities.forEach((ability) => {
           expect(ability.cooldown).toBeGreaterThanOrEqual(3);
           expect(ability.cooldown).toBeLessThanOrEqual(6);
         });

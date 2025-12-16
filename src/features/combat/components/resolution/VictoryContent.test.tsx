@@ -1,23 +1,30 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { VictoryContent } from '@/features/combat/components/resolution/VictoryContent';
-import type { ShadowManifestation } from '@/store/game-store';
+import type { ShadowManifestation } from '@/types';
 
 describe('VictoryContent', () => {
   const mockEnemy: ShadowManifestation = {
     id: 'shadow-doubt',
     name: 'Shadow of Doubt',
+    type: 'doubt',
+    description: 'A manifestation of doubt',
     currentHP: 0,
     maxHP: 30,
-    type: 'EMOTIONAL',
-    therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    abilities: [],
+    therapeuticInsight: 'Facing doubt with courage builds inner strength.',
+    victoryReward: {
+      lpBonus: 0,
+      growthMessage: 'Test growth message',
+      permanentBenefit: 'Test permanent benefit',
+    },
   };
 
   const defaultProps = {
     enemy: mockEnemy,
     guardianTrust: 50,
     onReflect: vi.fn(),
-    onContinue: vi.fn()
+    onContinue: vi.fn(),
   };
 
   beforeEach(() => {
@@ -87,7 +94,7 @@ describe('VictoryContent', () => {
 
   it('applies custom className', () => {
     const { container } = render(
-      <VictoryContent {...defaultProps} className="custom-test-class" />
+      <VictoryContent {...defaultProps} className="custom-test-class" />,
     );
 
     expect(container.firstChild).toHaveClass('custom-test-class');
@@ -97,7 +104,9 @@ describe('VictoryContent', () => {
     render(<VictoryContent {...defaultProps} />);
 
     // Check guardian message styling
-    const guardianMessage = screen.getByText(/Facing doubt with courage builds inner strength/).closest('div');
+    const guardianMessage = screen
+      .getByText(/Facing doubt with courage builds inner strength/)
+      .closest('div');
     expect(guardianMessage).toHaveClass('bg-amber-100', 'border-amber-200');
 
     // Check trust level styling
@@ -109,15 +118,24 @@ describe('VictoryContent', () => {
     const shadowFear: ShadowManifestation = {
       id: 'shadow-fear',
       name: 'Shadow of Fear',
+      type: 'overwhelm',
+      description: 'A manifestation of fear',
       currentHP: 0,
       maxHP: 25,
-      type: 'PHOBIA',
-      therapeuticInsight: 'Courage is not the absence of fear, but action despite it.'
+      abilities: [],
+      therapeuticInsight: 'Courage is not the absence of fear, but action despite it.',
+      victoryReward: {
+        lpBonus: 0,
+        growthMessage: 'Test growth message',
+        permanentBenefit: 'Test permanent benefit',
+      },
     };
 
     render(<VictoryContent {...defaultProps} enemy={shadowFear} />);
 
-    expect(screen.getByText(/Courage is not the absence of fear, but action despite it/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Courage is not the absence of fear, but action despite it/),
+    ).toBeInTheDocument();
   });
 
   it('maintains accessibility standards', () => {

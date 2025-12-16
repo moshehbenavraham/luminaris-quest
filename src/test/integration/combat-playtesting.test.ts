@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { shadowManifestations, createShadowManifestation, SHADOW_IDS } from '@/data/shadowManifestations';
+import {
+  shadowManifestations,
+  createShadowManifestation,
+  SHADOW_IDS,
+} from '@/data/shadowManifestations';
 import { executePlayerAction } from '@/engine/combat-engine';
-import type { CombatAction, CombatState } from '@/store/game-store';
+import type { CombatAction } from '@/types';
+import type { CombatEngineState } from '@/engine/combat-engine';
 
 /**
  * Comprehensive Combat System Playtesting Suite
@@ -21,30 +26,32 @@ import type { CombatAction, CombatState } from '@/store/game-store';
  */
 
 // Mock combat state for testing
-const createMockCombatState = (): CombatState => ({
-  inCombat: true,
-  currentEnemy: null,
+const createMockCombatState = (): CombatEngineState => ({
+  enemy: null,
   resources: { lp: 10, sp: 5 },
+  playerHealth: 100,
+  playerLevel: 1,
+  playerEnergy: 100,
+  maxPlayerEnergy: 100,
   turn: 1,
-  log: [],
-  damageMultiplier: 1,
-  damageReduction: 1,
-  healingBlocked: 0,
-  lpGenerationBlocked: 0,
-  skipNextTurn: false,
-  consecutiveEndures: 0,
+  isPlayerTurn: true,
+  statusEffects: {
+    damageMultiplier: 1,
+    damageReduction: 1,
+    healingBlocked: 0,
+    lpGenerationBlocked: 0,
+    skipNextTurn: false,
+    consecutiveEndures: 0,
+  },
   preferredActions: {
     ILLUMINATE: 0,
     REFLECT: 0,
     ENDURE: 0,
-    EMBRACE: 0
+    EMBRACE: 0,
   },
-  growthInsights: [],
-  combatReflections: []
 });
 
 describe('Combat System Playtesting', () => {
-
   describe('Shadow Encounter Validation', () => {
     it('should validate all 4 shadow manifestations exist and are properly configured', () => {
       const shadowKeys = Object.keys(shadowManifestations);
@@ -52,7 +59,7 @@ describe('Combat System Playtesting', () => {
 
       const shadowIds = Object.values(SHADOW_IDS);
 
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
         expect(shadow).toBeDefined();
         expect(shadow!.name).toBeTruthy();
@@ -67,80 +74,78 @@ describe('Combat System Playtesting', () => {
 
     it('should validate HP progression follows difficulty curve', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      const hpProgression = shadowIds.map(id => createShadowManifestation(id)!.maxHP);
+      const hpProgression = shadowIds.map((id) => createShadowManifestation(id)!.maxHP);
       expect(hpProgression).toEqual([15, 18, 20, 22]); // Ascending difficulty
     });
 
     it('should validate LP reward progression', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      const lpProgression = shadowIds.map(id => createShadowManifestation(id)!.victoryReward.lpBonus);
+      const lpProgression = shadowIds.map(
+        (id) => createShadowManifestation(id)!.victoryReward.lpBonus,
+      );
       expect(lpProgression).toEqual([5, 6, 7, 8]); // Ascending rewards
     });
   });
 
   describe('Combat Mechanics Playtesting', () => {
-    const testCombatAction = (
-      shadowId: string,
-      action: CombatAction,
-      expectedOutcome: 'damage' | 'heal' | 'convert' | 'defend'
-    ) => {
-      const shadow = createShadowManifestation(shadowId);
-      const combatState = createMockCombatState();
-      combatState.currentEnemy = shadow;
-
-      const result = executePlayerAction(action, combatState, 50); // 50 guardian trust
-
-      switch (expectedOutcome) {
-        case 'damage':
-          expect(result.damage).toBeGreaterThan(0);
-          break;
-        case 'heal':
-          expect(result.logEntry.resourceChange.lp).toBeGreaterThan(0);
-          break;
-        case 'convert':
-          expect(result.logEntry.resourceChange.lp).toBeGreaterThan(0);
-          expect(result.logEntry.resourceChange.sp).toBeLessThan(0);
-          break;
-        case 'defend':
-          expect(result.newState.damageReduction).toBeLessThan(1);
-          break;
-      }
-
-      return result;
-    };
-
     it('should test ILLUMINATE action against all shadows', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
-        const result = testCombatAction(shadowId, 'ILLUMINATE', 'damage');
+      shadowIds.forEach((shadowId) => {
+        const shadow = createShadowManifestation(shadowId);
+        const combatState = createMockCombatState();
+        combatState.enemy = shadow;
+
+        const result = executePlayerAction('ILLUMINATE', combatState);
+
         expect(result.damage).toBeGreaterThan(0);
-        expect(result.logEntry.resourceChange.lp).toBeLessThan(0); // LP cost
+        expect(result.newState.resources.lp).toBe(8); // 10 - 2
+        expect(result.newState.enemy?.currentHP).toBeLessThan(shadow!.maxHP);
       });
     });
 
     it('should test REFLECT action therapeutic conversion', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
-        const result = testCombatAction(shadowId, 'REFLECT', 'convert');
-        expect(result.logEntry.resourceChange.lp).toBeGreaterThan(0); // SP to LP conversion
-        expect(result.logEntry.resourceChange.sp).toBeLessThan(0); // SP consumed
+      shadowIds.forEach((shadowId) => {
+        const shadow = createShadowManifestation(shadowId);
+        const combatState = createMockCombatState();
+        combatState.enemy = shadow;
+        combatState.playerHealth = 80;
+
+        const result = executePlayerAction('REFLECT', combatState, { rng: () => 0 }); // deterministic heal = 1
+
+        expect(result.newState.resources.sp).toBe(2); // 5 - 3
+        expect(result.newState.resources.lp).toBe(11); // 10 + 1
+        expect(result.newState.playerHealth).toBe(81);
       });
     });
 
-    it('should test ENDURE action damage reduction', () => {
+    it('should test ENDURE action resource gain and energy cost', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
-        const result = testCombatAction(shadowId, 'ENDURE', 'defend');
-        expect(result.newState.damageReduction).toBe(0.5); // 50% reduction
+      shadowIds.forEach((shadowId) => {
+        const shadow = createShadowManifestation(shadowId);
+        const combatState = createMockCombatState();
+        combatState.enemy = shadow;
+
+        const result = executePlayerAction('ENDURE', combatState, { endureEnergyCost: 1 });
+
+        expect(result.newState.resources.lp).toBe(11); // +1 LP
+        expect(result.newState.playerEnergy).toBe(99); // -1 energy
       });
     });
 
     it('should test EMBRACE action shadow acceptance', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
-        const result = testCombatAction(shadowId, 'EMBRACE', 'damage');
+      shadowIds.forEach((shadowId) => {
+        const shadow = createShadowManifestation(shadowId);
+        const combatState = createMockCombatState();
+        combatState.enemy = shadow;
+        combatState.resources = { lp: 10, sp: 8 };
+
+        const result = executePlayerAction('EMBRACE', combatState);
+
         expect(result.damage).toBeGreaterThan(0);
-        expect(result.logEntry.resourceChange.sp).toBeLessThan(0); // SP consumed for damage
+        expect(result.newState.resources.sp).toBe(0); // consumes all SP
+        expect(result.newState.enemy?.currentHP).toBeLessThan(shadow!.maxHP);
       });
     });
   });
@@ -149,68 +154,56 @@ describe('Combat System Playtesting', () => {
     it('should achieve victory against The Whisper of Doubt (easiest)', async () => {
       const shadowId = SHADOW_IDS.WHISPER_OF_DOUBT;
       const shadow = createShadowManifestation(shadowId);
-      const combatState = createMockCombatState();
-      combatState.currentEnemy = shadow;
+      let combatState = createMockCombatState();
+      combatState.enemy = shadow;
       combatState.resources = { lp: 20, sp: 10 }; // Sufficient resources
 
       let turns = 0;
       const maxTurns = 20; // Prevent infinite loops
 
-      while (shadow!.currentHP > 0 && turns < maxTurns) {
+      while (combatState.enemy!.currentHP > 0 && turns < maxTurns) {
         // Use ILLUMINATE as primary strategy
-        const result = executePlayerAction('ILLUMINATE', combatState, 50);
-        if (result.damage) {
-          shadow!.currentHP -= result.damage;
-        }
-
-        // Apply resource changes
-        combatState.resources.lp += result.logEntry.resourceChange.lp || 0;
-        combatState.resources.sp += result.logEntry.resourceChange.sp || 0;
+        const result = executePlayerAction('ILLUMINATE', combatState);
+        combatState = result.newState;
 
         turns++;
       }
 
-      expect(shadow!.currentHP).toBeLessThanOrEqual(0);
+      expect(combatState.enemy!.currentHP).toBeLessThanOrEqual(0);
       expect(turns).toBeLessThan(maxTurns);
     });
 
     it('should achieve victory against all shadows with optimal strategy', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
-        const combatState = createMockCombatState();
-        combatState.currentEnemy = shadow;
+        let combatState = createMockCombatState();
+        combatState.enemy = shadow;
         combatState.resources = { lp: 30, sp: 15 }; // Generous resources for testing
 
         let turns = 0;
         const maxTurns = 30;
 
-        while (shadow!.currentHP > 0 && turns < maxTurns) {
+        while (combatState.enemy!.currentHP > 0 && turns < maxTurns) {
           // Adaptive strategy based on resources
           let action: CombatAction;
           if (combatState.resources.lp >= 2) {
             action = 'ILLUMINATE'; // Primary damage dealer
-          } else if (combatState.resources.sp >= 2) {
-            action = 'REFLECT'; // Convert SP to LP
+          } else if (combatState.resources.sp >= 5) {
+            action = 'EMBRACE'; // Convert accumulated SP into damage
+          } else if (combatState.resources.sp >= 3) {
+            action = 'REFLECT'; // Convert SP to LP and heal
           } else {
-            action = 'EMBRACE'; // Use remaining SP for damage
+            action = 'ENDURE'; // Always available: generate LP (costs energy)
           }
 
-          const result = executePlayerAction(action, combatState, 50);
-
-          // Apply damage to shadow
-          if (result.damage) {
-            shadow!.currentHP -= result.damage;
-          }
-
-          // Apply resource changes
-          combatState.resources.lp += result.logEntry.resourceChange.lp || 0;
-          combatState.resources.sp += result.logEntry.resourceChange.sp || 0;
+          const result = executePlayerAction(action, combatState, { endureEnergyCost: 1 });
+          combatState = result.newState;
 
           turns++;
         }
 
-        expect(shadow!.currentHP).toBeLessThanOrEqual(0);
+        expect(combatState.enemy!.currentHP).toBeLessThanOrEqual(0);
         expect(turns).toBeLessThan(maxTurns);
       });
     });
@@ -219,7 +212,7 @@ describe('Combat System Playtesting', () => {
   describe('Therapeutic Messaging Validation', () => {
     it('should validate therapeutic insights are meaningful and specific', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
         expect(shadow!.therapeuticInsight).toBeTruthy();
         expect(shadow!.therapeuticInsight.length).toBeGreaterThan(50); // Substantial content
@@ -232,9 +225,9 @@ describe('Combat System Playtesting', () => {
 
     it('should validate shadow abilities have therapeutic context', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
-        shadow!.abilities.forEach(ability => {
+        shadow!.abilities.forEach((ability) => {
           expect(ability.name).toBeTruthy();
           expect(ability.description).toBeTruthy();
           expect(ability.description.length).toBeGreaterThan(20);
@@ -247,9 +240,9 @@ describe('Combat System Playtesting', () => {
   describe('Resource Management Balance', () => {
     it('should validate resource costs are balanced across actions', () => {
       const illuminateCost = 2; // LP cost for ILLUMINATE
-      const reflectSpCost = 2; // SP cost for REFLECT
-      const embraceSpCost = 1; // Minimum SP cost for EMBRACE
-      
+      const reflectSpCost = 3; // SP cost for REFLECT
+      const embraceSpCost = 5; // Minimum SP required for EMBRACE
+
       expect(illuminateCost).toBeLessThanOrEqual(3); // Not too expensive
       expect(reflectSpCost).toBeLessThanOrEqual(3);
       expect(embraceSpCost).toBeGreaterThan(0);
@@ -257,7 +250,7 @@ describe('Combat System Playtesting', () => {
 
     it('should validate shadows provide adequate LP rewards', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
         expect(shadow!.victoryReward.lpBonus).toBeGreaterThanOrEqual(5);
         expect(shadow!.victoryReward.lpBonus).toBeLessThanOrEqual(10); // Reasonable range
@@ -268,9 +261,9 @@ describe('Combat System Playtesting', () => {
   describe('Shadow AI Behavior Testing', () => {
     it('should validate shadow abilities have appropriate cooldowns', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
-        shadow!.abilities.forEach(ability => {
+        shadow!.abilities.forEach((ability) => {
           expect(ability.cooldown).toBeGreaterThanOrEqual(3);
           expect(ability.cooldown).toBeLessThanOrEqual(6);
         });
@@ -279,9 +272,9 @@ describe('Combat System Playtesting', () => {
 
     it('should validate shadow abilities have meaningful effects', () => {
       const shadowIds = Object.values(SHADOW_IDS);
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
-        shadow!.abilities.forEach(ability => {
+        shadow!.abilities.forEach((ability) => {
           // Each ability should have a meaningful description and effect function
           expect(ability.description).toBeTruthy();
           expect(ability.description.length).toBeGreaterThan(20);

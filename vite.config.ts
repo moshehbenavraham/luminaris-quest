@@ -1,20 +1,17 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
-  plugins: [
-    react(),
-    tsconfigPaths(),
-  ],
+  plugins: [react(), tsconfigPaths()],
   server: {
-    host: "::",
+    host: '::',
     port: 8080,
     hmr: {
       clientPort: 8080,
-    }
+    },
   },
   build: {
     sourcemap: true,
@@ -25,7 +22,8 @@ export default defineConfig({
         // Suppress "Generated an empty chunk" warnings
         if (warning.code === 'EMPTY_BUNDLE') return;
         // Suppress pure comment warnings from next-themes
-        if (warning.code === 'INVALID_ANNOTATION' && warning.message.includes('/*#__PURE__*/')) return;
+        if (warning.code === 'INVALID_ANNOTATION' && warning.message.includes('/*#__PURE__*/'))
+          return;
         // Show other warnings
         warn(warning);
       },
@@ -64,64 +62,38 @@ export default defineConfig({
             '@radix-ui/react-toast',
             '@radix-ui/react-toggle',
             '@radix-ui/react-toggle-group',
-            '@radix-ui/react-tooltip'
+            '@radix-ui/react-tooltip',
           ],
 
           // Backend and data libraries
-          'data-vendor': [
-            '@supabase/supabase-js',
-            '@tanstack/react-query',
-            'zustand'
-          ],
+          'data-vendor': ['@supabase/supabase-js', 'zustand'],
 
           // Form and interaction libraries
-          'form-vendor': [
-            'react-hook-form',
-            'react-day-picker',
-            'input-otp'
-          ],
+          'form-vendor': ['react-hook-form', 'react-day-picker', 'input-otp'],
 
           // Animation and media libraries
-          'media-vendor': [
-            'framer-motion',
-            'react-h5-audio-player',
-            'embla-carousel-react'
-          ],
+          'media-vendor': ['framer-motion', 'react-h5-audio-player', 'embla-carousel-react'],
 
           // Chart and visualization libraries
-          'chart-vendor': [
-            'recharts'
-          ],
+          'chart-vendor': ['recharts'],
 
           // AI and external services
-          'ai-vendor': [
-            'openai'
-          ],
+          'ai-vendor': ['openai'],
 
           // Additional UI components
-          'component-vendor': [
-            'cmdk',
-            'sonner',
-            'vaul',
-            'react-resizable-panels'
-          ],
+          'component-vendor': ['cmdk', 'sonner', 'vaul', 'react-resizable-panels'],
 
           // Theme and styling
-          'theme-vendor': [
-            'next-themes',
-            'tailwindcss-animate'
-          ],
+          'theme-vendor': ['next-themes', 'tailwindcss-animate'],
 
           // Icons
-          'icon-vendor': [
-            'lucide-react'
-          ]
-        }
-      }
-    }
+          'icon-vendor': ['lucide-react'],
+        },
+      },
+    },
   },
   // Add this to help with platform-specific dependencies
   optimizeDeps: {
     include: ['react', 'react-dom'],
-  }
-})
+  },
+});

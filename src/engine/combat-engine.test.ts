@@ -1,370 +1,148 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
-  COMBAT_BALANCE,
   calculateIlluminateDamage,
   calculateEmbraceDamage,
   canPerformAction,
   executePlayerAction,
-  decideShadowAction,
-  executeShadowAction,
-  processStatusEffects,
-  checkCombatEnd
-} from '../engine/combat-engine';
-import type { CombatState, ShadowManifestation, ShadowAbility } from '../store/game-store';
+  executeEnemyTurn,
+  checkCombatEnd,
+  getActionCost,
+  getActionDescription,
+  type CombatEngineState,
+} from '@/engine/combat-engine';
 
-describe('Combat Engine', () => {
-  let mockCombatState: CombatState;
-  let mockShadowManifestation: ShadowManifestation;
-  let mockShadowAbility: ShadowAbility;
+const createState = (overrides: Partial<CombatEngineState> = {}): CombatEngineState => ({
+  enemy: {
+    id: 'test-shadow',
+    name: 'Test Shadow',
+    type: 'doubt',
+    description: 'A test shadow',
+    currentHP: 20,
+    maxHP: 20,
+    abilities: [],
+    therapeuticInsight: 'Test insight',
+    victoryReward: { lpBonus: 5, growthMessage: 'Growth', permanentBenefit: 'Benefit' },
+  },
+  resources: { lp: 10, sp: 5 },
+  playerHealth: 100,
+  playerLevel: 1,
+  playerEnergy: 10,
+  maxPlayerEnergy: 100,
+  turn: 1,
+  isPlayerTurn: true,
+  statusEffects: {
+    damageMultiplier: 1,
+    damageReduction: 1,
+    healingBlocked: 0,
+    lpGenerationBlocked: 0,
+    skipNextTurn: false,
+    consecutiveEndures: 0,
+  },
+  preferredActions: { ILLUMINATE: 0, REFLECT: 0, ENDURE: 0, EMBRACE: 0 },
+  ...overrides,
+});
 
-  beforeEach(() => {
-    mockCombatState = {
-      inCombat: true,
-      currentEnemy: null,
+describe('Combat Engine (new combat system semantics)', () => {
+  it('calculateIlluminateDamage scales with level', () => {
+    expect(calculateIlluminateDamage(1)).toBe(4); // 3 + floor(1*1.5)
+    expect(calculateIlluminateDamage(5)).toBe(10); // 3 + floor(5*1.5)
+  });
+
+  it('calculateEmbraceDamage converts SP to damage with minimum 1', () => {
+    expect(calculateEmbraceDamage(0)).toBe(1);
+    expect(calculateEmbraceDamage(5)).toBe(2);
+    expect(calculateEmbraceDamage(8)).toBe(4);
+  });
+
+  it('canPerformAction enforces LP/SP thresholds and ENDURE energy gating', () => {
+    const state = createState({ resources: { lp: 1, sp: 0 }, playerEnergy: 0 });
+    expect(canPerformAction('ILLUMINATE', state).canPerform).toBe(false);
+    expect(canPerformAction('REFLECT', state).canPerform).toBe(false);
+    expect(canPerformAction('EMBRACE', state).canPerform).toBe(false);
+
+    expect(canPerformAction('ENDURE', state, { endureEnergyCost: 1 }).canPerform).toBe(false);
+    expect(
+      canPerformAction('ENDURE', { ...state, playerEnergy: 1 }, { endureEnergyCost: 1 }).canPerform,
+    ).toBe(true);
+  });
+
+  it('executePlayerAction ILLUMINATE consumes LP and damages enemy', () => {
+    const state = createState({ playerLevel: 1, resources: { lp: 10, sp: 0 } });
+    const result = executePlayerAction('ILLUMINATE', state);
+
+    expect(result.newState.resources.lp).toBe(8);
+    expect(result.damage).toBe(4);
+    expect(result.newState.enemy?.currentHP).toBe(16);
+    expect(result.logEntry.action).toBe('ILLUMINATE');
+  });
+
+  it('executePlayerAction REFLECT converts SP to LP and heals deterministically with rng', () => {
+    const state = createState({
+      playerLevel: 3,
+      playerHealth: 80,
       resources: { lp: 10, sp: 5 },
-      turn: 1,
-      log: [],
-      sceneDC: 12,
-      damageMultiplier: 1,
-      damageReduction: 1,
-      healingBlocked: 0,
-      lpGenerationBlocked: 0,
-      skipNextTurn: false,
-      consecutiveEndures: 0,
-      preferredActions: {
-        ILLUMINATE: 0,
-        REFLECT: 0,
-        ENDURE: 0,
-        EMBRACE: 0
-      },
-      growthInsights: [],
-      combatReflections: []
-    };
+    });
 
-    mockShadowAbility = {
-      id: 'test-ability',
-      name: 'Test Ability',
-      cooldown: 3,
-      currentCooldown: 0,
-      effect: (state) => {
-        state.resources.lp = Math.max(0, state.resources.lp - 2);
-      },
-      description: 'Deals 2 damage to player'
-    };
-
-    mockShadowManifestation = {
-      id: 'test-shadow',
-      name: 'Test Shadow',
-      type: 'doubt',
-      description: 'A test shadow manifestation',
-      currentHP: 15,
-      maxHP: 15,
-      abilities: [mockShadowAbility],
-      therapeuticInsight: 'Test insight',
-      victoryReward: {
-        lpBonus: 5,
-        growthMessage: 'Test growth',
-        permanentBenefit: 'Test benefit'
-      }
-    };
-
-    mockCombatState.currentEnemy = mockShadowManifestation;
+    const result = executePlayerAction('REFLECT', state, { rng: () => 0 }); // heal = 1
+    expect(result.newState.resources.sp).toBe(2);
+    expect(result.newState.resources.lp).toBe(11);
+    expect(result.newState.playerHealth).toBe(81);
   });
 
-  describe('Damage Calculations', () => {
-    describe('calculateIlluminateDamage', () => {
-      it('should calculate base damage with no trust bonus', () => {
-        const damage = calculateIlluminateDamage(0);
-        expect(damage).toBe(COMBAT_BALANCE.ILLUMINATE_BASE_DAMAGE);
-      });
-
-      it('should add trust bonus correctly', () => {
-        const guardianTrust = 20; // Should give floor(20/4) = 5 bonus
-        const damage = calculateIlluminateDamage(guardianTrust);
-        expect(damage).toBe(COMBAT_BALANCE.ILLUMINATE_BASE_DAMAGE + 5);
-      });
-
-      it('should handle high trust values', () => {
-        const guardianTrust = 100; // Should give floor(100/4) = 25 bonus
-        const damage = calculateIlluminateDamage(guardianTrust);
-        expect(damage).toBe(COMBAT_BALANCE.ILLUMINATE_BASE_DAMAGE + 25);
-      });
-    });
-
-    describe('calculateEmbraceDamage', () => {
-      it('should return minimum 1 damage with 0 shadow points', () => {
-        const damage = calculateEmbraceDamage(0);
-        expect(damage).toBe(1);
-      });
-
-      it('should calculate damage from shadow points correctly', () => {
-        const damage = calculateEmbraceDamage(6); // floor(6/2) = 3
-        expect(damage).toBe(3);
-      });
-
-      it('should handle odd shadow point values', () => {
-        const damage = calculateEmbraceDamage(5); // floor(5/2) = 2
-        expect(damage).toBe(2);
-      });
-    });
+  it('executePlayerAction ENDURE gains LP and spends energy', () => {
+    const state = createState({ playerEnergy: 10, resources: { lp: 10, sp: 0 } });
+    const result = executePlayerAction('ENDURE', state, { endureEnergyCost: 1 });
+    expect(result.newState.resources.lp).toBe(11);
+    expect(result.newState.playerEnergy).toBe(9);
+    expect(result.logEntry.effect).toContain('-1 Energy');
   });
 
-  describe('Action Validation', () => {
-    describe('canPerformAction', () => {
-      it('should allow ILLUMINATE with sufficient LP', () => {
-        mockCombatState.resources.lp = 5;
-        const result = canPerformAction('ILLUMINATE', mockCombatState, 50);
-        expect(result.canPerform).toBe(true);
-      });
-
-      it('should block ILLUMINATE with insufficient LP', () => {
-        mockCombatState.resources.lp = 1;
-        const result = canPerformAction('ILLUMINATE', mockCombatState, 50);
-        expect(result.canPerform).toBe(false);
-        expect(result.reason).toBe('Not enough Light Points');
-      });
-
-      it('should allow REFLECT with sufficient SP and no healing block', () => {
-        mockCombatState.resources.sp = 3;
-        mockCombatState.healingBlocked = 0;
-        const result = canPerformAction('REFLECT', mockCombatState, 50);
-        expect(result.canPerform).toBe(true);
-      });
-
-      it('should block REFLECT with insufficient SP', () => {
-        mockCombatState.resources.sp = 1;
-        const result = canPerformAction('REFLECT', mockCombatState, 50);
-        expect(result.canPerform).toBe(false);
-        expect(result.reason).toBe('Not enough Shadow Points');
-      });
-
-      it('should block REFLECT when healing is blocked', () => {
-        mockCombatState.resources.sp = 5;
-        mockCombatState.healingBlocked = 2;
-        const result = canPerformAction('REFLECT', mockCombatState, 50);
-        expect(result.canPerform).toBe(false);
-        expect(result.reason).toBe('Healing is blocked');
-      });
-
-      it('should always allow ENDURE', () => {
-        mockCombatState.resources.lp = 0;
-        mockCombatState.resources.sp = 0;
-        const result = canPerformAction('ENDURE', mockCombatState, 50);
-        expect(result.canPerform).toBe(true);
-      });
-
-      it('should block EMBRACE with no shadow points', () => {
-        mockCombatState.resources.sp = 0;
-        const result = canPerformAction('EMBRACE', mockCombatState, 50);
-        expect(result.canPerform).toBe(false);
-        expect(result.reason).toBe('No Shadow Points to embrace');
-      });
-    });
+  it('executePlayerAction EMBRACE consumes all SP and damages enemy', () => {
+    const state = createState({ resources: { lp: 10, sp: 8 } });
+    const result = executePlayerAction('EMBRACE', state);
+    expect(result.newState.resources.sp).toBe(0);
+    expect(result.damage).toBe(4);
+    expect(result.newState.enemy?.currentHP).toBe(16);
   });
 
-  describe('Player Action Execution', () => {
-    describe('executePlayerAction', () => {
-      it('should execute ILLUMINATE action correctly', () => {
-        mockCombatState.resources.lp = 10;
-        const guardianTrust = 20;
-        
-        const result = executePlayerAction('ILLUMINATE', mockCombatState, guardianTrust, 1);
-        
-        expect(result.newState.resources.lp).toBe(8); // 10 - 2 cost
-        expect(result.newState.currentEnemy?.currentHP).toBe(7); // 15 - 8 damage (3 base + 5 trust bonus)
-        expect(result.logEntry.actor).toBe('PLAYER');
-        expect(result.logEntry.action).toBe('ILLUMINATE');
-        expect(result.damage).toBe(8);
-      });
-
-      it('should execute REFLECT action correctly', () => {
-        mockCombatState.resources.sp = 5;
-        mockCombatState.resources.lp = 8;
-        
-        const result = executePlayerAction('REFLECT', mockCombatState, 50, 5);  // playerLevel = 5
-        
-        expect(result.newState.resources.sp).toBe(2); // 5 - 3 cost (updated from 2)
-        expect(result.newState.resources.lp).toBe(9); // 8 + 1 LP heal
-        expect(result.healthHeal).toBeGreaterThanOrEqual(1); // At least 1 health healed
-        expect(result.healthHeal).toBeLessThanOrEqual(5);    // At most playerLevel (5) health healed
-        expect(result.logEntry.actor).toBe('PLAYER');
-        expect(result.logEntry.action).toBe('REFLECT');
-        expect(result.logEntry.effect).toMatch(/Converted 3 SP to 1 LP and healed \d+ health/);
-      });
-
-      it('should heal random health between 1 and playerLevel for REFLECT', () => {
-        // Test multiple times to verify random range
-        const healAmounts = new Set<number>();
-        const playerLevel = 3;
-        
-        for (let i = 0; i < 20; i++) {
-          mockCombatState.resources.sp = 10;
-          mockCombatState.resources.lp = 5;
-          
-          const result = executePlayerAction('REFLECT', mockCombatState, 50, playerLevel);
-          healAmounts.add(result.healthHeal!);
-        }
-        
-        // Should have multiple different heal amounts between 1 and playerLevel
-        expect(Math.min(...healAmounts)).toBe(1);
-        expect(Math.max(...healAmounts)).toBe(playerLevel);
-        expect(healAmounts.size).toBeGreaterThan(1); // Should have some randomness
-      });
-
-      it('should execute ENDURE action correctly', () => {
-        const result = executePlayerAction('ENDURE', mockCombatState, 50, 1);
-        
-        expect(result.newState.consecutiveEndures).toBe(1);
-        expect(result.newState.damageReduction).toBe(COMBAT_BALANCE.ENDURE_DAMAGE_REDUCTION);
-        expect(result.logEntry.actor).toBe('PLAYER');
-        expect(result.logEntry.action).toBe('ENDURE');
-      });
-
-      it('should execute EMBRACE action correctly', () => {
-        mockCombatState.resources.sp = 6;
-        
-        const result = executePlayerAction('EMBRACE', mockCombatState, 50, 1);
-        
-        expect(result.newState.resources.sp).toBe(4); // 6 - 2 used
-        expect(result.newState.currentEnemy?.currentHP).toBe(12); // 15 - 3 damage
-        expect(result.logEntry.actor).toBe('PLAYER');
-        expect(result.logEntry.action).toBe('EMBRACE');
-        expect(result.damage).toBe(3);
-      });
+  it('executeEnemyTurn applies damage, grants SP, and advances turn (unless defeated)', () => {
+    const state = createState({
+      isPlayerTurn: false,
+      resources: { lp: 10, sp: 5 },
+      playerHealth: 100,
     });
+    const result = executeEnemyTurn(state);
+
+    expect(result.damage).toBe(3); // base 8 - floor(10*0.5)=5
+    expect(result.newState.playerHealth).toBe(97);
+    expect(result.newState.resources.sp).toBe(6);
+    expect(result.newState.turn).toBe(2);
+    expect(result.newState.isPlayerTurn).toBe(true);
+
+    const defeatState = createState({
+      isPlayerTurn: false,
+      resources: { lp: 0, sp: 0 },
+      playerHealth: 1,
+    });
+    const defeatResult = executeEnemyTurn(defeatState);
+    expect(defeatResult.newState.playerHealth).toBe(0);
+    expect(defeatResult.newState.turn).toBe(1);
+    expect(defeatResult.newState.isPlayerTurn).toBe(false);
   });
 
-  describe('Shadow AI', () => {
-    describe('decideShadowAction', () => {
-      it('should return null when no abilities available', () => {
-        mockShadowManifestation.abilities = [];
-        const result = decideShadowAction(mockShadowManifestation, mockCombatState);
-        expect(result).toBeNull();
-      });
-
-      it('should return null when all abilities on cooldown', () => {
-        mockShadowManifestation.abilities[0].currentCooldown = 2;
-        const result = decideShadowAction(mockShadowManifestation, mockCombatState);
-        expect(result).toBeNull();
-      });
-
-      it('should prioritize signature ability when player is vulnerable', () => {
-        mockCombatState.resources.lp = 3; // Below threshold
-        const result = decideShadowAction(mockShadowManifestation, mockCombatState);
-        expect(result).toBe(mockShadowManifestation.abilities[0]);
-      });
-
-      it('should return available ability when player is not vulnerable', () => {
-        mockCombatState.resources.lp = 10; // Above threshold
-        const result = decideShadowAction(mockShadowManifestation, mockCombatState);
-        expect(result).toBe(mockShadowManifestation.abilities[0]);
-      });
-    });
-
-    describe('executeShadowAction', () => {
-      it('should execute shadow ability and set cooldown', () => {
-        const result = executeShadowAction(mockShadowAbility, mockCombatState, 50);
-        
-        expect(result.newState.resources.lp).toBe(8); // 10 - 2 from ability effect
-        expect(result.newState.currentEnemy?.abilities[0].currentCooldown).toBe(3);
-        expect(result.logEntry.actor).toBe('SHADOW');
-        expect(result.logEntry.action).toBe('Test Ability');
-      });
-    });
+  it('checkCombatEnd detects victory and defeat', () => {
+    expect(
+      checkCombatEnd(createState({ enemy: { ...createState().enemy!, currentHP: 0 } })).isEnded,
+    ).toBe(true);
+    expect(checkCombatEnd(createState({ playerHealth: 0 })).isEnded).toBe(true);
+    expect(checkCombatEnd(createState()).isEnded).toBe(false);
   });
 
-  describe('Status Effects', () => {
-    describe('processStatusEffects', () => {
-      it('should reduce status effect durations', () => {
-        mockCombatState.healingBlocked = 2;
-        mockCombatState.lpGenerationBlocked = 1;
-        
-        const result = processStatusEffects(mockCombatState);
-        
-        expect(result.healingBlocked).toBe(1);
-        expect(result.lpGenerationBlocked).toBe(0);
-      });
-
-      it('should reset damage modifiers', () => {
-        mockCombatState.damageMultiplier = 2;
-        mockCombatState.damageReduction = 0.5;
-        
-        const result = processStatusEffects(mockCombatState);
-        
-        expect(result.damageMultiplier).toBe(1);
-        expect(result.damageReduction).toBe(1);
-      });
-
-      it('should reduce ability cooldowns', () => {
-        mockCombatState.currentEnemy!.abilities[0].currentCooldown = 2;
-        
-        const result = processStatusEffects(mockCombatState);
-        
-        expect(result.currentEnemy?.abilities[0].currentCooldown).toBe(1);
-      });
-    });
-  });
-
-  describe('Combat End Conditions', () => {
-    describe('checkCombatEnd', () => {
-      it('should detect victory when enemy HP reaches 0', () => {
-        mockCombatState.currentEnemy!.currentHP = 0;
-        
-        const result = checkCombatEnd(mockCombatState);
-        
-        expect(result.isEnded).toBe(true);
-        expect(result.victory).toBe(true);
-        expect(result.reason).toContain('overcome');
-      });
-
-      it('should detect defeat when player has no resources', () => {
-        mockCombatState.resources.lp = 0;
-        mockCombatState.resources.sp = 0;
-        
-        const result = checkCombatEnd(mockCombatState);
-        
-        expect(result.isEnded).toBe(true);
-        expect(result.victory).toBe(false);
-        expect(result.reason).toContain('overwhelmed');
-      });
-
-      it('should continue combat when conditions not met', () => {
-        mockCombatState.resources.lp = 5;
-        mockCombatState.resources.sp = 3;
-        mockCombatState.currentEnemy!.currentHP = 10;
-        mockCombatState.turn = 5; // Well below turn limit
-
-        const result = checkCombatEnd(mockCombatState);
-
-        expect(result.isEnded).toBe(false);
-        expect(result.victory).toBeUndefined();
-      });
-
-      it('should detect defeat when turn limit is reached', () => {
-        mockCombatState.resources.lp = 5;
-        mockCombatState.resources.sp = 3;
-        mockCombatState.currentEnemy!.currentHP = 10;
-        mockCombatState.turn = 20; // At turn limit
-
-        const result = checkCombatEnd(mockCombatState);
-
-        expect(result.isEnded).toBe(true);
-        expect(result.victory).toBe(false);
-        expect(result.reason).toContain('outlasted');
-        expect(result.reason).toContain('20 turns');
-      });
-
-      it('should continue combat when turn limit is not yet reached', () => {
-        mockCombatState.resources.lp = 5;
-        mockCombatState.resources.sp = 3;
-        mockCombatState.currentEnemy!.currentHP = 10;
-        mockCombatState.turn = 19; // One turn before limit
-
-        const result = checkCombatEnd(mockCombatState);
-
-        expect(result.isEnded).toBe(false);
-        expect(result.victory).toBeUndefined();
-      });
-    });
+  it('getActionCost and getActionDescription are stable', () => {
+    expect(getActionCost('ILLUMINATE')).toEqual({ lp: 2 });
+    expect(getActionCost('REFLECT')).toEqual({ sp: 3 });
+    expect(getActionCost('ENDURE', { endureEnergyCost: 1 })).toEqual({ energy: 1 });
+    expect(getActionCost('EMBRACE')).toEqual({ sp: 5 });
+    expect(getActionDescription('ILLUMINATE')).toContain('damage');
   });
 });

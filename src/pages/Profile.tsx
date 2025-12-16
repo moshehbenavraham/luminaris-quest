@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { HealthStatus } from '@/components/HealthStatus';
+import { HealthStatus } from '@/components/molecules/HealthStatus';
 import { ImpactfulImage } from '@/components/atoms/ImpactfulImage';
 import { imageRegistry } from '@/data/imageRegistry';
-import { SaveStatusIndicator } from '@/components/SaveStatusIndicator';
+import { SaveStatusIndicator } from '@/components/molecules/SaveStatusIndicator';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { useGameStoreBase } from '@/store/game-store';
 import { useSettingsStore } from '@/store/settings-store';

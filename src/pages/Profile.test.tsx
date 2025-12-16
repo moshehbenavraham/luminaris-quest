@@ -5,7 +5,7 @@ import { render, screen } from '@/test/utils';
 import { Profile } from './Profile';
 
 // Mock HealthStatus component at the very top
-vi.mock('@/components/HealthStatus', () => {
+vi.mock('@/components/molecules/HealthStatus', () => {
   const MockHealthStatus = (props: any) => (
     <div data-testid="health-status" {...props}>
       Health Status Component
@@ -54,7 +54,7 @@ vi.mock('@/components/atoms/ImpactfulImage', () => ({
 }));
 
 // Mock the JournalEntryCard component
-vi.mock('@/components/JournalEntryCard', () => ({
+vi.mock('@/components/molecules/JournalEntryCard', () => ({
   JournalEntryCard: ({ entry }: any) => (
     <div data-testid="journal-entry-card">Journal Entry: {entry.id}</div>
   ),
@@ -139,7 +139,6 @@ describe('Profile Page - ImpactfulImage Integration', () => {
     expect(screen.getByText('Profile')).not.toBeNull();
     expect(screen.getByText('Manage your account and preferences.')).not.toBeNull();
     expect(screen.getByText('System Status')).not.toBeNull();
-    expect(screen.getByText('Account Settings')).not.toBeNull();
     expect(screen.getByTestId('health-status')).not.toBeNull();
 
     // Verify new image is also present

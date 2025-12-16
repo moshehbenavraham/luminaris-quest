@@ -3,7 +3,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { StatsBar } from '@/components/StatsBar';
+import { StatsBar } from '@/components/organisms/StatsBar';
 import { useGameStore } from '@/store/game-store';
 import '@testing-library/jest-dom';
 
@@ -119,7 +119,7 @@ describe('StatsBar Visual Alignment', () => {
     });
   });
 
-  it('should have flex-shrink-0 on icons to prevent icon compression', () => {
+  it('should have shrink-0 on icons to prevent icon compression', () => {
     const { container } = render(<StatsBar trust={50} showCombatResources={true} />);
 
     // Find all icons (Shield, Zap, Star)
@@ -136,9 +136,9 @@ describe('StatsBar Visual Alignment', () => {
     // Should have 3 stat icons
     expect(statIcons).toHaveLength(3);
 
-    // All should have flex-shrink-0 to maintain size
+    // All should have shrink-0 to maintain size
     statIcons.forEach((icon) => {
-      expect(icon).toHaveClass('flex-shrink-0');
+      expect(icon).toHaveClass('shrink-0');
     });
   });
 

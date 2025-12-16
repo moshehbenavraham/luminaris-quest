@@ -14,7 +14,7 @@
  */
 
 import { cn } from '@/lib/utils';
-import type { ShadowManifestation } from '@/store/game-store';
+import type { ShadowManifestation } from '@/types';
 
 interface EnemyInfoProps {
   enemy: ShadowManifestation;

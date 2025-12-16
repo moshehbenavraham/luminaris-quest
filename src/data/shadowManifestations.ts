@@ -1,9 +1,8 @@
- 
-import type { ShadowManifestation, ShadowAbility, CombatState } from '../store/game-store';
+import type { CombatState, ShadowAbility, ShadowManifestation } from '@/types';
 
 /**
  * Shadow Manifestations - Enemy data for Light & Shadow Combat System
- * 
+ *
  * Each shadow represents a different type of inner struggle that players
  * must overcome using therapeutic combat techniques. The shadows are designed
  * to teach emotional regulation through tactical gameplay.
@@ -22,7 +21,8 @@ const shadowAbilities = {
       state.lpGenerationBlocked = Math.max(state.lpGenerationBlocked, 2);
       state.resources.lp = Math.max(0, state.resources.lp - 1);
     },
-    description: 'The inner critic whispers "What if you\'re wrong?" - eroding confidence and blocking your ability to generate hope'
+    description:
+      'The inner critic whispers "What if you\'re wrong?" - eroding confidence and blocking your ability to generate hope',
   } as ShadowAbility,
 
   magnification: {
@@ -34,7 +34,8 @@ const shadowAbilities = {
       // Makes small worries feel overwhelming - increases damage taken
       state.damageMultiplier = 2;
     },
-    description: 'Catastrophic thinking takes hold - small concerns become overwhelming disasters in your mind'
+    description:
+      'Catastrophic thinking takes hold - small concerns become overwhelming disasters in your mind',
   } as ShadowAbility,
 
   // Isolation abilities
@@ -47,7 +48,8 @@ const shadowAbilities = {
       // Blocks healing and connection - prevents REFLECT action benefits
       state.healingBlocked = Math.max(state.healingBlocked, 3);
     },
-    description: 'The protective walls you built now keep out healing - isolation feels safer but blocks recovery'
+    description:
+      'The protective walls you built now keep out healing - isolation feels safer but blocks recovery',
   } as ShadowAbility,
 
   loneliness: {
@@ -61,7 +63,8 @@ const shadowAbilities = {
       state.resources.lp -= lpToConvert;
       state.resources.sp += lpToConvert;
     },
-    description: 'Deep loneliness whispers "No one understands" - hope dims as disconnection grows stronger'
+    description:
+      'Deep loneliness whispers "No one understands" - hope dims as disconnection grows stronger',
   } as ShadowAbility,
 
   // Overwhelm abilities
@@ -74,7 +77,8 @@ const shadowAbilities = {
       // Everything feels urgent - forces player to skip next turn
       state.skipNextTurn = true;
     },
-    description: 'A cascade of urgent demands floods your mind - "Everything must be done NOW!" - freezing you in analysis paralysis'
+    description:
+      'A cascade of urgent demands floods your mind - "Everything must be done NOW!" - freezing you in analysis paralysis',
   } as ShadowAbility,
 
   pressure: {
@@ -87,7 +91,8 @@ const shadowAbilities = {
       state.resources.lp = Math.max(0, state.resources.lp - 2);
       state.resources.sp = Math.max(0, state.resources.sp - 1);
     },
-    description: 'The weight of expectations crushes down - every choice feels impossibly heavy and draining'
+    description:
+      'The weight of expectations crushes down - every choice feels impossibly heavy and draining',
   } as ShadowAbility,
 
   // Past Pain abilities
@@ -101,7 +106,8 @@ const shadowAbilities = {
       state.damageReduction = 0.5; // Take 50% more damage
       state.resources.sp += 2; // Trauma generates shadow points
     },
-    description: 'The past crashes into the present - old wounds feel fresh and raw, leaving you emotionally exposed'
+    description:
+      'The past crashes into the present - old wounds feel fresh and raw, leaving you emotionally exposed',
   } as ShadowAbility,
 
   rumination: {
@@ -114,7 +120,8 @@ const shadowAbilities = {
       state.lpGenerationBlocked = Math.max(state.lpGenerationBlocked, 3);
       state.healingBlocked = Math.max(state.healingBlocked, 2);
     },
-    description: 'Your mind replays painful moments endlessly - "What if I had..." - trapping you in cycles that prevent healing'
+    description:
+      'Your mind replays painful moments endlessly - "What if I had..." - trapping you in cycles that prevent healing',
   } as ShadowAbility,
 };
 
@@ -124,77 +131,81 @@ export const shadowManifestations: Record<string, ShadowManifestation> = {
     id: 'whisper-of-doubt',
     name: 'The Whisper of Doubt',
     type: 'doubt',
-    description: 'A shadowy figure that echoes your deepest uncertainties and questions your every decision',
+    description:
+      'A shadowy figure that echoes your deepest uncertainties and questions your every decision',
     currentHP: 15,
     maxHP: 15,
-    abilities: [
-      { ...shadowAbilities.selfQuestioning },
-      { ...shadowAbilities.magnification }
-    ],
-    therapeuticInsight: 'Doubt signals that you care deeply about making wise choices. Practice self-compassion: "I can handle uncertainty and learn from whatever happens." Notice doubt without judgment, then take one small step forward toward growth.',
+    abilities: [{ ...shadowAbilities.selfQuestioning }, { ...shadowAbilities.magnification }],
+    therapeuticInsight:
+      'Doubt signals that you care deeply about making wise choices. Practice self-compassion: "I can handle uncertainty and learn from whatever happens." Notice doubt without judgment, then take one small step forward toward growth.',
     victoryReward: {
       lpBonus: 5,
-      growthMessage: 'You\'ve discovered that courage isn\'t the absence of doubt - it\'s acting with wisdom despite uncertainty. Your inner critic has become a gentle advisor.',
-      permanentBenefit: 'Enhanced distress tolerance and ability to make decisions while acknowledging uncertainty with self-compassion'
-    }
+      growthMessage:
+        "You've discovered that courage isn't the absence of doubt - it's acting with wisdom despite uncertainty. Your inner critic has become a gentle advisor.",
+      permanentBenefit:
+        'Enhanced distress tolerance and ability to make decisions while acknowledging uncertainty with self-compassion',
+    },
   },
 
   veilOfIsolation: {
     id: 'veil-of-isolation',
     name: 'The Veil of Isolation',
     type: 'isolation',
-    description: 'A cold, distant presence that whispers that you are alone and that no one truly understands you',
+    description:
+      'A cold, distant presence that whispers that you are alone and that no one truly understands you',
     currentHP: 18,
     maxHP: 18,
-    abilities: [
-      { ...shadowAbilities.withdrawal },
-      { ...shadowAbilities.loneliness }
-    ],
-    therapeuticInsight: 'Isolation once protected you from pain, but now it blocks healing too. Remind yourself: "I deserve connection and support." Start small - one text, one call, one moment of shared presence.',
+    abilities: [{ ...shadowAbilities.withdrawal }, { ...shadowAbilities.loneliness }],
+    therapeuticInsight:
+      'Isolation once protected you from pain, but now it blocks healing too. Remind yourself: "I deserve connection and support." Start small - one text, one call, one moment of shared presence.',
     victoryReward: {
       lpBonus: 6,
-      growthMessage: 'You\'ve learned that vulnerability is not weakness - it\'s the birthplace of courage, creativity, and connection. Your walls have become bridges.',
-      permanentBenefit: 'Increased capacity for authentic relationships and the courage to seek support when needed'
-    }
+      growthMessage:
+        "You've learned that vulnerability is not weakness - it's the birthplace of courage, creativity, and connection. Your walls have become bridges.",
+      permanentBenefit:
+        'Increased capacity for authentic relationships and the courage to seek support when needed',
+    },
   },
 
   stormOfOverwhelm: {
     id: 'storm-of-overwhelm',
     name: 'The Storm of Overwhelm',
     type: 'overwhelm',
-    description: 'A chaotic whirlwind of tasks, responsibilities, and pressures that seem impossible to manage',
+    description:
+      'A chaotic whirlwind of tasks, responsibilities, and pressures that seem impossible to manage',
     currentHP: 20,
     maxHP: 20,
-    abilities: [
-      { ...shadowAbilities.cascade },
-      { ...shadowAbilities.pressure }
-    ],
-    therapeuticInsight: 'When everything feels urgent, pause and breathe. Ask: "What truly needs attention right now?" Break the overwhelming into "next right step." Remember: "I can only do one thing at a time, and that\'s enough."',
+    abilities: [{ ...shadowAbilities.cascade }, { ...shadowAbilities.pressure }],
+    therapeuticInsight:
+      'When everything feels urgent, pause and breathe. Ask: "What truly needs attention right now?" Break the overwhelming into "next right step." Remember: "I can only do one thing at a time, and that\'s enough."',
     victoryReward: {
       lpBonus: 7,
-      growthMessage: 'You\'ve discovered your inner calm - the eye of the storm that remains peaceful while chaos swirls around. You can prioritize with clarity and act with intention.',
-      permanentBenefit: 'Mastery of stress response regulation and the ability to maintain perspective during overwhelming situations'
-    }
+      growthMessage:
+        "You've discovered your inner calm - the eye of the storm that remains peaceful while chaos swirls around. You can prioritize with clarity and act with intention.",
+      permanentBenefit:
+        'Mastery of stress response regulation and the ability to maintain perspective during overwhelming situations',
+    },
   },
 
   echoOfPastPain: {
     id: 'echo-of-past-pain',
     name: 'The Echo of Past Pain',
     type: 'past-pain',
-    description: 'A haunting presence that brings forward old wounds and traumas, making them feel fresh and immediate',
+    description:
+      'A haunting presence that brings forward old wounds and traumas, making them feel fresh and immediate',
     currentHP: 22,
     maxHP: 22,
-    abilities: [
-      { ...shadowAbilities.flashback },
-      { ...shadowAbilities.rumination }
-    ],
-    therapeuticInsight: 'Your past pain is part of your story, not the whole story. Practice self-compassion: "I survived this, and I\'m still here." Healing doesn\'t erase the past - it transforms your relationship with it.',
+    abilities: [{ ...shadowAbilities.flashback }, { ...shadowAbilities.rumination }],
+    therapeuticInsight:
+      'Your past pain is part of your story, not the whole story. Practice self-compassion: "I survived this, and I\'m still here." Healing doesn\'t erase the past - it transforms your relationship with it.',
     victoryReward: {
       lpBonus: 8,
-      growthMessage: 'You\'ve transformed your deepest wounds into sources of wisdom and strength. Your scars have become sacred - proof of your resilience and capacity for healing.',
-      permanentBenefit: 'Post-traumatic growth: the ability to find meaning in suffering and use past pain as a source of empathy and strength'
-    }
-  }
+      growthMessage:
+        "You've transformed your deepest wounds into sources of wisdom and strength. Your scars have become sacred - proof of your resilience and capacity for healing.",
+      permanentBenefit:
+        'Post-traumatic growth: the ability to find meaning in suffering and use past pain as a source of empathy and strength',
+    },
+  },
 };
 
 // Helper function to get a fresh copy of a shadow manifestation
@@ -204,7 +215,7 @@ export function createShadowManifestation(shadowId: string): ShadowManifestation
     'whisper-of-doubt': 'whisperOfDoubt',
     'veil-of-isolation': 'veilOfIsolation',
     'storm-of-overwhelm': 'stormOfOverwhelm',
-    'echo-of-past-pain': 'echoOfPastPain'
+    'echo-of-past-pain': 'echoOfPastPain',
   };
 
   const shadowKey = shadowKeyMap[shadowId];
@@ -221,25 +232,21 @@ export function createShadowManifestation(shadowId: string): ShadowManifestation
   return {
     ...template,
     currentHP: template.maxHP,
-    abilities: template.abilities.map(ability => ({
+    abilities: template.abilities.map((ability) => ({
       ...ability,
-      currentCooldown: 0
-    }))
+      currentCooldown: 0,
+    })),
   };
 }
 
 // Export individual shadows for easy access
-export const {
-  whisperOfDoubt,
-  veilOfIsolation,
-  stormOfOverwhelm,
-  echoOfPastPain
-} = shadowManifestations;
+export const { whisperOfDoubt, veilOfIsolation, stormOfOverwhelm, echoOfPastPain } =
+  shadowManifestations;
 
 // Export shadow IDs for easy reference
 export const SHADOW_IDS = {
   WHISPER_OF_DOUBT: 'whisper-of-doubt',
   VEIL_OF_ISOLATION: 'veil-of-isolation',
   STORM_OF_OVERWHELM: 'storm-of-overwhelm',
-  ECHO_OF_PAST_PAIN: 'echo-of-past-pain'
+  ECHO_OF_PAST_PAIN: 'echo-of-past-pain',
 } as const;

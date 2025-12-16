@@ -21,7 +21,7 @@ export const TherapeuticInsight: React.FC<TherapeuticInsightProps> = ({
   duration = 5000,
   onClose,
   className,
-  playSound = true
+  playSound = true,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [animationPhase, setAnimationPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
@@ -31,16 +31,16 @@ export const TherapeuticInsight: React.FC<TherapeuticInsightProps> = ({
     // Play sound effect when insight appears
     if (playSound) {
       // All therapeutic insights use positive sound
-      playStatusSound('positive').catch(error => {
+      playStatusSound('positive').catch((error) => {
         console.warn(`Failed to play therapeutic insight sound for ${type}:`, error);
       });
     }
 
     const enterTimer = setTimeout(() => setAnimationPhase('visible'), 200);
-    
+
     let exitTimer: NodeJS.Timeout;
     let closeTimer: NodeJS.Timeout;
-    
+
     if (autoHide) {
       exitTimer = setTimeout(() => setAnimationPhase('exit'), duration - 400);
       closeTimer = setTimeout(() => {
@@ -112,51 +112,44 @@ export const TherapeuticInsight: React.FC<TherapeuticInsightProps> = ({
   return (
     <div
       className={cn(
-        'fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto',
-        'p-4 rounded-xl border-2 shadow-2xl',
+        'fixed right-4 bottom-4 left-4 z-50 mx-auto max-w-md',
+        'rounded-xl border-2 p-4 shadow-2xl',
         'transition-all duration-400 ease-out',
         'backdrop-blur-sm',
         getTypeStyles(),
         getAnimationClasses(),
-        className
+        className,
       )}
       role="dialog"
       aria-live="polite"
       aria-labelledby="therapeutic-insight-title"
     >
       <div className="flex items-start space-x-3 text-white">
-        <div className="flex-shrink-0 text-2xl mt-1">
-          {getIcon()}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div 
-            id="therapeutic-insight-title"
-            className="text-sm font-semibold text-white/90 mb-1"
-          >
+        <div className="mt-1 shrink-0 text-2xl">{getIcon()}</div>
+        <div className="min-w-0 flex-1">
+          <div id="therapeutic-insight-title" className="mb-1 text-sm font-semibold text-white/90">
             {guardianName}
           </div>
-          <div className="text-sm text-white/95 leading-relaxed">
-            {message}
-          </div>
+          <div className="text-sm leading-relaxed text-white/95">{message}</div>
         </div>
         {!autoHide && (
           <button
             onClick={handleClose}
-            className="flex-shrink-0 text-white/60 hover:text-white/80 transition-colors ml-2"
+            className="ml-2 shrink-0 text-white/60 transition-colors hover:text-white/80"
             aria-label="Close insight"
           >
             ✕
           </button>
         )}
       </div>
-      
+
       {autoHide && (
-        <div className="mt-3 w-full bg-white/20 rounded-full h-1 overflow-hidden">
+        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/20">
           <div
             className="h-full bg-white/60 transition-all ease-linear"
             style={{
               width: animationPhase === 'visible' ? '0%' : '100%',
-              transitionDuration: animationPhase === 'visible' ? `${duration}ms` : '0ms'
+              transitionDuration: animationPhase === 'visible' ? `${duration}ms` : '0ms',
             }}
           />
         </div>
@@ -164,4 +157,3 @@ export const TherapeuticInsight: React.FC<TherapeuticInsightProps> = ({
     </div>
   );
 };
-

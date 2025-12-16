@@ -1,7 +1,7 @@
 /**
- * MIT License 
+ * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Integration test to verify combat triggers work in the full UI flow
  */
 
@@ -12,7 +12,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useGameStoreBase } from '@/store/game-store';
 import { useCombatStore } from '@/features/combat/store/combat-store';
 
-import { ChoiceList } from '@/components/ChoiceList';
+import { ChoiceList } from '@/components/organisms/ChoiceList';
 
 // Mock the scene engine to force specific outcomes
 vi.mock('@/engine/scene-engine', async () => {
@@ -31,8 +31,8 @@ vi.mock('@/engine/scene-engine', async () => {
       choices: { bold: 'Attack!', cautious: 'Defend!' },
       shadowType: 'whisper-of-doubt',
       lpReward: 4,
-      spPenalty: 3
-    }))
+      spPenalty: 3,
+    })),
   };
 });
 
@@ -42,7 +42,7 @@ vi.mock('@/data/shadowManifestations', () => ({
     WHISPER_OF_DOUBT: 'whisper-of-doubt',
     VEIL_OF_ISOLATION: 'veil-of-isolation',
     STORM_OF_OVERWHELM: 'storm-of-overwhelm',
-    ECHO_OF_PAST_PAIN: 'echo-of-past-pain'
+    ECHO_OF_PAST_PAIN: 'echo-of-past-pain',
   },
   createShadowManifestation: vi.fn((id) => ({
     id,
@@ -54,15 +54,15 @@ vi.mock('@/data/shadowManifestations', () => ({
     description: 'A shadow that feeds on uncertainty',
     abilities: [],
     weaknesses: ['ILLUMINATE'],
-    resistances: []
-  }))
+    resistances: [],
+  })),
 }));
 
 // Mock combat overlays to track if they render
 vi.mock('@/components/combat/CombatOverlay', () => ({
   CombatOverlay: ({ 'data-testid': testId }: { 'data-testid'?: string }) => (
     <div data-testid={testId || 'legacy-combat-overlay'}>Legacy Combat Active</div>
-  )
+  ),
 }));
 
 vi.mock('@/features/combat', async () => {
@@ -75,7 +75,6 @@ vi.mock('@/features/combat', async () => {
     useNewCombatUI: () => true,
   };
 });
-
 
 describe('Combat Trigger Integration Tests', () => {
   beforeEach(() => {
@@ -95,8 +94,8 @@ describe('Combat Trigger Integration Tests', () => {
       combatEndStatus: {
         isEnded: false,
         victory: false,
-        reason: ''
-      }
+        reason: '',
+      },
     });
   });
 
@@ -113,7 +112,7 @@ describe('Combat Trigger Integration Tests', () => {
         setGuardianMessage={setGuardianMessage}
         onSceneComplete={onSceneComplete}
         onLearningMoment={onLearningMoment}
-      />
+      />,
     );
 
     // Verify combat scene is displayed
@@ -164,16 +163,12 @@ describe('Combat Trigger Integration Tests', () => {
         description: 'Test',
         abilities: [],
         weaknesses: [],
-        resistances: []
-      }
+        resistances: [],
+      },
     });
 
     render(
-      <ChoiceList
-        guardianTrust={50}
-        setGuardianTrust={vi.fn()}
-        setGuardianMessage={vi.fn()}
-      />
+      <ChoiceList guardianTrust={50} setGuardianTrust={vi.fn()} setGuardianMessage={vi.fn()} />,
     );
 
     // Should render the new combat overlay
@@ -193,7 +188,7 @@ describe('Combat Trigger Integration Tests', () => {
         guardianTrust={50}
         setGuardianTrust={vi.fn()}
         setGuardianMessage={setGuardianMessage}
-      />
+      />,
     );
 
     // Click choice and complete dice roll
@@ -216,8 +211,11 @@ describe('Combat Trigger Integration Tests', () => {
     });
 
     // Verify success message was set (may be called asynchronously)
-    await waitFor(() => {
-      expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(setGuardianMessage).toHaveBeenCalledWith('Success!');
+      },
+      { timeout: 2000 },
+    );
   });
 });

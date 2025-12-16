@@ -35,7 +35,6 @@ Ensure the foundation is stable, up-to-date, and secure.
     - `src/store/settings-store.ts` - SSR hydration pattern
     - `src/components/GuardianText.tsx` - "Show once" pattern that needs re-render to hide intro
     - `src/pages/Adventure.tsx` - SSR hydration and milestone sync
-    - `src/components/combat/DamageIndicator.tsx` - Deprecated file (OLD combat system)
 
 2.  **`@typescript-eslint/no-explicit-any`** - Used where type flexibility is required:
     - Test files (`*.test.ts`, `*.test.tsx`) - Mock functions require `any`
@@ -60,15 +59,13 @@ Ensure the foundation is stable, up-to-date, and secure.
 
 ## 3. Architecture & Technical Debt
 
-**Status: NEEDS ATTENTION**
+**Status: HEALTHY**
 
-- **Dual Combat Systems:** The project explicitly maintains two combat systems:
-  - **Legacy:** `src/store/game-store.ts` (Contains deprecated combat logic).
-  - **New:** `src/features/combat/store/combat-store.ts` (Active development).
-  - _Risk:_ `game-store.ts` is bloated (1900+ lines) and contains mixed responsibilities.
+- **Combat System:** Single combat system in `src/features/combat/` (legacy system fully removed 2025-12-02)
 - **State Management:**
-  - `game-store.ts` is extremely large and acts as a "God Object".
-  - Hydration safety patterns (`_hasHydrated`) are implemented correctly.
+  - `game-store.ts` reduced to ~1,700 lines (down from 1,900+ after legacy combat removal)
+  - Hydration safety patterns (`_hasHydrated`) are implemented correctly
+  - Combat state isolated in dedicated `combat-store.ts`
 
 ## Recommendations (Prioritized)
 
@@ -78,14 +75,19 @@ Ensure the foundation is stable, up-to-date, and secure.
 2.  Improved all `eslint-disable` comment justifications
 3.  Simplified JournalModal.tsx by removing redundant state
 4.  Lint now passes cleanly within warning limits
+5.  **Removed legacy combat system** - Deleted `/src/components/combat/`, `/src/hooks/useCombat.ts`, and ~200 lines from `game-store.ts` (commit 847951a)
+6.  **Audited `any` usages** - All non-test file usages are justified (logger functions, Supabase JSONB, external library types)
+7.  **Updated combat migration guide** - Cleaned up `docs/archive/COMBAT_MIGRATION_GUIDE.md` to reflect single combat system
 
 ### Remaining Work:
 
-1.  **Reduce `game-store.ts` size:** Consider extracting the deprecated combat logic to a separate `legacy-combat-store.ts` to reduce noise in the main store.
-2.  **Gradually type `any` usages:** Where feasible, replace `any` with proper interfaces, especially in non-test files.
-3.  **Document the dual combat system:** Ensure the migration guide is up to date and clearly marks which system to use.
+None - audit complete.
+
+### Future Considerations (Low Priority):
+
+- `game-store.ts` is still large (~1,700 lines). Could be split into domain-specific stores if it becomes unwieldy.
 
 ## Workspace
 
 **Last Updated:** 2025-12-02
-**Audit Status:** PASSING
+**Audit Status:** COMPLETE

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useCombatEffects } from '../../hooks/useCombatEffects';
-import type { CombatAction } from '@/store/game-store';
+import type { CombatAction } from '@/types';
 
 interface CombatAnimationProps {
   type: 'attack' | 'defend' | 'spell' | 'special';
@@ -18,9 +18,11 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
   onComplete,
   className,
   action,
-  playSound = true
+  playSound = true,
 }) => {
-  const [animationPhase, setAnimationPhase] = useState<'idle' | 'windup' | 'strike' | 'recovery'>('idle');
+  const [animationPhase, setAnimationPhase] = useState<'idle' | 'windup' | 'strike' | 'recovery'>(
+    'idle',
+  );
   const [isVisible, setIsVisible] = useState(true);
   const { playActionSound, playShadowAttackSound } = useCombatEffects();
 
@@ -51,7 +53,7 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
     ] as const;
 
     const timers = sequence.map(({ phase, delay }) =>
-      setTimeout(() => setAnimationPhase(phase), delay)
+      setTimeout(() => setAnimationPhase(phase), delay),
     );
 
     const completeTimer = setTimeout(() => {
@@ -89,17 +91,17 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
       case 'windup':
         return cn(baseClasses, 'scale-75 opacity-80', {
           'translate-x-2': direction === 'player-to-enemy',
-          '-translate-x-2': direction === 'enemy-to-player'
+          '-translate-x-2': direction === 'enemy-to-player',
         });
       case 'strike':
         return cn(baseClasses, 'scale-125 opacity-100', {
           'translate-x-8': direction === 'player-to-enemy',
-          '-translate-x-8': direction === 'enemy-to-player'
+          '-translate-x-8': direction === 'enemy-to-player',
         });
       case 'recovery':
         return cn(baseClasses, 'scale-100 opacity-60', {
           'translate-x-4': direction === 'player-to-enemy',
-          '-translate-x-4': direction === 'enemy-to-player'
+          '-translate-x-4': direction === 'enemy-to-player',
         });
       default:
         return baseClasses;
@@ -107,7 +109,7 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
   };
 
   const getPositionClasses = () => {
-    return direction === 'player-to-enemy' 
+    return direction === 'player-to-enemy'
       ? 'left-1/4 transform -translate-x-1/2'
       : 'right-1/4 transform translate-x-1/2';
   };
@@ -115,12 +117,12 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
   return (
     <div
       className={cn(
-        'absolute top-1/2 transform -translate-y-1/2 z-40',
+        'absolute top-1/2 z-40 -translate-y-1/2 transform',
         'pointer-events-none select-none',
-        'text-4xl filter drop-shadow-lg',
+        'text-4xl drop-shadow-lg filter',
         getPositionClasses(),
         getAnimationClasses(),
-        className
+        className,
       )}
       role="img"
       aria-label={`${type} animation ${direction}`}
@@ -129,4 +131,3 @@ export const CombatAnimation: React.FC<CombatAnimationProps> = ({
     </div>
   );
 };
-

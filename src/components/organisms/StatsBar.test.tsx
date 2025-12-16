@@ -2,7 +2,10 @@ import React from 'react';
 import { describe, it, expect, beforeEach, vi, test } from 'vitest';
 import { render, screen, act, waitFor } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
-import { StatsBar } from '@/components/StatsBar';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { StatsBar } from '@/components/organisms/StatsBar';
+
+expect.extend(toHaveNoViolations);
 
 // Mock the game store
 const mockGameStore = {
@@ -15,7 +18,7 @@ const mockGameStore = {
   getExperienceProgress: vi.fn(() => ({
     current: 0,
     toNext: 100,
-    percentage: 0
+    percentage: 0,
   })),
 };
 
@@ -48,7 +51,7 @@ describe('StatsBar Component', () => {
       mockGameStore.getExperienceProgress.mockReturnValue({
         current: 25,
         toNext: 75,
-        percentage: 25
+        percentage: 25,
       });
 
       render(<StatsBar trust={75} health={80} energy={60} />);
@@ -88,9 +91,9 @@ describe('StatsBar Component', () => {
     it('does not show combat resources when player has no LP/SP', () => {
       mockGameStore.lightPoints = 0;
       mockGameStore.shadowPoints = 0;
-      
+
       render(<StatsBar trust={50} />);
-      
+
       expect(screen.queryByText('Combat Resources')).not.toBeInTheDocument();
       expect(screen.queryByText('Light Points')).not.toBeInTheDocument();
       expect(screen.queryByText('Shadow Points')).not.toBeInTheDocument();
@@ -131,9 +134,9 @@ describe('StatsBar Component', () => {
     it('shows combat resources when player has both LP and SP', () => {
       mockGameStore.lightPoints = 8;
       mockGameStore.shadowPoints = 4;
-      
+
       render(<StatsBar trust={50} />);
-      
+
       expect(screen.getByText('Combat Resources')).toBeInTheDocument();
       expect(screen.getByText('8')).toBeInTheDocument(); // LP value
       expect(screen.getByText('4')).toBeInTheDocument(); // SP value
@@ -206,7 +209,7 @@ describe('StatsBar Component', () => {
   describe('Accessibility and Props', () => {
     it('applies custom className when provided', () => {
       const { container } = render(<StatsBar trust={50} className="custom-class" />);
-      
+
       expect(container.firstChild).toHaveClass('custom-class');
     });
 
@@ -217,7 +220,7 @@ describe('StatsBar Component', () => {
       mockGameStore.getExperienceProgress.mockReturnValue({
         current: 1000,
         toNext: 500,
-        percentage: 66.67
+        percentage: 66.67,
       });
 
       render(<StatsBar trust={100} health={0} energy={150} />);
@@ -271,10 +274,10 @@ describe('StatsBar Component', () => {
       mockGameStore.maxPlayerEnergy = 100;
 
       render(<StatsBar trust={50} />);
-      
+
       // Check for warning indication
       expect(screen.getByText('15')).toBeInTheDocument();
-      
+
       // Look for orange/warning styling in the energy section
       const energySection = screen.getByText('Energy').closest('div');
       expect(energySection).toBeInTheDocument();
@@ -286,7 +289,7 @@ describe('StatsBar Component', () => {
       mockGameStore.maxPlayerEnergy = 100;
 
       render(<StatsBar trust={50} />);
-      
+
       // Energy should show normal display
       expect(screen.getByText('25')).toBeInTheDocument();
     });
@@ -307,14 +310,19 @@ describe('StatsBar Component', () => {
 
       // Check tooltip content - Radix UI has delay so use longer timeout
       // Use getAllByText because Radix UI duplicates content for accessibility
-      await waitFor(() => {
-        expect(screen.getAllByText('Energy System')[0]).toBeInTheDocument();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(screen.getAllByText('Energy System')[0]).toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
 
       expect(screen.getAllByText(/Scene choices cost 5-15 energy/)[0]).toBeInTheDocument();
       expect(screen.getAllByText(/Combat actions cost 1-5 energy/)[0]).toBeInTheDocument();
       expect(screen.getAllByText(/Regenerates 1 energy every 30 seconds/)[0]).toBeInTheDocument();
-      expect(screen.getAllByText(/Low energy.*reduces combat damage by 50%/)[0]).toBeInTheDocument();
+      expect(
+        screen.getAllByText(/Low energy.*reduces combat damage by 50%/)[0],
+      ).toBeInTheDocument();
     });
 
     it('shows low energy warning in tooltip when energy is low', async () => {
@@ -335,9 +343,14 @@ describe('StatsBar Component', () => {
 
       // Check for low energy warning in tooltip
       // Use getAllByText because Radix UI duplicates content for accessibility
-      await waitFor(() => {
-        expect(screen.getAllByText(/⚠️ Low energy! Rest or complete scenes to recover./)[0]).toBeInTheDocument();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.getAllByText(/⚠️ Low energy! Rest or complete scenes to recover./)[0],
+          ).toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
     });
 
     it('shows health tooltip on hover', async () => {
@@ -354,9 +367,14 @@ describe('StatsBar Component', () => {
 
       // Check tooltip content
       // Use getAllByText because Radix UI duplicates content for accessibility
-      await waitFor(() => {
-        expect(screen.getAllByText('Your vitality and wellbeing. Recovers after combat victories.')[0]).toBeInTheDocument();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.getAllByText('Your vitality and wellbeing. Recovers after combat victories.')[0],
+          ).toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
     });
 
     it('shows Light Points tooltip on hover', async () => {
@@ -376,9 +394,14 @@ describe('StatsBar Component', () => {
       });
 
       // Use getAllByText because Radix UI duplicates content for accessibility
-      await waitFor(() => {
-        expect(screen.getAllByText('Use Light Points for healing and defensive actions in combat')[0]).toBeInTheDocument();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.getAllByText('Use Light Points for healing and defensive actions in combat')[0],
+          ).toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
     });
 
     it('shows Shadow Points tooltip on hover', async () => {
@@ -398,9 +421,14 @@ describe('StatsBar Component', () => {
       });
 
       // Use getAllByText because Radix UI duplicates content for accessibility
-      await waitFor(() => {
-        expect(screen.getAllByText('Shadow Points enable powerful attacks but come with risk')[0]).toBeInTheDocument();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.getAllByText('Shadow Points enable powerful attacks but come with risk')[0],
+          ).toBeInTheDocument();
+        },
+        { timeout: 2000 },
+      );
     });
   });
 
@@ -431,6 +459,48 @@ describe('StatsBar Component', () => {
 
       expect(energyValue).toBe(expected);
       unmount(); // Clean up for next iteration
+    });
+  });
+
+  describe('Accessibility (jest-axe)', () => {
+    it('should have no accessibility violations with default props', async () => {
+      const { container } = render(<StatsBar trust={50} />);
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should have no accessibility violations with combat resources shown', async () => {
+      mockGameStore.lightPoints = 10;
+      mockGameStore.shadowPoints = 5;
+
+      const { container } = render(<StatsBar trust={75} showCombatResources={true} />);
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should have no accessibility violations with low energy warning', async () => {
+      mockGameStore.playerEnergy = 10;
+      mockGameStore.maxPlayerEnergy = 100;
+
+      const { container } = render(<StatsBar trust={50} />);
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should have proper ARIA attributes on progress bars', () => {
+      render(<StatsBar trust={50} />);
+
+      const energyProgressBar = screen.getByRole('progressbar', { name: 'energy' });
+      expect(energyProgressBar).toHaveAttribute('aria-valuenow');
+      expect(energyProgressBar).toHaveAttribute('aria-valuemin', '0');
+      expect(energyProgressBar).toHaveAttribute('aria-valuemax', '100');
+
+      const experienceProgressBar = screen.getByRole('progressbar', {
+        name: 'experience progress',
+      });
+      expect(experienceProgressBar).toHaveAttribute('aria-valuenow');
+      expect(experienceProgressBar).toHaveAttribute('aria-valuemin', '0');
+      expect(experienceProgressBar).toHaveAttribute('aria-valuemax', '100');
     });
   });
 });

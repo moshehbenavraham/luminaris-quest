@@ -2,6 +2,9 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import { render, screen, advanceTimersAndAct, act } from '@/test/utils';
 import userEvent from '@testing-library/user-event';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
 
 // Mock the sound manager module before importing the component
 vi.mock('@/utils/sound-manager', () => ({
@@ -13,12 +16,12 @@ vi.mock('@/utils/sound-manager', () => ({
     getVolume: vi.fn(() => 0.7),
     isMuted: vi.fn(() => false),
     isAudioSupported: vi.fn(() => true),
-    dispose: vi.fn()
-  }
+    dispose: vi.fn(),
+  },
 }));
 
 // Import after mocking
-import { DiceRollOverlay } from '@/components/DiceRollOverlay';
+import { DiceRollOverlay } from '@/components/molecules/DiceRollOverlay';
 import { soundManager } from '@/utils/sound-manager';
 
 describe('DiceRollOverlay', () => {
@@ -28,7 +31,7 @@ describe('DiceRollOverlay', () => {
     dc: 12,
     success: true,
     critical: false,
-    type: 'skill' as const
+    type: 'skill' as const,
   };
 
   beforeAll(() => {
@@ -47,14 +50,14 @@ describe('DiceRollOverlay', () => {
 
   it('should render the dice roll overlay', () => {
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-    
+
     expect(screen.getByText("Fate's Decision")).toBeInTheDocument();
     expect(screen.getByText('Rolling...')).toBeInTheDocument();
   });
 
   it('should display the target DC', () => {
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
-    
+
     expect(screen.getByText('Target:')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
   });
@@ -152,9 +155,7 @@ describe('DiceRollOverlay', () => {
 
       // Should have played one of the dice sounds
       expect(soundManager.playSound).toHaveBeenCalledTimes(1);
-      expect(soundManager.playSound).toHaveBeenCalledWith(
-        expect.stringMatching(/^dice[1-3]$/)
-      );
+      expect(soundManager.playSound).toHaveBeenCalledWith(expect.stringMatching(/^dice[1-3]$/));
     });
 
     it.skip('should play a different dice sound on each render - DEFERRED: sound mocking complexity', async () => {
@@ -163,7 +164,9 @@ describe('DiceRollOverlay', () => {
 
       // First render - will select dice1 (index 0)
       mockRandom.mockReturnValueOnce(0.1);
-      const { unmount: unmount1 } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+      const { unmount: unmount1 } = render(
+        <DiceRollOverlay result={defaultResult} onClose={mockOnClose} />,
+      );
       await act(async () => {
         await vi.runOnlyPendingTimersAsync();
       });
@@ -173,7 +176,9 @@ describe('DiceRollOverlay', () => {
 
       // Second render - will select dice2 (index 1)
       mockRandom.mockReturnValueOnce(0.5);
-      const { unmount: unmount2 } = render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+      const { unmount: unmount2 } = render(
+        <DiceRollOverlay result={defaultResult} onClose={mockOnClose} />,
+      );
       await act(async () => {
         await vi.runOnlyPendingTimersAsync();
       });
@@ -192,4 +197,58 @@ describe('DiceRollOverlay', () => {
       mockRandom.mockRestore();
     });
   });
-}); 
+
+  describe('Accessibility (jest-axe)', () => {
+    // jest-axe tests need real timers, so we restore them for this block
+    beforeEach(() => {
+      vi.useRealTimers();
+    });
+
+    afterEach(() => {
+      // Restore fake timers for other tests
+      vi.useFakeTimers();
+    });
+
+    it('should have no accessibility violations during rolling state', async () => {
+      const { container } = render(
+        <DiceRollOverlay result={defaultResult} onClose={mockOnClose} />,
+      );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should have no accessibility violations after showing success result', async () => {
+      const { container } = render(
+        <DiceRollOverlay result={defaultResult} onClose={mockOnClose} />,
+      );
+
+      // Wait for the result to show (real timers now)
+      await new Promise((resolve) => setTimeout(resolve, 1600));
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    }, 10000);
+
+    it('should have no accessibility violations after showing failure result', async () => {
+      const failedResult = { ...defaultResult, success: false };
+      const { container } = render(<DiceRollOverlay result={failedResult} onClose={mockOnClose} />);
+
+      // Wait for the result to show (real timers now)
+      await new Promise((resolve) => setTimeout(resolve, 1600));
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    }, 10000);
+
+    it('should have proper button accessibility after result is shown', async () => {
+      render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
+
+      // Wait for the result to show (real timers now)
+      await new Promise((resolve) => setTimeout(resolve, 1600));
+
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      expect(continueButton).toBeInTheDocument();
+      expect(continueButton).toBeEnabled();
+    }, 10000);
+  });
+});

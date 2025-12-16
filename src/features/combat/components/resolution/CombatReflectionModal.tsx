@@ -43,8 +43,7 @@ import {
 } from 'lucide-react';
 import { useCombatStore } from '../../hooks/useCombatStore';
 import { useGameStore } from '@/store/game-store';
-import type { JournalEntry } from '@/components/JournalModal';
-import type { ShadowManifestation } from '@/store/game-store';
+import type { JournalEntry, ShadowManifestation } from '@/types';
 
 export interface CombatReflectionData {
   enemy: ShadowManifestation;

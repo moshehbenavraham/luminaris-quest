@@ -1,15 +1,14 @@
- 
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions.
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
@@ -17,7 +16,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { ActionButton } from './ActionButton';
 import { cn } from '@/lib/utils';
-import type { CombatAction } from '@/store/game-store';
+import type { CombatAction } from '@/types';
 
 interface ActionGridProps {
   canUseAction: (action: CombatAction) => boolean;
@@ -47,7 +46,7 @@ export function ActionGrid({
   onActionExecute,
   isPlayerTurn,
   className,
-  keyboardActiveAction
+  keyboardActiveAction,
 }: ActionGridProps) {
   const [activeAction, setActiveAction] = useState<CombatAction | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -56,39 +55,42 @@ export function ActionGrid({
   // This keyboardActiveAction coordination was added based on INCORRECT ASSUMPTION that
   // keyboard event conflicts were causing overlay interaction issues. This was NOT the
   // actual problem. The real interaction blocking issue remains UNFIXED.
-  
+
   // Combine local click-based active action with keyboard-based active action
   const currentActiveAction = keyboardActiveAction || activeAction;
 
-  const handleActionClick = useCallback((action: CombatAction) => {
-    if (!isPlayerTurn || !canUseAction(action)) return;
-    
-    // Clear any existing timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    setActiveAction(action);
-    onActionExecute(action);
-    
-    // Clear active state after animation
-    timeoutRef.current = setTimeout(() => {
-      setActiveAction(null);
-      timeoutRef.current = null;
-    }, 200);
-  }, [isPlayerTurn, canUseAction, onActionExecute]);
+  const handleActionClick = useCallback(
+    (action: CombatAction) => {
+      if (!isPlayerTurn || !canUseAction(action)) return;
+
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      setActiveAction(action);
+      onActionExecute(action);
+
+      // Clear active state after animation
+      timeoutRef.current = setTimeout(() => {
+        setActiveAction(null);
+        timeoutRef.current = null;
+      }, 200);
+    },
+    [isPlayerTurn, canUseAction, onActionExecute],
+  );
 
   // Cleanup timeout on unmount (handled by parent component)
 
   return (
-    <div 
+    <div
       className={cn(
         'w-full',
         // Mobile: 2x2 grid
         'grid grid-cols-2 gap-3',
         // Desktop: 4x1 grid
         'sm:grid-cols-4 sm:gap-4',
-        className
+        className,
       )}
       role="group"
       aria-label="Combat actions"
@@ -118,18 +120,18 @@ export function ActionGrid({
               // Touch optimization
               'touch-manipulation select-none',
               // Prevent text selection on double-tap
-              'user-select-none'
+              'user-select-none',
             )}
           />
         );
       })}
-      
+
       {!isPlayerTurn && (
-        <div className="col-span-2 sm:col-span-4 text-center py-4">
-          <div className="flex items-center justify-center space-x-3 bg-red-950/30 border border-red-400/30 rounded-lg py-3 px-4">
-            <div className="w-3 h-3 bg-red-400 rounded-full animate-pulse" />
-            <span className="text-red-300 font-medium">Enemy Turn - Please Wait</span>
-            <div className="w-3 h-3 bg-red-400 rounded-full animate-pulse animation-delay-300" />
+        <div className="col-span-2 py-4 text-center sm:col-span-4">
+          <div className="flex items-center justify-center space-x-3 rounded-lg border border-red-400/30 bg-red-950/30 px-4 py-3">
+            <div className="h-3 w-3 animate-pulse rounded-full bg-red-400" />
+            <span className="font-medium text-red-300">Enemy Turn - Please Wait</span>
+            <div className="animation-delay-300 h-3 w-3 animate-pulse rounded-full bg-red-400" />
           </div>
         </div>
       )}

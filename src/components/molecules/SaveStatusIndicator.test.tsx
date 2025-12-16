@@ -3,7 +3,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SaveStatusIndicator } from '@/components/SaveStatusIndicator';
+import { SaveStatusIndicator } from '@/components/molecules/SaveStatusIndicator';
 import { useGameStoreBase } from '@/store/game-store';
 
 // Mock the game store

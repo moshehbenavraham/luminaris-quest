@@ -52,14 +52,10 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
     preferredActions,
     playerHealth,
     log,
-    beginSyncTransaction,
-    commitSyncTransaction,
-    rollbackSyncTransaction,
   } = useCombatStoreBase();
   const gameStore = useGameStore();
   const [open, setOpen] = useState(false);
-  const [canClose, setCanClose] = useState(false); // ⚠️ CLAUDE CODE FAILED ASSUMPTION - This state was NOT needed
-  const [syncValidationError, setSyncValidationError] = useState<string | null>(null);
+  const [canClose, setCanClose] = useState(false);
 
   // Capture resources at combat start for history tracking
   const initialResourcesRef = useRef<{ lp: number; sp: number } | null>(null);
@@ -145,148 +141,50 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
     setOpen(false);
     clearCombatEnd();
 
-    // ⚠️ CLAUDE CODE FAILED ASSUMPTION ALERT ⚠️
-    // The following code was added based on INCORRECT ASSUMPTIONS that the modal wasn't
-    // working properly. User reported missing "post-combat result overlay" but this modal
-    // WAS ALREADY WORKING. The real issue was elsewhere in the combat flow.
-    //
-    // FAILED ASSUMPTION #1: Modal wasn't showing - IT WAS SHOWING
-    // FAILED ASSUMPTION #2: Scene advancement was broken - IT WASN'T THE ISSUE
-    // FAILED ASSUMPTION #3: Resource syncing was the problem - IT WASN'T
-    //
-    // This entire implementation below was WASTED EFFORT that addresses NON-EXISTENT problems
-    // while the actual user issue remains UNFIXED. Zero improvements achieved.
+    // Resources are already synced to shared store via combat-store.endCombat()
+    // Just apply victory rewards and update game state
 
-    // Prepare transaction for combat → game store sync
-    const sourceState = {
-      lp: combatResources.lp,
-      sp: combatResources.sp,
-      playerHealth: 100, // Combat always ends with full health restore
-      playerEnergy: gameStore.playerEnergy, // Keep current energy
-    };
-
-    const targetState = {
-      lp:
-        combatResources.lp +
-        (victory && enemy?.victoryReward?.lpBonus ? enemy.victoryReward.lpBonus : 0),
-      sp: combatResources.sp,
-      playerHealth: 100, // Always restore to full health
-      playerEnergy: gameStore.playerEnergy, // Keep current energy
-    };
-
-    // Begin transaction for combat-to-game sync
-    const transactionResult = beginSyncTransaction('combat-to-game', sourceState, targetState);
-
-    if (!transactionResult.success) {
-      const errorMsg = `Combat → Game store sync failed: ${transactionResult.errorMessage}`;
-      setSyncValidationError(errorMsg);
-      console.warn(errorMsg);
-
-      // Apply changes manually as fallback (unsafe mode)
-      const lpDifference = combatResources.lp - gameStore.lightPoints;
-      const spDifference = combatResources.sp - gameStore.shadowPoints;
-
-      if (lpDifference !== 0) {
-        gameStore.modifyLightPoints(lpDifference);
-      }
-      if (spDifference !== 0) {
-        gameStore.modifyShadowPoints(spDifference);
-      }
-
-      // Apply victory rewards if applicable
-      if (victory && enemy?.victoryReward?.lpBonus) {
-        gameStore.modifyLightPoints(enemy.victoryReward.lpBonus);
-      }
-
-      // Award experience points for combat completion
-      if (victory && enemy) {
-        const combatXP = {
-          'whisper-of-doubt': 40,
-          'shadow-of-isolation': 55,
-          'overwhelm-tempest': 70,
-          'echo-of-past-pain': 75,
-        };
-        const xpReward = combatXP[enemy.id as keyof typeof combatXP] || 50;
-        gameStore.modifyExperiencePoints(xpReward, `${enemy.name} defeated`);
-      } else if (!victory && enemy) {
-        // Partial XP for combat attempt even on defeat
-        const attemptXP = 15;
-        gameStore.modifyExperiencePoints(attemptXP, `combat with ${enemy.name} attempted`);
-      }
-
-      // Sync combat statistics to game store for therapeutic analytics persistence (fallback)
-      gameStore.updateCombatStatistics(preferredActions, victory, turn);
-    } else {
-      // Commit the transaction and apply changes to game store
-      const commitResult = commitSyncTransaction(transactionResult.transaction.id);
-
-      if (commitResult.success) {
-        // Apply the validated changes to game store
-        const lpDifference = targetState.lp - gameStore.lightPoints;
-        const spDifference = targetState.sp - gameStore.shadowPoints;
-
-        if (lpDifference !== 0) {
-          gameStore.modifyLightPoints(lpDifference);
-        }
-        if (spDifference !== 0) {
-          gameStore.modifyShadowPoints(spDifference);
-        }
-
-        // Award experience points for combat completion
-        if (victory && enemy) {
-          const combatXP = {
-            'whisper-of-doubt': 40,
-            'shadow-of-isolation': 55,
-            'overwhelm-tempest': 70,
-            'echo-of-past-pain': 75,
-          };
-          const xpReward = combatXP[enemy.id as keyof typeof combatXP] || 50;
-          gameStore.modifyExperiencePoints(xpReward, `${enemy.name} defeated`);
-        } else if (!victory && enemy) {
-          // Partial XP for combat attempt even on defeat
-          const attemptXP = 15;
-          gameStore.modifyExperiencePoints(attemptXP, `combat with ${enemy.name} attempted`);
-        }
-
-        // Sync combat statistics to game store for therapeutic analytics persistence
-        gameStore.updateCombatStatistics(preferredActions, victory, turn);
-
-        console.log('Combat → Game Store transaction committed:', {
-          transactionId: transactionResult.transaction.id,
-          lpChange: lpDifference,
-          spChange: spDifference,
-        });
-      } else {
-        // Rollback on commit failure
-        rollbackSyncTransaction(transactionResult.transaction.id);
-        setSyncValidationError(`Transaction commit failed: ${commitResult.errorMessage}`);
-      }
+    // Apply victory LP bonus if applicable
+    if (victory && enemy?.victoryReward?.lpBonus) {
+      gameStore.modifyLightPoints(enemy.victoryReward.lpBonus);
     }
+
+    // Award experience points for combat completion
+    if (victory && enemy) {
+      const combatXP = {
+        'whisper-of-doubt': 40,
+        'shadow-of-isolation': 55,
+        'overwhelm-tempest': 70,
+        'echo-of-past-pain': 75,
+      };
+      const xpReward = combatXP[enemy.id as keyof typeof combatXP] || 50;
+      gameStore.modifyExperiencePoints(xpReward, `${enemy.name} defeated`);
+    } else if (!victory && enemy) {
+      // Partial XP for combat attempt even on defeat
+      const attemptXP = 15;
+      gameStore.modifyExperiencePoints(attemptXP, `combat with ${enemy.name} attempted`);
+    }
+
+    // Sync combat statistics to game store for therapeutic analytics persistence
+    gameStore.updateCombatStatistics(preferredActions, victory, turn);
 
     // Save combat history to Supabase for therapeutic analytics
     // This is fire-and-forget - don't block the close on save completion
     saveCombatHistory();
 
     // Always end combat and advance scene when modal closes
-    // This ensures the post-combat flow works regardless of the old game store's combat state
     gameStore.endCombat(victory);
 
     onClose?.();
   };
 
   const handleReflect = () => {
-    // ⚠️ CLAUDE CODE FAILED ASSUMPTION ALERT ⚠️
-    // The canClose check below was added based on INCORRECT ASSUMPTION about modal timing issues.
-    // This was NOT the actual user-reported problem. Zero improvements achieved.
     if (!canClose) return;
     // TODO: This will be implemented when ReflectionForm is created
     handleClose();
   };
 
   const handleContinue = () => {
-    // ⚠️ CLAUDE CODE FAILED ASSUMPTION ALERT ⚠️
-    // The canClose check below was added based on INCORRECT ASSUMPTION about modal timing issues.
-    // This was NOT the actual user-reported problem. Zero improvements achieved.
     if (!canClose) return;
     handleClose();
   };
@@ -323,16 +221,6 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Sync Validation Warning */}
-          {syncValidationError && (
-            <div className="animate-fade-in rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-              <p className="text-xs text-yellow-800">⚠️ Data sync warning: {syncValidationError}</p>
-              <p className="mt-1 text-xs text-yellow-600">
-                Progress has been saved, but please report this issue if it persists.
-              </p>
-            </div>
-          )}
-
           {/* Guardian Message */}
           <div
             className={cn(
@@ -378,7 +266,7 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
               <Button
                 variant="default"
                 onClick={handleReflect}
-                disabled={!canClose} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - canClose logic was NOT needed
+                disabled={!canClose}
                 className="bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50"
               >
                 📝 Reflect on Victory
@@ -386,7 +274,7 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
               <Button
                 variant="outline"
                 onClick={handleContinue}
-                disabled={!canClose} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - canClose logic was NOT needed
+                disabled={!canClose}
                 className="border-amber-300 hover:bg-amber-50 disabled:opacity-50"
               >
                 Continue Journey
@@ -397,7 +285,7 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
               <Button
                 variant="default"
                 onClick={handleReflect}
-                disabled={!canClose} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - canClose logic was NOT needed
+                disabled={!canClose}
                 className="bg-slate-600 text-white hover:bg-slate-700 disabled:opacity-50"
               >
                 📝 Journal Thoughts
@@ -405,7 +293,7 @@ export const CombatEndModal: React.FC<CombatEndModalProps> = ({
               <Button
                 variant="outline"
                 onClick={handleContinue}
-                disabled={!canClose} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - canClose logic was NOT needed
+                disabled={!canClose}
                 className="border-slate-300 hover:bg-slate-50 disabled:opacity-50"
               >
                 Rest & Recover

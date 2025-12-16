@@ -30,7 +30,7 @@ vi.mock('@/store/game-store', () => ({
 }));
 
 // Mock StatsBar to use mock store values for testing
-vi.mock('@/components/StatsBar', () => ({
+vi.mock('@/components/organisms/StatsBar', () => ({
   StatsBar: (props: any) => {
     const showCombatResources = mockGameStore.lightPoints > 0 || mockGameStore.shadowPoints > 0;
     return (
@@ -68,11 +68,11 @@ vi.mock('@/components/atoms/ImpactfulImage', () => ({
 }));
 
 // Mock the components to avoid complex dependencies
-vi.mock('@/components/ChoiceList', () => ({
+vi.mock('@/components/organisms/ChoiceList', () => ({
   ChoiceList: () => <div data-testid="choice-list">Choice List Component</div>,
 }));
 
-vi.mock('@/components/GuardianText', () => ({
+vi.mock('@/components/molecules/GuardianText', () => ({
   GuardianText: (props: any) => (
     <div data-testid="guardian-text" {...props}>
       Guardian Text Component
@@ -80,7 +80,7 @@ vi.mock('@/components/GuardianText', () => ({
   ),
 }));
 
-vi.mock('@/components/JournalModal', () => ({
+vi.mock('@/components/molecules/JournalModal', () => ({
   JournalModal: (props: any) => (
     <div data-testid="journal-modal" {...props}>
       Journal Modal Component

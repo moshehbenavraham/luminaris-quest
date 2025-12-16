@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/set-state-in-effect -- SSR hydration and milestone sync patterns */
 
 import { useState, useCallback, useEffect } from 'react';
-import { ChoiceList } from '@/components/ChoiceList';
-import { GuardianText } from '@/components/GuardianText';
-import { JournalModal, type JournalEntry } from '@/components/JournalModal';
+import { ChoiceList } from '@/components/organisms/ChoiceList';
+import { GuardianText } from '@/components/molecules/GuardianText';
+import { JournalModal } from '@/components/molecules/JournalModal';
+import type { JournalEntry } from '@/types';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { StatsBar } from '@/components/StatsBar';
+import { StatsBar } from '@/components/organisms/StatsBar';
 import { useGameStore } from '@/store/game-store';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import AudioPlayer from '@/components/organisms/AudioPlayer';

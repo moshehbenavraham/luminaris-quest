@@ -1,7 +1,6 @@
- 
 import type { ReactNode } from 'react';
 import { useAutoSave } from '@/hooks/use-auto-save';
-import { SaveStatusIndicator } from '@/components/SaveStatusIndicator';
+import { SaveStatusIndicator } from '@/components/molecules/SaveStatusIndicator';
 
 interface AuthenticatedAppProps {
   children: ReactNode;

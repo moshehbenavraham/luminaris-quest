@@ -1,22 +1,21 @@
- 
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions.
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
 
 import { ActionTooltip } from './ActionTooltip';
 import { cn } from '@/lib/utils';
-import type { CombatAction } from '@/store/game-store';
+import type { CombatAction } from '@/types';
 
 interface ActionButtonProps {
   action: CombatAction;
@@ -80,7 +79,7 @@ export function ActionButton({
   isActive = false,
   icon,
   onClick,
-  className
+  className,
 }: ActionButtonProps) {
   const style = actionStyles[action];
   const displayIcon = icon || style.icon;
@@ -103,16 +102,16 @@ export function ActionButton({
           style.disabledBg,
           style.disabledBorder,
           style.disabledText,
-          'cursor-not-allowed opacity-60'
+          'cursor-not-allowed opacity-60',
         )
       : cn(
           style.bg,
           style.border,
           style.text,
           'cursor-pointer hover:scale-105',
-          isActive && 'ring-2 ring-blue-400/50 scale-105'
+          isActive && 'ring-2 ring-blue-400/50 scale-105',
         ),
-    className
+    className,
   );
 
   return (
@@ -130,30 +129,28 @@ export function ActionButton({
         aria-label={`${title}${shortcut ? ` (${shortcut})` : ''}`}
         data-testid={`action-${action.toLowerCase()}`}
       >
-        <div className="text-2xl mb-1" aria-hidden="true">
+        <div className="mb-1 text-2xl" aria-hidden="true">
           {displayIcon}
         </div>
-        
-        <span className="text-xs sm:text-sm font-medium text-center leading-tight">
-          {title}
-        </span>
-        
-        {cost && Object.values(cost).some(v => v > 0) && (
+
+        <span className="text-center text-xs leading-tight font-medium sm:text-sm">{title}</span>
+
+        {cost && Object.values(cost).some((v) => v > 0) && (
           <div className="absolute top-1 right-1 text-xs opacity-75">
             {cost.lp && <span className="text-yellow-300">{cost.lp}LP</span>}
             {cost.lp && cost.sp && <span className="text-combat-text-muted">•</span>}
             {cost.sp && <span className="text-purple-300">{cost.sp}SP</span>}
           </div>
         )}
-        
+
         {shortcut && (
-          <div className="absolute bottom-1 right-1 text-xs opacity-60 bg-black/20 px-1 rounded">
+          <div className="absolute right-1 bottom-1 rounded bg-black/20 px-1 text-xs opacity-60">
             {shortcut}
           </div>
         )}
-        
+
         {isActive && (
-          <div className="absolute inset-0 rounded-lg bg-blue-400/10 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 rounded-lg bg-blue-400/10" />
         )}
       </button>
     </ActionTooltip>

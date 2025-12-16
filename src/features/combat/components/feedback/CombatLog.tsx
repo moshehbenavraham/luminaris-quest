@@ -155,7 +155,7 @@ export const CombatLog: React.FC<CombatLogProps> = ({
                   getEntryStyles(entry),
                 )}
               >
-                <div className="mt-0.5 flex-shrink-0 text-xs">{getEntryIcon(entry)}</div>
+                <div className="mt-0.5 shrink-0 text-xs">{getEntryIcon(entry)}</div>
                 <div className="min-w-0 flex-1">
                   <div className="break-words">{entry.message}</div>
                   {entry.metadata && (
@@ -166,7 +166,7 @@ export const CombatLog: React.FC<CombatLogProps> = ({
                     </div>
                   )}
                 </div>
-                <div className="flex-shrink-0 font-mono text-xs text-gray-500">
+                <div className="shrink-0 font-mono text-xs text-gray-500">
                   {formatTimestamp(entry.timestamp)}
                 </div>
               </div>

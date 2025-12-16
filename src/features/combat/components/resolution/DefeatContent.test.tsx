@@ -1,22 +1,29 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { DefeatContent } from '@/features/combat/components/resolution/DefeatContent';
-import type { ShadowManifestation } from '@/store/game-store';
+import type { ShadowManifestation } from '@/types';
 
 describe('DefeatContent', () => {
   const mockEnemy: ShadowManifestation = {
     id: 'shadow-doubt',
     name: 'Shadow of Doubt',
+    type: 'doubt',
+    description: 'A manifestation of doubt',
     currentHP: 15,
     maxHP: 30,
-    type: 'EMOTIONAL',
-    therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    abilities: [],
+    therapeuticInsight: 'Facing doubt with courage builds inner strength.',
+    victoryReward: {
+      lpBonus: 0,
+      growthMessage: 'Test growth message',
+      permanentBenefit: 'Test permanent benefit',
+    },
   };
 
   const defaultProps = {
     enemy: mockEnemy,
     onReflect: vi.fn(),
-    onContinue: vi.fn()
+    onContinue: vi.fn(),
   };
 
   beforeEach(() => {
@@ -34,7 +41,9 @@ describe('DefeatContent', () => {
   it('displays learning moment message', () => {
     render(<DefeatContent {...defaultProps} />);
 
-    expect(screen.getByText('Every challenge teaches us something valuable about ourselves.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Every challenge teaches us something valuable about ourselves.'),
+    ).toBeInTheDocument();
   });
 
   it('shows combat summary message', () => {
@@ -49,7 +58,9 @@ describe('DefeatContent', () => {
     expect(screen.getByText(/💡/)).toBeInTheDocument();
     expect(screen.getByText('Reflection Prompt:')).toBeInTheDocument();
     expect(screen.getByText(/What emotions did this shadow bring up/)).toBeInTheDocument();
-    expect(screen.getByText(/How might facing similar feelings in real life help you grow/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/How might facing similar feelings in real life help you grow/),
+    ).toBeInTheDocument();
   });
 
   it('renders action buttons with correct styling', () => {
@@ -87,9 +98,7 @@ describe('DefeatContent', () => {
   });
 
   it('applies custom className', () => {
-    const { container } = render(
-      <DefeatContent {...defaultProps} className="custom-test-class" />
-    );
+    const { container } = render(<DefeatContent {...defaultProps} className="custom-test-class" />);
 
     expect(container.firstChild).toHaveClass('custom-test-class');
   });
@@ -98,7 +107,9 @@ describe('DefeatContent', () => {
     render(<DefeatContent {...defaultProps} />);
 
     // Check guardian message styling
-    const guardianMessage = screen.getByText(/This shadow still has lessons to teach/).closest('div');
+    const guardianMessage = screen
+      .getByText(/This shadow still has lessons to teach/)
+      .closest('div');
     expect(guardianMessage).toHaveClass('bg-slate-100', 'border-slate-200');
 
     // Check therapeutic insight styling
@@ -113,7 +124,7 @@ describe('DefeatContent', () => {
       currentHP: 20,
       maxHP: 35,
       type: 'EMOTIONAL',
-      therapeuticInsight: 'Anxiety reveals what we care about most deeply.'
+      therapeuticInsight: 'Anxiety reveals what we care about most deeply.',
     };
 
     render(<DefeatContent {...defaultProps} enemy={shadowAnxiety} />);

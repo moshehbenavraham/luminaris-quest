@@ -32,7 +32,7 @@ import { ControlPanel } from './actions/ControlPanel';
 import { CombatReflectionModal } from './resolution/CombatReflectionModal';
 import { useCombatStore } from '@/features/combat/hooks/useCombatStore';
 import { useCombatKeyboard } from '@/features/combat/hooks/useCombatKeyboard';
-import type { CombatAction } from '@/store/game-store';
+import type { CombatAction } from '@/types';
 
 interface CombatOverlayProps {
   'data-testid'?: string;

@@ -28,7 +28,7 @@ import {
   selectActionCost,
   selectActionDescription,
 } from '@/features/combat/store/combat-store';
-import type { CombatAction } from '@/store/game-store';
+import type { CombatAction } from '@/types';
 
 /**
  * useCombatStore - Custom hook for accessing combat state with selectors
@@ -198,10 +198,80 @@ export const useCombatStore = () => {
   };
 };
 
-// Individual selectors for specific use cases
-export const useCombatActive = () => useStore((state) => state.isActive);
-export const useCombatEnemy = () => useStore((state) => state.enemy);
-export const useCombatResources = () => useStore((state) => state.resources);
-export const useCombatFlags = () => useStore((state) => state.flags);
+// Individual selectors for specific use cases - with hydration safety
+// These hooks include hydration checks to prevent SSR mismatches
+
+/**
+ * Hydration-safe selector for combat active state
+ * Returns false during hydration to prevent SSR mismatches
+ */
+export const useCombatActive = () => {
+  const [hasMounted, setHasMounted] = useState(false);
+  const isActive = useStore((state) => state.isActive);
+  const hasHydrated = useStore((state) => state._hasHydrated);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Return safe default during hydration
+  if (!hasMounted || !hasHydrated) return false;
+  return isActive;
+};
+
+/**
+ * Hydration-safe selector for combat enemy
+ * Returns null during hydration to prevent SSR mismatches
+ */
+export const useCombatEnemy = () => {
+  const [hasMounted, setHasMounted] = useState(false);
+  const enemy = useStore((state) => state.enemy);
+  const hasHydrated = useStore((state) => state._hasHydrated);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Return safe default during hydration
+  if (!hasMounted || !hasHydrated) return null;
+  return enemy;
+};
+
+/**
+ * Hydration-safe selector for combat resources (LP/SP)
+ * Returns safe defaults during hydration to prevent SSR mismatches
+ */
+export const useCombatResources = () => {
+  const [hasMounted, setHasMounted] = useState(false);
+  const resources = useStore((state) => state.resources);
+  const hasHydrated = useStore((state) => state._hasHydrated);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Return safe default during hydration
+  if (!hasMounted || !hasHydrated) return { lp: 10, sp: 0 };
+  return resources;
+};
+
+/**
+ * Hydration-safe selector for combat feature flags
+ * Returns safe defaults during hydration to prevent SSR mismatches
+ */
+export const useCombatFlags = () => {
+  const [hasMounted, setHasMounted] = useState(false);
+  const flags = useStore((state) => state.flags);
+  const hasHydrated = useStore((state) => state._hasHydrated);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Return safe default during hydration
+  if (!hasMounted || !hasHydrated) return { newCombatUI: true };
+  return flags;
+};
+
 // Legacy combat system removed - always use new combat UI
 export const useNewCombatUI = () => true;

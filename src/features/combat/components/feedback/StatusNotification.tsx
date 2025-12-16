@@ -17,7 +17,7 @@ export const StatusNotification: React.FC<StatusNotificationProps> = ({
   duration = 3000,
   onClose,
   className,
-  playSound = true
+  playSound = true,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [animationPhase, setAnimationPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
@@ -26,9 +26,8 @@ export const StatusNotification: React.FC<StatusNotificationProps> = ({
   useEffect(() => {
     // Play sound effect when notification appears
     if (playSound) {
-      const soundType = type === 'success' ? 'positive' : 
-                       type === 'error' ? 'negative' : 'neutral';
-      playStatusSound(soundType).catch(error => {
+      const soundType = type === 'success' ? 'positive' : type === 'error' ? 'negative' : 'neutral';
+      playStatusSound(soundType).catch((error) => {
         console.warn(`Failed to play status sound for ${type}:`, error);
       });
     }
@@ -95,23 +94,19 @@ export const StatusNotification: React.FC<StatusNotificationProps> = ({
   return (
     <div
       className={cn(
-        'fixed top-4 right-4 z-50 max-w-sm w-full',
-        'px-4 py-3 rounded-lg border-l-4 shadow-lg',
+        'fixed top-4 right-4 z-50 w-full max-w-sm',
+        'rounded-lg border-l-4 px-4 py-3 shadow-lg',
         'transition-all duration-300 ease-out',
         'flex items-center space-x-3',
         getTypeStyles(),
         getAnimationClasses(),
-        className
+        className,
       )}
       role="alert"
       aria-live="polite"
     >
-      <div className="flex-shrink-0 text-lg font-bold">
-        {getIcon()}
-      </div>
-      <div className="flex-1 text-sm font-medium">
-        {message}
-      </div>
+      <div className="shrink-0 text-lg font-bold">{getIcon()}</div>
+      <div className="flex-1 text-sm font-medium">{message}</div>
       <button
         onClick={() => {
           setAnimationPhase('exit');
@@ -120,7 +115,7 @@ export const StatusNotification: React.FC<StatusNotificationProps> = ({
             onClose?.();
           }, 300);
         }}
-        className="flex-shrink-0 text-white/80 hover:text-white transition-colors"
+        className="shrink-0 text-white/80 transition-colors hover:text-white"
         aria-label="Close notification"
       >
         ✕
@@ -128,4 +123,3 @@ export const StatusNotification: React.FC<StatusNotificationProps> = ({
     </div>
   );
 };
-

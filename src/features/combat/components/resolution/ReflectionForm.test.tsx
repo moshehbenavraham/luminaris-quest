@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { ReflectionForm } from '@/features/combat/components/resolution/ReflectionForm';
-import type { ShadowManifestation } from '@/store/game-store';
+import type { ShadowManifestation } from '@/types';
 
 // Mock the game store
 const mockAddJournalEntry = vi.fn();
@@ -15,10 +15,17 @@ describe('ReflectionForm', () => {
   const mockEnemy: ShadowManifestation = {
     id: 'shadow-doubt',
     name: 'Shadow of Doubt',
+    type: 'doubt',
+    description: 'A manifestation of doubt',
     currentHP: 0,
     maxHP: 30,
-    type: 'EMOTIONAL',
-    therapeuticInsight: 'Facing doubt with courage builds inner strength.'
+    abilities: [],
+    therapeuticInsight: 'Facing doubt with courage builds inner strength.',
+    victoryReward: {
+      lpBonus: 0,
+      growthMessage: 'Test growth message',
+      permanentBenefit: 'Test permanent benefit',
+    },
   };
 
   const defaultProps = {
@@ -26,7 +33,7 @@ describe('ReflectionForm', () => {
     victory: true,
     guardianTrust: 50,
     onSave: vi.fn(),
-    onCancel: vi.fn()
+    onCancel: vi.fn(),
   };
 
   beforeEach(() => {
@@ -53,8 +60,12 @@ describe('ReflectionForm', () => {
     const { rerender } = render(<ReflectionForm {...defaultProps} victory={true} />);
 
     // Victory prompts
-    expect(screen.getByText(/How can you carry this sense of accomplishment forward/)).toBeInTheDocument();
-    expect(screen.getByText(/What strategies worked well that you might use again/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/How can you carry this sense of accomplishment forward/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/What strategies worked well that you might use again/),
+    ).toBeInTheDocument();
 
     rerender(<ReflectionForm {...defaultProps} victory={false} />);
 
@@ -76,7 +87,7 @@ describe('ReflectionForm', () => {
 
     const textarea = screen.getByPlaceholderText(/Share your thoughts and feelings/);
     const testText = 'This is my reflection on the combat experience.';
-    
+
     fireEvent.change(textarea, { target: { value: testText } });
 
     expect(screen.getByText(`${testText.length}/1000`)).toBeInTheDocument();
@@ -121,11 +132,11 @@ describe('ReflectionForm', () => {
     // Check form is structured correctly
     expect(textarea).toBeRequired();
     expect(submitButton).toHaveAttribute('type', 'submit');
-    
+
     // Add content and verify button becomes enabled
     fireEvent.change(textarea, { target: { value: reflectionText } });
     expect(submitButton).not.toBeDisabled();
-    
+
     // Verify the form has the right structure for victory
     expect(screen.getByText(/Reflect on Your Victory/)).toBeInTheDocument();
   });
@@ -165,7 +176,7 @@ describe('ReflectionForm', () => {
 
     const textarea = screen.getByPlaceholderText(/Share your thoughts and feelings/);
     const testText = '  My reflection with spaces  ';
-    
+
     fireEvent.change(textarea, { target: { value: testText } });
     expect(textarea).toHaveValue(testText);
   });
@@ -186,7 +197,7 @@ describe('ReflectionForm', () => {
 
   it('applies custom className', () => {
     const { container } = render(
-      <ReflectionForm {...defaultProps} className="custom-test-class" />
+      <ReflectionForm {...defaultProps} className="custom-test-class" />,
     );
 
     expect(container.firstChild).toHaveClass('custom-test-class');
@@ -223,7 +234,7 @@ describe('ReflectionForm', () => {
       currentHP: 0,
       maxHP: 25,
       type: 'PHOBIA',
-      therapeuticInsight: 'Anxiety reveals what we care about most deeply.'
+      therapeuticInsight: 'Anxiety reveals what we care about most deeply.',
     };
 
     render(<ReflectionForm {...defaultProps} enemy={anxietyEnemy} />);

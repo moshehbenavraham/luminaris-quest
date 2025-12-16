@@ -4,7 +4,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useEffect, useState } from 'react';
-import type { JournalEntry } from '@/components/JournalModal';
+import { SaveErrorType } from '@/types';
+import type {
+  CombatAction,
+  CompletedScene,
+  GameState,
+  JournalEntry,
+  Milestone,
+  SaveError,
+  SaveState,
+} from '@/types';
 import type { DatabaseHealthStatus } from '@/lib/database-health';
 import {
   performEnhancedHealthCheck,
@@ -14,33 +23,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { createLogger as createEnvLogger, getEnvironmentConfig } from '@/lib/environment';
 import { isLastScene } from '@/engine/scene-engine';
-
-// Save operation status types
-export type SaveStatus = 'idle' | 'saving' | 'success' | 'error';
-
-export interface SaveState {
-  status: SaveStatus;
-  lastSaveTimestamp?: number;
-  lastError?: string;
-  retryCount: number;
-  hasUnsavedChanges: boolean;
-}
-
-// Error types for better error handling
-export enum SaveErrorType {
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  PERMISSION_ERROR = 'PERMISSION_ERROR',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
-}
-
-export interface SaveError {
-  type: SaveErrorType;
-  message: string;
-  originalError?: any;
-  timestamp: number;
-}
+import { usePlayerResources } from '@/store/slices';
 
 // Retry configuration
 const RETRY_CONFIG = {
@@ -122,209 +105,6 @@ const isRetryableError = (errorType: SaveErrorType): boolean => {
       return false;
   }
 };
-
-export interface Milestone {
-  id: string;
-  level: number;
-  label: string;
-  achieved: boolean;
-  achievedAt?: number; // Use timestamp instead of Date
-}
-
-export interface CompletedScene {
-  id: string;
-  sceneId: string;
-  type: 'social' | 'skill' | 'combat' | 'journal' | 'exploration';
-  title: string;
-  success: boolean;
-  roll: number;
-  dc: number;
-  trustChange: number;
-  completedAt: number; // Use timestamp instead of Date
-}
-
-// Light & Shadow Combat System Types
-export interface LightShadowResources {
-  lp: number; // Light Points - Positive emotional resources
-  sp: number; // Shadow Points - Challenges that can become growth
-}
-
-export type CombatAction = 'ILLUMINATE' | 'REFLECT' | 'ENDURE' | 'EMBRACE';
-
-export interface ShadowManifestation {
-  id: string;
-  name: string;
-  type: 'doubt' | 'isolation' | 'overwhelm' | 'past-pain';
-  description: string;
-  currentHP: number;
-  maxHP: number;
-  abilities: ShadowAbility[];
-  therapeuticInsight: string;
-  victoryReward: {
-    lpBonus: number;
-    growthMessage: string;
-    permanentBenefit: string;
-  };
-}
-
-export interface ShadowAbility {
-  id: string;
-  name: string;
-  cooldown: number;
-  currentCooldown: number;
-  effect: (state: CombatState) => void;
-  description: string;
-}
-
-export interface CombatLogEntry {
-  turn: number;
-  actor: 'PLAYER' | 'SHADOW';
-  action: string;
-  effect: string;
-  resourceChange: Partial<LightShadowResources> & { enemyHP?: number; healthDamage?: number };
-  message: string;
-}
-
-// Player Statistics for therapeutic analytics persistence
-export interface PlayerStatistics {
-  combatActions: {
-    ILLUMINATE: number;
-    REFLECT: number;
-    ENDURE: number;
-    EMBRACE: number;
-  };
-  totalCombatsWon: number;
-  totalCombatsLost: number;
-  totalTurnsPlayed: number;
-  averageCombatLength: number;
-}
-
-export interface CombatState {
-  inCombat: boolean;
-  currentEnemy: ShadowManifestation | null;
-  resources: LightShadowResources;
-  turn: number;
-  log: CombatLogEntry[];
-
-  // Scene context for damage calculation
-  sceneDC: number; // Difficulty check of the scene that triggered combat
-
-  // Status effects
-  damageMultiplier: number;
-  damageReduction: number;
-  healingBlocked: number;
-  lpGenerationBlocked: number;
-  skipNextTurn: boolean;
-  consecutiveEndures: number;
-
-  // Therapeutic tracking
-  preferredActions: Record<CombatAction, number>;
-  growthInsights: string[];
-  combatReflections: JournalEntry[];
-}
-
-export interface GameState {
-  guardianTrust: number;
-  playerLevel: number;
-  currentSceneIndex: number;
-  journalEntries: JournalEntry[];
-  milestones: Milestone[];
-  sceneHistory: CompletedScene[];
-  pendingMilestoneJournals: Set<number>;
-
-  // Player Health System
-  playerHealth: number; // 0-100, represents player's overall health
-  maxPlayerHealth: number; // Maximum health capacity
-
-  // Player Energy System
-  playerEnergy: number; // 0-100 represents player's current energy
-  maxPlayerEnergy: number; // maximum energy capacity
-
-  // Light & Shadow Combat Resources
-  lightPoints: number;
-  shadowPoints: number;
-
-  // Experience Points System
-  experiencePoints: number; // Current XP total
-  experienceToNext: number; // XP needed for next level
-
-  // Player Statistics for therapeutic analytics
-  playerStatistics: PlayerStatistics;
-
-  // Combat System State
-  combat: CombatState;
-
-  // Save operation state
-  saveState: SaveState;
-
-  // Database health check state
-  healthStatus: DatabaseHealthStatus;
-
-  // Actions
-  setGuardianTrust: (trust: number) => void;
-  addJournalEntry: (entry: JournalEntry) => void;
-  updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => void;
-  deleteJournalEntry: (id: string) => void;
-  completeScene: (scene: CompletedScene) => void;
-  advanceScene: () => void;
-  saveToSupabase: () => Promise<boolean>;
-  loadFromSupabase: () => Promise<void>;
-  resetGame: () => void;
-  updateMilestone: (level: number) => void;
-  markMilestoneJournalShown: (level: number) => void;
-
-  // Player Health Management
-  modifyPlayerHealth: (delta: number) => void;
-  healPlayerHealth: (amount: number) => void;
-  setPlayerHealth: (health: number) => void;
-
-  // Player Energy Management
-  modifyPlayerEnergy: (delta: number) => void;
-  setPlayerEnergy: (energy: number) => void;
-
-  // Light & Shadow Combat Actions
-  modifyLightPoints: (delta: number) => void;
-  modifyShadowPoints: (delta: number) => void;
-  convertShadowToLight: (amount: number) => void;
-
-  // Experience Points Management
-  modifyExperiencePoints: (delta: number, reason?: string) => void;
-  getPlayerLevel: () => number;
-  getExperienceProgress: () => { current: number; toNext: number; percentage: number };
-
-  // Player Statistics Management
-  updateCombatStatistics: (
-    actions: Record<CombatAction, number>,
-    victory: boolean,
-    turnsPlayed: number,
-  ) => void;
-  getPlayerStatistics: () => PlayerStatistics;
-
-  // Combat System Actions (simplified - new combat system in @/features/combat)
-  endCombat: (victory: boolean) => void;
-
-  // Save state utilities
-  checkUnsavedChanges: () => boolean;
-  clearSaveError: () => void;
-
-  // Health check actions
-  performHealthCheck: () => Promise<void>;
-  startHealthMonitoring: () => void;
-  stopHealthMonitoring: () => void;
-
-  // Internal state (not persisted)
-  _hasHydrated: boolean;
-  _setHasHydrated: (hasHydrated: boolean) => void;
-  _healthCheckInterval?: NodeJS.Timeout;
-  _isHealthMonitoringActive: boolean;
-  _energyRegenInterval?: NodeJS.Timeout;
-  _isEnergyRegenActive: boolean;
-
-  // Energy regeneration actions
-  startEnergyRegeneration: () => void;
-  stopEnergyRegeneration: () => void;
-  regenerateEnergy: () => void;
-}
 
 const initialMilestones: Milestone[] = [
   { id: 'milestone-25', level: 25, label: 'Inner Strength', achieved: false },
@@ -607,6 +387,9 @@ export const useGameStoreBase = create<GameState>()(
       },
 
       resetGame: () => {
+        // Reset resources in shared store
+        usePlayerResources.getState().resetResources();
+
         set((state) => ({
           guardianTrust: 50,
           playerLevel: 1,
@@ -619,14 +402,6 @@ export const useGameStoreBase = create<GameState>()(
           })),
           sceneHistory: [],
           pendingMilestoneJournals: new Set(),
-          // Reset player health
-          playerHealth: 100,
-          maxPlayerHealth: 100,
-          // Reset energy
-          playerEnergy: 100,
-          maxPlayerEnergy: 100,
-          lightPoints: 0,
-          shadowPoints: 0,
           // Reset experience points
           experiencePoints: 0,
           experienceToNext: 100,
@@ -676,141 +451,124 @@ export const useGameStoreBase = create<GameState>()(
         }));
         // Also clear from storage to prevent rehydration of bad state
         localStorage.removeItem('luminari-game-state');
+        localStorage.removeItem('luminari-player-resources');
       },
 
-      // Player Health Management
+      // Player Health Management - delegated to shared resource store
       modifyPlayerHealth: (delta: number) => {
-        set((state) => {
-          const newHealth = Math.max(
-            0,
-            Math.min(state.maxPlayerHealth, state.playerHealth + delta),
-          );
-          logger.debug('Modified player health', {
-            previous: state.playerHealth,
-            delta,
-            new: newHealth,
-            max: state.maxPlayerHealth,
-          });
-          return {
-            playerHealth: newHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
+        const resourceStore = usePlayerResources.getState();
+        const previous = resourceStore.playerHealth;
+        resourceStore.modifyHealth(delta);
+        logger.debug('Modified player health', {
+          previous,
+          delta,
+          new: resourceStore.playerHealth,
+          max: resourceStore.maxPlayerHealth,
         });
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
       healPlayerHealth: (amount: number) => {
-        set((state) => {
-          const healAmount = Math.max(0, amount);
-          const newHealth = Math.min(state.maxPlayerHealth, state.playerHealth + healAmount);
-          logger.debug('Healed player health', {
-            previous: state.playerHealth,
-            healAmount,
-            new: newHealth,
-            max: state.maxPlayerHealth,
-          });
-          return {
-            playerHealth: newHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
+        const resourceStore = usePlayerResources.getState();
+        const previous = resourceStore.playerHealth;
+        resourceStore.healHealth(amount);
+        logger.debug('Healed player health', {
+          previous,
+          healAmount: amount,
+          new: resourceStore.playerHealth,
+          max: resourceStore.maxPlayerHealth,
         });
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
       setPlayerHealth: (health: number) => {
-        set((state) => {
-          const newHealth = Math.max(0, Math.min(state.maxPlayerHealth, health));
-          logger.debug('Set player health', {
-            previous: state.playerHealth,
-            new: newHealth,
-            max: state.maxPlayerHealth,
-          });
-          return {
-            playerHealth: newHealth,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
+        const resourceStore = usePlayerResources.getState();
+        const previous = resourceStore.playerHealth;
+        resourceStore.setHealth(health);
+        logger.debug('Set player health', {
+          previous,
+          new: resourceStore.playerHealth,
+          max: resourceStore.maxPlayerHealth,
         });
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
-      // Player Energy Management
+      // Player Energy Management - delegated to shared resource store
       modifyPlayerEnergy: (delta: number) => {
-        set((state) => {
-          const newEnergy = Math.max(
-            0,
-            Math.min(state.maxPlayerEnergy, state.playerEnergy + delta),
-          );
-          return {
-            playerEnergy: newEnergy,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
-        });
+        const resourceStore = usePlayerResources.getState();
+        resourceStore.modifyEnergy(delta);
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
       setPlayerEnergy: (energy: number) => {
-        set((state) => {
-          const newEnergy = Math.max(0, Math.min(state.maxPlayerEnergy, energy));
-          return {
-            playerEnergy: newEnergy,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
-        });
+        const resourceStore = usePlayerResources.getState();
+        resourceStore.setEnergy(energy);
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
-      // Light & Shadow Combat Resource Management
+      // Light & Shadow Combat Resource Management - delegated to shared resource store
       modifyLightPoints: (delta: number) => {
-        set((state) => {
-          const newLightPoints = Math.max(0, state.lightPoints + delta);
-          logger.debug('Modified light points', {
-            previous: state.lightPoints,
-            delta,
-            new: newLightPoints,
-          });
-          return {
-            lightPoints: newLightPoints,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
+        const resourceStore = usePlayerResources.getState();
+        const previous = resourceStore.lightPoints;
+        resourceStore.modifyLightPoints(delta);
+        logger.debug('Modified light points', {
+          previous,
+          delta,
+          new: resourceStore.lightPoints,
         });
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
       modifyShadowPoints: (delta: number) => {
-        set((state) => {
-          const newShadowPoints = Math.max(0, state.shadowPoints + delta);
-          logger.debug('Modified shadow points', {
-            previous: state.shadowPoints,
-            delta,
-            new: newShadowPoints,
-          });
-          return {
-            shadowPoints: newShadowPoints,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
+        const resourceStore = usePlayerResources.getState();
+        const previous = resourceStore.shadowPoints;
+        resourceStore.modifyShadowPoints(delta);
+        logger.debug('Modified shadow points', {
+          previous,
+          delta,
+          new: resourceStore.shadowPoints,
         });
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
       convertShadowToLight: (amount: number) => {
-        set((state) => {
-          const shadowToConvert = Math.min(amount, state.shadowPoints);
-          if (shadowToConvert === 0) {
-            logger.warn('No shadow points to convert', {
-              requested: amount,
-              available: state.shadowPoints,
-            });
-            return state;
-          }
+        const resourceStore = usePlayerResources.getState();
+        const prevShadow = resourceStore.shadowPoints;
+        const prevLight = resourceStore.lightPoints;
 
-          const newShadowPoints = state.shadowPoints - shadowToConvert;
-          const newLightPoints = state.lightPoints + shadowToConvert;
-
-          logger.info('Converted shadow points to light', {
-            converted: shadowToConvert,
-            shadowPoints: { from: state.shadowPoints, to: newShadowPoints },
-            lightPoints: { from: state.lightPoints, to: newLightPoints },
+        if (prevShadow === 0) {
+          logger.warn('No shadow points to convert', {
+            requested: amount,
+            available: prevShadow,
           });
+          return;
+        }
 
-          return {
-            shadowPoints: newShadowPoints,
-            lightPoints: newLightPoints,
-            saveState: { ...state.saveState, hasUnsavedChanges: true },
-          };
+        resourceStore.convertShadowToLight(amount);
+
+        logger.info('Converted shadow points to light', {
+          converted: Math.min(amount, prevShadow),
+          shadowPoints: { from: prevShadow, to: resourceStore.shadowPoints },
+          lightPoints: { from: prevLight, to: resourceStore.lightPoints },
         });
+
+        set((state) => ({
+          saveState: { ...state.saveState, hasUnsavedChanges: true },
+        }));
       },
 
       // Experience Points Management
@@ -844,17 +602,33 @@ export const useGameStoreBase = create<GameState>()(
             // Prepare benefit updates
             const benefitUpdates: any = {};
 
+            // Get shared resource store to apply level benefits
+            const resourceStore = usePlayerResources.getState();
+
             // Apply new max energy bonus
             const energyBonus = newBenefits.maxEnergyBonus - oldBenefits.maxEnergyBonus;
             if (energyBonus > 0) {
-              benefitUpdates.maxPlayerEnergy = state.maxPlayerEnergy + energyBonus;
-              benefitUpdates.playerEnergy = state.playerEnergy + energyBonus; // Give current energy boost too
+              // Update shared store (source of truth for resources)
+              const newMaxEnergy = resourceStore.maxPlayerEnergy + energyBonus;
+              const newEnergy = resourceStore.playerEnergy + energyBonus;
+              resourceStore.setAllResources({
+                maxPlayerEnergy: newMaxEnergy,
+                playerEnergy: newEnergy,
+              });
+              // Also update local state for consistency during this render
+              benefitUpdates.maxPlayerEnergy = newMaxEnergy;
+              benefitUpdates.playerEnergy = newEnergy;
             }
 
             // Apply starting LP bonus (if gained new bonus levels)
             const lpBonus = newBenefits.startingLPBonus - oldBenefits.startingLPBonus;
             if (lpBonus > 0) {
-              benefitUpdates.lightPoints = Math.max(state.lightPoints, state.lightPoints + lpBonus);
+              const newLP = Math.max(
+                resourceStore.lightPoints,
+                resourceStore.lightPoints + lpBonus,
+              );
+              resourceStore.setLightPoints(newLP);
+              benefitUpdates.lightPoints = newLP;
             }
 
             // Create level-up journal entry with benefits description
@@ -954,16 +728,18 @@ export const useGameStoreBase = create<GameState>()(
       // Simplified endCombat - called by new combat system (CombatEndModal)
       // Advances scene on victory and restores player health
       endCombat: (victory: boolean) => {
-        set((state) => {
-          logger.info('Ending combat', { victory });
+        logger.info('Ending combat', { victory });
 
+        // Restore health to full after combat via shared resource store
+        usePlayerResources.getState().setHealth(100);
+
+        set((state) => {
           const shouldAdvanceScene = victory && !isLastScene(state.currentSceneIndex);
           const newSceneIndex = shouldAdvanceScene
             ? state.currentSceneIndex + 1
             : state.currentSceneIndex;
 
           return {
-            playerHealth: 100, // Restore health to full after combat
             currentSceneIndex: newSceneIndex,
             saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
@@ -1056,10 +832,12 @@ export const useGameStoreBase = create<GameState>()(
             }
 
             const currentState = get();
+            const resourceSnapshot = usePlayerResources.getState().getResourceSnapshot();
             const startTime = Date.now();
 
             // Prepare game state data
             // Ensure all data is properly formatted for database
+            // Note: Resource values come from shared resource store
             const gameState: any = {
               user_id: user.id,
               guardian_trust: currentState.guardianTrust,
@@ -1067,12 +845,12 @@ export const useGameStoreBase = create<GameState>()(
               current_scene_index: currentState.currentSceneIndex,
               milestones: JSON.stringify(currentState.milestones),
               scene_history: JSON.stringify(currentState.sceneHistory),
-              player_energy: currentState.playerEnergy,
-              max_player_energy: currentState.maxPlayerEnergy,
-              // Add missing columns that were previously only in localStorage
-              light_points: currentState.lightPoints,
-              shadow_points: currentState.shadowPoints,
-              player_health: currentState.playerHealth,
+              // Resources from shared store
+              player_energy: resourceSnapshot.playerEnergy,
+              max_player_energy: resourceSnapshot.maxPlayerEnergy,
+              light_points: resourceSnapshot.lightPoints,
+              shadow_points: resourceSnapshot.shadowPoints,
+              player_health: resourceSnapshot.playerHealth,
               // Experience points system
               experience_points: currentState.experiencePoints,
               experience_to_next: currentState.experienceToNext,
@@ -1307,6 +1085,19 @@ export const useGameStoreBase = create<GameState>()(
                 : gameState.scene_history
               : [];
 
+            // Load resources into shared store
+            if (gameState) {
+              const currentResources = usePlayerResources.getState().getResourceSnapshot();
+              usePlayerResources.getState().setAllResources({
+                playerEnergy: (gameState as any).player_energy ?? currentResources.playerEnergy,
+                maxPlayerEnergy:
+                  (gameState as any).max_player_energy ?? currentResources.maxPlayerEnergy,
+                lightPoints: (gameState as any).light_points ?? currentResources.lightPoints,
+                shadowPoints: (gameState as any).shadow_points ?? currentResources.shadowPoints,
+                playerHealth: (gameState as any).player_health ?? currentResources.playerHealth,
+              });
+            }
+
             set({
               ...(gameState && {
                 guardianTrust: gameState.guardian_trust,
@@ -1314,12 +1105,6 @@ export const useGameStoreBase = create<GameState>()(
                 currentSceneIndex: gameState.current_scene_index,
                 milestones: parsedMilestones,
                 sceneHistory: parsedSceneHistory,
-                playerEnergy: (gameState as any).player_energy ?? 100,
-                maxPlayerEnergy: (gameState as any).max_player_energy ?? 100,
-                // Load missing columns with fallback to current values for backward compatibility
-                lightPoints: (gameState as any).light_points ?? get().lightPoints,
-                shadowPoints: (gameState as any).shadow_points ?? get().shadowPoints,
-                playerHealth: (gameState as any).player_health ?? get().playerHealth,
                 // Experience points system
                 experiencePoints: (gameState as any).experience_points ?? get().experiencePoints,
                 experienceToNext: (gameState as any).experience_to_next ?? get().experienceToNext,
@@ -1521,22 +1306,23 @@ export const useGameStoreBase = create<GameState>()(
       },
 
       regenerateEnergy: () => {
-        const state = get();
+        const resourceStore = usePlayerResources.getState();
 
         // Don't regenerate if already at max energy
-        if (state.playerEnergy >= state.maxPlayerEnergy) {
+        if (resourceStore.playerEnergy >= resourceStore.maxPlayerEnergy) {
           logger.debug('Energy regeneration skipped - already at max energy');
           return;
         }
 
-        // Regenerate 1 energy
-        const newEnergy = Math.min(state.maxPlayerEnergy, state.playerEnergy + 1);
+        // Regenerate 1 energy via shared resource store
+        const previousEnergy = resourceStore.playerEnergy;
+        resourceStore.modifyEnergy(1);
+
         set((state) => ({
-          playerEnergy: newEnergy,
           saveState: { ...state.saveState, hasUnsavedChanges: true },
         }));
 
-        logger.debug(`Energy regenerated: ${state.playerEnergy} -> ${newEnergy}`);
+        logger.debug(`Energy regenerated: ${previousEnergy} -> ${resourceStore.playerEnergy}`);
       },
     }),
     {
@@ -1601,8 +1387,10 @@ export const useGameStoreBase = create<GameState>()(
 );
 
 // Hydration-safe hook that prevents mismatches
+// Also combines game store with shared resource store for backwards compatibility
 export const useGameStore = () => {
   const store = useGameStoreBase();
+  const resources = usePlayerResources();
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -1621,26 +1409,26 @@ export const useGameStore = () => {
       sceneHistory: [],
       pendingMilestoneJournals: new Set(),
 
-      // Player Health System - Use actual store values for real-time updates
-      playerHealth: store.playerHealth,
-      maxPlayerHealth: store.maxPlayerHealth,
+      // Player Health System - from shared resource store
+      playerHealth: resources.playerHealth,
+      maxPlayerHealth: resources.maxPlayerHealth,
 
-      // Player Energy System - Use actual store values for real-time updates
-      playerEnergy: store.playerEnergy,
-      maxPlayerEnergy: store.maxPlayerEnergy,
+      // Player Energy System - from shared resource store
+      playerEnergy: resources.playerEnergy,
+      maxPlayerEnergy: resources.maxPlayerEnergy,
 
-      // Light & Shadow Combat Resources - Use actual store values for real-time updates
-      lightPoints: store.lightPoints,
-      shadowPoints: store.shadowPoints,
+      // Light & Shadow Combat Resources - from shared resource store
+      lightPoints: resources.lightPoints,
+      shadowPoints: resources.shadowPoints,
 
-      // Experience Points System - Use actual store values for real-time updates
+      // Experience Points System - from game store
       experiencePoints: store.experiencePoints,
       experienceToNext: store.experienceToNext,
 
-      // Player Statistics - Use actual store values for real-time updates
+      // Player Statistics - from game store
       playerStatistics: store.playerStatistics,
 
-      // Combat System State - Use actual store values for real-time updates
+      // Combat System State - from game store
       combat: store.combat,
 
       saveState: {
@@ -1666,7 +1454,7 @@ export const useGameStore = () => {
       updateMilestone: store.updateMilestone,
       markMilestoneJournalShown: store.markMilestoneJournalShown,
 
-      // Player Health Management
+      // Player Health Management - delegated to shared store via game store actions
       modifyPlayerHealth: store.modifyPlayerHealth,
       healPlayerHealth: store.healPlayerHealth,
       setPlayerHealth: store.setPlayerHealth,
@@ -1707,5 +1495,15 @@ export const useGameStore = () => {
     };
   }
 
-  return store;
+  // Return combined store with resource values from shared store
+  return {
+    ...store,
+    // Override resource values with shared store values
+    playerHealth: resources.playerHealth,
+    maxPlayerHealth: resources.maxPlayerHealth,
+    playerEnergy: resources.playerEnergy,
+    maxPlayerEnergy: resources.maxPlayerEnergy,
+    lightPoints: resources.lightPoints,
+    shadowPoints: resources.shadowPoints,
+  };
 };

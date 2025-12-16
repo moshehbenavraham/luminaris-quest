@@ -1,7 +1,6 @@
- 
 /**
  * useCombatSounds Hook - Integration between combat system and sound effects
- * 
+ *
  * This hook provides sound effect integration for the combat system,
  * automatically playing appropriate sounds for:
  * - Combat actions (ILLUMINATE, REFLECT, ENDURE, EMBRACE)
@@ -11,7 +10,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { soundManager } from '../utils/sound-manager';
-import type { CombatAction } from '../store/game-store';
+import type { CombatAction } from '@/types';
 
 export interface CombatSoundsOptions {
   /** Enable/disable combat sound effects */
@@ -39,14 +38,12 @@ export interface CombatSoundsReturn {
   isSoundsEnabled: () => boolean;
 }
 
-export function useCombatSounds(
-  options: Partial<CombatSoundsOptions> = {}
-): CombatSoundsReturn {
+export function useCombatSounds(options: Partial<CombatSoundsOptions> = {}): CombatSoundsReturn {
   const config: CombatSoundsOptions = {
     enabled: true,
     volume: 0.7,
     actionSoundDuration: 2, // 2 seconds for action sounds
-    ...options
+    ...options,
   };
 
   // Initialize sound manager volume
@@ -55,12 +52,15 @@ export function useCombatSounds(
   }, [config.volume]);
 
   // Play sound for combat actions
-  const playActionSound = useCallback(async (action: CombatAction): Promise<void> => {
-    if (!config.enabled) return;
+  const playActionSound = useCallback(
+    async (action: CombatAction): Promise<void> => {
+      if (!config.enabled) return;
 
-    const soundId = action.toLowerCase();
-    await soundManager.playSound(soundId, config.actionSoundDuration);
-  }, [config.enabled, config.actionSoundDuration]);
+      const soundId = action.toLowerCase();
+      await soundManager.playSound(soundId, config.actionSoundDuration);
+    },
+    [config.enabled, config.actionSoundDuration],
+  );
 
   // Play shadow attack sound
   const playShadowAttackSound = useCallback(async (): Promise<void> => {
@@ -106,7 +106,7 @@ export function useCombatSounds(
     playDefeatSound,
     setSoundsEnabled,
     setSoundVolume,
-    isSoundsEnabled
+    isSoundsEnabled,
   };
 }
 
@@ -115,12 +115,12 @@ export function useCombatSounds(
  */
 export const COMBAT_SOUND_MAPPINGS = {
   ILLUMINATE: 'illuminate',
-  REFLECT: 'reflect', 
+  REFLECT: 'reflect',
   ENDURE: 'endure',
   EMBRACE: 'embrace',
   SHADOW_ATTACK: 'shadow-attack',
   VICTORY: 'victory',
-  DEFEAT: 'defeat'
+  DEFEAT: 'defeat',
 } as const;
 
 /**
@@ -129,5 +129,5 @@ export const COMBAT_SOUND_MAPPINGS = {
 export const DEFAULT_COMBAT_SOUNDS_CONFIG: CombatSoundsOptions = {
   enabled: true,
   volume: 0.7,
-  actionSoundDuration: 2
+  actionSoundDuration: 2,
 };

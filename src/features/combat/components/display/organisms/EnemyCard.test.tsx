@@ -5,7 +5,7 @@
 
 import { render, screen } from '@testing-library/react';
 import { EnemyCard } from '@/features/combat/components/display/organisms/EnemyCard';
-import type { ShadowManifestation } from '@/store/game-store';
+import type { ShadowManifestation } from '@/types';
 import type { StatusEffects } from '@/features/combat/store/combat-store';
 
 const mockEnemy: ShadowManifestation = {
@@ -21,15 +21,16 @@ const mockEnemy: ShadowManifestation = {
       name: 'Whisper of Doubt',
       cooldown: 2,
       currentCooldown: 0,
-      effect: 'Reduces player confidence'
-    }
+      effect: () => {},
+      description: 'Reduces player confidence',
+    },
   ],
   therapeuticInsight: 'Remember that doubt is a natural part of growth.',
   victoryReward: {
     lpBonus: 5,
     growthMessage: 'You have learned to question your doubts.',
-    permanentBenefit: 'Increased confidence in decision-making'
-  }
+    permanentBenefit: 'Increased confidence in decision-making',
+  },
 };
 
 const mockStatusEffects: StatusEffects = {
@@ -38,7 +39,7 @@ const mockStatusEffects: StatusEffects = {
   healingBlocked: 0,
   lpGenerationBlocked: 0,
   skipNextTurn: false,
-  consecutiveEndures: 0
+  consecutiveEndures: 0,
 };
 
 describe('EnemyCard', () => {
@@ -49,9 +50,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Shadow of Doubt')).toBeInTheDocument();
     expect(screen.getByText('Self-Doubt')).toBeInTheDocument();
     expect(screen.getByText(mockEnemy.description)).toBeInTheDocument();
@@ -64,9 +65,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Shadow Health')).toBeInTheDocument();
     expect(screen.getByText('75/100')).toBeInTheDocument();
   });
@@ -78,9 +79,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Turn 3')).toBeInTheDocument();
   });
 
@@ -91,9 +92,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Enemy is thinking...')).toBeInTheDocument();
   });
 
@@ -104,9 +105,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.queryByText('Enemy is thinking...')).not.toBeInTheDocument();
   });
 
@@ -117,9 +118,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     const card = container.firstChild as HTMLElement;
     expect(card).toHaveClass('ring-2', 'ring-red-400/50', 'bg-red-950/20');
   });
@@ -131,9 +132,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     const card = container.firstChild as HTMLElement;
     expect(card).not.toHaveClass('ring-2', 'ring-red-400/50', 'bg-red-950/20');
   });
@@ -141,18 +142,18 @@ describe('EnemyCard', () => {
   it('renders status effects when provided', () => {
     const vulnerableStatusEffects = {
       ...mockStatusEffects,
-      damageMultiplier: 1.5
+      damageMultiplier: 1.5,
     };
-    
+
     render(
       <EnemyCard
         enemy={mockEnemy}
         statusEffects={vulnerableStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Vulnerable')).toBeInTheDocument();
   });
 
@@ -163,9 +164,9 @@ describe('EnemyCard', () => {
         statusEffects={mockStatusEffects}
         isEnemyTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     const card = screen.getByRole('region', { name: 'Enemy: Shadow of Doubt' });
     expect(card).toBeInTheDocument();
   });
@@ -178,21 +179,15 @@ describe('EnemyCard', () => {
         isEnemyTurn={false}
         turnNumber={3}
         className="custom-class"
-      />
+      />,
     );
-    
+
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
   it('renders without status effects', () => {
-    render(
-      <EnemyCard
-        enemy={mockEnemy}
-        isEnemyTurn={false}
-        turnNumber={3}
-      />
-    );
-    
+    render(<EnemyCard enemy={mockEnemy} isEnemyTurn={false} turnNumber={3} />);
+
     expect(screen.getByText('Shadow of Doubt')).toBeInTheDocument();
     expect(screen.getByText('Shadow Health')).toBeInTheDocument();
   });

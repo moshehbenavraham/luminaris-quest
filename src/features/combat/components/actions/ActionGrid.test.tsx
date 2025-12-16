@@ -6,7 +6,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ActionGrid } from '@/features/combat/components/actions/ActionGrid';
 import { vi } from 'vitest';
-import type { CombatAction } from '@/store/game-store';
+import type { CombatAction } from '@/types';
 
 describe('ActionGrid', () => {
   const mockProps = {
@@ -58,9 +58,7 @@ describe('ActionGrid', () => {
   });
 
   it('disables specific actions based on canUseAction', () => {
-    mockProps.canUseAction.mockImplementation((action: CombatAction) => 
-      action !== 'ILLUMINATE'
-    );
+    mockProps.canUseAction.mockImplementation((action: CombatAction) => action !== 'ILLUMINATE');
 
     render(<ActionGrid {...mockProps} />);
 
@@ -104,9 +102,7 @@ describe('ActionGrid', () => {
   it.skip('ignores keyboard shortcuts for disabled actions', () => {
     // Keyboard shortcuts are handled by parent component (CombatOverlay)
     // not by ActionGrid itself. This test should be in the integration tests.
-    mockProps.canUseAction.mockImplementation((action: CombatAction) =>
-      action !== 'ILLUMINATE'
-    );
+    mockProps.canUseAction.mockImplementation((action: CombatAction) => action !== 'ILLUMINATE');
 
     render(<ActionGrid {...mockProps} />);
 
@@ -172,7 +168,7 @@ describe('ActionGrid', () => {
 
     // Verify the action was executed
     expect(mockProps.onActionExecute).toHaveBeenCalledWith('ILLUMINATE');
-    
+
     // Note: Active state testing requires complex async behavior testing
     // The component correctly handles active state internally
   });

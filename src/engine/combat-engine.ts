@@ -1,16 +1,90 @@
- 
-import type { 
-  CombatState, 
-  CombatAction, 
-  ShadowManifestation, 
-  ShadowAbility, 
-  CombatLogEntry,
-  LightShadowResources 
-} from '../store/game-store';
+import type { CombatAction, ShadowManifestation } from '@/types';
+
+export type CombatActor = 'PLAYER' | 'SHADOW';
+
+export interface CombatResources {
+  lp: number;
+  sp: number;
+}
+
+/**
+ * Status effects tracked by the NEW combat system.
+ *
+ * Note: In the current new combat runtime, these are primarily used for UI display.
+ * Enforcement of these effects is intentionally minimal to match existing behavior.
+ */
+export interface StatusEffects {
+  damageMultiplier: number;
+  damageReduction: number;
+  healingBlocked: number;
+  lpGenerationBlocked: number;
+  skipNextTurn: boolean;
+  consecutiveEndures: number;
+}
+
+/**
+ * Engine log entries are timestamp-free; the store is responsible for stamping.
+ */
+export interface CombatLogEntry {
+  turn: number;
+  actor: CombatActor;
+  action: string;
+  effect: string;
+  message: string;
+}
+
+/**
+ * Engine-facing combat state aligned to `src/features/combat/store/combat-store.ts`.
+ * This allows the store to delegate combat math to the engine without reshaping data.
+ */
+export interface CombatEngineState {
+  enemy: ShadowManifestation | null;
+  resources: CombatResources;
+  playerHealth: number;
+  playerLevel: number;
+  playerEnergy: number;
+  maxPlayerEnergy: number;
+  turn: number;
+  isPlayerTurn: boolean;
+  statusEffects: StatusEffects;
+  preferredActions: Record<CombatAction, number>;
+}
+
+export interface CanPerformActionResult {
+  canPerform: boolean;
+  reason?: string;
+}
+
+export interface EnergyCostContext {
+  /**
+   * Energy cost for ENDURE. Other actions currently cost 0 energy in the new system.
+   */
+  endureEnergyCost?: number;
+}
+
+export interface ExecutePlayerActionOptions extends EnergyCostContext {
+  rng?: () => number;
+  maxPlayerHealth?: number;
+}
+
+export interface ExecutePlayerActionResult {
+  newState: CombatEngineState;
+  logEntry: CombatLogEntry;
+  damage?: number;
+  healthHeal?: number;
+  energyCost?: number;
+}
+
+export interface ExecuteEnemyTurnResult {
+  newState: CombatEngineState;
+  logEntry: CombatLogEntry;
+  damage: number;
+  enemyAction: string;
+}
 
 /**
  * Combat Engine - Core combat logic for Light & Shadow Combat System
- * 
+ *
  * This module implements the therapeutic combat mechanics where players
  * use emotional regulation techniques to overcome shadow manifestations
  * representing inner struggles.
@@ -18,58 +92,90 @@ import type {
 
 // Combat balance constants
 export const COMBAT_BALANCE = {
-  // Base damage values
-  ILLUMINATE_BASE_DAMAGE: 3,
-  ILLUMINATE_TRUST_SCALING: 4, // damage = base + floor(trust / scaling)
-
-  // Resource costs
+  // Player action resource costs
   ILLUMINATE_LP_COST: 2,
   REFLECT_SP_COST: 3,
-  ENDURE_LP_THRESHOLD: 0.5, // 50% of max LP
+  REFLECT_LP_GAIN: 1,
+  ENDURE_LP_GAIN: 1,
+  EMBRACE_SP_THRESHOLD: 5,
 
-  // Healing amounts
-  REFLECT_HEAL_AMOUNT: 1,
-  ENDURE_DAMAGE_REDUCTION: 0.5, // 50% damage reduction
+  // Player action damage/heal formulas (NEW combat store truth)
+  ILLUMINATE_BASE_DAMAGE: 3,
+  ILLUMINATE_LEVEL_SCALING: 1.5, // damage = base + floor(level * scaling)
+  EMBRACE_DAMAGE_DIVISOR: 2, // damage = floor(sp / divisor)
+  EMBRACE_MIN_DAMAGE: 1,
 
-  // Shadow AI thresholds
-  SHADOW_AGGRESSIVE_HP_THRESHOLD: 0.3, // 30% HP
-  SHADOW_DEFENSIVE_LP_THRESHOLD: 5,
+  // Enemy turn (NEW combat store truth)
+  SHADOW_BASE_DAMAGE: 8,
+  DEFENSE_PER_LP: 0.5, // defense = floor(lp * DEFENSE_PER_LP)
+  MIN_SHADOW_DAMAGE: 1,
+  SP_GAIN_ON_HIT: 1,
+  MAX_SP: 10,
+  DESPERATE_STRIKE_HP_THRESHOLD: 0.5, // if enemy HP% < threshold => "Desperate Strike"
 
-  // Status effect durations
-  DAMAGE_MULTIPLIER_DURATION: 3,
-  HEALING_BLOCK_DURATION: 2,
-  LP_GENERATION_BLOCK_DURATION: 2,
-
-  // Combat limits
-  MAX_COMBAT_TURNS: 20, // Maximum turns before automatic resolution
-
-  // Shadow damage calculation
-  SHADOW_BASE_DAMAGE: 8, // Base damage shadows deal to player health
-  DEFENSE_FROM_LP: 0.5, // Each LP provides 0.5 defense
-  DEFENSE_FROM_TRUST: 0.1, // Each trust point provides 0.1 defense
-  MIN_SHADOW_DAMAGE: 1, // Minimum damage shadows can deal
+  // Current UI assumption (combat UI still hardcodes 100 max health)
+  MAX_PLAYER_HEALTH: 100,
 } as const;
 
+export type ActionCost = {
+  lp?: number;
+  sp?: number;
+  energy?: number;
+};
+
 /**
- * Calculate damage for ILLUMINATE action
- * 
- * Therapeutic insight: Awareness and understanding reduce emotional pain.
- * The more trust the player has built with their guardian, the more effective
- * their ability to illuminate and understand their inner struggles becomes.
- * 
- * @param guardianTrust - Current guardian trust level (0-100)
- * @returns Calculated damage amount
- * 
- * @example
- * ```typescript
- * const damage = calculateIlluminateDamage(75);
- * console.log(damage); // 21 (3 + floor(75/4))
- * ```
+ * Get the resource/energy costs for an action in the NEW combat system.
+ *
+ * Source of truth: `src/features/combat/store/combat-store.ts`
  */
-export function calculateIlluminateDamage(guardianTrust: number): number {
-  const baseDamage = COMBAT_BALANCE.ILLUMINATE_BASE_DAMAGE;
-  const trustBonus = Math.floor(guardianTrust / COMBAT_BALANCE.ILLUMINATE_TRUST_SCALING);
-  return baseDamage + trustBonus;
+export function getActionCost(action: CombatAction, context: EnergyCostContext = {}): ActionCost {
+  const endureEnergyCost = context.endureEnergyCost ?? 0;
+
+  switch (action) {
+    case 'ILLUMINATE':
+      return { lp: COMBAT_BALANCE.ILLUMINATE_LP_COST };
+    case 'REFLECT':
+      return { sp: COMBAT_BALANCE.REFLECT_SP_COST };
+    case 'ENDURE':
+      return { energy: endureEnergyCost };
+    case 'EMBRACE':
+      return { sp: COMBAT_BALANCE.EMBRACE_SP_THRESHOLD };
+    default:
+      return {};
+  }
+}
+
+/**
+ * Human-readable action description aligned to the NEW combat system behavior.
+ */
+export function getActionDescription(action: CombatAction): string {
+  switch (action) {
+    case 'ILLUMINATE':
+      return 'Shine light on your shadow, dealing damage based on your level';
+    case 'REFLECT':
+      return 'Convert 3 shadow points into 1 light point and heal 1d(level) health';
+    case 'ENDURE':
+      return 'Build inner strength, gaining 1 light point (costs energy)';
+    case 'EMBRACE':
+      return 'Embrace your shadows, consuming all SP to deal damage based on SP';
+    default:
+      return '';
+  }
+}
+
+/**
+ * Calculate damage for ILLUMINATE action.
+ *
+ * Source of truth: `src/features/combat/store/combat-store.ts`
+ *
+ * \(damage = 3 + \lfloor level \cdot 1.5 \rfloor\)
+ */
+export function calculateIlluminateDamage(playerLevel: number): number {
+  const level = Math.max(1, playerLevel || 1);
+  return (
+    COMBAT_BALANCE.ILLUMINATE_BASE_DAMAGE +
+    Math.floor(level * COMBAT_BALANCE.ILLUMINATE_LEVEL_SCALING)
+  );
 }
 
 /**
@@ -90,106 +196,54 @@ export function calculateIlluminateDamage(guardianTrust: number): number {
  * ```
  */
 export function calculateEmbraceDamage(shadowPoints: number): number {
-  // Embrace converts shadow points to damage (1 SP = 2 damage)
-  // Minimum 1 damage even with 0 SP
-  return Math.max(1, Math.floor(shadowPoints / 2));
+  // Embrace converts shadow points to damage (2 SP = 1 damage), minimum 1.
+  const sp = Math.max(0, shadowPoints);
+  return Math.max(
+    COMBAT_BALANCE.EMBRACE_MIN_DAMAGE,
+    Math.floor(sp / COMBAT_BALANCE.EMBRACE_DAMAGE_DIVISOR),
+  );
 }
 
 /**
- * Calculate player's total defense value
+ * Calculate the integer defense value derived from LP.
  *
- * Defense reduces incoming shadow damage. It's calculated from:
- * - Light Points: Each LP provides defensive energy
- * - Guardian Trust: Higher trust provides spiritual protection
- * - Damage Reduction status effects: Temporary defensive bonuses
+ * Source of truth: `src/features/combat/store/combat-store.ts`
  *
- * @param state - Current combat state
- * @param guardianTrust - Current guardian trust level
- * @returns Total defense value
- *
- * @example
- * ```typescript
- * const defense = calculatePlayerDefense(combatState, 75);
- * console.log(defense); // 12.5 (10 LP * 0.5 + 75 trust * 0.1)
- * ```
+ * \(defense = \lfloor lp \cdot 0.5 \rfloor\)
  */
-export function calculatePlayerDefense(state: CombatState, guardianTrust: number): number {
-  const lpDefense = state.resources.lp * COMBAT_BALANCE.DEFENSE_FROM_LP;
-  const trustDefense = guardianTrust * COMBAT_BALANCE.DEFENSE_FROM_TRUST;
-  const statusDefense = state.damageReduction > 1 ? (state.damageReduction - 1) * 5 : 0;
-  const totalDefense = lpDefense + trustDefense + statusDefense;
-
-  // Debug logging for defense calculation
-  console.log('Player Defense Calculation:', {
-    lp: state.resources.lp,
-    lpDefense,
-    guardianTrust,
-    trustDefense,
-    damageReduction: state.damageReduction,
-    statusDefense,
-    totalDefense
-  });
-
-  return totalDefense;
+export function calculatePlayerDefense(state: Pick<CombatEngineState, 'resources'>): number {
+  return Math.floor(state.resources.lp * COMBAT_BALANCE.DEFENSE_PER_LP);
 }
 
 /**
- * Calculate shadow damage to player health based on scene DC minus defenses
+ * Calculate shadow damage dealt to player health for the enemy turn.
  *
- * This implements the core mechanic where shadows deal health damage each round.
- * The damage is based on the scene's difficulty check (representing the shadow's power)
- * minus the player's current defenses.
+ * Source of truth: `src/features/combat/store/combat-store.ts`
  *
- * @param sceneDC - The difficulty check of the current scene (shadow's base power)
- * @param state - Current combat state
- * @param guardianTrust - Current guardian trust level
- * @returns Final damage amount (minimum 1)
- *
- * @example
- * ```typescript
- * const damage = calculateShadowHealthDamage(14, combatState, 60);
- * console.log(damage); // 8 (14 base - 6 defense = 8 damage)
- * ```
+ * \(damage = \\max(1, 8 - defense)\)
  */
-export function calculateShadowHealthDamage(
-  sceneDC: number,
-  state: CombatState,
-  guardianTrust: number
-): number {
-  const baseDamage = sceneDC || COMBAT_BALANCE.SHADOW_BASE_DAMAGE;
-  const playerDefense = calculatePlayerDefense(state, guardianTrust);
-  const finalDamage = Math.max(COMBAT_BALANCE.MIN_SHADOW_DAMAGE, baseDamage - playerDefense);
-
-  // Apply damage multiplier if active
-  const result = Math.floor(finalDamage * state.damageMultiplier);
-
-  // Debug logging for health damage calculation
-  console.log('Shadow Health Damage Calculation:', {
-    sceneDC,
-    baseDamage,
-    playerDefense,
-    finalDamage,
-    damageMultiplier: state.damageMultiplier,
-    result,
-    guardianTrust,
-    resources: state.resources
-  });
-
-  return result;
+export function calculateShadowDamage(state: Pick<CombatEngineState, 'resources'>): number {
+  const defense = calculatePlayerDefense(state);
+  return Math.max(COMBAT_BALANCE.MIN_SHADOW_DAMAGE, COMBAT_BALANCE.SHADOW_BASE_DAMAGE - defense);
 }
+
+/**
+ * @deprecated Use `calculateShadowDamage` (legacy name kept for compatibility).
+ */
+export const calculateShadowHealthDamage = calculateShadowDamage;
 
 /**
  * Validate if a combat action can be performed
- * 
+ *
  * Checks whether the player has sufficient resources and is not blocked
  * from performing a specific combat action. This ensures fair gameplay
  * and prevents invalid actions that could break the combat flow.
- * 
+ *
  * @param action - The combat action to validate
  * @param state - Current combat state including resources and status effects
  * @param _guardianTrust - Guardian trust level (currently unused but reserved for future features)
  * @returns Object containing validation result and optional reason for failure
- * 
+ *
  * @example
  * ```typescript
  * const result = canPerformAction('ILLUMINATE', combatState, 50);
@@ -202,363 +256,242 @@ export function calculateShadowHealthDamage(
  */
 export function canPerformAction(
   action: CombatAction,
-  state: CombatState,
-  _guardianTrust: number
-): { canPerform: boolean; reason?: string } {
-  const { resources, healingBlocked } = state;
-  
+  state: CombatEngineState,
+  context: EnergyCostContext = {},
+): CanPerformActionResult {
+  const { resources, playerEnergy } = state;
+  const endureEnergyCost = context.endureEnergyCost ?? 0;
+
   switch (action) {
     case 'ILLUMINATE':
       if (resources.lp < COMBAT_BALANCE.ILLUMINATE_LP_COST) {
         return { canPerform: false, reason: 'Not enough Light Points' };
       }
-      break;
-      
+      return { canPerform: true };
+
     case 'REFLECT':
       if (resources.sp < COMBAT_BALANCE.REFLECT_SP_COST) {
         return { canPerform: false, reason: 'Not enough Shadow Points' };
       }
-      if (healingBlocked > 0) {
-        return { canPerform: false, reason: 'Healing is blocked' };
-      }
-      break;
-      
+      return { canPerform: true };
+
     case 'ENDURE':
-      // Endure can always be used but has diminishing returns
-      break;
-      
-    case 'EMBRACE':
-      if (resources.sp === 0) {
-        return { canPerform: false, reason: 'No Shadow Points to embrace' };
+      // New combat system: only ENDURE currently consumes energy (store passes cost in).
+      if (endureEnergyCost > 0 && playerEnergy < endureEnergyCost) {
+        return { canPerform: false, reason: 'Not enough Energy' };
       }
-      break;
-      
+      return { canPerform: true };
+
+    case 'EMBRACE':
+      if (resources.sp < COMBAT_BALANCE.EMBRACE_SP_THRESHOLD) {
+        return { canPerform: false, reason: 'Not enough Shadow Points' };
+      }
+      return { canPerform: true };
+
     default:
       return { canPerform: false, reason: 'Unknown action' };
   }
-  
-  return { canPerform: true };
 }
 
 /**
- * Execute a player combat action and return the updated state
- * 
- * This is the core function that processes player actions in combat,
- * applying therapeutic mechanics and updating the combat state accordingly.
- * Each action represents a different emotional regulation strategy.
- * 
- * @param action - The combat action to execute ('ILLUMINATE', 'REFLECT', 'ENDURE', 'EMBRACE')
- * @param state - Current combat state
- * @param guardianTrust - Current guardian trust level affecting action effectiveness
- * @param playerLevel - Current player level used for healing calculations
- * @returns Object containing updated state, combat log entry, and optional damage dealt
- * 
- * @throws {Error} When an unknown action is provided
- * 
- * @example
- * ```typescript
- * const result = executePlayerAction('ILLUMINATE', combatState, 75, 5);
- * console.log(result.logEntry.message); // "You illuminate the shadow's doubt..."
- * console.log(result.damage); // 21
- * ```
- * 
- * @see {@link canPerformAction} - Use this first to validate the action
- * @see {@link calculateIlluminateDamage} - For ILLUMINATE damage calculation
- * @see {@link calculateEmbraceDamage} - For EMBRACE damage calculation
+ * Execute a player combat action and return the updated state + an engine log entry.
+ *
+ * Source of truth: `src/features/combat/store/combat-store.ts`
  */
 export function executePlayerAction(
   action: CombatAction,
-  state: CombatState,
-  guardianTrust: number,
-  playerLevel: number = 1  // Default to 1 for backwards compatibility
-): {
-  newState: CombatState;
-  logEntry: CombatLogEntry;
-  damage?: number;
-  healthHeal?: number;  // Added to track health healing
-} {
-  const newState = { ...state };
+  state: CombatEngineState,
+  options: ExecutePlayerActionOptions = {},
+): ExecutePlayerActionResult {
+  const rng = options.rng ?? Math.random;
+  const maxPlayerHealth = options.maxPlayerHealth ?? COMBAT_BALANCE.MAX_PLAYER_HEALTH;
+  const endureEnergyCost = options.endureEnergyCost ?? 0;
+
+  const nextResources: CombatResources = { ...state.resources };
+  const nextEnemy = state.enemy ? { ...state.enemy } : null;
+  const nextPreferredActions: Record<CombatAction, number> = {
+    ...state.preferredActions,
+    [action]: (state.preferredActions[action] ?? 0) + 1,
+  };
+
+  let playerHealth = state.playerHealth;
+  let playerEnergy = state.playerEnergy;
   let damage = 0;
   let healthHeal = 0;
+  let energyCost = 0;
   let effect = '';
   let message = '';
-  const resourceChange: Partial<LightShadowResources> & { enemyHP?: number; healthHeal?: number } = {};
 
   switch (action) {
     case 'ILLUMINATE': {
-      damage = calculateIlluminateDamage(guardianTrust);
-      newState.resources.lp -= COMBAT_BALANCE.ILLUMINATE_LP_COST;
-      
-      if (newState.currentEnemy) {
-        newState.currentEnemy.currentHP = Math.max(0, newState.currentEnemy.currentHP - damage);
-        resourceChange.enemyHP = newState.currentEnemy.currentHP;
+      nextResources.lp = Math.max(0, nextResources.lp - COMBAT_BALANCE.ILLUMINATE_LP_COST);
+
+      damage = calculateIlluminateDamage(state.playerLevel);
+      if (nextEnemy) {
+        nextEnemy.currentHP = Math.max(0, nextEnemy.currentHP - damage);
       }
-      
-      resourceChange.lp = -COMBAT_BALANCE.ILLUMINATE_LP_COST;
+
       effect = `Dealt ${damage} damage`;
-      message = `You shine light on your inner shadow, seeing it clearly for what it is. The truth illuminates and weakens its hold on you.`;
+      message = 'You shine light on your inner shadow, seeing it clearly for what it is.';
       break;
     }
-    
+
     case 'REFLECT': {
-      const spCost = COMBAT_BALANCE.REFLECT_SP_COST;  // Now 3 SP
-      const lpHealAmount = COMBAT_BALANCE.REFLECT_HEAL_AMOUNT;  // Still 1 LP
-      
-      // Calculate health healing: 1d(playerLevel) - roll a dice from 1 to playerLevel
-      healthHeal = Math.floor(Math.random() * playerLevel) + 1;
-      
-      newState.resources.sp = Math.max(0, newState.resources.sp - spCost);
-      newState.resources.lp += lpHealAmount;
-      
-      resourceChange.sp = -spCost;
-      resourceChange.lp = lpHealAmount;
-      resourceChange.healthHeal = healthHeal;
-      effect = `Converted ${spCost} SP to ${lpHealAmount} LP and healed ${healthHeal} health`;
-      message = `You find wisdom in your struggle, transforming pain into understanding and healing. Your inner light grows stronger as wounds begin to mend.`;
+      nextResources.sp = Math.max(0, nextResources.sp - COMBAT_BALANCE.REFLECT_SP_COST);
+      nextResources.lp += COMBAT_BALANCE.REFLECT_LP_GAIN;
+
+      const level = Math.max(1, state.playerLevel || 1);
+      healthHeal = Math.floor(rng() * level) + 1;
+      playerHealth = Math.min(maxPlayerHealth, playerHealth + healthHeal);
+
+      effect = `Converted ${COMBAT_BALANCE.REFLECT_SP_COST} SP to ${COMBAT_BALANCE.REFLECT_LP_GAIN} LP and healed ${healthHeal} health`;
+      message = 'You reflect on your shadows, transforming them into understanding and healing.';
       break;
     }
-    
+
     case 'ENDURE': {
-      newState.consecutiveEndures += 1;
-      newState.damageReduction = COMBAT_BALANCE.ENDURE_DAMAGE_REDUCTION;
-      
-      effect = `Gained ${Math.round((1 - COMBAT_BALANCE.ENDURE_DAMAGE_REDUCTION) * 100)}% damage reduction`;
-      message = `You steel yourself against the shadow's influence, finding strength in resilience. You are prepared to weather the storm.`;
+      nextResources.lp += COMBAT_BALANCE.ENDURE_LP_GAIN;
+
+      energyCost = Math.max(0, endureEnergyCost);
+      playerEnergy = Math.max(0, playerEnergy - energyCost);
+
+      const baseEffect = 'Gained 1 LP from endurance';
+      effect = energyCost > 0 ? `${baseEffect} | -${energyCost} Energy` : baseEffect;
+      message = 'You endure the challenge, building inner strength.';
       break;
     }
-    
+
     case 'EMBRACE': {
-      damage = calculateEmbraceDamage(newState.resources.sp);
-      const spUsed = Math.min(newState.resources.sp, 2); // Use up to 2 SP
-      
-      newState.resources.sp = Math.max(0, newState.resources.sp - spUsed);
-      
-      if (newState.currentEnemy) {
-        newState.currentEnemy.currentHP = Math.max(0, newState.currentEnemy.currentHP - damage);
-        resourceChange.enemyHP = newState.currentEnemy.currentHP;
+      const startingSp = nextResources.sp;
+      damage = calculateEmbraceDamage(startingSp);
+
+      nextResources.sp = 0; // NEW combat system: embrace consumes all SP
+      if (nextEnemy) {
+        nextEnemy.currentHP = Math.max(0, nextEnemy.currentHP - damage);
       }
-      
-      resourceChange.sp = -spUsed;
-      effect = `Dealt ${damage} damage by embracing shadow`;
-      message = `You accept your difficult emotions without judgment, reducing their power over you. In acceptance, you find peace.`;
+
+      effect = `Dealt ${damage} damage, consumed all SP`;
+      message = 'You embrace your shadows, accepting them as part of your strength.';
       break;
     }
+
+    default: {
+      return {
+        newState: state,
+        logEntry: { turn: state.turn, actor: 'PLAYER', action, effect: '', message: '' },
+      };
+    }
   }
 
-  const logEntry: CombatLogEntry = {
-    turn: state.turn,
-    actor: 'PLAYER',
-    action,
-    effect,
-    resourceChange,
-    message
+  const newState: CombatEngineState = {
+    ...state,
+    enemy: nextEnemy,
+    resources: nextResources,
+    playerHealth,
+    playerEnergy,
+    preferredActions: nextPreferredActions,
   };
 
-  return { newState, logEntry, damage, healthHeal };
+  return {
+    newState,
+    logEntry: {
+      turn: state.turn,
+      actor: 'PLAYER',
+      action,
+      effect,
+      message,
+    },
+    damage: damage > 0 ? damage : undefined,
+    healthHeal: healthHeal > 0 ? healthHeal : undefined,
+    energyCost: energyCost > 0 ? energyCost : undefined,
+  };
 }
 
 /**
- * Shadow AI decision making - determines which ability to use
- * Therapeutic insight: Shadows represent patterns of negative thinking
- */
-export function decideShadowAction(
-  enemy: ShadowManifestation,
-  state: CombatState
-): ShadowAbility | null {
-  console.log('Shadow Action Decision:', {
-    enemyName: enemy.name,
-    totalAbilities: enemy.abilities?.length || 0,
-    abilities: enemy.abilities?.map(a => ({ name: a.name, cooldown: a.currentCooldown }))
-  });
-
-  if (!enemy.abilities || enemy.abilities.length === 0) {
-    console.log('No abilities available for shadow');
-    return null;
-  }
-
-  // Filter abilities that are off cooldown
-  const availableAbilities = enemy.abilities.filter(ability => ability.currentCooldown === 0);
-
-  console.log('Available abilities:', availableAbilities.map(a => a.name));
-
-  if (availableAbilities.length === 0) {
-    console.log('All abilities on cooldown');
-    return null; // No abilities available
-  }
-
-  // Priority 1: Use signature ability if player is vulnerable (low LP)
-  const playerVulnerable = state.resources.lp < COMBAT_BALANCE.SHADOW_DEFENSIVE_LP_THRESHOLD;
-  if (playerVulnerable && availableAbilities.includes(enemy.abilities[0])) {
-    return enemy.abilities[0];
-  }
-
-  // Priority 2: Use aggressive abilities when shadow is low on HP
-  const shadowHP = enemy.currentHP / enemy.maxHP;
-  if (shadowHP < COMBAT_BALANCE.SHADOW_AGGRESSIVE_HP_THRESHOLD) {
-    const aggressiveAbilities = availableAbilities.filter(ability =>
-      ability.description.toLowerCase().includes('damage') ||
-      ability.description.toLowerCase().includes('drain')
-    );
-    if (aggressiveAbilities.length > 0) {
-      return aggressiveAbilities[Math.floor(Math.random() * aggressiveAbilities.length)];
-    }
-  }
-
-  // Priority 3: Counter player's preferred strategy
-  const mostUsedAction = Object.entries(state.preferredActions)
-    .sort(([,a], [,b]) => b - a)[0]?.[0] as CombatAction;
-
-  if (mostUsedAction) {
-    // Counter strategies based on player behavior
-    const counterAbilities = availableAbilities.filter(ability => {
-      switch (mostUsedAction) {
-        case 'ILLUMINATE':
-          return ability.description.toLowerCase().includes('block') ||
-                 ability.description.toLowerCase().includes('reduce');
-        case 'REFLECT':
-          return ability.description.toLowerCase().includes('healing') ||
-                 ability.description.toLowerCase().includes('prevent');
-        case 'ENDURE':
-          return ability.description.toLowerCase().includes('pierce') ||
-                 ability.description.toLowerCase().includes('ignore');
-        case 'EMBRACE':
-          return ability.description.toLowerCase().includes('multiply') ||
-                 ability.description.toLowerCase().includes('amplify');
-        default:
-          return false;
-      }
-    });
-
-    if (counterAbilities.length > 0) {
-      return counterAbilities[Math.floor(Math.random() * counterAbilities.length)];
-    }
-  }
-
-  // Default: Use random available ability
-  const selectedAbility = availableAbilities[Math.floor(Math.random() * availableAbilities.length)];
-  console.log('Shadow selected ability:', selectedAbility?.name || 'none');
-  return selectedAbility;
-}
-
-/**
- * Execute shadow action and return updated state
+ * Decide which enemy action label to display for this turn.
  *
- * This function now includes the critical health damage mechanic where
- * shadows deal damage to player health based on scene DC minus defenses
- * after each shadow ability is used.
+ * Source of truth: `src/features/combat/store/combat-store.ts`
  */
-export function executeShadowAction(
-  ability: ShadowAbility,
-  state: CombatState,
-  guardianTrust: number
-): {
-  newState: CombatState;
-  logEntry: CombatLogEntry;
-  healthDamage: number;
-} {
-  const newState = { ...state };
+export function decideEnemyAction(enemy: ShadowManifestation): string {
+  return enemy.currentHP < enemy.maxHP * COMBAT_BALANCE.DESPERATE_STRIKE_HP_THRESHOLD
+    ? 'Desperate Strike'
+    : 'Shadow Attack';
+}
 
-  // Apply the ability effect
-  ability.effect(newState);
-
-  // Set ability on cooldown
-  if (newState.currentEnemy) {
-    const abilityIndex = newState.currentEnemy.abilities.findIndex(a => a.id === ability.id);
-    if (abilityIndex !== -1) {
-      newState.currentEnemy.abilities[abilityIndex].currentCooldown = ability.cooldown;
-    }
+/**
+ * Execute the enemy turn (damage + SP gain) and return the updated state + a log entry.
+ *
+ * Source of truth: `src/features/combat/store/combat-store.ts`
+ */
+export function executeEnemyTurn(state: CombatEngineState): ExecuteEnemyTurnResult {
+  if (!state.enemy) {
+    return {
+      newState: state,
+      enemyAction: 'Shadow Attack',
+      damage: 0,
+      logEntry: {
+        turn: state.turn,
+        actor: 'SHADOW',
+        action: 'Shadow Attack',
+        effect: '',
+        message: '',
+      },
+    };
   }
 
-  // Calculate health damage based on scene DC minus player defenses
-  const healthDamage = calculateShadowHealthDamage(newState.sceneDC, newState, guardianTrust);
+  const enemyAction = decideEnemyAction(state.enemy);
+  const damage = calculateShadowDamage(state);
+  const newPlayerHealth = Math.max(0, state.playerHealth - damage);
+  const newSp = Math.min(COMBAT_BALANCE.MAX_SP, state.resources.sp + COMBAT_BALANCE.SP_GAIN_ON_HIT);
 
-  const logEntry: CombatLogEntry = {
-    turn: state.turn,
-    actor: 'SHADOW',
-    action: ability.name,
-    effect: ability.description,
-    resourceChange: { healthDamage }, // Track health damage in log
-    message: `The shadow uses ${ability.name}: ${ability.description}. You take ${healthDamage} health damage!`
+  // Match current store behavior: if player is defeated, do NOT advance turn or return control.
+  const playerDefeated = newPlayerHealth <= 0;
+  const newState: CombatEngineState = playerDefeated
+    ? {
+        ...state,
+        playerHealth: newPlayerHealth,
+        resources: { ...state.resources, sp: newSp },
+        isPlayerTurn: false,
+      }
+    : {
+        ...state,
+        playerHealth: newPlayerHealth,
+        resources: { ...state.resources, sp: newSp },
+        turn: state.turn + 1,
+        isPlayerTurn: true,
+      };
+
+  return {
+    enemyAction,
+    damage,
+    newState,
+    logEntry: {
+      turn: state.turn,
+      actor: 'SHADOW',
+      action: enemyAction,
+      effect: `Dealt ${damage} damage to you`,
+      message: `${state.enemy.name} strikes at your resolve, but you gain insight from the challenge.`,
+    },
   };
-
-  return { newState, logEntry, healthDamage };
 }
 
 /**
- * Process status effects and cooldowns at turn end
+ * Determine whether combat should end.
+ *
+ * Source of truth: `src/features/combat/store/combat-store.ts`
  */
-export function processStatusEffects(state: CombatState): CombatState {
-  const newState = { ...state };
-
-  // Reduce status effect durations
-  if (newState.healingBlocked > 0) {
-    newState.healingBlocked -= 1;
-  }
-
-  if (newState.lpGenerationBlocked > 0) {
-    newState.lpGenerationBlocked -= 1;
-  }
-
-  // Reset damage multiplier and reduction after one turn
-  if (newState.damageMultiplier !== 1) {
-    newState.damageMultiplier = 1;
-  }
-
-  if (newState.damageReduction !== 1) {
-    newState.damageReduction = 1;
-  }
-
-  // Reset skip turn flag
-  if (newState.skipNextTurn) {
-    newState.skipNextTurn = false;
-  }
-
-  // Reduce ability cooldowns
-  if (newState.currentEnemy) {
-    newState.currentEnemy.abilities = newState.currentEnemy.abilities.map(ability => ({
-      ...ability,
-      currentCooldown: Math.max(0, ability.currentCooldown - 1)
-    }));
-  }
-
-  return newState;
-}
-
-/**
- * Check if combat should end (victory/defeat conditions)
- */
-export function checkCombatEnd(state: CombatState): {
+export function checkCombatEnd(state: CombatEngineState): {
   isEnded: boolean;
   victory?: boolean;
   reason?: string;
 } {
-  // Victory: Shadow defeated
-  if (state.currentEnemy && state.currentEnemy.currentHP <= 0) {
-    return {
-      isEnded: true,
-      victory: true,
-      reason: `You have overcome ${state.currentEnemy.name}!`
-    };
+  if (state.enemy && state.enemy.currentHP <= 0) {
+    return { isEnded: true, victory: true, reason: `You've overcome ${state.enemy.name}!` };
   }
 
-  // Defeat: Player has no resources and cannot continue
-  if (state.resources.lp <= 0 && state.resources.sp <= 0) {
-    return {
-      isEnded: true,
-      victory: false,
-      reason: 'You have been overwhelmed by the shadow...'
-    };
+  if (state.playerHealth <= 0) {
+    return { isEnded: true, victory: false, reason: 'You retreat to gather your strength...' };
   }
 
-  // Turn limit reached: Shadow wins by default
-  if (state.turn >= COMBAT_BALANCE.MAX_COMBAT_TURNS) {
-    return {
-      isEnded: true,
-      victory: false,
-      reason: `The shadow has outlasted your efforts. Combat ended after ${COMBAT_BALANCE.MAX_COMBAT_TURNS} turns.`
-    };
-  }
-
-  // Combat continues
   return { isEnded: false };
 }

@@ -1,4 +1,3 @@
- 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Calendar, Award, BookOpen, Edit2, Trash2, Save, X } from 'lucide-react';
-import type { JournalEntry } from './JournalModal';
+import type { JournalEntry } from '@/types';
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
@@ -78,7 +77,7 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="min-h-[44px] min-w-[44px] text-destructive hover:text-destructive"
+                    className="text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
                     onClick={() => setShowDeleteDialog(true)}
                     aria-label="Delete journal entry"
                   >
@@ -122,8 +121,8 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
               </div>
             </div>
           ) : (
-            <blockquote className="border-l-4 border-purple-400 pl-4 italic text-foreground">
-                            &ldquo;{entry.content}&rdquo;
+            <blockquote className="text-foreground border-l-4 border-purple-400 pl-4 italic">
+              &ldquo;{entry.content}&rdquo;
             </blockquote>
           )}
           {entry.tags && entry.tags.length > 0 && (
@@ -147,7 +146,11 @@ export function JournalEntryCard({ entry, onUpdate, onDelete }: JournalEntryCard
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              className="min-h-[44px]"
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDelete} className="min-h-[44px]">

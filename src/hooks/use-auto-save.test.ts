@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { useGameStoreBase } from '@/store/game-store';
 import { useSupabase } from '@/lib/providers/supabase-context';
+import { advanceTimersAndAct } from '@/test/utils';
 
 // Mock the dependencies
 vi.mock('@/store/game-store');
@@ -155,10 +156,8 @@ describe('useAutoSave', () => {
 
       renderHook(() => useAutoSave({ debounceDelay: 1000, interval: 99999 })); // Set very long interval to avoid interference
 
-      // Fast-forward past debounce delay
-      await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+      // Fast-forward past debounce delay using React 19 compatible helper
+      await advanceTimersAndAct(1000);
 
       // Allow microtasks to complete
       await act(async () => {
@@ -230,10 +229,8 @@ describe('useAutoSave', () => {
 
       renderHook(() => useAutoSave({ interval: 1000, debounceDelay: 99999 })); // Set very long debounce to avoid interference
 
-      // Fast-forward past interval
-      await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+      // Fast-forward past interval using React 19 compatible helper
+      await advanceTimersAndAct(1000);
 
       // Allow microtasks to complete
       await act(async () => {

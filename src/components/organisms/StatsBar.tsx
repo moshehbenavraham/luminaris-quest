@@ -118,7 +118,7 @@ export function StatsBar({
                 <div className="flex cursor-help items-center">
                   {/* Left side - icon and label with consistent width */}
                   <span className="flex w-24 items-center gap-2 text-sm font-medium">
-                    <Shield className="combat-text-heal h-4 w-4 flex-shrink-0" />
+                    <Shield className="combat-text-heal h-4 w-4 shrink-0" />
                     <span>Health</span>
                   </span>
                   {/* Right side - bar and value */}
@@ -154,7 +154,7 @@ export function StatsBar({
                   <span className="flex w-24 items-center gap-2 text-sm font-medium">
                     <Zap
                       className={cn(
-                        'h-4 w-4 flex-shrink-0',
+                        'h-4 w-4 shrink-0',
                         isLowEnergy ? 'text-orange-500' : 'combat-text-mana',
                       )}
                     />
@@ -221,7 +221,7 @@ export function StatsBar({
                 <div className="flex cursor-help items-center">
                   {/* Left side - icon and label with consistent width */}
                   <span className="flex w-24 items-center gap-2 text-sm font-medium">
-                    <Star className="combat-text-critical h-4 w-4 flex-shrink-0" />
+                    <Star className="combat-text-critical h-4 w-4 shrink-0" />
                     <span>Level {playerLevel}</span>
                   </span>
                   {/* Right side - bar and value */}

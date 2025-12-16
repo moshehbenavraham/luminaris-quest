@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import type { JournalEntry } from '@/types';
 import {
   Dialog,
   DialogContent,
@@ -13,19 +14,6 @@ import { Heart, BookOpen, Sparkles, TrendingUp } from 'lucide-react';
 // Generate unique ID outside of render for purity
 let idCounter = 0;
 const generateId = () => `journal-${Date.now()}-${++idCounter}`;
-
-export interface JournalEntry {
-  id: string;
-  type: 'milestone' | 'learning';
-  trustLevel: number;
-  content: string;
-  timestamp: Date;
-  title: string;
-  sceneId?: string;
-  tags?: string[];
-  isEdited?: boolean;
-  editedAt?: Date;
-}
 
 interface JournalModalProps {
   isOpen: boolean;

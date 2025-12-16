@@ -7,6 +7,15 @@ import { toHaveNoViolations } from 'jest-axe';
 expect.extend(matchers);
 expect.extend(toHaveNoViolations);
 
+// Mock ResizeObserver which is not available in JSDOM (used by Radix UI components)
+class ResizeObserverMock {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+
+global.ResizeObserver = ResizeObserverMock;
+
 // Mock HTMLMediaElement methods that are not implemented in JSDOM
 Object.defineProperty(HTMLMediaElement.prototype, 'play', {
   writable: true,
@@ -27,4 +36,3 @@ Object.defineProperty(HTMLMediaElement.prototype, 'load', {
 afterEach(() => {
   cleanup();
 });
-
