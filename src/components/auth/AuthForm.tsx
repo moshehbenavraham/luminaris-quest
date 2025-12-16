@@ -104,7 +104,7 @@ export function AuthForm() {
     return (
       <Card className="mx-auto w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome!</CardTitle>
+          <CardTitle className="text-[var(--cream)]">Welcome!</CardTitle>
           <CardDescription>You are currently signed in as {user.email}</CardDescription>
         </CardHeader>
         <CardFooter>

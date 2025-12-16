@@ -57,7 +57,7 @@ export const CombatSummaryCard: React.FC<CombatSummaryCardProps> = ({
                 <Sparkles className="h-4 w-4 text-amber-500" />
                 Light Points:
               </span>
-              <span className="text-sm font-bold text-amber-600">
+              <span className="text-sm font-bold text-amber-400">
                 {reflectionData.lpGained > 0
                   ? `+${reflectionData.lpGained}`
                   : reflectionData.lpGained}
@@ -68,7 +68,7 @@ export const CombatSummaryCard: React.FC<CombatSummaryCardProps> = ({
                 <Shield className="h-4 w-4 text-purple-500" />
                 Shadow Points:
               </span>
-              <span className="text-sm font-bold text-purple-600">
+              <span className="text-sm font-bold text-purple-400">
                 {reflectionData.spGained > 0
                   ? `+${reflectionData.spGained}`
                   : reflectionData.spGained}
@@ -79,14 +79,14 @@ export const CombatSummaryCard: React.FC<CombatSummaryCardProps> = ({
                 <Battery className="h-4 w-4 text-blue-500" />
                 Energy Used:
               </span>
-              <span className="text-sm font-bold text-blue-600">-{reflectionData.energyLost}</span>
+              <span className="text-sm font-bold text-blue-400">-{reflectionData.energyLost}</span>
             </div>
           </div>
         </div>
 
         {!reflectionData.victory && (
-          <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
-            <p className="text-sm text-orange-800">
+          <div className="rounded-lg border border-orange-400/30 bg-orange-500/10 p-3">
+            <p className="text-sm text-orange-300">
               <strong>Note:</strong> You&apos;ll need to retry this scene. You lost{' '}
               {Math.floor(maxPlayerEnergy * 0.2)} energy points, but your health has been restored
               to continue your journey.

@@ -100,7 +100,7 @@
   --secondary: rgba(42, 37, 46, 0.5);
   --secondary-foreground: var(--cream, #f5f0e8);
   --muted: rgba(42, 37, 46, 0.8);
-  --muted-foreground: var(--taupe, #a89b94);
+  --muted-foreground: var(--cream-muted, #d4cfc6);
   --border: rgba(232, 168, 124, 0.2);
   --input: rgba(255, 255, 255, 0.05);
 
