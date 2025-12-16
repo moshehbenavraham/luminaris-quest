@@ -14,11 +14,10 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
- * Modified: 2025-06-28
- * FAILED: Added playerEnergy export to support battle results screen
- * but NO battle results screen appears after combat. Export exists but not working.
- * STATUS: FAILED ATTEMPT - Battle results screen still missing
+ * Note: The hydration safety pattern in this hook (returning safe defaults when
+ * !hasMounted || !hasHydrated) was causing issues with CombatReflectionModal.
+ * Fixed 2025-12-16: CombatOverlay now captures combat data as a snapshot and
+ * passes it as props to the modal, bypassing the hydration race condition.
  */
 
 import { useCallback, useState, useEffect } from 'react';

@@ -1,15 +1,14 @@
- 
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
@@ -24,7 +23,7 @@ interface CombatContainerProps {
 
 /**
  * CombatContainer - Responsive layout container for combat UI
- * 
+ *
  * This component provides:
  * - Mobile-first responsive layout
  * - Proper padding and spacing
@@ -40,13 +39,15 @@ export const CombatContainer: React.FC<CombatContainerProps> = ({ children, clas
     // Store the previously focused element when combat overlay appears
     previousFocusRef.current = document.activeElement as HTMLElement;
 
-    // Focus the container when it mounts to establish focus context
-    // This ensures the overlay is interactive immediately
+    // Focus the container after the entrance animation completes (300ms)
+    // Using requestAnimationFrame ensures we're in sync with the browser's render cycle
     if (containerRef.current) {
-      // Small delay to ensure DOM is ready and animations don't interfere
+      // Wait for animation to complete (300ms) plus one frame for stability
       const focusTimer = setTimeout(() => {
-        containerRef.current?.focus();
-      }, 100);
+        requestAnimationFrame(() => {
+          containerRef.current?.focus();
+        });
+      }, 320);
 
       return () => {
         clearTimeout(focusTimer);
@@ -63,13 +64,13 @@ export const CombatContainer: React.FC<CombatContainerProps> = ({ children, clas
     if (e.key === 'Tab') {
       // Allow Tab navigation but ensure it stays within the combat overlay
       const focusableElements = containerRef.current?.querySelectorAll(
-        'button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
-      
+
       if (focusableElements && focusableElements.length > 0) {
         const firstElement = focusableElements[0] as HTMLElement;
         const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-        
+
         // Trap focus within the overlay
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
@@ -83,19 +84,19 @@ export const CombatContainer: React.FC<CombatContainerProps> = ({ children, clas
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={cn(
         // Base mobile layout
-        "flex flex-col h-full w-full p-4 gap-4 overflow-y-auto",
+        'flex h-full w-full flex-col gap-4 overflow-y-auto p-4',
         // Tablet enhancements
-        "sm:p-6 sm:gap-6",
+        'sm:gap-6 sm:p-6',
         // Desktop layout
-        "lg:max-w-6xl lg:mx-auto lg:py-8",
+        'lg:mx-auto lg:max-w-6xl lg:py-8',
         // Focus styles for accessibility
-        "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50",
+        'focus:ring-primary-500 focus:ring-opacity-50 focus:ring-2 focus:outline-none',
         // Custom classes
-        className
+        className,
       )}
       role="dialog"
       aria-modal="true"

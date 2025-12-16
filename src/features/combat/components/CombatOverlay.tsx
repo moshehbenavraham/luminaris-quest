@@ -14,12 +14,14 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
- * Modified: 2025-06-28
- * FAILED: Added CombatReflectionModal integration to show battle results screen
- * but NO battle results screen appears after combat. The modal integration exists
- * but is not working. User still reports no battle results screen appears.
- * STATUS: FAILED ATTEMPT - Battle results screen still missing
+ * Combat overlay interaction fix applied 2025-12-16:
+ * - Added explicit pointer-events-auto to content layer in CombatBackdrop
+ * - Synchronized focus timing with animation completion (320ms)
+ *
+ * Battle results modal fix applied 2025-12-16:
+ * - Root cause: useCombatStore's hydration safety returned enemy: null during modal mount
+ * - Solution: Capture combat data as snapshot when combat ends, pass as props to modal
+ * - This bypasses the hydration race condition that caused the modal to render nothing
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
@@ -29,7 +31,7 @@ import { EnemyCard } from './display/organisms/EnemyCard';
 import { ResourcePanel } from './display/organisms/ResourcePanel';
 import { ActionGrid } from './actions/ActionGrid';
 import { ControlPanel } from './actions/ControlPanel';
-import { CombatReflectionModal } from './resolution/CombatReflectionModal';
+import { CombatReflectionModal, type CombatEndSnapshot } from './resolution/CombatReflectionModal';
 import { useCombatStore } from '@/features/combat/hooks/useCombatStore';
 import { useCombatKeyboard } from '@/features/combat/hooks/useCombatKeyboard';
 import type { CombatAction } from '@/types';
@@ -56,9 +58,11 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
     resources,
     playerHealth,
     playerLevel,
+    playerEnergy,
     isPlayerTurn,
     turn,
     statusEffects,
+    preferredActions,
     executeAction,
     endTurn,
     surrender,
@@ -67,23 +71,14 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
     getActionDescription,
   } = useCombatStore();
 
-  // ⚠️ CLAUDE CODE FAILED ASSUMPTION ALERT ⚠️
-  // The keyboard action visual feedback system below was added based on INCORRECT ASSUMPTIONS
-  // that the overlay interaction issue was caused by keyboard event conflicts. This was NOT
-  // the actual problem. The real interaction blocking issue remains UNFIXED.
-  //
-  // FAILED ASSUMPTION: Keyboard event handling was causing interaction problems - IT WASN'T
-  // FAILED ASSUMPTION: Visual feedback coordination would fix overlay blocking - IT DIDN'T
-  // FAILED ASSUMPTION: Duplicate event listeners were the root cause - THEY WEREN'T
-  //
-  // This entire implementation below was WASTED EFFORT addressing NON-EXISTENT problems.
-
-  // State for keyboard action visual feedback
+  // State for keyboard action visual feedback (provides visual feedback when using keyboard shortcuts)
   const [keyboardActiveAction, setKeyboardActiveAction] = useState<CombatAction | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // State for tracking modal visibility
+  // State for tracking modal visibility and captured combat end data
+  // We capture a snapshot when combat ends to avoid hydration race conditions in the modal
   const [showReflectionModal, setShowReflectionModal] = useState(false);
+  const [combatEndSnapshot, setCombatEndSnapshot] = useState<CombatEndSnapshot | null>(null);
 
   // Handle keyboard action visual feedback
   const handleKeyboardAction = useCallback((action: CombatAction) => {
@@ -111,13 +106,41 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
     };
   }, []);
 
-  // Show reflection modal when combat ends
-
+  // Show reflection modal when combat ends - capture snapshot of combat data
+  // This snapshot is passed as props to the modal to avoid hydration race conditions
   useEffect(() => {
     if (combatEndStatus.isEnded && enemy) {
+      // Capture combat end data immediately to pass to modal
+      setCombatEndSnapshot({
+        enemy,
+        victory: combatEndStatus.victory,
+        reason: combatEndStatus.reason,
+        resources: { ...resources },
+        playerHealth,
+        playerEnergy,
+        turn,
+        preferredActions: { ...preferredActions },
+      });
       setShowReflectionModal(true);
     }
-  }, [combatEndStatus.isEnded, enemy]);
+  }, [
+    combatEndStatus.isEnded,
+    combatEndStatus.victory,
+    combatEndStatus.reason,
+    enemy,
+    resources,
+    playerHealth,
+    playerEnergy,
+    turn,
+    preferredActions,
+  ]);
+
+  // Handle close - clear both modal visibility and snapshot
+  // (Defined before early returns to satisfy React hooks rules)
+  const handleModalClose = useCallback(() => {
+    setShowReflectionModal(false);
+    setCombatEndSnapshot(null);
+  }, []);
 
   // Don't render until hydrated to prevent SSR mismatch
   if (!hasHydrated) {
@@ -125,11 +148,13 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
   }
 
   // Handle combat end state with modal (check this BEFORE checking isActive)
-  if (combatEndStatus.isEnded && showReflectionModal) {
+  // We pass the snapshot data as props to avoid hydration race conditions in the modal
+  if (combatEndStatus.isEnded && showReflectionModal && combatEndSnapshot) {
     return (
       <CombatReflectionModal
         isOpen={showReflectionModal}
-        onClose={() => setShowReflectionModal(false)}
+        onClose={handleModalClose}
+        combatSnapshot={combatEndSnapshot}
         data-testid="combat-reflection-modal"
       />
     );
@@ -165,7 +190,7 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
             getActionDescription={getActionDescription}
             onActionExecute={executeAction}
             isPlayerTurn={isPlayerTurn}
-            keyboardActiveAction={keyboardActiveAction} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - This prop was NOT needed
+            keyboardActiveAction={keyboardActiveAction}
           />
           <ControlPanel onEndTurn={endTurn} onSurrender={surrender} isPlayerTurn={isPlayerTurn} />
         </div>
@@ -185,7 +210,7 @@ export const CombatOverlay: React.FC<CombatOverlayProps> = ({ 'data-testid': tes
               getActionDescription={getActionDescription}
               onActionExecute={executeAction}
               isPlayerTurn={isPlayerTurn}
-              keyboardActiveAction={keyboardActiveAction} // ⚠️ CLAUDE CODE FAILED ASSUMPTION - This prop was NOT needed
+              keyboardActiveAction={keyboardActiveAction}
             />
           </div>
           <div className="space-y-6">

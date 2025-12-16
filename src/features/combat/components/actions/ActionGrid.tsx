@@ -25,7 +25,7 @@ interface ActionGridProps {
   onActionExecute: (action: CombatAction) => void;
   isPlayerTurn: boolean;
   className?: string;
-  keyboardActiveAction?: CombatAction | null; // ⚠️ CLAUDE CODE FAILED ASSUMPTION - This prop was NOT needed
+  keyboardActiveAction?: CombatAction | null;
 }
 
 const ACTIONS: Array<{
@@ -50,11 +50,6 @@ export function ActionGrid({
 }: ActionGridProps) {
   const [activeAction, setActiveAction] = useState<CombatAction | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // ⚠️ CLAUDE CODE FAILED ASSUMPTION ALERT ⚠️
-  // This keyboardActiveAction coordination was added based on INCORRECT ASSUMPTION that
-  // keyboard event conflicts were causing overlay interaction issues. This was NOT the
-  // actual problem. The real interaction blocking issue remains UNFIXED.
 
   // Combine local click-based active action with keyboard-based active action
   const currentActiveAction = keyboardActiveAction || activeAction;

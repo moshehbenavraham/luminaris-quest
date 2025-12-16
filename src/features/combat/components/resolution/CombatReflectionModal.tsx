@@ -7,13 +7,11 @@
  * This component displays detailed combat results and provides journaling
  * functionality for therapeutic reflection after combat.
  *
- * ⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️
- * Created: 2025-06-28
- * FAILED: This entire component was created to restore battle results screen
- * but NO battle results screen appears after combat. The component exists but
- * is not showing/working. User still reports no battle results screen with
- * combat summary and journaling functionality.
- * STATUS: FAILED ATTEMPT - Battle results screen still missing
+ * Fixed 2025-12-16: Root cause was hydration race condition in useCombatStore.
+ * When the modal mounted, useCombatStore returned enemy: null during hydration,
+ * causing reflectionData to be null and the modal to render nothing.
+ * Solution: Combat data is now passed as a snapshot prop from CombatOverlay,
+ * bypassing the hydration safety defaults that caused the issue.
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -43,7 +41,22 @@ import {
 } from 'lucide-react';
 import { useCombatStore } from '../../hooks/useCombatStore';
 import { useGameStore } from '@/store/game-store';
-import type { JournalEntry, ShadowManifestation } from '@/types';
+import type { CombatAction, JournalEntry, ShadowManifestation } from '@/types';
+
+/**
+ * Snapshot of combat state at the moment combat ends.
+ * Passed as a prop to avoid hydration race conditions.
+ */
+export interface CombatEndSnapshot {
+  enemy: ShadowManifestation;
+  victory: boolean;
+  reason: string;
+  resources: { lp: number; sp: number };
+  playerHealth: number;
+  playerEnergy: number;
+  turn: number;
+  preferredActions: Record<CombatAction, number>;
+}
 
 export interface CombatReflectionData {
   enemy: ShadowManifestation;
@@ -70,6 +83,7 @@ export interface CombatReflectionData {
 interface CombatReflectionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  combatSnapshot: CombatEndSnapshot;
   'data-testid'?: string;
 }
 
@@ -135,16 +149,10 @@ const getContextualMessage = (victory: boolean, shadowType: string): string => {
 };
 
 export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React.memo(
-  function CombatReflectionModal({ isOpen, onClose, 'data-testid': testId }) {
-    const {
-      combatEndStatus,
-      enemy,
-      resources: endingResources,
-      turn,
-      playerEnergy,
-      preferredActions,
-      clearCombatEnd,
-    } = useCombatStore();
+  function CombatReflectionModal({ isOpen, onClose, combatSnapshot, 'data-testid': testId }) {
+    // Use snapshot data passed from parent to avoid hydration race conditions
+    // Only use combat store for the clearCombatEnd action
+    const { clearCombatEnd } = useCombatStore();
 
     const gameStore = useGameStore();
 
@@ -153,9 +161,17 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
     const [isSaving, setIsSaving] = useState(false);
     const [showPrompts, setShowPrompts] = useState(true);
 
-    // Calculate combat statistics
+    // Calculate combat statistics using snapshot data (avoids hydration race condition)
     const reflectionData = useMemo(() => {
-      if (!enemy || !combatEndStatus.isEnded) return null;
+      // Use snapshot data passed from CombatOverlay - this is always available
+      const {
+        enemy,
+        victory,
+        resources: endingResources,
+        turn,
+        preferredActions,
+        playerEnergy,
+      } = combatSnapshot;
 
       // Find most used action
       let mostUsedAction = 'ENDURE';
@@ -167,7 +183,7 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
         }
       });
 
-      // Calculate resource changes
+      // Calculate resource changes (compare ending snapshot with game store's current values)
       const startingLp = gameStore.lightPoints;
       const startingSp = gameStore.shadowPoints;
       const startingEnergy = gameStore.playerEnergy;
@@ -178,7 +194,7 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
 
       return {
         enemy,
-        victory: combatEndStatus.victory,
+        victory,
         turnsElapsed: turn,
         mostUsedAction: mostUsedAction.charAt(0) + mostUsedAction.slice(1).toLowerCase(),
         lpGained: Math.max(0, lpGained),
@@ -197,7 +213,7 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
           energy: playerEnergy,
         },
       } as CombatReflectionData;
-    }, [enemy, combatEndStatus, turn, preferredActions, endingResources, playerEnergy, gameStore]);
+    }, [combatSnapshot, gameStore]);
 
     // Reset state when modal opens/closes
     useEffect(() => {
@@ -308,7 +324,8 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
       setShowPrompts((prev) => !prev);
     }, []);
 
-    if (!reflectionData) return null;
+    // Note: reflectionData is always available since combatSnapshot is required
+    // No null check needed - parent only renders modal when snapshot exists
 
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
