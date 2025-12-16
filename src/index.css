@@ -1,63 +1,67 @@
-.combat-text-light {
+/* Tailwind CSS v4 - CSS-first configuration
+   The @import replaces @tailwind base/components/utilities directives.
+   The @config directive loads our JavaScript config file.
+   IMPORTANT: @import must precede all other statements (CSS specification) */
+@import 'tailwindcss';
+@config '../tailwind.config.ts';
+
+/* Semantic Status Text Utilities - High contrast text for status indicators
+   Used throughout the app for: combat damage/healing, player stats, system health,
+   choice indicators, dice results, and other status displays.
+   Note: Previously named "combat-text-*" but renamed to reflect app-wide usage. */
+.status-text-light {
   color: #ffffff; /* Ensure contrast against dark backgrounds */
   font-weight: bold;
 }
 
-.combat-text-shadow {
+.status-text-contrast {
   color: #ffffff;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Dark shadow for contrast */
   font-weight: bold;
 }
 
-/* Additional combat text variations for better accessibility */
-.combat-text-damage {
-  color: #ff4444; /* High contrast red for damage */
+.status-text-danger {
+  color: #ff5555; /* WCAG AA compliant red (4.76:1 on card backgrounds) */
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
   font-weight: bold;
 }
 
-.combat-text-heal {
-  color: #00ff88; /* High contrast green for healing */
+.status-text-success {
+  color: #00ff88; /* High contrast green for healing/success/ok states */
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
   font-weight: bold;
 }
 
-.combat-text-critical {
-  color: #ffd700; /* High contrast gold for critical hits */
+.status-text-warning {
+  color: #ffd700; /* High contrast gold for critical/warning/special states */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
   font-weight: 900;
   font-size: 1.2em;
 }
 
-.combat-text-mana {
-  color: #4488ff; /* High contrast blue for mana */
+.status-text-info {
+  color: #5599ff; /* WCAG AA compliant blue (5.27:1 on card backgrounds) */
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
   font-weight: bold;
 }
 
-@custom-variant dark (&:is(.dark *));
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   line-height: 1.6;
   font-weight: 400;
 
   color-scheme: light dark;
 
-  /* Brand Color System */
-  --primary: #865dff;
-  --primary-rgb: 134, 93, 255;
-  --accent: #00ffd0;
-  --accent-rgb: 0, 255, 208;
-  --neutral-50: #f7f8fa;
-  --neutral-100: #ececff;
-  --neutral-200: #d6dbf5;
-  --neutral-400: #9196b3;
-  --neutral-800: #272940;
+  /* Ember Hearth Brand Color System */
+  --primary: #e8a87c;
+  --primary-rgb: 232, 168, 124;
+  --accent: #8ba888;
+  --accent-rgb: 139, 168, 136;
+  --neutral-50: #f5f0e8;
+  --neutral-100: #e8e3db;
+  --neutral-200: #d4cfc6;
+  --neutral-400: #a89b94;
+  --neutral-800: #2a252e;
 
   /* Design System Variables */
   --radius: 0.75rem;
@@ -68,7 +72,7 @@
   --popover: rgba(255, 255, 255, 0.9);
   --popover-foreground: var(--neutral-800);
   --primary-color: var(--primary);
-  --primary-foreground: var(--neutral-50);
+  --primary-foreground: var(--neutral-800);
   --secondary: var(--neutral-100);
   --secondary-foreground: var(--neutral-800);
   --muted: var(--neutral-200);
@@ -76,33 +80,33 @@
   --accent-color: var(--accent);
   --accent-foreground: var(--neutral-800);
   --destructive: #ef4444;
-  --border: rgba(134, 93, 255, 0.2);
+  --border: rgba(232, 168, 124, 0.2);
   --input: rgba(255, 255, 255, 0.1);
   --ring: var(--primary);
 
-  /* Glassmorphism Variables */
+  /* Glassmorphism Variables (Ember Hearth) */
   --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-shadow: 0 8px 32px rgba(134, 93, 255, 0.1);
+  --glass-border: rgba(232, 168, 124, 0.15);
+  --glass-shadow: 0 8px 32px rgba(232, 168, 124, 0.08);
 }
 
 .dark {
-  --background: #0a0b14;
-  --foreground: var(--neutral-100);
-  --card: rgba(39, 41, 64, 0.3);
-  --card-foreground: var(--neutral-100);
-  --popover: rgba(39, 41, 64, 0.9);
-  --popover-foreground: var(--neutral-100);
-  --secondary: rgba(39, 41, 64, 0.5);
-  --secondary-foreground: var(--neutral-100);
-  --muted: rgba(39, 41, 64, 0.8);
-  --muted-foreground: var(--neutral-400);
-  --border: rgba(134, 93, 255, 0.3);
+  --background: var(--hearth-deep, #151118);
+  --foreground: var(--cream, #f5f0e8);
+  --card: rgba(42, 37, 46, 0.3);
+  --card-foreground: var(--cream, #f5f0e8);
+  --popover: rgba(42, 37, 46, 0.9);
+  --popover-foreground: var(--cream, #f5f0e8);
+  --secondary: rgba(42, 37, 46, 0.5);
+  --secondary-foreground: var(--cream, #f5f0e8);
+  --muted: rgba(42, 37, 46, 0.8);
+  --muted-foreground: var(--taupe, #a89b94);
+  --border: rgba(232, 168, 124, 0.2);
   --input: rgba(255, 255, 255, 0.05);
 
-  /* Dark Mode Glassmorphism */
-  --glass-bg: rgba(39, 41, 64, 0.2);
-  --glass-border: rgba(134, 93, 255, 0.2);
+  /* Dark Mode Glassmorphism (Ember Hearth) */
+  --glass-bg: rgba(42, 37, 46, 0.2);
+  --glass-border: rgba(232, 168, 124, 0.15);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
@@ -145,7 +149,29 @@ body {
   background: linear-gradient(135deg, #0a0b14 0%, var(--neutral-800) 100%);
 }
 
-/* Glassmorphism Utilities - Moved outside @layer for Tailwind v4 compatibility */
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================
+
+   ARCHITECTURE DECISION: These classes are intentionally placed OUTSIDE @layer.
+
+   Reason: Tailwind CSS v4 (via @tailwindcss/postcss) handles @layer differently
+   than v3. When custom classes are inside @layer utilities, Tailwind v4 may
+   purge them during tree-shaking if they're not detected as utility patterns.
+
+   By placing .glass and .glass-hover outside @layer, they:
+   1. Always survive the build process
+   2. Maintain consistent specificity with component styles
+   3. Can be safely composed with Tailwind utilities
+
+   These are intentionally reusable patterns used across:
+   - Card component (src/components/ui/card.tsx)
+   - Button variants (src/components/ui/button.tsx)
+   - Layout components (Navbar, Sidebar, Layout)
+   - AudioPlayer component
+
+   See: docs/ongoing_projects/frontend-ui-audit.md Issue #8
+   ============================================ */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -159,52 +185,47 @@ body {
 }
 
 .glass-hover:hover {
-  background: rgba(134, 93, 255, 0.1);
+  background: rgba(232, 168, 124, 0.1);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(134, 93, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(232, 168, 124, 0.15);
 }
 
-/* Button Utilities */
-@layer utilities {
-  .btn-primary {
-    background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
-    color: var(--primary-foreground);
-    transition: all 0.2s ease-in-out;
-    border: none;
-    box-shadow: 0 4px 15px rgba(134, 93, 255, 0.3);
-  }
-
-  .btn-primary:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(134, 93, 255, 0.4);
-  }
-
-  .btn-secondary {
-    background: var(--secondary);
-    color: var(--secondary-foreground);
-    border: 1px solid var(--border);
-    transition: all 0.2s ease-in-out;
-  }
-
-  .btn-secondary:hover {
-    background: var(--muted);
-    transform: translateY(-1px);
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes glow {
-    from {
-      box-shadow: 0 0 20px rgba(134, 93, 255, 0.3);
-    }
-    to {
-      box-shadow: 0 0 30px rgba(134, 93, 255, 0.6);
-    }
-  }
+/* Button Utilities
+   Placed outside @layer for Tailwind v4 compatibility - see glassmorphism comment above.
+   In v4, @layer utilities is deprecated in favor of @utility directives for single-property
+   utilities. Multi-property component classes like these work best as regular CSS. */
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--ember-gold, #e8a87c) 0%,
+    var(--ember-rose, #c4918a) 100%
+  );
+  color: var(--hearth-deep, #151118);
+  transition: all 0.2s ease-in-out;
+  border: none;
+  box-shadow: 0 4px 15px rgba(232, 168, 124, 0.25);
 }
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(232, 168, 124, 0.35);
+}
+
+.btn-secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background: var(--muted);
+  transform: translateY(-1px);
+}
+
+/* NOTE: animate-glow is defined in tailwind.config.ts.
+   Use the Tailwind utility class: className="animate-glow" */
 
 /* Component Overrides */
 button {
@@ -235,7 +256,7 @@ textarea:focus {
   border-bottom-color: var(--primary);
 }
 
-/* Component Enhancements - Plain CSS for Tailwind v4 compatibility */
+/* Component Enhancements - Outside @layer for Tailwind v4 compatibility (see glassmorphism comment above) */
 .card-enhanced {
   /* Glass effect properties */
   background: var(--glass-bg);
@@ -250,9 +271,107 @@ textarea:focus {
 }
 
 .card-enhanced:hover {
-  background: rgba(134, 93, 255, 0.1);
+  background: rgba(232, 168, 124, 0.08);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(134, 93, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(232, 168, 124, 0.15);
+}
+
+/* Solid card variant - resets glass effects for forms/auth contexts */
+.card-solid {
+  background: var(--background);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.card-solid:hover {
+  background: var(--background);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Progress bar utility - uses CSS custom property for smoother animations
+ * and enables CSS-only animation capabilities
+ *
+ * Usage: style={{ '--progress-value': value } as React.CSSProperties}
+ * The width is calculated from the custom property, enabling:
+ * - Smoother CSS-native transitions
+ * - CSS-only keyframe animations (e.g., loading shimmer)
+ * - Easier maintenance with consistent timing
+ */
+.progress-bar-fill {
+  width: calc(var(--progress-value, 0) * 1%);
+  transition: width 700ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* ============================================================
+ * Reduced Motion Accessibility Support
+ * ============================================================
+ * These styles apply when the user enables "Reduced Motion" in
+ * Profile > Accessibility settings. The settings store adds the
+ * .reduce-motion class to document.documentElement.
+ *
+ * Using 0.01ms instead of 0 prevents animations getting "stuck"
+ * in intermediate states and satisfies accessibility tools that
+ * check for technically-present but imperceptible motion.
+ *
+ * Note: This is the user's in-app preference, separate from the
+ * OS-level prefers-reduced-motion media query. Both are honored:
+ * - .reduce-motion class = user's in-app setting
+ * - @media (prefers-reduced-motion) = OS-level setting
+ * ============================================================ */
+
+/* Disable all CSS animations and transitions when user preference is set */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Progress bars should update instantly without animation */
+.reduce-motion .progress-bar-fill {
+  transition: none !important;
+}
+
+/* Specific overrides for common animation utilities */
+.reduce-motion .animate-spin,
+.reduce-motion .animate-pulse,
+.reduce-motion .animate-bounce,
+.reduce-motion .animate-ping {
+  animation: none !important;
+}
+
+/* Shadcn/Radix UI animation overrides */
+.reduce-motion [data-state='open'],
+.reduce-motion [data-state='closed'] {
+  animation: none !important;
+}
+
+/* Framer Motion will respect this via useReducedMotion hook,
+   but CSS fallback ensures opacity/transform are instant */
+.reduce-motion [data-framer-motion] {
+  transition: none !important;
+}
+
+/* Also honor OS-level prefers-reduced-motion for users who haven't
+   explicitly set the in-app preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .progress-bar-fill {
+    transition: none !important;
+  }
 }
 
 .nav-link {

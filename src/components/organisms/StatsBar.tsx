@@ -62,7 +62,7 @@ export function StatsBar({
               {/* Combat Resources */}
               <div className="rounded-lg border border-amber-200 bg-gradient-to-r from-amber-50 to-purple-50 p-3 dark:border-amber-800 dark:from-amber-950/20 dark:to-purple-950/20">
                 <div className="mb-3">
-                  <span className="combat-text-critical text-sm font-semibold">
+                  <span className="status-text-warning text-sm font-semibold">
                     Combat Resources
                   </span>
                 </div>
@@ -77,7 +77,7 @@ export function StatsBar({
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs font-medium">Light Points</p>
-                          <p className="combat-text-critical text-lg font-bold">{lightPoints}</p>
+                          <p className="status-text-warning text-lg font-bold">{lightPoints}</p>
                         </div>
                       </div>
                     </TooltipTrigger>
@@ -95,7 +95,7 @@ export function StatsBar({
                         </div>
                         <div>
                           <p className="text-muted-foreground text-xs font-medium">Shadow Points</p>
-                          <p className="combat-text-mana text-lg font-bold">{shadowPoints}</p>
+                          <p className="status-text-info text-lg font-bold">{shadowPoints}</p>
                         </div>
                       </div>
                     </TooltipTrigger>
@@ -118,15 +118,15 @@ export function StatsBar({
                 <div className="flex cursor-help items-center">
                   {/* Left side - icon and label with consistent width */}
                   <span className="flex w-24 items-center gap-2 text-sm font-medium">
-                    <Shield className="combat-text-heal h-4 w-4 shrink-0" />
+                    <Shield className="status-text-success h-4 w-4 shrink-0" />
                     <span>Health</span>
                   </span>
                   {/* Right side - bar and value */}
                   <div className="flex flex-1 items-center justify-end gap-2">
                     <div className="h-2 w-20 rounded-full bg-gray-200 dark:bg-gray-700">
                       <div
-                        className="h-full rounded-full bg-green-500 transition-all duration-300"
-                        style={{ width: `${displayHealth}%` }}
+                        className="progress-bar-fill h-full rounded-full bg-green-500"
+                        style={{ '--progress-value': displayHealth } as React.CSSProperties}
                       />
                     </div>
                     {/* Value with consistent width and alignment */}
@@ -155,7 +155,7 @@ export function StatsBar({
                     <Zap
                       className={cn(
                         'h-4 w-4 shrink-0',
-                        isLowEnergy ? 'text-orange-500' : 'combat-text-mana',
+                        isLowEnergy ? 'text-orange-500' : 'status-text-info',
                       )}
                     />
                     <span className="flex items-center gap-1">
@@ -178,10 +178,10 @@ export function StatsBar({
                         aria-valuemin={0}
                         aria-valuemax={100}
                         className={cn(
-                          'h-full rounded-full transition-all duration-300',
+                          'progress-bar-fill h-full rounded-full',
                           isLowEnergy ? 'animate-pulse bg-orange-500' : 'bg-blue-500',
                         )}
-                        style={{ width: `${displayEnergy}%` }}
+                        style={{ '--progress-value': displayEnergy } as React.CSSProperties}
                       />
                     </div>
                     {/* Value with consistent width and alignment */}
@@ -221,7 +221,7 @@ export function StatsBar({
                 <div className="flex cursor-help items-center">
                   {/* Left side - icon and label with consistent width */}
                   <span className="flex w-24 items-center gap-2 text-sm font-medium">
-                    <Star className="combat-text-critical h-4 w-4 shrink-0" />
+                    <Star className="status-text-warning h-4 w-4 shrink-0" />
                     <span>Level {playerLevel}</span>
                   </span>
                   {/* Right side - bar and value */}
@@ -233,8 +233,8 @@ export function StatsBar({
                         aria-valuenow={Math.round(progressPercentage)}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        className="h-full rounded-full bg-yellow-500 transition-all duration-300"
-                        style={{ width: `${progressPercentage}%` }}
+                        className="progress-bar-fill h-full rounded-full bg-yellow-500"
+                        style={{ '--progress-value': progressPercentage } as React.CSSProperties}
                       />
                     </div>
                     {/* Value with consistent width and alignment */}

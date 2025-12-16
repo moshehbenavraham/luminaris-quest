@@ -1,4 +1,3 @@
- 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -143,7 +142,7 @@ export function AuthForm() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-md !bg-background/95 !backdrop-filter-none !border-border" data-testid="auth-form">
+    <Card className="card-solid mx-auto w-full max-w-md" data-testid="auth-form">
       <CardHeader>
         <CardTitle>{mode === 'login' ? 'Sign In' : 'Create Account'}</CardTitle>
         <CardDescription>
@@ -177,13 +176,13 @@ export function AuthForm() {
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             />
             {mode === 'signup' && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Password must be at least 6 characters long
               </p>
             )}
           </div>
           {error && (
-            <div className="bg-destructive/10 border-destructive/20 rounded border p-2 text-sm text-destructive">
+            <div className="bg-destructive/10 border-destructive/20 text-destructive rounded border p-2 text-sm">
               {error}
             </div>
           )}

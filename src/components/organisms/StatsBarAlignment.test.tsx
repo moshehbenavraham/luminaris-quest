@@ -128,9 +128,9 @@ describe('StatsBar Visual Alignment', () => {
     // Filter for the stat icons (not combat resource icons)
     const statIcons = Array.from(icons).filter(
       (icon) =>
-        icon.classList.contains('combat-text-heal') ||
-        icon.classList.contains('combat-text-mana') ||
-        icon.classList.contains('combat-text-critical'),
+        icon.classList.contains('status-text-success') ||
+        icon.classList.contains('status-text-info') ||
+        icon.classList.contains('status-text-warning'),
     );
 
     // Should have 3 stat icons

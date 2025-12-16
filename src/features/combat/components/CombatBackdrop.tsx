@@ -14,7 +14,8 @@
  */
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
 
 interface CombatBackdropProps {
   isActive: boolean;
@@ -28,37 +29,44 @@ interface CombatBackdropProps {
  * - Covers the entire viewport without gaps
  * - Provides consistent blur effect
  * - Handles z-index properly
- * - Animates smoothly
+ * - Animates smoothly (respects reduced motion preference)
  */
 export const CombatBackdrop: React.FC<CombatBackdropProps> = ({ isActive, children }) => {
-  return (
-    <AnimatePresence>
-      {isActive && (
-        <>
-          {/* Backdrop layer - separate from content, non-interactive */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="z-combat-backdrop bg-combat-backdrop pointer-events-none fixed inset-0 backdrop-blur-sm"
-            aria-hidden="true"
-          />
+  const prefersReducedMotion = useReducedMotion();
 
-          {/* Content layer - explicitly set pointer-events-auto to ensure interactivity
-              during and after framer-motion animation transitions */}
-          <motion.div
-            initial={{ opacity: 0, pointerEvents: 'auto' as const }}
-            animate={{ opacity: 1, pointerEvents: 'auto' as const }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="z-combat-content pointer-events-auto fixed inset-0"
-          >
-            {children}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+  // When reduced motion is preferred, use instant transitions
+  const transitionDuration = prefersReducedMotion ? 0 : 0.3;
+
+  return (
+    <LazyMotion features={domAnimation}>
+      <AnimatePresence>
+        {isActive && (
+          <>
+            {/* Backdrop layer - separate from content, non-interactive */}
+            <m.div
+              initial={{ opacity: prefersReducedMotion ? 1 : 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: transitionDuration }}
+              className="z-combat-backdrop bg-combat-backdrop pointer-events-none fixed inset-0 backdrop-blur-sm"
+              aria-hidden="true"
+            />
+
+            {/* Content layer - explicitly set pointer-events-auto to ensure interactivity
+                during and after framer-motion animation transitions */}
+            <m.div
+              initial={{ opacity: prefersReducedMotion ? 1 : 0, pointerEvents: 'auto' as const }}
+              animate={{ opacity: 1, pointerEvents: 'auto' as const }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: transitionDuration }}
+              className="z-combat-content pointer-events-auto fixed inset-0"
+            >
+              {children}
+            </m.div>
+          </>
+        )}
+      </AnimatePresence>
+    </LazyMotion>
   );
 };
 

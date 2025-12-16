@@ -32,13 +32,13 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
               <div
                 className={`h-2 w-2 rounded-full ${
                   indicator.color === 'green'
-                    ? 'combat-text-heal bg-green-500'
+                    ? 'status-text-success bg-green-500'
                     : indicator.color === 'yellow'
-                      ? 'combat-text-critical bg-yellow-500'
-                      : 'combat-text-damage bg-red-500'
+                      ? 'status-text-warning bg-yellow-500'
+                      : 'status-text-danger bg-red-500'
                 }`}
               />
-              <span className="combat-text-shadow text-xs">
+              <span className="status-text-contrast text-xs">
                 {healthStatus.environment.toUpperCase()}
               </span>
             </div>
@@ -53,7 +53,7 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
                 </div>
               )}
               {healthStatus.error && (
-                <div className="combat-text-damage mt-1 text-xs">{healthStatus.error}</div>
+                <div className="status-text-danger mt-1 text-xs">{healthStatus.error}</div>
               )}
               <div className="mt-1 text-xs opacity-70">Environment: {healthStatus.environment}</div>
             </div>
@@ -84,25 +84,25 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
 
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="combat-text-shadow">Status:</span>
+              <span className="status-text-contrast">Status:</span>
               <span>{indicator.description}</span>
             </div>
 
             {healthStatus.isConnected && (
               <div className="flex justify-between">
-                <span className="combat-text-shadow">Response Time:</span>
+                <span className="status-text-contrast">Response Time:</span>
                 <span>{formatResponseTime(healthStatus.responseTime)}</span>
               </div>
             )}
 
             <div className="flex justify-between">
-              <span className="combat-text-shadow">Environment:</span>
+              <span className="status-text-contrast">Environment:</span>
               <span className="font-mono text-xs uppercase">{healthStatus.environment}</span>
             </div>
 
             {healthStatus.lastChecked > 0 && (
               <div className="flex justify-between">
-                <span className="combat-text-shadow">Last Check:</span>
+                <span className="status-text-contrast">Last Check:</span>
                 <span className="text-xs">
                   {new Date(healthStatus.lastChecked).toLocaleTimeString()}
                 </span>
@@ -111,7 +111,7 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
 
             {healthStatus.error && (
               <div className="mt-3 rounded bg-red-50 p-2 text-xs dark:bg-red-900/20">
-                <span className="combat-text-damage">Error: {healthStatus.error}</span>
+                <span className="status-text-danger">Error: {healthStatus.error}</span>
               </div>
             )}
           </div>
@@ -133,10 +133,10 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
       <div
         className={`h-3 w-3 rounded-full ${
           indicator.color === 'green'
-            ? 'combat-text-heal bg-green-500'
+            ? 'status-text-success bg-green-500'
             : indicator.color === 'yellow'
-              ? 'combat-text-critical bg-yellow-500'
-              : 'combat-text-damage bg-red-500'
+              ? 'status-text-warning bg-yellow-500'
+              : 'status-text-danger bg-red-500'
         }`}
       />
       <Badge
@@ -151,9 +151,9 @@ export const HealthStatus: React.FC<HealthStatusProps> = ({
       >
         {indicator.label}
       </Badge>
-      <span className="combat-text-shadow text-xs">{healthStatus.environment.toUpperCase()}</span>
+      <span className="status-text-contrast text-xs">{healthStatus.environment.toUpperCase()}</span>
       {healthStatus.isConnected && (
-        <span className="combat-text-shadow text-xs">
+        <span className="status-text-contrast text-xs">
           ({formatResponseTime(healthStatus.responseTime)})
         </span>
       )}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dice6 } from 'lucide-react';
 import { type DiceResult } from '@/engine/scene-engine';
 import { soundManager } from '@/utils/sound-manager';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
 
 // Register dice sound effects
 const DICE_SOUNDS = [
@@ -21,34 +22,46 @@ interface DiceRollOverlayProps {
 }
 
 export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   // Initialize to true since component only renders when needed
   const [isVisible, setIsVisible] = useState(true);
-  const [showResult, setShowResult] = useState(false);
+  // If reduced motion is preferred, show result immediately (skip rolling animation)
+  const [showResult, setShowResult] = useState(prefersReducedMotion);
 
   const handleClose = useCallback(() => {
+    // If reduced motion is preferred, close instantly without fade-out delay
+    if (prefersReducedMotion) {
+      onClose();
+      return;
+    }
     setIsVisible(false);
     setTimeout(onClose, 1000);
-  }, [onClose]);
+  }, [onClose, prefersReducedMotion]);
 
   useEffect(() => {
-    // Play a random dice sound when rolling starts
+    // Play a random dice sound when rolling starts (still play sound even with reduced motion)
     const randomDiceIndex = Math.floor(Math.random() * DICE_SOUNDS.length);
     const selectedSound = DICE_SOUNDS[randomDiceIndex];
     soundManager.playSound(selectedSound.id);
+
+    // If reduced motion is preferred, result is already shown - skip the timer
+    if (prefersReducedMotion) {
+      return;
+    }
 
     const resultTimer = setTimeout(() => {
       setShowResult(true);
     }, 1500);
 
-    const closeTimer = setTimeout(() => {
-      handleClose();
-    }, 7000);
+    // Note: Auto-close timer removed intentionally (Issue #15 - frontend-ui-audit.md)
+    // Users should control their own pace of reflection by clicking "Continue" or the backdrop.
+    // This supports therapeutic design principles: user empowerment and reflection opportunities.
 
     return () => {
       clearTimeout(resultTimer);
-      clearTimeout(closeTimer);
     };
-  }, [handleClose]);
+  }, [prefersReducedMotion]);
 
   return (
     <div
@@ -65,14 +78,20 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
       >
         <CardHeader className="pb-2 text-center">
           <CardTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-white">
-            <Dice6 className={`h-7 w-7 ${!showResult ? 'animate-spin' : ''} text-white`} />
+            <Dice6
+              className={`h-7 w-7 text-white ${!showResult && !prefersReducedMotion ? 'animate-spin' : ''}`}
+            />
             Fate&apos;s Decision
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 py-6 text-center">
           {!showResult ? (
             <div className="space-y-3">
-              <div className="animate-pulse text-3xl font-bold text-white">Rolling...</div>
+              <div
+                className={`text-3xl font-bold text-white ${!prefersReducedMotion ? 'animate-pulse' : ''}`}
+              >
+                Rolling...
+              </div>
               <div className="text-base text-white/80">
                 Target: <span className="font-medium text-white">{result.dc}</span>
               </div>
@@ -90,7 +109,7 @@ export function DiceRollOverlay({ result, onClose }: DiceRollOverlayProps) {
 
               <div
                 className={`text-2xl font-bold ${
-                  result.success ? 'combat-text-heal' : 'combat-text-critical'
+                  result.success ? 'status-text-success' : 'status-text-warning'
                 }`}
               >
                 {result.success ? '✨ Success!' : '💡 Try Again'}

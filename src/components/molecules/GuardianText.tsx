@@ -82,8 +82,8 @@ export function GuardianText({
 
           <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 shadow-inner dark:bg-gray-700">
             <div
-              className={`h-full transition-all duration-700 ease-out ${getTrustColor(normalizedTrust)} shadow-sm`}
-              style={{ width: `${normalizedTrust}%` }}
+              className={`progress-bar-fill h-full ${getTrustColor(normalizedTrust)} shadow-sm`}
+              style={{ '--progress-value': normalizedTrust } as React.CSSProperties}
             />
           </div>
 

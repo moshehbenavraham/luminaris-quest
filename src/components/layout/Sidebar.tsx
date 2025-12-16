@@ -40,8 +40,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Mobile header */}
           <div className="flex items-center justify-between border-b border-white/10 p-6 lg:hidden">
             <div className="flex items-center space-x-3">
-              <div className="from-primary to-accent rounded-xl bg-gradient-to-br p-2">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="from-ember-gold to-ember-rose rounded-xl bg-gradient-to-br p-2">
+                <Sparkles className="text-hearth-deep h-5 w-5" />
               </div>
               <span className="font-heading text-lg font-bold">Menu</span>
             </div>
@@ -58,7 +58,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-2 p-6">
-            <h2 className="from-primary to-accent font-heading mb-6 bg-gradient-to-r bg-clip-text px-2 text-lg font-bold tracking-tight text-transparent">
+            <h2 className="from-ember-gold to-ember-rose font-heading mb-6 bg-gradient-to-r bg-clip-text px-2 text-lg font-bold tracking-tight text-transparent">
               Navigation
             </h2>
             {navItems.map((item) => {
@@ -72,10 +72,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   onClick={onClose}
                   className={cn(
                     'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
-                    'hover:bg-primary/10 hover:text-primary hover:scale-105',
-                    'focus-visible:ring-primary focus-visible:ring-2 focus-visible:outline-none',
+                    'hover:bg-ember-gold/10 hover:text-ember-gold hover:scale-105',
+                    'focus-visible:ring-ember-gold focus-visible:ring-2 focus-visible:outline-none',
                     isActive &&
-                      'from-primary to-accent shadow-primary bg-gradient-to-r font-bold text-white',
+                      'from-ember-gold to-ember-rose shadow-primary text-hearth-deep bg-gradient-to-r font-bold',
                   )}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -89,7 +89,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Footer info */}
           <div className="border-t border-white/10 p-6">
             <p className="text-muted-foreground text-center text-xs">
-              © 2024 Luminari&apos;s Quest
+              © 2025 Luminari&apos;s Quest
             </p>
           </div>
         </div>

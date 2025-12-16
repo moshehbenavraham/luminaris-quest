@@ -234,7 +234,7 @@ const Index = () => {
 
 ---
 
-### 8. Mixed CSS Architecture
+### 8. ~~Mixed CSS Architecture~~ (SEVERITY: HIGH) - RESOLVED
 
 **Locations:**
 
@@ -244,16 +244,42 @@ const Index = () => {
 
 **Issues:**
 
-- `.glass` class defined outside `@layer` for "Tailwind v4 compatibility" (line 144)
-- Duplicate style definitions (e.g., `glow` keyframes defined in both `index.css:195-202` and `tailwind.config.ts:135-142`)
-- Some shadcn components modified, others use defaults
+- ~~`.glass` class defined outside `@layer` for "Tailwind v4 compatibility" (line 144)~~ **DOCUMENTED**
+- ~~Duplicate style definitions (e.g., `glow` keyframes defined in both `index.css:195-202` and `tailwind.config.ts:135-142`)~~ **RESOLVED**
+- ~~Some shadcn components modified, others use defaults~~ **RESOLVED**
 
-**Recommendation:** Establish clear CSS architecture:
+**Resolution (2025-12-17):**
+
+All actively-used shadcn components migrated to consistent Ember Hearth styling:
+
+| Component      | Changes                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| `input.tsx`    | `rounded-xl`, glass bg (`bg-white/5`), warm focus (`ring-primary`), `h-10`                     |
+| `textarea.tsx` | `rounded-xl`, glass bg, warm focus, `min-h-[100px]`                                            |
+| `dialog.tsx`   | Warm overlay (`bg-hearth-deep/90`), `rounded-2xl`, glassmorphism content, `font-heading` title |
+| `badge.tsx`    | `rounded-lg`, ember-gold/sage/rose variants, added `success` variant                           |
+| `tooltip.tsx`  | `rounded-xl`, glass bg (`bg-hearth-surface/95`), warm text (`text-cream`)                      |
+| `select.tsx`   | `rounded-xl` trigger/content, glass bg, warm hover (`bg-ember-gold/15`)                        |
+| `switch.tsx`   | `bg-ember-gold` checked state, `bg-cream` thumb                                                |
+| `slider.tsx`   | Ember gradient range (`from-ember-gold to-ember-rose`), warm thumb styling                     |
+
+**Styling patterns applied:**
+
+- Corner radius: `rounded-xl` (inputs/select) or `rounded-2xl` (modals/cards)
+- Glass backgrounds: `bg-white/5` or `bg-hearth-surface/95`
+- Borders: `border-white/20` instead of `border-input`
+- Focus states: `focus-visible:ring-2 focus-visible:ring-primary`
+- Transitions: `transition-all duration-200`
+- Hover states: `bg-ember-gold/15` or `bg-white/10`
+
+**Verification:** Build passes, lint passes.
+
+**CSS Architecture (now established):**
 
 1. Use Tailwind utilities for one-off styles
 2. Use CSS custom properties for design tokens
 3. Reserve custom classes for reusable patterns only
-4. Migrate all shadcn components to consistent customization level
+4. Shadcn components customized with Ember Hearth color palette
 
 ---
 

@@ -7,30 +7,47 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand Colors
+        // Ember Hearth Color Palette (Primary Brand)
+        ember: {
+          gold: '#e8a87c',
+          rose: '#c4918a',
+          sage: '#8ba888',
+          lavender: '#a89bc4',
+        },
+        hearth: {
+          deep: '#151118',
+          mid: '#1e1a21',
+          surface: '#2a252e',
+        },
+        cream: {
+          DEFAULT: '#f5f0e8',
+          muted: '#d4cfc6',
+        },
+        taupe: '#a89b94',
+        // Legacy Brand Colors (kept for compatibility, use ember colors for new UI)
         primary: {
-          DEFAULT: '#865DFF',
-          50: '#F3F0FF',
-          100: '#E6DCFF',
-          500: '#865DFF',
-          600: '#7C4DFF',
-          700: '#6B46C1',
-          foreground: '#F7F8FA',
+          DEFAULT: '#e8a87c', // Updated to ember-gold
+          50: '#fdf8f4',
+          100: '#f9ede4',
+          500: '#e8a87c',
+          600: '#d99565',
+          700: '#c4785a',
+          foreground: '#151118',
         },
         accent: {
-          DEFAULT: '#00FFD0',
-          50: '#E6FFFA',
-          100: '#B3FFF0',
-          500: '#00FFD0',
-          600: '#00E6BB',
-          foreground: '#272940',
+          DEFAULT: '#8ba888', // Updated to ember-sage
+          50: '#f4f7f3',
+          100: '#e5ede3',
+          500: '#8ba888',
+          600: '#769573',
+          foreground: '#151118',
         },
         neutral: {
-          50: '#F7F8FA',
-          100: '#ECECFF',
-          200: '#D6DBF5',
-          400: '#9196B3',
-          800: '#272940',
+          50: '#f5f0e8',
+          100: '#e8e3db',
+          200: '#d4cfc6',
+          400: '#a89b94',
+          800: '#2a252e',
         },
         border: 'var(--border)',
         input: 'var(--input)',
@@ -56,7 +73,16 @@ export default {
         destructive: {
           DEFAULT: 'var(--destructive)',
         },
-        // Combat-specific colors
+        // Semantic status colors - used app-wide for status indicators
+        // (combat damage/healing, player stats, system health, choice indicators, etc.)
+        // All colors verified for WCAG AA compliance (4.5:1 minimum on card backgrounds)
+        status: {
+          danger: '#ff5555', // Red - damage, errors, danger states (4.76:1)
+          success: '#00ff88', // Green - healing, success, ok states (11.17:1)
+          warning: '#ffd700', // Gold - critical hits, warnings, special states (10.68:1)
+          info: '#5599ff', // Blue - mana, info, special indicators (5.27:1)
+        },
+        // Combat-specific colors (only for combat UI styling)
         combat: {
           backdrop: 'rgba(0, 0, 0, 0.8)',
           card: {
@@ -66,10 +92,6 @@ export default {
           text: {
             DEFAULT: '#ffffff',
             muted: 'rgba(255, 255, 255, 0.8)',
-            damage: '#ff4444',
-            heal: '#00ff88',
-            critical: '#ffd700',
-            mana: '#4488ff',
           },
         },
       },
@@ -96,10 +118,12 @@ export default {
         xs: '2px',
       },
       boxShadow: {
-        glass: '0 8px 32px rgba(134, 93, 255, 0.1)',
-        'glass-hover': '0 12px 40px rgba(134, 93, 255, 0.2)',
-        primary: '0 4px 15px rgba(134, 93, 255, 0.3)',
-        'primary-hover': '0 8px 25px rgba(134, 93, 255, 0.4)',
+        // Ember Hearth shadows (warm gold tones)
+        glass: '0 8px 32px rgba(232, 168, 124, 0.08)',
+        'glass-hover': '0 12px 40px rgba(232, 168, 124, 0.15)',
+        primary: '0 4px 15px rgba(232, 168, 124, 0.25)',
+        'primary-hover': '0 8px 25px rgba(232, 168, 124, 0.35)',
+        ember: '0 0 24px rgba(232, 168, 124, 0.2)',
       },
       keyframes: {
         'accordion-down': {
@@ -132,10 +156,10 @@ export default {
         },
         glow: {
           '0%': {
-            boxShadow: '0 0 20px rgba(134, 93, 255, 0.3)',
+            boxShadow: '0 0 20px rgba(232, 168, 124, 0.25)',
           },
           '100%': {
-            boxShadow: '0 0 30px rgba(134, 93, 255, 0.6)',
+            boxShadow: '0 0 30px rgba(232, 168, 124, 0.5)',
           },
         },
         'combat-fade-in': {

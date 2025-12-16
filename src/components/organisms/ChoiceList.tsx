@@ -152,19 +152,19 @@ export function ChoiceList({
                 </div>
 
                 {lpRewardOnSuccess !== null && (
-                  <div className="combat-text-critical flex items-center gap-1 text-xs">
+                  <div className="status-text-warning flex items-center gap-1 text-xs">
                     <Sparkles className="h-3 w-3" />
                     <span>+{lpRewardOnSuccess} LP on success</span>
                   </div>
                 )}
                 {currentScene.type === 'combat' && (
-                  <div className="combat-text-damage flex items-center gap-1 text-xs">
+                  <div className="status-text-danger flex items-center gap-1 text-xs">
                     <Sword className="h-3 w-3" />
                     <span>Combat on failure</span>
                   </div>
                 )}
                 {spPenaltyOnFailure !== null && (
-                  <div className="combat-text-mana flex items-center gap-1 text-xs">
+                  <div className="status-text-info flex items-center gap-1 text-xs">
                     <Zap className="h-3 w-3" />
                     <span>+{spPenaltyOnFailure} SP on failure</span>
                   </div>

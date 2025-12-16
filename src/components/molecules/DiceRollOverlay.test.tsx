@@ -85,18 +85,17 @@ describe('DiceRollOverlay', () => {
     expect(screen.getByText('💡 Try Again')).toBeInTheDocument();
   });
 
-  it('should auto-close after 7 seconds', async () => {
+  it('should NOT auto-close (user controls their own pace)', async () => {
     render(<DiceRollOverlay result={defaultResult} onClose={mockOnClose} />);
 
     expect(mockOnClose).not.toHaveBeenCalled();
 
-    // Fast forward 7 seconds (this triggers handleClose)
-    await advanceTimersAndAct(7000);
+    // Fast forward well beyond any reasonable auto-close time (10 seconds)
+    // Overlay should remain open - users dismiss via "Continue" button or backdrop click
+    await advanceTimersAndAct(10000);
 
-    // Wait for the fade out animation (handleClose sets timeout of 1 second)
-    await advanceTimersAndAct(1000);
-
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
+    // onClose should NOT have been called - user must explicitly dismiss
+    expect(mockOnClose).not.toHaveBeenCalled();
   });
 
   it.skip('should close when clicking the Continue button - DEFERRED: sound mocking complexity', async () => {

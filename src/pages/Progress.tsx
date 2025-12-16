@@ -64,8 +64,8 @@ export function Progress() {
 
             <div className="h-4 w-full overflow-hidden rounded-full bg-gray-200 shadow-inner dark:bg-gray-700">
               <div
-                className={`h-full transition-all duration-700 ease-out ${getTrustColor(guardianTrust)} shadow-sm`}
-                style={{ width: `${guardianTrust}%` }}
+                className={`progress-bar-fill h-full ${getTrustColor(guardianTrust)} shadow-sm`}
+                style={{ '--progress-value': guardianTrust } as React.CSSProperties}
               />
             </div>
 
