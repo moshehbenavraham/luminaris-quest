@@ -8,9 +8,9 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   server: {
     host: '::',
-    port: 8080,
+    port: 8086,
     hmr: {
-      clientPort: 8080,
+      clientPort: 8086,
     },
   },
   build: {

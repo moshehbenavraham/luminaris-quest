@@ -3,6 +3,7 @@
 ## Current Environment Setup
 
 **CURRENT Status (Updated 2024):**
+
 - **Platform**: Local Cursor IDE, WSL 2 PC Windows 10/11 + Cloud Deployment
 - **Database**: Supabase Cloud (Project ID: lxjetnrmjyazegwnymkk) - **ACTIVE SCHEMA**
 - **Deployment**: Netlify/Vercel with automatic CI/CD
@@ -11,14 +12,16 @@
 ## Environment Structure (Current Implementation)
 
 ### 1. **Local Development** ✅ ACTIVE
+
 - **Purpose**: Primary development and testing environment
 - **Platform**: WSL 2 / Windows 10/11 + Cursor IDE
-- **Port**: localhost:8080 (updated from 5173)
+- **Port**: localhost:8086 (updated from 5173)
 - **Testing**: 68+ automated tests passing, manual testing complete
 
 **Database Connection Options:**
 
 #### Option A: Local → Cloud Database (Default, Recommended)
+
 - **Supabase Project**: Current project (lxjetnrmjyazegwnymkk)
 - **Database URL**: https://lxjetnrmjyazegwnymkk.supabase.co
 - **Setup**: Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` only
@@ -26,6 +29,7 @@
 - **Migration Strategy**: All 8 migrations already deployed to cloud
 
 #### Option B: Local → Local Supabase (Advanced)
+
 - **Supabase Instance**: Local Docker container (localhost:54321)
 - **Setup**: Set `VITE_LOCAL_SUPABASE_URL` and `VITE_LOCAL_SUPABASE_ANON_KEY`
 - **Prerequisites**: Supabase CLI + Docker Desktop
@@ -33,6 +37,7 @@
 - **Migration Strategy**: Run migrations via `supabase db reset` locally
 
 ### 2. **Development/Staging (Cloud)** ✅ CONFIGURED
+
 - **Purpose**: Integration testing and team collaboration
 - **Platform**: Netlify/Vercel deployment
 - **Supabase Project**: Can use same project or separate staging project
@@ -42,6 +47,7 @@
 - **Configuration**: `supabase/config.dev.toml` and `supabase/config.staging.toml`
 
 ### 3. **Production** ✅ READY FOR DEPLOYMENT
+
 - **Purpose**: Live application for therapeutic use
 - **Platform**: Netlify (configured) with custom domain support
 - **Supabase Project**: Same or separate production project
@@ -53,6 +59,7 @@
 ## Current Database Schema Status ✅
 
 **ACTIVE DATABASE:**
+
 - **Project ID**: lxjetnrmjyazegwnymkk
 - **URL**: https://lxjetnrmjyazegwnymv.supabase.co
 - **Tables**: 2 active tables with full schema
@@ -64,8 +71,9 @@
 - **Diagnostics**: Advanced diagnostic functions for troubleshooting
 
 **Current Migration Files (Applied):**
+
 1. `20250622204304_hidden_morning.sql` - Initial schema
-2. `20250622204705_cool_truth.sql` - Core tables and policies  
+2. `20250622204705_cool_truth.sql` - Core tables and policies
 3. `20250622204950_stark_flame.sql` - Schema refinements
 4. `20250623061517_fragrant_canyon.sql` - Extended functionality
 5. `20250623090533_gentle_silence.sql` - Diagnostic functions
@@ -76,13 +84,15 @@
 ## Environment Configuration Files ✅
 
 **Supabase Configurations:**
+
 - `supabase/config.toml` - Main project configuration
 - `supabase/config.local.toml` - Local development settings
 - `supabase/config.dev.toml` - Development environment
-- `supabase/config.staging.toml` - Staging environment  
+- `supabase/config.staging.toml` - Staging environment
 - `supabase/config.prod.toml` - Production environment
 
 **Deployment Configuration:**
+
 - `netlify.toml` - Netlify deployment settings
 - `package.json` - Build scripts and dependencies
 - `vite.config.ts` - Build optimization
@@ -91,23 +101,25 @@
 ## Deployment Pipeline ✅
 
 **Current Build Process:**
+
 ```bash
 # Development
-npm run dev                    # Port 8080 (updated)
+npm run dev                    # Port 8086 (updated)
 
 # Production builds
 npm run build                  # Standard build
 npm run build:deploy           # Optimized deployment build
 
-# Quality assurance  
+# Quality assurance
 npm run lint                   # Zero warnings required
 npm test                       # 68+ tests must pass
 npm run lighthouse:full        # Performance validation
 ```
 
 **Deployment Flow:**
+
 ```
-Local (localhost:8080) → Development → Staging → Production
+Local (localhost:8086) → Development → Staging → Production
          ↓                    ↓          ↓          ↓
     Manual testing      Auto-deploy   Pre-prod   Live app
     68+ automated tests    CI/CD      validation  monitoring
@@ -116,6 +128,7 @@ Local (localhost:8080) → Development → Staging → Production
 ## Performance & Optimization ✅
 
 **Current Performance Metrics:**
+
 - **Initial Load**: <2s (target: <2.5s) ✅
 - **Combat Response**: <100ms ✅
 - **Scene Transition**: <200ms ✅
@@ -123,6 +136,7 @@ Local (localhost:8080) → Development → Staging → Production
 - **Bundle Size**: <5MB total ✅
 
 **Optimization Tools Active:**
+
 - Image optimization (PNG→WebP/AVIF conversion)
 - Lighthouse CI with performance budgets
 - Bundle analysis and size monitoring
@@ -131,6 +145,7 @@ Local (localhost:8080) → Development → Staging → Production
 ## Security Implementation ✅
 
 **Current Security Measures:**
+
 - **Row Level Security (RLS)**: 8 policies active
 - **Authentication**: Supabase Auth with PKCE
 - **API Security**: Environment variable management
@@ -138,6 +153,7 @@ Local (localhost:8080) → Development → Staging → Production
 - **HTTPS**: Automatic via Netlify/Vercel
 
 **RLS Policy Coverage:**
+
 - Users can only access their own game states
 - Users can only access their own journal entries
 - Full CRUD permissions properly scoped
@@ -146,6 +162,7 @@ Local (localhost:8080) → Development → Staging → Production
 ## Monitoring & Health Checks ✅
 
 **Active Monitoring:**
+
 - **Database Health**: Real-time connection monitoring
 - **Performance**: Lighthouse CI integration
 - **Error Tracking**: Console error monitoring
@@ -153,6 +170,7 @@ Local (localhost:8080) → Development → Staging → Production
 - **User Analytics**: Usage pattern tracking
 
 **Diagnostic Tools:**
+
 - `diagnose_database_connection()` - Connection health
 - `diagnose_journal_save()` - Journal system validation
 - `diagnose_auth_status()` - Authentication verification
@@ -172,6 +190,7 @@ Local (localhost:8080) → Development → Staging → Production
 ## Environment-Specific Configuration
 
 ### Local Development (Option A: Cloud Database - Recommended)
+
 ```env
 # .env.local - Local app connecting to cloud Supabase
 VITE_SUPABASE_URL=https://lxjetnrmjyazegwnymkk.supabase.co
@@ -186,6 +205,7 @@ VITE_SUPABASE_ANON_KEY=your-cloud-anon-key
 ```
 
 ### Local Development (Option B: Local Supabase - Advanced)
+
 ```env
 # .env.local - Local app connecting to local Supabase instance
 VITE_SUPABASE_URL=https://lxjetnrmjyazegwnymkk.supabase.co  # Fallback
@@ -200,6 +220,7 @@ VITE_LOCAL_SUPABASE_ANON_KEY=your-local-anon-key            # Override
 **How it works:** When `VITE_LOCAL_SUPABASE_URL` is set, the client (`src/integrations/supabase/client.ts:82-87`) overrides the cloud URL for localhost environments only. Other environments (dev/staging/prod) always use the cloud URL.
 
 ### Development/Staging
+
 ```env
 VITE_SUPABASE_URL=https://staging-project.supabase.co
 VITE_SUPABASE_ANON_KEY=staging-anon-key
@@ -211,6 +232,7 @@ VITE_SUPABASE_ANON_KEY=staging-anon-key
 ```
 
 ### Production
+
 ```env
 VITE_SUPABASE_URL=https://production-project.supabase.co
 VITE_SUPABASE_ANON_KEY=production-anon-key
@@ -224,12 +246,14 @@ VITE_SUPABASE_ANON_KEY=production-anon-key
 ## Migration Deployment Strategy ✅
 
 **Proven Deployment Process:**
+
 1. **Local Testing** → All migrations tested and validated locally
 2. **Staging Deployment** → Optional separate staging database
 3. **Production Deployment** → Automated or manual migration via Supabase CLI
 4. **Verification** → Automated health checks and diagnostic functions
 
 **Safety Measures:**
+
 - Database backup before production migrations
 - Rollback procedures documented
 - Health monitoring post-deployment
@@ -238,6 +262,7 @@ VITE_SUPABASE_ANON_KEY=production-anon-key
 ## Next Steps for Production
 
 **Immediate Actions Available:**
+
 1. ✅ Database schema ready for production deployment
 2. ✅ Environment configurations prepared
 3. ✅ Deployment pipeline tested and validated
@@ -245,6 +270,7 @@ VITE_SUPABASE_ANON_KEY=production-anon-key
 5. ✅ Security measures implemented
 
 **Optional Enhancements:**
+
 - [ ] Separate Supabase projects for staging/production (currently using shared)
 - [ ] Custom domain configuration
 - [ ] Advanced monitoring (Sentry, analytics)
@@ -254,7 +280,8 @@ VITE_SUPABASE_ANON_KEY=production-anon-key
 ## Documentation References
 
 For detailed deployment instructions, see:
-- `../guides/deployment.md` - Comprehensive deployment documentation  
+
+- `../guides/deployment.md` - Comprehensive deployment documentation
 - `database.md` - Complete database schema reference
 - `../contributing/roadmap.md` - Current development priorities and status
 
@@ -263,4 +290,3 @@ For detailed deployment instructions, see:
 **Last Updated**: December 2024
 **Schema Version**: 8 migrations (20250629000000_add_experience_points.sql)
 **Deployment Status**: Production Ready ✅
-

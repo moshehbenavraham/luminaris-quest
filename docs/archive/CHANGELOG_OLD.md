@@ -1,15 +1,13 @@
 # Changelog
 
-
-
 ### Fixed
+
 - **Combat Resolution System**: Restored comprehensive battle results screen from old combat system with full journaling functionality
   - **Battle Results Screen**: Added `CombatReflectionModal` to new combat system showing detailed combat summary (outcome, turns, resources gained/lost, energy used), therapeutic reflection prompts specific to each shadow type, and manual journal entry system with save functionality
   - **Defeat Handling**: Fixed defeat behavior - player now loses 20% max energy as penalty, scene does NOT advance on defeat (player must retry), health restored to 100% but player stays on same scene. Only victory advances to next scene
   - **Resource Syncing**: Proper synchronization between combat and game state - combat resources (LP/SP) sync back to game store, victory rewards applied to game progression
-  
   **⚠️ CLAUDE CODE FAILURE - ATTEMPT #3 ⚠️**
-**STATUS: FAILED** - 2025-06-28 - User reports NO battle results screen appears after combat despite all above changes. The CombatReflectionModal component exists but is not showing/working. Battle results screen with combat summary and journaling functionality STILL MISSING.
+  **STATUS: FAILED** - 2025-06-28 - User reports NO battle results screen appears after combat despite all above changes. The CombatReflectionModal component exists but is not showing/working. Battle results screen with combat summary and journaling functionality STILL MISSING.
 
 ### 🚨 CRITICAL: Combat System Architecture Documentation
 
@@ -32,11 +30,13 @@
 ## [Unreleased] – 2025-06-27
 
 ### Added
+
 - **Energy System Step 4 - Combat Energy Costs & Low-Energy Penalties**: Implemented comprehensive energy cost system for combat actions with performance penalties when energy drops below 20%. **Combat Action Energy Costs**: Type-based costs - ILLUMINATE: 3, REFLECT: 2, ENDURE: 1, EMBRACE: 5 energy. **Low-Energy Penalty System**: When player energy < 20% of maximum, damage output reduced by 50% with contextual feedback messages. **Energy Validation**: Players cannot perform combat actions without sufficient energy, preventing impossible actions. **Combat Store Integration**: Added playerEnergy and maxPlayerEnergy to combat state with full synchronization from main game store. **Action Cost Enhancement**: Updated selectActionCost selector to include energy costs alongside existing LP/SP costs. **Combat Log Integration**: Energy costs displayed in combat log entries (e.g., "Dealt 4 damage | -3 Energy"). **Environment Configuration**: Added combatEnergyCosts, lowEnergyThreshold (20%), and lowEnergyPenalty (0.5) to EnvironmentConfig. **Comprehensive Testing**: Created 13 test cases covering energy validation, consumption, penalties, synchronization, and logging. **Strategic Gameplay**: Adds tactical depth requiring energy management during extended combat encounters. **Quality Assurance**: Build passes successfully, no breaking changes, maintains backward compatibility.
 
 - **Energy System Step 3 - Scene Energy Costs & Rewards**: Implemented comprehensive energy cost and reward system for all scene types. **Energy Costs**: Type-based costs (5-15 energy range) - Social: 8, Skill: 12, Combat: 15, Journal: 5, Exploration: 10. **Energy Rewards**: Recovery bonuses on successful completion - Social: +3, Skill: +5, Combat: +8, Journal: +2, Exploration: +4. **Insufficient Energy Protection**: Players cannot attempt scenes without enough energy, with clear feedback message explaining requirements. **UI Integration**: Added energy cost/reward display to scene selection interface with Battery icons showing cost (orange) and reward (green). **Scene Engine Enhancement**: Extended SceneOutcome interface with energyChanges property for cost/reward tracking. **Environment Configuration**: Added sceneCosts and sceneRewards to EnvironmentConfig for easy game balancing. **Comprehensive Testing**: Created 19 unit tests covering all scene types, energy balance validation, combat integration, and outcome processing. **Strategic Design**: Energy costs exceed rewards to encourage resource management and strategic scene selection. Build passes successfully, all tests pass, no breaking changes.
 
 ### Fixed
+
 - **Combat Overlay Interaction Issue**: **FAILED FIX - MADE INCORRECT ASSUMPTIONS AGAIN** - Attempted to fix combat overlay interaction issue by removing duplicate keyboard handling, but this did NOT address the actual user-reported problem. **CRITICAL DOCUMENTATION WARNING**: Claude Code made incorrect assumptions about the root cause being keyboard event conflicts, when the real issue was something else entirely. **Mistaken Implementation**: (1) Removed keyboard event listeners from ActionGrid component, (2) Added keyboardActiveAction state management for visual feedback coordination, (3) Enhanced ActionGrid props interface. **Reality Check**: These changes addressed a NON-EXISTENT keyboard handling problem while the actual user issue of requiring a preliminary click on "Illuminate" button area remains UNFIXED. **Status**: ZERO IMPROVEMENTS MADE - User still must click Illuminate area before overlay becomes interactive. **Root Cause of Development Failure**: Incorrect problem diagnosis focused on keyboard handling instead of the actual interaction/focus management issue. **Impact**: Development time wasted on irrelevant keyboard system changes while the core interaction blocking problem persists.
 - **Combat Player Action Sounds**: Fixed missing sound effects for player combat actions (Illuminate, Reflect, Endure, Embrace). **Root Cause**: The new combat store's `executeAction` method was not triggering any sounds for player actions, only enemy sounds were working. **Fix**: Added dynamic sound manager import in `combat-store.ts:227-237` to play action sounds when player executes combat actions. Each action now plays its corresponding sound file (`illuminate`, `reflect`, `endure`, `embrace`) with proper error handling and console warnings for failed sound loads. **Testing**: Created unit test to verify sound integration code structure. Build successful, no breaking changes. **User Testing Required**: Player should now hear sound effects when performing combat actions.
 - **Combat Health Restoration**: Player health now automatically restores to 100% after combat ends, regardless of victory or defeat. This ensures players can continue their adventure with full health after each combat encounter. Modified `endCombat` method in `game-store.ts:876` to include `playerHealth: 100`. **Testing**: Added comprehensive unit test suite with 3 tests verifying health restoration after victory, defeat, and from various damage amounts. All tests pass, build successful, no breaking changes.
@@ -49,17 +49,21 @@
 - **Combat Turn System**: Fixed critical turn flow issue where enemy turns only occurred when players manually clicked "End Turn". Now enemy turns automatically trigger after each player action, creating fluid combat flow. **Changes**: (1) Extracted enemy turn logic from `endTurn()` into private `_executeEnemyTurn()` method, (2) Modified `executeAction()` to automatically call enemy turn after player actions complete, (3) Updated `endTurn()` to function as a "pass turn" option for strategic play, (4) Fixed async timing issue in `endCombat()` to ensure immediate state updates, (5) Added comprehensive test suite verifying turn system works correctly. **Result**: Combat now flows as intended - Player Action → Enemy Response → Player Action, eliminating need for manual turn management. All tests passing, build successful.
 
 ### Historical Issues Resolved
+
 - **CRITICAL SYSTEM BROKEN STATUS**: Previously the combat system was completely non-functional with all components marked as "COMPLETED" but never tested by actual users. **Reality Check**: Combat WAS broken, Combat UI WAS broken, Combat resolution DID NOT work, Post-combat flow WAS broken. **Root Cause**: All combat system components were implemented but never properly integrated or tested in real gameplay scenarios.
-- **Combat Flow Logic Fix**: **COMPLETED** ✅ Successfully changed combat flow to "enemy turn after each player action". **Status**: FIXED - Combat turn system now works correctly. **Changes Made**: (1) ✅ Extracted enemy turn logic from endTurn() into private _executeEnemyTurn() method, (2) ✅ Modified executeAction() to automatically call enemy turn after player actions complete, (3) ✅ Updated endTurn() to function as "pass turn" option for strategic play, (4) ✅ Fixed async timing issue in endCombat() to ensure immediate state updates, (5) ✅ Added comprehensive test suite verifying turn system works correctly. **Result**: Player takes action OR use End Turn Button → enemy responds → player can take another action OR use End Turn button to pass without acting → enemy responds → repeat. **Testing**: All 4 test cases passing - automatic enemy turns, manual end turn, victory handling, multiple actions.
+- **Combat Flow Logic Fix**: **COMPLETED** ✅ Successfully changed combat flow to "enemy turn after each player action". **Status**: FIXED - Combat turn system now works correctly. **Changes Made**: (1) ✅ Extracted enemy turn logic from endTurn() into private \_executeEnemyTurn() method, (2) ✅ Modified executeAction() to automatically call enemy turn after player actions complete, (3) ✅ Updated endTurn() to function as "pass turn" option for strategic play, (4) ✅ Fixed async timing issue in endCombat() to ensure immediate state updates, (5) ✅ Added comprehensive test suite verifying turn system works correctly. **Result**: Player takes action OR use End Turn Button → enemy responds → player can take another action OR use End Turn button to pass without acting → enemy responds → repeat. **Testing**: All 4 test cases passing - automatic enemy turns, manual end turn, victory handling, multiple actions.
 - **CombatOverlay Component Implementation**: **Status**: FIXES APPLIED, USER TESTING - Combat system playable -- User Tested, Basic Testing is Passing. **Root Cause**: CombatOverlay.tsx used placeholder stub components instead of implemented components. **Analysis**: All underlying components (EnemyCard, ResourcePanel, ActionGrid, etc.) were fully implemented but CombatOverlay showed placeholder divs. **Fixes Applied**: (1) ✅ **Replace placeholder components** - Imported and used actual EnemyCard, ResourcePanel, ActionGrid components in CombatOverlay.tsx, (2) ✅ **Wire up component props** - Passed combat state data (enemy, resources, statusEffects, isPlayerTurn, turn) to each component properly, (3) ✅ **Connect action callbacks** - Enabled ActionGrid to execute combat actions via useCombatStore (executeAction, endTurn, surrender), (4) ✅ **Fix component integration** - Ensured proper data flow between CombatOverlay and child components across all layouts (mobile/tablet/desktop), (5) ✅ **Verify missing dependencies** - Confirmed ActionTooltip and ControlPanel implementations exist and work, (6) ✅ **Test sound manager integration** - Sound effects properly integrated through useCombatEffects hook with error handling, (7) ✅ **Run comprehensive tests** - All 33 CombatOverlay tests pass, build compiles successfully, no new linting errors, (8) ✅ **Integration with CombatEndModal** - Added proper post-combat resolution flow. **Outcome**: Transformed from 0% playable (placeholder text) to 100% playable combat system with full functionality.
 
 ### Added
+
 - **Combat System Complete Rebuild - Phase 1**: Started complete rebuild of combat overlay system with proper architecture after multiple failed fix attempts. **Phase 1 Complete**: (1) Created new feature folder structure at `src/features/combat/` with MIT headers, (2) Implemented Zustand combat store with persistence and hydration safety, (3) Extended Tailwind theme with combat-specific colors (`combat.backdrop`, `combat.card`, `combat.text.*`), z-indices (`combat-backdrop: 100`, `combat-content: 101`), and animations (`combat-fade-in`, `combat-slide-up`, `damage-float`), (4) Built `CombatBackdrop` component for proper fullscreen coverage without gaps, (5) Created `CombatContainer` component with mobile-first responsive layout, (6) Implemented feature flag system - new UI enabled by default, can be disabled with `?legacyCombat=1` URL parameter. **Impact**: Foundation laid for properly architected combat system. Build passing, feature flag switches between old and new implementations in `ChoiceList.tsx`.
 
 ### Work in Progress
+
 - **Combat System Rebuild - Phase 5**: **IN PROGRESS** - Testing and polish implementation. **Lighthouse CI Audit Implementation Complete**: (1) Installed and configured `@lhci/cli` package for automated performance and accessibility auditing, (2) Created comprehensive Lighthouse CI configuration (`lighthouserc.cjs`) with performance budgets (LCP ≤ 2500ms, CLS ≤ 0.1, TBT ≤ 300ms), accessibility assertions (color contrast, ARIA attributes, button names, focus management), and mobile-first testing approach, (3) Developed custom audit script (`scripts/lighthouse-audit.js`) with simulated results for WSL environment compatibility, providing structured JSON reports with performance metrics, accessibility scores, and actionable recommendations, (4) Added npm scripts for `lighthouse`, `lighthouse:collect`, `lighthouse:assert`, and `lighthouse:full` to enable automated auditing in CI/CD pipelines, (5) Generated initial audit report showing 85% performance score, 92% accessibility score, and identified optimization opportunities for combat system including bundle size reduction, focus trap improvements, and skip link implementation. **Previous Work**: Test fixes applied for useCombatKeyboard and CombatAnimation components, ESLint compliance improvements, and comprehensive jest-axe accessibility testing with 12 tests covering all combat resolution components. **Previous Phases Complete**: **Phase 4 Complete** - Post-combat flow and resolution components with animations, sound integration, and comprehensive testing (65 tests total).
 
 ### Fixed
+
 - **NEW Combat System Interface Implementation**: Fixed critical blocker where the NEW combat system was completely unplayable due to placeholder components in `CombatOverlay.tsx`. **Root Cause**: Lines 23-26 in `CombatOverlay.tsx` used placeholder stub components (`<div>Enemy Card Placeholder</div>`) instead of the fully implemented combat components. All underlying components (`EnemyCard`, `ResourcePanel`, `ActionGrid`, `ControlPanel`) were complete but not connected. **Additional Issue**: Component had three overlapping responsive layouts causing duplicate content on larger screens. **Fix**: (1) Replaced placeholder components with proper imports from `./display/organisms/` and `./actions/` directories, (2) Wired up component props to pass combat state data (`enemy`, `resources`, `statusEffects`, `isPlayerTurn`, etc.), (3) Connected action callbacks (`executeAction`, `endTurn`, `surrender`) to enable user interactions, (4) Integrated `CombatEndModal` for post-combat resolution, (5) Used store's helper functions (`canUseAction`, `getActionCost`, `getActionDescription`) instead of duplicating logic, (6) Fixed duplicate layouts by making mobile (`lg:hidden`) and desktop (`hidden lg:grid`) mutually exclusive, removing the problematic tablet layout. **Testing**: All 33 CombatOverlay tests pass, build compiles successfully, no new linting errors introduced. **Impact**: Transforms combat system from 0% playable (placeholder text only) to 100% playable with full enemy display, resource management, action execution, and combat resolution. Eliminates duplicate interface elements. No breaking changes - all functionality now properly connected.
 - **NEW Combat System Trigger Integration**: Fixed critical bug where the NEW combat system wasn't triggering on failed DC checks for combat-type scenes. **Root Cause**: The `ChoiceList` component was calling `startCombat` on the OLD game store, but the NEW `CombatOverlay` was checking the NEW combat store's `isActive` state. These were two separate, unsynchronized stores. **Fix**: Modified `ChoiceList.tsx` to: (1) Import and use the NEW combat store's `startCombat` function from `@/features/combat`, (2) Create shadow manifestations using `createShadowManifestation` and pass them to the NEW combat system, (3) Remove dependency on old combat state for rendering, (4) Simplify combat overlay rendering to only use the NEW system when the feature flag is enabled. **Testing**: Created comprehensive unit tests to verify combat triggers correctly on failed DC checks and doesn't trigger on successful ones. **Impact**: Combat now properly starts when players fail DC checks on combat scenes, integrating seamlessly with the NEW combat system architecture. No breaking changes - maintains backward compatibility.
 - **Combat Trigger Bug**: Fixed critical bug where combat would not start on failed DC checks for combat-type scenes. The issue was in the Zustand store hydration wrapper at `src/store/game-store.ts:1491` where `_hasHydrated` was hardcoded to `false` instead of returning the actual store state. This caused the wrapper to always return mock values instead of the real combat state, preventing `startCombat()` from activating the combat system. **Root Cause**: One-line fix changed `_hasHydrated: false,` to `_hasHydrated: store._hasHydrated,` in the hydration wrapper. **Testing**: Created direct combat trigger tests that confirmed the fix works correctly - combat now properly activates when players fail DC checks on scenes with shadow manifestations.
@@ -67,10 +71,12 @@
 - **DiceRollOverlay Text Visibility**: Fixed dark text on dark background issue in the dice rolling overlay component. Changed all text colors from `text-foreground` and `text-muted-foreground` to appropriate light colors (`text-white` and `text-white/80`) to ensure proper visibility against the dark `bg-black/70` overlay background. Updated: (1) Title "Fate's Decision" from `combat-text-light` to `text-white`, (2) "Rolling..." text from `text-foreground` to `text-white`, (3) "Target: DC" text from `text-muted-foreground` to `text-white/80`, (4) DC number from `text-foreground` to `text-white`, (5) "Continue" button added `text-white` to both success and failure states. This follows the project's combat overlay text visibility standards and improves accessibility for all dice roll outcomes.
 
 ### Completed
-- **Combat System Rebuild - Phase 3**: **COMPLETED** - Interactions and feedback systems implementation. **Feedback Components Complete**: (1) Created `DamageIndicator` component with animated floating damage numbers, healing indicators (+), and miss notifications with proper accessibility support and 3-phase animation (appear → float → fade), (2) Built `CombatAnimation` component with lazy loading for attack/defend/spell/special animations with directional movement (player-to-enemy/enemy-to-player), proper timing sequences (windup → strike → recovery), and emoji-based visual feedback, (3) Implemented `StatusNotification` component as toast-style notifications with 4 types (success/warning/error/info), auto-dismiss functionality, manual close option, and fixed positioning with proper z-index, (4) Developed `TherapeuticInsight` component for guardian messages with 4 therapeutic types (encouragement/guidance/reflection/celebration), progress bar for auto-hide, gradient backgrounds, and accessibility compliance, (5) Built `CombatLog` component with simple virtualization (maxVisible entries), auto-scroll to bottom, jump-to-bottom functionality, proper message formatting with timestamps, metadata display, and entry type styling. **Testing**: Created 5 comprehensive test suites totaling 40+ tests covering all animation phases, timer handling, accessibility attributes, user interactions, styling variations, and component lifecycle. **Lazy Loading**: Implemented proper lazy loading exports for performance-critical animation components. **Architecture**: All feedback components follow mobile-first design, use Tailwind styling, maintain accessibility standards, and integrate with existing combat theme. **Centralized Keyboard Shortcuts Complete**: (1) Created `useCombatKeyboard` hook with comprehensive keyboard shortcut support - keys 1-4 for combat actions (ILLUMINATE, REFLECT, ENDURE, EMBRACE), Space/Enter for End Turn, Escape for Surrender, (2) Implemented smart input field detection to prevent shortcuts during typing in input/textarea/contentEditable elements, (3) Added proper event prevention for handled keys while preserving normal behavior for unhandled keys, (4) Integrated action validation using `canUseAction` selector to prevent invalid actions, (5) Added keyboard shortcuts only when combat is active and it's player's turn. **Testing**: Created 21 comprehensive tests covering all keyboard shortcuts, input field detection, event handling, action validation, and edge cases. Hook returns shortcuts information for potential UI display. **Action Execution Flow Complete**: (1) Enhanced `executeAction` method in combat store with full action processing including resource costs, damage calculations, enemy HP updates, and victory/defeat conditions, (2) Implemented comprehensive action logic for all 4 therapeutic combat actions - ILLUMINATE (costs 2 LP, deals level-scaled damage), REFLECT (costs 1 SP, converts to 1 LP), ENDURE (free action, gains 1 LP), EMBRACE (costs all SP, deals SP/2 damage), (3) Added enemy turn AI system with damage calculation based on player defense (LP * 0.5), automatic SP generation from taking damage, and contextual enemy actions (Shadow Attack vs Desperate Strike based on enemy HP), (4) Integrated combat end conditions - victory when enemy HP reaches 0, defeat when player health reaches 0, proper combat state cleanup and logging, (5) Enhanced turn management with 1.5s enemy turn delays, turn counter progression, and proper turn state transitions. **Testing**: Created 75 comprehensive tests for action execution flow covering all combat actions, resource management, turn progression, combat end conditions, error handling, and edge cases. All tests validate proper state management, logging, and integration between actions and combat flow. **Phase 2 Complete**: All core components implemented with mobile-first design, proper spacing, touch optimization, and comprehensive test coverage (147 component tests). Components integrate with Tailwind combat theme and follow single responsibility principle.
+
+- **Combat System Rebuild - Phase 3**: **COMPLETED** - Interactions and feedback systems implementation. **Feedback Components Complete**: (1) Created `DamageIndicator` component with animated floating damage numbers, healing indicators (+), and miss notifications with proper accessibility support and 3-phase animation (appear → float → fade), (2) Built `CombatAnimation` component with lazy loading for attack/defend/spell/special animations with directional movement (player-to-enemy/enemy-to-player), proper timing sequences (windup → strike → recovery), and emoji-based visual feedback, (3) Implemented `StatusNotification` component as toast-style notifications with 4 types (success/warning/error/info), auto-dismiss functionality, manual close option, and fixed positioning with proper z-index, (4) Developed `TherapeuticInsight` component for guardian messages with 4 therapeutic types (encouragement/guidance/reflection/celebration), progress bar for auto-hide, gradient backgrounds, and accessibility compliance, (5) Built `CombatLog` component with simple virtualization (maxVisible entries), auto-scroll to bottom, jump-to-bottom functionality, proper message formatting with timestamps, metadata display, and entry type styling. **Testing**: Created 5 comprehensive test suites totaling 40+ tests covering all animation phases, timer handling, accessibility attributes, user interactions, styling variations, and component lifecycle. **Lazy Loading**: Implemented proper lazy loading exports for performance-critical animation components. **Architecture**: All feedback components follow mobile-first design, use Tailwind styling, maintain accessibility standards, and integrate with existing combat theme. **Centralized Keyboard Shortcuts Complete**: (1) Created `useCombatKeyboard` hook with comprehensive keyboard shortcut support - keys 1-4 for combat actions (ILLUMINATE, REFLECT, ENDURE, EMBRACE), Space/Enter for End Turn, Escape for Surrender, (2) Implemented smart input field detection to prevent shortcuts during typing in input/textarea/contentEditable elements, (3) Added proper event prevention for handled keys while preserving normal behavior for unhandled keys, (4) Integrated action validation using `canUseAction` selector to prevent invalid actions, (5) Added keyboard shortcuts only when combat is active and it's player's turn. **Testing**: Created 21 comprehensive tests covering all keyboard shortcuts, input field detection, event handling, action validation, and edge cases. Hook returns shortcuts information for potential UI display. **Action Execution Flow Complete**: (1) Enhanced `executeAction` method in combat store with full action processing including resource costs, damage calculations, enemy HP updates, and victory/defeat conditions, (2) Implemented comprehensive action logic for all 4 therapeutic combat actions - ILLUMINATE (costs 2 LP, deals level-scaled damage), REFLECT (costs 1 SP, converts to 1 LP), ENDURE (free action, gains 1 LP), EMBRACE (costs all SP, deals SP/2 damage), (3) Added enemy turn AI system with damage calculation based on player defense (LP \* 0.5), automatic SP generation from taking damage, and contextual enemy actions (Shadow Attack vs Desperate Strike based on enemy HP), (4) Integrated combat end conditions - victory when enemy HP reaches 0, defeat when player health reaches 0, proper combat state cleanup and logging, (5) Enhanced turn management with 1.5s enemy turn delays, turn counter progression, and proper turn state transitions. **Testing**: Created 75 comprehensive tests for action execution flow covering all combat actions, resource management, turn progression, combat end conditions, error handling, and edge cases. All tests validate proper state management, logging, and integration between actions and combat flow. **Phase 2 Complete**: All core components implemented with mobile-first design, proper spacing, touch optimization, and comprehensive test coverage (147 component tests). Components integrate with Tailwind combat theme and follow single responsibility principle.
 - **CombatEndModal Complete**: (1) Created `CombatEndModal` component using shadcn/ui Dialog with victory/defeat state display, therapeutic guardian messages, and trust level updates for victories, (2) Implemented responsive dialog styling with gradient backgrounds (amber for victory, slate for defeat) and appropriate button actions - "Reflect on Victory"/"Continue Journey" for victory, "Journal Thoughts"/"Rest & Recover" for defeat, (3) Added `clearCombatEnd` method to combat store to reset combat end status after modal dismissal, (4) Included proper accessibility with aria-describedby linking to dialog description and semantic HTML structure, (5) Created comprehensive test suite with 11 tests covering victory/defeat states, button interactions, modal opening/closing behavior, forceVictory prop override, and edge cases like missing enemy data. **Architecture**: Component follows mobile-first design, uses Tailwind theming, maintains therapeutic focus with encouraging messages, and integrates seamlessly with existing combat store state management.
 
 ### Failed Fix Attempts (Abandoned in favor of complete rebuild)
+
 - ~~**Combat Overlay Mobile-First Responsive Design**~~: Multiple attempts to fix "does not deal with resizing well at all" issue failed due to fundamental architecture problems.
 - ~~**Combat Overlay Visual Strip Fix**~~: Multiple attempts to fix visual strip at top of overlay failed due to improper backdrop/content separation.
 - ~~**Combat Text Visibility**~~: Multiple attempts to fix dark text on dark background with CSS classes partially worked but underlying architecture remained problematic.
@@ -79,6 +85,7 @@
 ## [Previous] – 2025-06-25
 
 ### Added
+
 - **End Turn Button**: Added an "End Turn" button to the combat interface, allowing players to manually end their turn. This was a missing feature that is critical for gameplay.
 - **Combat Text Visibility Fix**: Added simple recent combat action display in CombatOverlay to address user feedback about "whacky visual effects" and text not staying present long enough during enemy attacks. Combat action messages now appear in a clear, readable format below the enemy HP bar with proper contrast and sufficient display time for slow readers.
 - **Combat overlay UX**
@@ -97,6 +104,7 @@
     audio player auto-advance reliability.
 
 ### Fixed
+
 - **Combat Overlay Sizing**: Fixed the combat overlay layout to be responsive and mobile-first. The overlay now stacks vertically on smaller screens and adjusts to a two-column layout on larger screens, resolving layout issues.
 - **Enemy Turn System**: Restored the enemy turn system, which was non-functional. The combat flow is now correctly sequenced, with the enemy taking its turn after the player ends theirs. This resolves a critical issue that broke combat gameplay.
 - **Build & tests** – missing `sceneDC` compile error; all 553 tests green.
@@ -107,13 +115,15 @@
   hydration edge-cases, assorted test flakiness.
 
 ### Technical Highlights
+
 - 100 % passing 370 + automated tests.
 - Strict TypeScript, ESLint **zero-warning**, Tailwind + Shadcn/UI.
-- Vite dev-server :8080 with vendor chunk splitting.
+- Vite dev-server :8086 with vendor chunk splitting.
 
 ## [0.1.2] - 2025-06-28
 
 ### Added
+
 - **Energy System - Passive Regeneration**: Implemented automatic energy regeneration system
   - Added passive energy regeneration timer that restores 1 energy every 30 seconds
   - Regeneration automatically pauses during combat to maintain game balance
@@ -135,6 +145,7 @@
 ## [0.1.1] - 2025-06-28
 
 ### Added
+
 - **Dice Roll Audio System**: Implemented random dice sound effects for the dice rolling overlay
   - Added 3 dice sound files (dice 001.mp3, dice 002.mp3, dice 003.mp3) to /public/audio/
   - Modified DiceRollOverlay component to play a random dice sound when rolling starts
@@ -146,7 +157,6 @@
 ### Combat System Enhancements
 
 ---
-
 
 - **🔍 Database Testing Pages (2025-06-23)** - Added comprehensive database testing tools
   - ✅ **Database Connection Test Page**: Created `/database-test` route with connection and table access tests
@@ -383,6 +393,7 @@
   - Introduced `.augmentignore` for Augment Code extension and documented it in `README.md` under IDE integration sections.
 
 ### Fixed
+
 - **🧪 Major Test Suite Fixes (2025-06-22)** - Comprehensive test reliability improvements achieving 100% test success rate
   - ✅ **Router Context Issues**: Created `src/__tests__/test-utils.tsx` with custom render function wrapping components in BrowserRouter
   - ✅ **Missing Test IDs**: Added data-testid attributes to all components (ImpactfulImage, AuthForm, GuardianText, ChoiceList, JournalModal)
@@ -408,11 +419,11 @@
     - Reset save state on modal close for proper reuse
     - This was the actual cause of the "Duplicate milestone journal entry prevented" spam
   - **HealthStatus Component Fix**: Removed `startHealthMonitoring()` call from useEffect to prevent duplicate instances
-  - **Game Store Improvements**: 
+  - **Game Store Improvements**:
     - Added `_isHealthMonitoringActive` flag for proper state tracking
     - Fixed start/stop methods to prevent race conditions
     - Maintained reference stability for Set operations
-  - **Hook Dependency Fixes**: 
+  - **Hook Dependency Fixes**:
     - Removed unstable Zustand function references from useEffect dependencies
     - Prevented infinite re-renders caused by changing dependencies
   - **Performance Optimizations**:
@@ -426,6 +437,7 @@
   - **Status**: ✅ FULLY RESOLVED - JournalModal no longer triggers infinite save loops
 
 ### Debugging & Analysis
+
 - **Root Cause Identification** - Traced infinite re-render loop to multiple interconnected sources
   - Set reference recreation in game store methods triggering useCallback dependency changes
   - setTimeout chain in modal close handler creating infinite callback execution cycles
@@ -437,6 +449,7 @@
   - Console output validates exact infinite loop pattern predicted in analysis
 
 ### Added
+
 - **Production Deployment Preparation (2025-06-17)** - Ready for deployment
   - Created `PRODUCTION_DEPLOYMENT.md` with comprehensive deployment guide
   - Created `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` for easy database setup
@@ -463,6 +476,7 @@
   - Integration with existing Phase 6.1 error handling infrastructure
 
 ### Changed
+
 - **Application Architecture** - Enhanced with health monitoring capabilities
   - Modified `src/App.tsx` to initialize health monitoring on application startup
   - Updated `src/components/layout/Navbar.tsx` with compact health status indicator
@@ -470,6 +484,7 @@
   - Extended game store interface with health check methods and state
 
 ### Performance Optimizations
+
 - **Health Check System** - Optimized for minimal performance impact
   - Lightweight database queries using simple connectivity tests
   - Activity-aware monitoring that pauses when browser tab is inactive
@@ -477,6 +492,7 @@
   - 45-second check intervals balancing monitoring frequency with performance
 
 ### Technical Improvements
+
 - **Error Handling Integration** - Health checks leverage existing Phase 6.1 infrastructure
   - Network error classification and handling
   - Authentication error detection and reporting
@@ -489,6 +505,7 @@
   - Tooltip and detailed status information with timestamps and error messages
 
 ### Added
+
 - **Database Schema Foundation** - Complete Supabase database migration system
   - Created `game_states` table with user progress tracking
   - Created `journal_entries` table with therapeutic journal functionality
@@ -502,6 +519,7 @@
 - Page component architecture with dedicated files
 
 ### Changed
+
 - **Database Migration Infrastructure** - Phase 4.1 Local Deployment Complete
   - Created migration file `supabase/migrations/20250615182947_initial_game_database_schema.sql`
   - Successfully deployed schema to local Supabase environment
@@ -516,6 +534,7 @@
 - Improved component prop interfaces and type safety
 
 ### Fixed
+
 - **Database Schema Issues** - Resolved fundamental data persistence problems
   - Fixed missing database tables that were causing application errors
   - Implemented proper foreign key relationships with auth.users
@@ -526,6 +545,7 @@
 - Fixed component prop mismatches between ChoiceList, GuardianText, and JournalModal
 
 ### Technical Improvements
+
 - **Database Architecture** - Enterprise-level database foundation established
   - 8 RLS policies ensuring secure user data isolation
   - 7 performance indexes for optimized query execution
@@ -537,6 +557,7 @@
 - Improved component structure following atomic design principles
 
 ### Database Schema Details (Phase 4.1 Complete)
+
 - **Tables Created**: `game_states`, `journal_entries`
 - **RLS Policies**: 8 total (4 per table: SELECT, INSERT, UPDATE, DELETE)
 - **Indexes**: 7 total (2 primary keys + 5 performance indexes)
@@ -546,6 +567,7 @@
 ## [0.1.0] - 2024-12-19
 
 ### Added
+
 - Initial project setup with React, TypeScript, and Vite
 - Supabase authentication and database integration
 - Zustand state management with persistence
@@ -558,6 +580,7 @@
 - Tailwind CSS styling system
 
 ### Features
+
 - Interactive adventure gameplay with choice-based progression
 - Dice rolling mechanics with d20 system
 - Progress tracking with visual milestone indicators
@@ -566,6 +589,7 @@
 - Accessibility features with semantic HTML and ARIA labels
 
 ### Infrastructure
+
 - Netlify deployment configuration
 - Environment variable management
 - ESLint and Prettier code quality tools
@@ -579,18 +603,21 @@
 ### Architecture Decisions
 
 **Component Extraction (December 2024)**
+
 - Moved from monolithic App.tsx to dedicated page components
 - Improved maintainability and code organization
 - Enhanced separation of concerns
 - Better TypeScript type safety
 
 **Journal System Enhancement**
+
 - Added full CRUD functionality for better user experience
 - Implemented inline editing to reduce friction
 - Added confirmation dialogs for destructive actions
 - Enhanced visual feedback and state management
 
 **Code Quality Improvements**
+
 - Resolved all TypeScript compilation issues
 - Standardized code formatting with Prettier
 - Updated linting rules for better development experience
@@ -599,16 +626,19 @@
 ### Future Roadmap
 
 **High Priority**
+
 - Complete Supabase journal entry persistence
 - Implement AI narrative generation with OpenAI
 - Add advanced journal features (search, tags, categories)
 
 **Medium Priority**
+
 - Leonardo.AI image generation integration
 - Enhanced progress visualization
 - Performance optimizations
 
 **Low Priority**
+
 - ElevenLabs voice narration
 - Background music integration
 - Advanced therapeutic features
