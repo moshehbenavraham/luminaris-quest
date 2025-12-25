@@ -92,7 +92,7 @@ describe('ControlPanel', () => {
 
     const endTurnButton = screen.getByRole('button', { name: /end turn/i });
     const surrenderButton = screen.getByRole('button', { name: /surrender/i });
-    
+
     expect(endTurnButton).toBeInTheDocument();
     expect(surrenderButton).toBeInTheDocument();
   });

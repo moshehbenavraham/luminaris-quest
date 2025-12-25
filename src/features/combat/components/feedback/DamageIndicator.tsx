@@ -17,7 +17,7 @@ export const DamageIndicator: React.FC<DamageIndicatorProps> = ({
   position,
   onComplete,
   className,
-  playSound = true
+  playSound = true,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [animationPhase, setAnimationPhase] = useState<'appear' | 'float' | 'fade'>('appear');
@@ -26,7 +26,7 @@ export const DamageIndicator: React.FC<DamageIndicatorProps> = ({
   useEffect(() => {
     // Play sound effect when component first appears
     if (playSound) {
-      playDamageSound(type).catch(error => {
+      playDamageSound(type).catch((error) => {
         console.warn(`Failed to play damage sound for ${type}:`, error);
       });
     }
@@ -78,16 +78,16 @@ export const DamageIndicator: React.FC<DamageIndicatorProps> = ({
   return (
     <div
       className={cn(
-        'absolute pointer-events-none z-50 select-none',
+        'pointer-events-none absolute z-50 select-none',
         'transition-all duration-300 ease-out',
         getTypeStyles(),
         getAnimationClasses(),
-        className
+        className,
       )}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)'
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
       }}
       aria-live="polite"
       role="status"
@@ -97,4 +97,3 @@ export const DamageIndicator: React.FC<DamageIndicatorProps> = ({
     </div>
   );
 };
-

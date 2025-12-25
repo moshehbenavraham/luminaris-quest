@@ -1,7 +1,7 @@
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Simple integration test to verify combat triggering works
  */
 
@@ -66,7 +66,7 @@ describe('Combat Trigger Simple Test', () => {
 
   it('should create shadow manifestation correctly', () => {
     const shadow = createShadowManifestation('whisper-of-doubt');
-    
+
     expect(shadow).toBeDefined();
     expect(shadow?.id).toBe('whisper-of-doubt');
     expect(shadow?.name).toBe('The Whisper of Doubt');

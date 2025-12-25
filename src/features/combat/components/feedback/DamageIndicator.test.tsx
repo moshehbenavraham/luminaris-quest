@@ -32,13 +32,7 @@ describe('DamageIndicator', () => {
   });
 
   it('renders damage indicator with correct styling', () => {
-    render(
-      <DamageIndicator 
-        damage={25} 
-        type="damage" 
-        position={{ x: 100, y: 100 }} 
-      />
-    );
+    render(<DamageIndicator damage={25} type="damage" position={{ x: 100, y: 100 }} />);
 
     const indicator = screen.getByRole('status');
     expect(indicator).toBeInTheDocument();
@@ -47,13 +41,7 @@ describe('DamageIndicator', () => {
   });
 
   it('renders heal indicator with correct styling and prefix', () => {
-    render(
-      <DamageIndicator 
-        damage={15} 
-        type="heal" 
-        position={{ x: 100, y: 100 }} 
-      />
-    );
+    render(<DamageIndicator damage={15} type="heal" position={{ x: 100, y: 100 }} />);
 
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveTextContent('+15');
@@ -61,13 +49,7 @@ describe('DamageIndicator', () => {
   });
 
   it('renders miss indicator', () => {
-    render(
-      <DamageIndicator 
-        damage={0} 
-        type="miss" 
-        position={{ x: 100, y: 100 }} 
-      />
-    );
+    render(<DamageIndicator damage={0} type="miss" position={{ x: 100, y: 100 }} />);
 
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveTextContent('MISS!');
@@ -75,31 +57,25 @@ describe('DamageIndicator', () => {
   });
 
   it('applies correct positioning styles', () => {
-    render(
-      <DamageIndicator 
-        damage={10} 
-        type="damage" 
-        position={{ x: 200, y: 150 }} 
-      />
-    );
+    render(<DamageIndicator damage={10} type="damage" position={{ x: 200, y: 150 }} />);
 
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveStyle({
       left: '200px',
-      top: '150px'
+      top: '150px',
     });
   });
 
   it('calls onComplete after animation duration', async () => {
     const onComplete = vi.fn();
-    
+
     render(
-      <DamageIndicator 
-        damage={10} 
-        type="damage" 
+      <DamageIndicator
+        damage={10}
+        type="damage"
         position={{ x: 100, y: 100 }}
         onComplete={onComplete}
-      />
+      />,
     );
 
     expect(onComplete).not.toHaveBeenCalled();
@@ -111,13 +87,7 @@ describe('DamageIndicator', () => {
   });
 
   it('has proper accessibility attributes', () => {
-    render(
-      <DamageIndicator 
-        damage={10} 
-        type="damage" 
-        position={{ x: 100, y: 100 }} 
-      />
-    );
+    render(<DamageIndicator damage={10} type="damage" position={{ x: 100, y: 100 }} />);
 
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveAttribute('aria-live', 'polite');
@@ -125,12 +95,12 @@ describe('DamageIndicator', () => {
 
   it('applies custom className', () => {
     render(
-      <DamageIndicator 
-        damage={10} 
-        type="damage" 
+      <DamageIndicator
+        damage={10}
+        type="damage"
         position={{ x: 100, y: 100 }}
         className="custom-class"
-      />
+      />,
     );
 
     const indicator = screen.getByRole('status');
@@ -138,13 +108,7 @@ describe('DamageIndicator', () => {
   });
 
   it('handles negative damage values correctly', () => {
-    render(
-      <DamageIndicator 
-        damage={-20} 
-        type="damage" 
-        position={{ x: 100, y: 100 }} 
-      />
-    );
+    render(<DamageIndicator damage={-20} type="damage" position={{ x: 100, y: 100 }} />);
 
     const indicator = screen.getByRole('status');
     expect(indicator).toHaveTextContent('20'); // Should show absolute value

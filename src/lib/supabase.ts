@@ -15,14 +15,14 @@ const key = supabaseAnonKey || defaultKey;
 const validateEnvironment = () => {
   if (!supabaseUrl) {
     console.error(
-      'Missing VITE_SUPABASE_URL environment variable. Please check your .env file and ensure it contains your Supabase project URL.'
+      'Missing VITE_SUPABASE_URL environment variable. Please check your .env file and ensure it contains your Supabase project URL.',
     );
     return false;
   }
 
   if (!supabaseAnonKey) {
     console.error(
-      'Missing VITE_SUPABASE_ANON_KEY environment variable. Please check your .env file and ensure it contains your Supabase anonymous key.'
+      'Missing VITE_SUPABASE_ANON_KEY environment variable. Please check your .env file and ensure it contains your Supabase anonymous key.',
     );
     return false;
   }
@@ -32,7 +32,7 @@ const validateEnvironment = () => {
     new URL(supabaseUrl);
   } catch {
     console.error(
-      'Invalid VITE_SUPABASE_URL format. Please ensure it is a valid URL (e.g., https://your-project.supabase.co)'
+      'Invalid VITE_SUPABASE_URL format. Please ensure it is a valid URL (e.g., https://your-project.supabase.co)',
     );
     return false;
   }
@@ -45,8 +45,8 @@ export const supabase = createClient(url, key, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true
-  }
+    detectSessionInUrl: true,
+  },
 });
 
 // Export validation function for runtime checks

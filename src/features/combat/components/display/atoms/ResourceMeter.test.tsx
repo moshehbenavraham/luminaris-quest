@@ -9,7 +9,7 @@ import { ResourceMeter } from '@/features/combat/components/display/atoms/Resour
 describe('ResourceMeter', () => {
   it('renders LP meter correctly', () => {
     render(<ResourceMeter value={5} max={10} type="lp" />);
-    
+
     expect(screen.getByText('LP')).toBeInTheDocument();
     expect(screen.getByText('5/10')).toBeInTheDocument();
     expect(screen.getByText('☀️')).toBeInTheDocument();
@@ -17,7 +17,7 @@ describe('ResourceMeter', () => {
 
   it('renders SP meter correctly', () => {
     render(<ResourceMeter value={3} max={8} type="sp" />);
-    
+
     expect(screen.getByText('SP')).toBeInTheDocument();
     expect(screen.getByText('3/8')).toBeInTheDocument();
     expect(screen.getByText('🌙')).toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('ResourceMeter', () => {
 
   it('handles zero resources correctly', () => {
     render(<ResourceMeter value={0} max={10} type="lp" />);
-    
+
     expect(screen.getByText('0/10')).toBeInTheDocument();
     const progressBar = screen.getByRole('progressbar');
     expect(progressBar).toHaveAttribute('aria-valuenow', '0');
@@ -33,13 +33,13 @@ describe('ResourceMeter', () => {
 
   it('handles negative resources correctly', () => {
     render(<ResourceMeter value={-2} max={10} type="sp" />);
-    
+
     expect(screen.getByText('0/10')).toBeInTheDocument();
   });
 
   it('has proper accessibility attributes', () => {
     render(<ResourceMeter value={7} max={10} type="lp" />);
-    
+
     const progressBar = screen.getByRole('progressbar');
     expect(progressBar).toHaveAttribute('aria-valuenow', '7');
     expect(progressBar).toHaveAttribute('aria-valuemin', '0');
@@ -50,7 +50,7 @@ describe('ResourceMeter', () => {
   it('applies different colors for LP and SP', () => {
     const { container: lpContainer } = render(<ResourceMeter value={5} max={10} type="lp" />);
     const { container: spContainer } = render(<ResourceMeter value={5} max={10} type="sp" />);
-    
+
     expect(lpContainer.querySelector('.bg-yellow-400')).toBeInTheDocument();
     expect(spContainer.querySelector('.bg-purple-500')).toBeInTheDocument();
   });

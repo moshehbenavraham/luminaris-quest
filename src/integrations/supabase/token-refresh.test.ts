@@ -15,8 +15,8 @@ vi.mock('@/lib/environment', () => ({
     enableErrorReporting: true,
     healthCheckInterval: 90000,
     retryAttempts: 3,
-    timeoutMs: 30000
-  }))
+    timeoutMs: 30000,
+  })),
 }));
 
 describe('Supabase Token Refresh Optimization', () => {
@@ -50,13 +50,15 @@ describe('Supabase Token Refresh Optimization', () => {
   describe('Token Refresh Monitoring', () => {
     it('should handle token refresh events', async () => {
       const mockCallback = vi.fn();
-      
+
       // Subscribe to auth state changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(mockCallback);
-      
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(mockCallback);
+
       expect(subscription).toBeDefined();
       expect(typeof subscription.unsubscribe).toBe('function');
-      
+
       // Clean up subscription
       subscription.unsubscribe();
     });
@@ -76,7 +78,7 @@ describe('Supabase Token Refresh Optimization', () => {
 
     it('should have connection testing capability', async () => {
       expect(typeof supabaseConfig.testConnection).toBe('function');
-      
+
       // Test connection function should be available
       try {
         await supabaseConfig.testConnection();
@@ -92,13 +94,15 @@ describe('Supabase Token Refresh Optimization', () => {
     it('should not create excessive auth state listeners', () => {
       // Verify that we don't create memory leaks with multiple listeners
       const initialListenerCount = supabase.auth['_listeners']?.size || 0;
-      
+
       // Subscribe and immediately unsubscribe
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {});
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(() => {});
       subscription.unsubscribe();
-      
+
       const finalListenerCount = supabase.auth['_listeners']?.size || 0;
-      
+
       // Should not have increased listener count after cleanup
       expect(finalListenerCount).toBeLessThanOrEqual(initialListenerCount + 1);
     });
@@ -106,7 +110,7 @@ describe('Supabase Token Refresh Optimization', () => {
     it('should handle session storage efficiently', () => {
       // Verify that session storage is properly configured
       expect(supabase.auth).toBeDefined();
-      
+
       // The client should be able to handle session operations
       expect(typeof supabase.auth.getSession).toBe('function');
       expect(typeof supabase.auth.refreshSession).toBe('function');
@@ -117,13 +121,15 @@ describe('Supabase Token Refresh Optimization', () => {
     it('should handle token refresh failures gracefully', async () => {
       // Mock a failed refresh scenario
       const mockErrorCallback = vi.fn();
-      
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, _session) => {
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event, _session) => {
         if (event === 'SIGNED_OUT') {
           mockErrorCallback('signed_out');
         }
       });
-      
+
       expect(subscription).toBeDefined();
       subscription.unsubscribe();
     });

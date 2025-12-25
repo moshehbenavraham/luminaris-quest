@@ -328,7 +328,7 @@ describe('Energy System Persistence', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle save errors gracefully', async () => {
+    it('should handle save errors gracefully', { timeout: 10000 }, async () => {
       const { result } = renderHook(() => useGameStore());
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 

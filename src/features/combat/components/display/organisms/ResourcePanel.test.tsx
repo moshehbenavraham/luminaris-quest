@@ -9,7 +9,7 @@ import type { CombatResources, StatusEffects } from '@/features/combat/store/com
 
 const mockResources: CombatResources = {
   lp: 8,
-  sp: 3
+  sp: 3,
 };
 
 const mockStatusEffects: StatusEffects = {
@@ -18,7 +18,7 @@ const mockStatusEffects: StatusEffects = {
   healingBlocked: 0,
   lpGenerationBlocked: 0,
   skipNextTurn: false,
-  consecutiveEndures: 0
+  consecutiveEndures: 0,
 };
 
 describe('ResourcePanel', () => {
@@ -32,9 +32,9 @@ describe('ResourcePanel', () => {
         playerLevel={5}
         isPlayerTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Your Resources')).toBeInTheDocument();
     expect(screen.getByText('Health')).toBeInTheDocument();
     expect(screen.getByText('85/100')).toBeInTheDocument();
@@ -51,9 +51,9 @@ describe('ResourcePanel', () => {
         playerLevel={5}
         isPlayerTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('LP')).toBeInTheDocument();
     expect(screen.getByText('8/20')).toBeInTheDocument();
     expect(screen.getByText('SP')).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('ResourcePanel', () => {
         statusEffects={mockStatusEffects}
         playerLevel={5}
         isPlayerTurn={true}
-      />
+      />,
     );
 
     // ResourcePanel shows player turn state through styling, not text
@@ -86,7 +86,7 @@ describe('ResourcePanel', () => {
         statusEffects={mockStatusEffects}
         playerLevel={5}
         isPlayerTurn={true}
-      />
+      />,
     );
 
     // Player turn is indicated by visual styling, not text
@@ -103,7 +103,7 @@ describe('ResourcePanel', () => {
         statusEffects={mockStatusEffects}
         playerLevel={5}
         isPlayerTurn={false}
-      />
+      />,
     );
 
     // Enemy turn is indicated by lack of player turn styling
@@ -121,9 +121,9 @@ describe('ResourcePanel', () => {
         playerLevel={5}
         isPlayerTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     const panel = container.firstChild as HTMLElement;
     expect(panel).toHaveClass('ring-2', 'ring-blue-400/50', 'bg-blue-950/20');
   });
@@ -138,9 +138,9 @@ describe('ResourcePanel', () => {
         playerLevel={5}
         isPlayerTurn={false}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     const panel = container.firstChild as HTMLElement;
     expect(panel).not.toHaveClass('ring-2', 'ring-blue-400/50', 'bg-blue-950/20');
   });
@@ -148,9 +148,9 @@ describe('ResourcePanel', () => {
   it('renders status effects list', () => {
     const vulnerableStatusEffects = {
       ...mockStatusEffects,
-      damageMultiplier: 1.5
+      damageMultiplier: 1.5,
     };
-    
+
     render(
       <ResourcePanel
         playerHealth={85}
@@ -160,9 +160,9 @@ describe('ResourcePanel', () => {
         playerLevel={5}
         isPlayerTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('Your Status')).toBeInTheDocument();
     expect(screen.getByText('Vulnerable')).toBeInTheDocument();
   });
@@ -177,9 +177,9 @@ describe('ResourcePanel', () => {
         playerLevel={5}
         isPlayerTurn={true}
         turnNumber={3}
-      />
+      />,
     );
-    
+
     const panel = screen.getByRole('region', { name: 'Player resources and status' });
     expect(panel).toBeInTheDocument();
   });
@@ -195,9 +195,9 @@ describe('ResourcePanel', () => {
         isPlayerTurn={true}
         turnNumber={3}
         className="custom-class"
-      />
+      />,
     );
-    
+
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
@@ -212,9 +212,9 @@ describe('ResourcePanel', () => {
         playerLevel={1}
         isPlayerTurn={true}
         turnNumber={1}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('0/100')).toBeInTheDocument();
     expect(screen.getByText('0/20')).toBeInTheDocument();
     expect(screen.getByText('0/10')).toBeInTheDocument();
@@ -232,9 +232,9 @@ describe('ResourcePanel', () => {
         playerLevel={10}
         isPlayerTurn={false}
         turnNumber={10}
-      />
+      />,
     );
-    
+
     expect(screen.getByText('100/100')).toBeInTheDocument();
     expect(screen.getByText('20/20')).toBeInTheDocument();
     expect(screen.getByText('10/10')).toBeInTheDocument();

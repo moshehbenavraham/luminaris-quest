@@ -17,7 +17,7 @@ describe('Combat Player Action Sounds', () => {
         }
       })();
     `;
-    
+
     // This is a basic test to ensure the code structure is correct
     expect(combatStoreCode).toContain('soundManager.playSound(soundId, 2)');
     expect(combatStoreCode).toContain('action.toLowerCase()');

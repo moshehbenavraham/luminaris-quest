@@ -1,108 +1,216 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- Test file mocks require any */
-
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@/test/utils';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent } from '@/test/utils';
 import { Home } from './Home';
-
-// Mock the ImpactfulImage component
-vi.mock('@/components/atoms/ImpactfulImage', () => ({
-  ImpactfulImage: ({ src, alt, priority, ratio, className, ...props }: any) => (
-    <img
-      data-testid="impactful-image"
-      src={src}
-      alt={alt}
-      data-priority={priority ? 'true' : 'false'}
-      data-ratio={ratio}
-      className={className}
-      {...props}
-    />
-  ),
-}));
 
 // Mock the AuthForm component
 vi.mock('@/components/auth/AuthForm', () => ({
-  AuthForm: (props: any) => (
-    <div data-testid="auth-form" {...props}>
-      Auth Form Component
-    </div>
-  ),
+  AuthForm: () => <div data-testid="auth-form">Auth Form Component</div>,
 }));
 
-describe('Home Page - ImpactfulImage Integration', () => {
-  it('renders ImpactfulImage with correct props for home hero', () => {
-    render(<Home />);
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
-    const heroImage = screen.getByTestId('impactful-image');
-    expect(heroImage).toBeInTheDocument();
-    expect(heroImage).toHaveAttribute('data-priority', 'true');
-    // Note: ratio prop is not passed in Home component, so no need to check data-ratio
-    expect(heroImage).toHaveClass('rounded-lg', 'shadow-lg');
+describe('Home Page', () => {
+  describe('Hero Section', () => {
+    it('renders the main title', () => {
+      render(<Home />);
+
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent("Luminari's Quest");
+    });
+
+    it('renders the tagline', () => {
+      render(<Home />);
+
+      expect(screen.getByText('A Space for Healing')).toBeInTheDocument();
+    });
+
+    it('renders the subtitle with therapeutic messaging', () => {
+      render(<Home />);
+
+      expect(
+        screen.getByText(/You've carried so much\. This is a place to set it down/),
+      ).toBeInTheDocument();
+    });
+
+    it('renders the CTA button', () => {
+      render(<Home />);
+
+      const ctaButton = screen.getByRole('link', { name: /Begin Your Journey/i });
+      expect(ctaButton).toBeInTheDocument();
+      expect(ctaButton).toHaveAttribute('href', '#begin');
+    });
+
+    it('scrolls to auth section when CTA is clicked', () => {
+      const scrollIntoViewMock = vi.fn();
+      const mockElement = { scrollIntoView: scrollIntoViewMock };
+      const getElementByIdSpy = vi
+        .spyOn(document, 'getElementById')
+        .mockReturnValue(mockElement as unknown as HTMLElement);
+
+      render(<Home />);
+
+      const ctaButton = screen.getByRole('link', { name: /Begin Your Journey/i });
+      fireEvent.click(ctaButton);
+
+      expect(document.getElementById).toHaveBeenCalledWith('begin');
+      expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'smooth' });
+
+      getElementByIdSpy.mockRestore();
+    });
   });
 
-  it('places ImpactfulImage above AuthForm in hero section', () => {
-    render(<Home />);
+  describe('Features Section', () => {
+    it('renders the section title', () => {
+      render(<Home />);
 
-    const heroImage = screen.getByTestId('impactful-image');
-    const authForm = screen.getByTestId('auth-form');
+      expect(screen.getByRole('heading', { name: /What This Space Offers/i })).toBeInTheDocument();
+    });
 
-    expect(heroImage).toBeInTheDocument();
-    expect(authForm).toBeInTheDocument();
+    it('renders Guardian feature card', () => {
+      render(<Home />);
 
-    // Check that image appears before auth form in DOM order
-    const heroImagePosition = Array.from(document.body.querySelectorAll('*')).indexOf(heroImage);
-    const authFormPosition = Array.from(document.body.querySelectorAll('*')).indexOf(authForm);
-    expect(heroImagePosition).toBeLessThan(authFormPosition);
+      expect(screen.getByRole('heading', { name: /Your Guardian/i })).toBeInTheDocument();
+      expect(screen.getByText(/A gentle presence that grows with you/)).toBeInTheDocument();
+    });
+
+    it('renders Light & Shadow feature card', () => {
+      render(<Home />);
+
+      expect(screen.getByRole('heading', { name: /Light & Shadow/i })).toBeInTheDocument();
+      expect(
+        screen.getByText(/Face challenges through gameplay that mirrors real emotional work/),
+      ).toBeInTheDocument();
+    });
+
+    it('renders Journal feature card', () => {
+      render(<Home />);
+
+      expect(screen.getByRole('heading', { name: /Your Journal/i })).toBeInTheDocument();
+      expect(screen.getByText(/A private place to capture what surfaces/)).toBeInTheDocument();
+    });
   });
 
-  it('uses correct image source from registry', () => {
-    render(<Home />);
+  describe('Quote Section', () => {
+    it('renders the guardian quote', () => {
+      render(<Home />);
 
-    const heroImage = screen.getByTestId('impactful-image');
-    expect(heroImage).toHaveAttribute('src', '/images/home-hero.avif');
-    expect(heroImage).toHaveAttribute(
-      'alt',
-      "Luminari's Quest - A therapeutic RPG journey for healing and growth",
-    );
+      expect(
+        screen.getByText(/Between who you were and who you're becoming, there's a bridge/),
+      ).toBeInTheDocument();
+    });
+
+    it('renders the attribution', () => {
+      render(<Home />);
+
+      expect(screen.getByText('The Guardian')).toBeInTheDocument();
+    });
   });
 
-  it('maintains existing page structure and content', () => {
-    render(<Home />);
+  describe('Auth Section', () => {
+    it('renders the section with id for scroll targeting', () => {
+      render(<Home />);
 
-    expect(screen.getByText("Welcome to Luminari's Quest")).toBeInTheDocument();
-    expect(screen.getByText('Your journey to healing and growth begins here.')).toBeInTheDocument();
-    expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+      const authSection = document.getElementById('begin');
+      expect(authSection).toBeInTheDocument();
+    });
+
+    it('renders the section title', () => {
+      render(<Home />);
+
+      expect(screen.getByRole('heading', { name: /Ready to Begin\?/i })).toBeInTheDocument();
+    });
+
+    it('renders privacy messaging', () => {
+      render(<Home />);
+
+      expect(
+        screen.getByText(/Everything here is private, and you can take as much time as you need/),
+      ).toBeInTheDocument();
+    });
+
+    it('renders the AuthForm component', () => {
+      render(<Home />);
+
+      expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+    });
   });
 
-  it('ensures proper layout structure to prevent overlap', () => {
-    render(<Home />);
+  describe('Footer', () => {
+    it('renders the application name', () => {
+      render(<Home />);
 
-    const heroImage = screen.getByTestId('impactful-image');
-    const authForm = screen.getByTestId('auth-form');
+      // Footer has the app name
+      const footerText = screen.getByText("Luminari's Quest", { selector: 'p' });
+      expect(footerText).toBeInTheDocument();
+    });
 
-    // Verify both elements exist and are in the correct order
-    expect(heroImage).toBeInTheDocument();
-    expect(authForm).toBeInTheDocument();
+    it('renders the tagline', () => {
+      render(<Home />);
 
-    // Check that the image is within a container with proper spacing
-    const imageContainer = heroImage.closest('div');
-    expect(imageContainer).toHaveClass('mt-6', 'mb-16', 'relative', 'z-0');
-
-    // Check that the auth form is in a separate container with proper spacing and z-index
-    const authFormContainer = authForm.closest('div[class*="mt-16"]');
-    expect(authFormContainer).toBeInTheDocument();
-    expect(authFormContainer).toHaveClass('mt-16', 'relative', 'z-10', 'clear-both');
+      expect(screen.getByText(/A sanctuary for healing through play/)).toBeInTheDocument();
+    });
   });
 
-  it('uses responsive layout classes for proper mobile-first design', () => {
-    render(<Home />);
+  describe('Visual Elements', () => {
+    it('renders ember particles with aria-hidden', () => {
+      render(<Home />);
 
-    // Check that the image container has proper spacing and z-index
-    const imageContainer = screen.getByTestId('impactful-image').closest('div[class*="mt-6"]');
-    expect(imageContainer).toBeInTheDocument();
-    expect(imageContainer).toHaveClass('mt-6', 'mb-16', 'relative', 'z-0');
+      // Starfield container should be aria-hidden for accessibility
+      const starfield = document.querySelector('.starfield');
+      expect(starfield).toHaveAttribute('aria-hidden', 'true');
+    });
 
-    // Check auth form container has proper spacing and z-index
-    const authFormContainer = screen.getByTestId('auth-form').closest('div[class*="mt-16"]');
-    expect(authFormContainer).toHaveClass('mt-16', 'relative', 'z-10', 'clear-both');
+    it('renders dust particles with aria-hidden', () => {
+      render(<Home />);
+
+      const cosmicDust = document.querySelector('.cosmic-dust');
+      expect(cosmicDust).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('renders decorative sigils with aria-hidden', () => {
+      render(<Home />);
+
+      const sigils = document.querySelectorAll('.sigil');
+      expect(sigils.length).toBeGreaterThan(0);
+      sigils.forEach((sigil) => {
+        expect(sigil).toHaveAttribute('aria-hidden', 'true');
+      });
+    });
+
+    it('renders ambient orbs with aria-hidden', () => {
+      render(<Home />);
+
+      const orbs = document.querySelectorAll('.orb');
+      expect(orbs.length).toBeGreaterThan(0);
+      orbs.forEach((orb) => {
+        expect(orb).toHaveAttribute('aria-hidden', 'true');
+      });
+    });
+  });
+
+  describe('Animation System', () => {
+    it('generates correct number of ember particles', () => {
+      render(<Home />);
+
+      const starfield = document.querySelector('.starfield');
+      const embers = starfield?.querySelectorAll('.star');
+      expect(embers?.length).toBe(60);
+    });
+
+    it('generates correct number of dust particles', () => {
+      render(<Home />);
+
+      const cosmicDust = document.querySelector('.cosmic-dust');
+      const dustParticles = cosmicDust?.querySelectorAll('.dust-particle');
+      expect(dustParticles?.length).toBe(20);
+    });
+
+    it('generates correct number of floating motes in auth section', () => {
+      render(<Home />);
+
+      const motes = document.querySelectorAll('.mote');
+      expect(motes.length).toBe(8);
+    });
   });
 });

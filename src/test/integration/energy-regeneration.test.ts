@@ -7,37 +7,37 @@ vi.mock('@/lib/environment', () => ({
   getEnvironmentConfig: () => ({
     energyRegenInterval: 100, // Use 100ms for faster tests
     enableDebugLogging: false,
-    enableVerboseLogging: false
+    enableVerboseLogging: false,
   }),
   createLogger: () => ({
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
-    error: vi.fn()
+    error: vi.fn(),
   }),
   environment: {
-    current: () => 'local'
+    current: () => 'local',
   },
-  detectEnvironment: () => 'local'
+  detectEnvironment: () => 'local',
 }));
 
 describe.skip('Energy Regeneration System - DEFERRED: complex architectural issues with timer-based energy system', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    
+
     // Mock document properties for tests
     Object.defineProperty(document, 'hidden', {
       writable: true,
       configurable: true,
-      value: false
+      value: false,
     });
-    
+
     Object.defineProperty(document, 'hasFocus', {
       writable: true,
       configurable: true,
-      value: () => true
+      value: () => true,
     });
-    
+
     // Reset the store before each test
     const { result } = renderHook(() => useGameStoreBase());
     act(() => {
@@ -54,37 +54,37 @@ describe.skip('Energy Regeneration System - DEFERRED: complex architectural issu
 
   it('should regenerate energy when regenerateEnergy is called directly', () => {
     const { result } = renderHook(() => useGameStoreBase());
-    
+
     // Set energy below max
     act(() => {
       result.current.setPlayerEnergy(50);
       result.current._setHasHydrated(true);
     });
-    
+
     expect(result.current.playerEnergy).toBe(50);
-    
+
     // Call regenerate directly
     act(() => {
       result.current.regenerateEnergy();
     });
-    
+
     expect(result.current.playerEnergy).toBe(51);
   });
 
   it('should start energy regeneration', () => {
     const { result } = renderHook(() => useGameStoreBase());
-    
+
     // We can't test internal state directly, but we can verify regeneration works
     act(() => {
       result.current.setPlayerEnergy(50);
       result.current.startEnergyRegeneration();
     });
-    
+
     // Advance timer and check if energy regenerated
     act(() => {
       vi.advanceTimersByTime(100);
     });
-    
+
     expect(result.current.playerEnergy).toBe(51);
   });
 
@@ -176,23 +176,23 @@ describe.skip('Energy Regeneration System - DEFERRED: complex architectural issu
 
   it('should not regenerate during combat', () => {
     const { result } = renderHook(() => useGameStoreBase());
-    
+
     // Set energy below max and start combat
     act(() => {
       result.current.setPlayerEnergy(50);
       result.current.combat.inCombat = true;
     });
-    
+
     // Start regeneration
     act(() => {
       result.current.startEnergyRegeneration();
     });
-    
+
     // Advance timer by one interval
     act(() => {
       vi.advanceTimersByTime(100);
     });
-    
+
     // Energy should not have regenerated
     expect(result.current.playerEnergy).toBe(50);
   });
@@ -293,7 +293,7 @@ describe.skip('Energy Regeneration System - DEFERRED: complex architectural issu
     Object.defineProperty(document, 'hidden', {
       writable: true,
       configurable: true,
-      value: true
+      value: true,
     });
 
     // Advance timer - should not regenerate when hidden - use async for React 19
@@ -305,14 +305,14 @@ describe.skip('Energy Regeneration System - DEFERRED: complex architectural issu
 
     // Mock document as visible
     Object.defineProperty(document, 'hidden', {
-      value: false
+      value: false,
     });
 
     // Mock document has focus
     Object.defineProperty(document, 'hasFocus', {
       writable: true,
       configurable: true,
-      value: () => true
+      value: () => true,
     });
 
     // Advance timer - should regenerate when visible
@@ -322,4 +322,4 @@ describe.skip('Energy Regeneration System - DEFERRED: complex architectural issu
 
     expect(result.current.playerEnergy).toBe(51);
   });
-}); 
+});

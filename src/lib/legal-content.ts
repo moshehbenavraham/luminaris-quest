@@ -1,4 +1,3 @@
- 
 export const legalContent = {
   lastUpdated: 'June 2025',
 

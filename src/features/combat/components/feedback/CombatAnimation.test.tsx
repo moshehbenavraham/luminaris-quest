@@ -31,12 +31,7 @@ describe('CombatAnimation', () => {
   });
 
   it('renders combat animation with correct icon', () => {
-    render(
-      <CombatAnimation 
-        type="attack" 
-        direction="player-to-enemy" 
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" />);
 
     const animation = screen.getByRole('img');
     expect(animation).toBeInTheDocument();
@@ -44,9 +39,7 @@ describe('CombatAnimation', () => {
   });
 
   it('displays correct icons for different animation types', () => {
-    const { rerender } = render(
-      <CombatAnimation type="attack" direction="player-to-enemy" />
-    );
+    const { rerender } = render(<CombatAnimation type="attack" direction="player-to-enemy" />);
     expect(screen.getByText('⚔️')).toBeInTheDocument();
 
     rerender(<CombatAnimation type="defend" direction="player-to-enemy" />);
@@ -60,36 +53,21 @@ describe('CombatAnimation', () => {
   });
 
   it('applies correct positioning for player-to-enemy direction', () => {
-    render(
-      <CombatAnimation 
-        type="attack" 
-        direction="player-to-enemy" 
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" />);
 
     const animation = screen.getByRole('img');
     expect(animation).toHaveClass('left-1/4');
   });
 
   it('applies correct positioning for enemy-to-player direction', () => {
-    render(
-      <CombatAnimation 
-        type="attack" 
-        direction="enemy-to-player" 
-      />
-    );
+    render(<CombatAnimation type="attack" direction="enemy-to-player" />);
 
     const animation = screen.getByRole('img');
     expect(animation).toHaveClass('right-1/4');
   });
 
   it('has proper accessibility attributes', () => {
-    render(
-      <CombatAnimation 
-        type="attack" 
-        direction="player-to-enemy" 
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" />);
 
     const animation = screen.getByRole('img');
     expect(animation).toHaveAttribute('aria-label', 'attack animation player-to-enemy');
@@ -98,13 +76,7 @@ describe('CombatAnimation', () => {
   it.skip('calls onComplete after animation sequence', async () => {
     const onComplete = vi.fn();
 
-    render(
-      <CombatAnimation
-        type="attack"
-        direction="player-to-enemy"
-        onComplete={onComplete}
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" onComplete={onComplete} />);
 
     expect(onComplete).not.toHaveBeenCalled();
 
@@ -120,25 +92,14 @@ describe('CombatAnimation', () => {
   });
 
   it('applies custom className', () => {
-    render(
-      <CombatAnimation 
-        type="attack" 
-        direction="player-to-enemy"
-        className="custom-class"
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" className="custom-class" />);
 
     const animation = screen.getByRole('img');
     expect(animation).toHaveClass('custom-class');
   });
 
   it('goes through animation phases correctly', () => {
-    render(
-      <CombatAnimation
-        type="attack"
-        direction="player-to-enemy"
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" />);
 
     // Initial state should be 'idle' but we start with 'windup'
     vi.advanceTimersByTime(200);
@@ -151,34 +112,19 @@ describe('CombatAnimation', () => {
   });
 
   it('handles different direction movements correctly', () => {
-    const { rerender } = render(
-      <CombatAnimation 
-        type="attack" 
-        direction="player-to-enemy" 
-      />
-    );
+    const { rerender } = render(<CombatAnimation type="attack" direction="player-to-enemy" />);
 
     let animation = screen.getByRole('img');
     expect(animation).toHaveClass('left-1/4');
 
-    rerender(
-      <CombatAnimation 
-        type="attack" 
-        direction="enemy-to-player" 
-      />
-    );
+    rerender(<CombatAnimation type="attack" direction="enemy-to-player" />);
 
     animation = screen.getByRole('img');
     expect(animation).toHaveClass('right-1/4');
   });
 
   it.skip('removes component after animation completes', async () => {
-    render(
-      <CombatAnimation
-        type="attack"
-        direction="player-to-enemy"
-      />
-    );
+    render(<CombatAnimation type="attack" direction="player-to-enemy" />);
 
     const animation = screen.getByRole('img');
     expect(animation).toBeInTheDocument();

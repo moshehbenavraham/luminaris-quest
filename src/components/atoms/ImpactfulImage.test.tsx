@@ -10,7 +10,7 @@ describe('ImpactfulImage - Increment 1', () => {
 
   it('renders with basic props', () => {
     render(<ImpactfulImage {...defaultProps} />);
-    
+
     const image = screen.getByRole('img');
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src', '/images/test-image.jpg');
@@ -18,7 +18,7 @@ describe('ImpactfulImage - Increment 1', () => {
   });
 
   it('applies default aspect ratio when ratio prop is provided', () => {
-    render(<ImpactfulImage {...defaultProps} ratio={16/9} />);
+    render(<ImpactfulImage {...defaultProps} ratio={16 / 9} />);
 
     // Should be wrapped in AspectRatio component - check for the wrapper div
     const image = screen.getByRole('img');
@@ -42,28 +42,28 @@ describe('ImpactfulImage - Increment 1', () => {
 
   it('applies custom className', () => {
     render(<ImpactfulImage {...defaultProps} className="custom-class" />);
-    
+
     const image = screen.getByRole('img');
     expect(image).toHaveClass('custom-class');
   });
 
   it('applies mobile-first responsive classes by default', () => {
     render(<ImpactfulImage {...defaultProps} />);
-    
+
     const image = screen.getByRole('img');
     expect(image).toHaveClass('w-full', 'h-auto', 'object-cover');
   });
 
   it('applies default object position', () => {
     render(<ImpactfulImage {...defaultProps} />);
-    
+
     const image = screen.getByRole('img');
     expect(image).toHaveStyle({ objectPosition: 'center' });
   });
 
   it('applies custom object position', () => {
     render(<ImpactfulImage {...defaultProps} objectPosition="top left" />);
-    
+
     const image = screen.getByRole('img');
     expect(image).toHaveStyle({ objectPosition: 'top left' });
   });
@@ -71,7 +71,7 @@ describe('ImpactfulImage - Increment 1', () => {
   it('forwards ref correctly', () => {
     const ref = { current: null };
     render(<ImpactfulImage {...defaultProps} ref={ref} />);
-    
+
     expect(ref.current).toBeInstanceOf(HTMLImageElement);
   });
 
@@ -80,14 +80,8 @@ describe('ImpactfulImage - Increment 1', () => {
   });
 
   it('accepts additional HTML img attributes', () => {
-    render(
-      <ImpactfulImage 
-        {...defaultProps} 
-        data-testid="custom-image"
-        title="Custom title"
-      />
-    );
-    
+    render(<ImpactfulImage {...defaultProps} data-testid="custom-image" title="Custom title" />);
+
     const image = screen.getByRole('img');
     expect(image).toHaveAttribute('data-testid', 'custom-image');
     expect(image).toHaveAttribute('title', 'Custom title');
@@ -102,7 +96,7 @@ describe('ImpactfulImage - Increment 1', () => {
     expect(wrapper).toContainElement(image);
 
     // Test with different ratio
-    rerender(<ImpactfulImage {...defaultProps} ratio={4/3} />);
+    rerender(<ImpactfulImage {...defaultProps} ratio={4 / 3} />);
     image = screen.getByRole('img');
     wrapper = image.parentElement;
     expect(wrapper?.tagName).toBe('DIV');
@@ -304,7 +298,7 @@ describe('ImpactfulImage - Increment 3: Progressive Loading and Accessibility', 
         {...defaultProps}
         blurDataUrl={blurDataUrl}
         objectPosition={objectPosition}
-      />
+      />,
     );
 
     const blurPlaceholder = document.querySelector('.filter.blur-sm');
@@ -320,7 +314,7 @@ describe('ImpactfulImage - Increment 3: Progressive Loading and Accessibility', 
 
   it('maintains aspect ratio with progressive loading', () => {
     const blurDataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...';
-    render(<ImpactfulImage {...defaultProps} ratio={16/9} blurDataUrl={blurDataUrl} />);
+    render(<ImpactfulImage {...defaultProps} ratio={16 / 9} blurDataUrl={blurDataUrl} />);
 
     const image = screen.getByRole('img');
 

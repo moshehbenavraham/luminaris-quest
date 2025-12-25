@@ -44,8 +44,8 @@ describe('StatsBar Experience Display Fixes', () => {
       // Find the progress bar
       const progressBar = screen.getByRole('progressbar', { name: /experience progress/i });
 
-      // Should show 50% width
-      expect(progressBar).toHaveStyle({ width: '50%' });
+      // Check the CSS custom property used for width calculation
+      expect(progressBar).toHaveStyle({ '--progress-value': '50' });
       expect(progressBar).toHaveAttribute('aria-valuenow', '50');
     });
 
@@ -61,7 +61,7 @@ describe('StatsBar Experience Display Fixes', () => {
 
       const progressBar = screen.getByRole('progressbar', { name: /experience progress/i });
 
-      expect(progressBar).toHaveStyle({ width: '0%' });
+      expect(progressBar).toHaveStyle({ '--progress-value': '0' });
       expect(progressBar).toHaveAttribute('aria-valuenow', '0');
     });
 
@@ -77,7 +77,7 @@ describe('StatsBar Experience Display Fixes', () => {
 
       const progressBar = screen.getByRole('progressbar', { name: /experience progress/i });
 
-      expect(progressBar).toHaveStyle({ width: '99.3%' });
+      expect(progressBar).toHaveStyle({ '--progress-value': '99.3' });
       expect(progressBar).toHaveAttribute('aria-valuenow', '99');
     });
   });
@@ -150,7 +150,7 @@ describe('StatsBar Experience Display Fixes', () => {
       const progressBar = screen.getByRole('progressbar', { name: /experience progress/i });
 
       // Should clamp to 0%
-      expect(progressBar).toHaveStyle({ width: '0%' });
+      expect(progressBar).toHaveStyle({ '--progress-value': '0' });
     });
 
     it('should handle percentages over 100% gracefully', () => {
@@ -166,7 +166,7 @@ describe('StatsBar Experience Display Fixes', () => {
       const progressBar = screen.getByRole('progressbar', { name: /experience progress/i });
 
       // Should clamp to 100%
-      expect(progressBar).toHaveStyle({ width: '100%' });
+      expect(progressBar).toHaveStyle({ '--progress-value': '100' });
     });
 
     it('should handle extreme values correctly', () => {
@@ -183,7 +183,7 @@ describe('StatsBar Experience Display Fixes', () => {
 
       // Should handle large numbers without breaking
       expect(progressBar).toBeInTheDocument();
-      expect(progressBar).toHaveStyle({ width: '99.99%' });
+      expect(progressBar).toHaveStyle({ '--progress-value': '99.99' });
     });
   });
 

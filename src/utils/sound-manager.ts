@@ -1,7 +1,6 @@
- 
 /**
  * Sound Manager - Utility for managing combat sound effects and audio cues
- * 
+ *
  * This utility provides a clean interface for playing sound effects during combat,
  * with features like:
  * - Volume control and muting
@@ -33,9 +32,9 @@ export class SoundManager {
       volume: 0.7,
       muted: false,
       preloadSounds: true,
-      ...options
+      ...options,
     };
-    
+
     // Check if audio is supported
     this.isSupported = typeof Audio !== 'undefined';
   }
@@ -50,7 +49,7 @@ export class SoundManager {
       const audio = new Audio(effect.src);
       audio.volume = (effect.volume ?? 1) * this.options.volume;
       audio.preload = effect.preload ? 'auto' : 'none';
-      
+
       // Handle loading errors gracefully
       audio.addEventListener('error', () => {
         console.warn(`Failed to load sound effect: ${effect.id} (${effect.src})`);
@@ -104,9 +103,9 @@ export class SoundManager {
    */
   setVolume(volume: number): void {
     this.options.volume = Math.max(0, Math.min(1, volume));
-    
+
     // Update volume for all registered sounds
-    this.sounds.forEach(audio => {
+    this.sounds.forEach((audio) => {
       audio.volume = this.options.volume;
     });
   }
@@ -143,7 +142,7 @@ export class SoundManager {
    * Cleanup all audio resources
    */
   dispose(): void {
-    this.sounds.forEach(audio => {
+    this.sounds.forEach((audio) => {
       audio.pause();
       audio.src = '';
     });
@@ -159,25 +158,25 @@ export const COMBAT_SOUND_EFFECTS: SoundEffect[] = [
     id: 'illuminate',
     src: '/audio/soundfx-illuminate.mp3',
     volume: 0.5, // Higher volume for dedicated SFX
-    preload: true
+    preload: true,
   },
   {
     id: 'reflect',
     src: '/audio/soundfx-reflect.mp3',
     volume: 0.5,
-    preload: true
+    preload: true,
   },
   {
     id: 'endure',
     src: '/audio/soundfx-endure.mp3',
     volume: 0.4, // Slightly quieter for defensive action
-    preload: true
+    preload: true,
   },
   {
     id: 'embrace',
     src: '/audio/soundfx-embrace.mp3',
     volume: 0.5,
-    preload: true
+    preload: true,
   },
 
   // Shadow Actions
@@ -185,7 +184,7 @@ export const COMBAT_SOUND_EFFECTS: SoundEffect[] = [
     id: 'shadow-attack',
     src: '/audio/soundfx-shadow-attack.mp3',
     volume: 0.5,
-    preload: true
+    preload: true,
   },
 
   // Combat End
@@ -193,24 +192,24 @@ export const COMBAT_SOUND_EFFECTS: SoundEffect[] = [
     id: 'victory',
     src: '/audio/soundfx-victory.mp3',
     volume: 0.6, // Slightly louder for victory
-    preload: true
+    preload: true,
   },
   {
     id: 'defeat',
     src: '/audio/soundfx-defeat.mp3',
     volume: 0.5,
-    preload: true
-  }
+    preload: true,
+  },
 ];
 
 // Global sound manager instance
 export const soundManager = new SoundManager({
   volume: 0.7,
   muted: false,
-  preloadSounds: true
+  preloadSounds: true,
 });
 
 // Initialize combat sound effects
-COMBAT_SOUND_EFFECTS.forEach(effect => {
+COMBAT_SOUND_EFFECTS.forEach((effect) => {
   soundManager.registerSound(effect);
 });

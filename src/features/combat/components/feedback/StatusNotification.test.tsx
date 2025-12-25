@@ -31,12 +31,7 @@ describe('StatusNotification', () => {
   });
 
   it('renders notification with correct message and styling', () => {
-    render(
-      <StatusNotification 
-        message="Test notification" 
-        type="success" 
-      />
-    );
+    render(<StatusNotification message="Test notification" type="success" />);
 
     const notification = screen.getByRole('alert');
     expect(notification).toBeInTheDocument();
@@ -45,9 +40,7 @@ describe('StatusNotification', () => {
   });
 
   it('displays correct icons for different types', () => {
-    const { rerender } = render(
-      <StatusNotification message="Success" type="success" />
-    );
+    const { rerender } = render(<StatusNotification message="Success" type="success" />);
     expect(screen.getByText('✓')).toBeInTheDocument();
 
     rerender(<StatusNotification message="Warning" type="warning" />);
@@ -62,9 +55,7 @@ describe('StatusNotification', () => {
   });
 
   it('applies correct styling for different types', () => {
-    const { rerender } = render(
-      <StatusNotification message="Test" type="success" />
-    );
+    const { rerender } = render(<StatusNotification message="Test" type="success" />);
     expect(screen.getByRole('alert')).toHaveClass('bg-green-600');
 
     rerender(<StatusNotification message="Test" type="warning" />);
@@ -80,13 +71,7 @@ describe('StatusNotification', () => {
   it('closes notification when close button is clicked', async () => {
     const onClose = vi.fn();
 
-    render(
-      <StatusNotification
-        message="Test"
-        type="info"
-        onClose={onClose}
-      />
-    );
+    render(<StatusNotification message="Test" type="info" onClose={onClose} />);
 
     const closeButton = screen.getByRole('button', { name: /close notification/i });
 
@@ -103,14 +88,7 @@ describe('StatusNotification', () => {
   it('auto-closes after specified duration', async () => {
     const onClose = vi.fn();
 
-    render(
-      <StatusNotification
-        message="Test"
-        type="info"
-        duration={2000}
-        onClose={onClose}
-      />
-    );
+    render(<StatusNotification message="Test" type="info" duration={2000} onClose={onClose} />);
 
     expect(onClose).not.toHaveBeenCalled();
 
@@ -123,25 +101,14 @@ describe('StatusNotification', () => {
   });
 
   it('has proper accessibility attributes', () => {
-    render(
-      <StatusNotification 
-        message="Test notification" 
-        type="info" 
-      />
-    );
+    render(<StatusNotification message="Test notification" type="info" />);
 
     const notification = screen.getByRole('alert');
     expect(notification).toHaveAttribute('aria-live', 'polite');
   });
 
   it('applies custom className', () => {
-    render(
-      <StatusNotification 
-        message="Test" 
-        type="info"
-        className="custom-class"
-      />
-    );
+    render(<StatusNotification message="Test" type="info" className="custom-class" />);
 
     const notification = screen.getByRole('alert');
     expect(notification).toHaveClass('custom-class');
@@ -150,13 +117,7 @@ describe('StatusNotification', () => {
   it('uses default duration when not specified', async () => {
     const onClose = vi.fn();
 
-    render(
-      <StatusNotification
-        message="Test"
-        type="info"
-        onClose={onClose}
-      />
-    );
+    render(<StatusNotification message="Test" type="info" onClose={onClose} />);
 
     // Default duration should be 3000ms
     await act(async () => {

@@ -29,7 +29,7 @@ const mockEntries: CombatLogEntry[] = [
     type: 'action',
     actor: 'player',
     message: 'Player attacks with sword',
-    metadata: { actionType: 'melee' }
+    metadata: { actionType: 'melee' },
   },
   {
     id: '2',
@@ -37,7 +37,7 @@ const mockEntries: CombatLogEntry[] = [
     type: 'damage',
     actor: 'enemy',
     message: 'Enemy takes 25 damage',
-    metadata: { damage: 25 }
+    metadata: { damage: 25 },
   },
   {
     id: '3',
@@ -52,8 +52,8 @@ const mockEntries: CombatLogEntry[] = [
     type: 'heal',
     actor: 'player',
     message: 'Player heals for 10 HP',
-    metadata: { healing: 10 }
-  }
+    metadata: { healing: 10 },
+  },
 ];
 
 describe('CombatLog', () => {

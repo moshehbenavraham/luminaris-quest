@@ -11,9 +11,9 @@ describe('ActionTooltip', () => {
     render(
       <ActionTooltip title="Test Action" description="Test description">
         <button>Test Button</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Test Button')).toBeInTheDocument();
   });
 
@@ -21,81 +21,65 @@ describe('ActionTooltip', () => {
     render(
       <ActionTooltip title="Illuminate" description="Shine light on your fears">
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
   it('renders with cost information without errors', () => {
     render(
-      <ActionTooltip 
-        title="Illuminate" 
-        description="Test description"
-        cost={{ lp: 2, sp: 1 }}
-      >
+      <ActionTooltip title="Illuminate" description="Test description" cost={{ lp: 2, sp: 1 }}>
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
   it('renders with zero costs without errors', () => {
     render(
-      <ActionTooltip 
-        title="Endure" 
-        description="Test description"
-        cost={{ lp: 0, sp: 0 }}
-      >
+      <ActionTooltip title="Endure" description="Test description" cost={{ lp: 0, sp: 0 }}>
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
   it('renders with shortcut key without errors', () => {
     render(
-      <ActionTooltip 
-        title="Illuminate" 
-        description="Test description"
-        shortcut="1"
-      >
+      <ActionTooltip title="Illuminate" description="Test description" shortcut="1">
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
   it('renders in disabled state without errors', () => {
     render(
-      <ActionTooltip 
-        title="Illuminate" 
-        description="Test description"
-        disabled={true}
-      >
+      <ActionTooltip title="Illuminate" description="Test description" disabled={true}>
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
   it('renders with all props without errors', () => {
     render(
-      <ActionTooltip 
-        title="Illuminate" 
+      <ActionTooltip
+        title="Illuminate"
         description="Test description"
         cost={{ lp: 2 }}
         shortcut="1"
         disabled={true}
       >
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 
@@ -103,9 +87,9 @@ describe('ActionTooltip', () => {
     render(
       <ActionTooltip title="Endure" description="Build resilience">
         <button>Action</button>
-      </ActionTooltip>
+      </ActionTooltip>,
     );
-    
+
     expect(screen.getByText('Action')).toBeInTheDocument();
   });
 });

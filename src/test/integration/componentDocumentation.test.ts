@@ -8,7 +8,7 @@ describe('Component Documentation', () => {
   it.skip('should have ImpactfulImage documented in COMPONENT_MAP.md', () => {
     const componentMapPath = join(process.cwd(), 'docs', 'COMPONENT_MAP.md');
     const content = readFileSync(componentMapPath, 'utf-8');
-    
+
     // Check that ImpactfulImage is mentioned in the atomic components section
     expect(content).toContain('ImpactfulImage');
     expect(content).toContain('Performance-optimized image component');
@@ -20,25 +20,25 @@ describe('Component Documentation', () => {
   it.skip('should include comprehensive ImpactfulImage component details', () => {
     const componentMapPath = join(process.cwd(), 'docs', 'COMPONENT_MAP.md');
     const content = readFileSync(componentMapPath, 'utf-8');
-    
+
     // Check for detailed component interface documentation
     expect(content).toContain('ImpactfulImageProps');
     expect(content).toContain('src: string');
     expect(content).toContain('alt: string');
     expect(content).toContain('ratio?: number');
     expect(content).toContain('priority?: boolean');
-    
+
     // Check for key features documentation
     expect(content).toContain('Key Features');
     expect(content).toContain('Performance Optimization');
     expect(content).toContain('Mobile-First Design');
     expect(content).toContain('Progressive Loading');
-    
+
     // Check for usage examples
     expect(content).toContain('Usage Examples');
     expect(content).toContain('import { ImpactfulImage }');
     expect(content).toContain('imageRegistry');
-    
+
     // Check for integration status
     expect(content).toContain('Integration Status');
     expect(content).toContain('Home.tsx');

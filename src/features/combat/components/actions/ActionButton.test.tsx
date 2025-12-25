@@ -21,7 +21,7 @@ describe('ActionButton', () => {
         title="Illuminate"
         description="Shine light on fears"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     expect(screen.getByText('Illuminate')).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe('ActionButton', () => {
         title="Illuminate"
         description="Test description"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     // Should show default icon for ILLUMINATE
@@ -50,7 +50,7 @@ describe('ActionButton', () => {
         description="Test description"
         icon="🌟"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     expect(screen.getByText('🌟')).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe('ActionButton', () => {
         description="Test description"
         cost={{ lp: 2, sp: 1 }}
         onClick={mockOnClick}
-      />
+      />,
     );
 
     expect(screen.getByText('2LP')).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe('ActionButton', () => {
         description="Test description"
         shortcut="1"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     expect(screen.getByText('1')).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('ActionButton', () => {
         title="Illuminate"
         description="Test description"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByTestId('action-illuminate'));
@@ -108,7 +108,7 @@ describe('ActionButton', () => {
         description="Test description"
         disabled={true}
         onClick={mockOnClick}
-      />
+      />,
     );
 
     fireEvent.click(screen.getByTestId('action-illuminate'));
@@ -123,7 +123,7 @@ describe('ActionButton', () => {
         description="Test description"
         disabled={true}
         onClick={mockOnClick}
-      />
+      />,
     );
 
     const button = screen.getByTestId('action-illuminate');
@@ -139,7 +139,7 @@ describe('ActionButton', () => {
         description="Test description"
         isActive={true}
         onClick={mockOnClick}
-      />
+      />,
     );
 
     const button = screen.getByTestId('action-illuminate');
@@ -154,7 +154,7 @@ describe('ActionButton', () => {
         description="Test description"
         shortcut="1"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     const button = screen.getByTestId('action-illuminate');
@@ -168,7 +168,7 @@ describe('ActionButton', () => {
         title="Illuminate"
         description="Test description"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     let button = screen.getByTestId('action-illuminate');
@@ -180,7 +180,7 @@ describe('ActionButton', () => {
         title="Reflect"
         description="Test description"
         onClick={mockOnClick}
-      />
+      />,
     );
 
     button = screen.getByTestId('action-reflect');
@@ -195,7 +195,7 @@ describe('ActionButton', () => {
         description="Test description"
         cost={{ lp: 2 }}
         onClick={mockOnClick}
-      />
+      />,
     );
 
     expect(screen.getByText('2LP')).toBeInTheDocument();
@@ -210,7 +210,7 @@ describe('ActionButton', () => {
         description="Test description"
         cost={{ lp: 0, sp: 0 }}
         onClick={mockOnClick}
-      />
+      />,
     );
 
     expect(screen.queryByText('LP')).not.toBeInTheDocument();
@@ -225,7 +225,7 @@ describe('ActionButton', () => {
         description="Test description"
         onClick={mockOnClick}
         className="custom-class"
-      />
+      />,
     );
 
     expect(screen.getByTestId('action-illuminate')).toHaveClass('custom-class');

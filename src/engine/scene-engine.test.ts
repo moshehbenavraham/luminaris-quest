@@ -17,12 +17,12 @@ const mockGameStore = {
     currentEnemy: null,
     resources: { lp: 0, sp: 0 },
     turn: 0,
-    log: []
-  }
+    log: [],
+  },
 };
 
 vi.mock('../store/game-store', () => ({
-  useGameStore: () => mockGameStore
+  useGameStore: () => mockGameStore,
 }));
 
 describe('Scene Engine Combat Integration', () => {
@@ -82,7 +82,7 @@ describe('Scene Engine Combat Integration', () => {
         failureText: 'Failure',
         choices: { bold: 'Bold', cautious: 'Cautious' },
         lpReward: 5,
-        spPenalty: 3
+        spPenalty: 3,
       };
 
       const successOutcome = handleSceneOutcome(customScene, true);
@@ -93,12 +93,12 @@ describe('Scene Engine Combat Integration', () => {
     });
 
     it('should handle different scene types with appropriate default rewards', () => {
-      const sceneTypes: Array<{ type: Scene['type'], expectedLP: number, expectedSP: number }> = [
+      const sceneTypes: Array<{ type: Scene['type']; expectedLP: number; expectedSP: number }> = [
         { type: 'social', expectedLP: 3, expectedSP: 2 },
         { type: 'skill', expectedLP: 2, expectedSP: 1 },
         { type: 'combat', expectedLP: 4, expectedSP: 3 },
         { type: 'journal', expectedLP: 2, expectedSP: 1 },
-        { type: 'exploration', expectedLP: 3, expectedSP: 2 }
+        { type: 'exploration', expectedLP: 3, expectedSP: 2 },
       ];
 
       sceneTypes.forEach(({ type, expectedLP, expectedSP }) => {
@@ -110,7 +110,7 @@ describe('Scene Engine Combat Integration', () => {
           dc: 10,
           successText: 'Success',
           failureText: 'Failure',
-          choices: { bold: 'Bold', cautious: 'Cautious' }
+          choices: { bold: 'Bold', cautious: 'Cautious' },
         };
 
         const successOutcome = handleSceneOutcome(testScene, true);
@@ -150,9 +150,9 @@ describe('Scene Engine Combat Integration', () => {
     });
 
     it('should have all required scene properties', () => {
-      const scenes = [0, 1, 2, 3, 4].map(i => getScene(i));
-      
-      scenes.forEach(scene => {
+      const scenes = [0, 1, 2, 3, 4].map((i) => getScene(i));
+
+      scenes.forEach((scene) => {
         expect(scene).toHaveProperty('id');
         expect(scene).toHaveProperty('type');
         expect(scene).toHaveProperty('title');
@@ -220,10 +220,10 @@ describe('Scene Engine Combat Integration', () => {
         SHADOW_IDS.WHISPER_OF_DOUBT,
         SHADOW_IDS.VEIL_OF_ISOLATION,
         SHADOW_IDS.STORM_OF_OVERWHELM,
-        SHADOW_IDS.ECHO_OF_PAST_PAIN
+        SHADOW_IDS.ECHO_OF_PAST_PAIN,
       ];
 
-      shadowIds.forEach(shadowId => {
+      shadowIds.forEach((shadowId) => {
         const shadow = createShadowManifestation(shadowId);
         expect(shadow).toBeDefined();
         expect(shadow).not.toBeNull();
@@ -245,14 +245,14 @@ describe('Scene Engine Combat Integration', () => {
         expect(scene).toBeDefined();
         expect(scene.id).toBeDefined();
       }
-      
+
       // Test that scene 41 is undefined
       expect(getScene(40)).toBeUndefined();
     });
 
     it('should follow the correct type pattern for all 40 scenes', () => {
       const expectedPattern = ['social', 'skill', 'combat', 'journal', 'exploration'];
-      
+
       for (let i = 0; i < 40; i++) {
         const scene = getScene(i);
         const expectedType = expectedPattern[i % 5];
@@ -262,8 +262,8 @@ describe('Scene Engine Combat Integration', () => {
 
     it('should have combat scenes at positions 2,7,12,17,22,27,32,37 (0-indexed)', () => {
       const combatPositions = [2, 7, 12, 17, 22, 27, 32, 37];
-      
-      combatPositions.forEach(pos => {
+
+      combatPositions.forEach((pos) => {
         const scene = getScene(pos);
         expect(scene.type).toBe('combat');
         expect(scene.shadowType).toBeDefined();
@@ -276,7 +276,7 @@ describe('Scene Engine Combat Integration', () => {
       expect(getScene(7).shadowType).toBe(SHADOW_IDS.VEIL_OF_ISOLATION);
       expect(getScene(12).shadowType).toBe(SHADOW_IDS.STORM_OF_OVERWHELM);
       expect(getScene(17).shadowType).toBe(SHADOW_IDS.ECHO_OF_PAST_PAIN);
-      
+
       // Second set of combat scenes (new ones)
       expect(getScene(22).shadowType).toBe(SHADOW_IDS.WHISPER_OF_DOUBT);
       expect(getScene(27).shadowType).toBe(SHADOW_IDS.VEIL_OF_ISOLATION);
@@ -286,12 +286,12 @@ describe('Scene Engine Combat Integration', () => {
 
     it('should have unique IDs for all 40 scenes', () => {
       const ids = new Set<string>();
-      
+
       for (let i = 0; i < 40; i++) {
         const scene = getScene(i);
         ids.add(scene.id);
       }
-      
+
       expect(ids.size).toBe(40);
     });
   });

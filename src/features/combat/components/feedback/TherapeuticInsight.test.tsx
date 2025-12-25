@@ -33,11 +33,11 @@ describe('TherapeuticInsight', () => {
 
   it('renders therapeutic insight with message and guardian name', () => {
     render(
-      <TherapeuticInsight 
-        message="You're doing great!" 
+      <TherapeuticInsight
+        message="You're doing great!"
         type="encouragement"
         guardianName="Spirit Guide"
-      />
+      />,
     );
 
     expect(screen.getByText('Spirit Guide')).toBeInTheDocument();
@@ -45,20 +45,13 @@ describe('TherapeuticInsight', () => {
   });
 
   it('uses default guardian name when not provided', () => {
-    render(
-      <TherapeuticInsight 
-        message="Keep going!" 
-        type="encouragement"
-      />
-    );
+    render(<TherapeuticInsight message="Keep going!" type="encouragement" />);
 
     expect(screen.getByText('Your Guardian')).toBeInTheDocument();
   });
 
   it('displays correct icons for different types', () => {
-    const { rerender } = render(
-      <TherapeuticInsight message="Test" type="encouragement" />
-    );
+    const { rerender } = render(<TherapeuticInsight message="Test" type="encouragement" />);
     expect(screen.getByText('🌟')).toBeInTheDocument();
 
     rerender(<TherapeuticInsight message="Test" type="guidance" />);
@@ -72,9 +65,7 @@ describe('TherapeuticInsight', () => {
   });
 
   it('applies correct styling for different types', () => {
-    const { rerender } = render(
-      <TherapeuticInsight message="Test" type="encouragement" />
-    );
+    const { rerender } = render(<TherapeuticInsight message="Test" type="encouragement" />);
     let dialog = screen.getByRole('dialog');
     expect(dialog).toHaveClass('from-purple-600');
 
@@ -95,12 +86,7 @@ describe('TherapeuticInsight', () => {
     const onClose = vi.fn();
 
     render(
-      <TherapeuticInsight
-        message="Test"
-        type="encouragement"
-        duration={2000}
-        onClose={onClose}
-      />
+      <TherapeuticInsight message="Test" type="encouragement" duration={2000} onClose={onClose} />,
     );
 
     expect(onClose).not.toHaveBeenCalled();
@@ -117,12 +103,7 @@ describe('TherapeuticInsight', () => {
     const onClose = vi.fn();
 
     render(
-      <TherapeuticInsight
-        message="Test"
-        type="encouragement"
-        autoHide={false}
-        onClose={onClose}
-      />
+      <TherapeuticInsight message="Test" type="encouragement" autoHide={false} onClose={onClose} />,
     );
 
     await advanceTimersAndAct(10000);
@@ -131,13 +112,7 @@ describe('TherapeuticInsight', () => {
   });
 
   it('shows close button when autoHide is false', () => {
-    render(
-      <TherapeuticInsight 
-        message="Test" 
-        type="encouragement"
-        autoHide={false}
-      />
-    );
+    render(<TherapeuticInsight message="Test" type="encouragement" autoHide={false} />);
 
     const closeButton = screen.getByRole('button', { name: /close insight/i });
     expect(closeButton).toBeInTheDocument();
@@ -147,12 +122,7 @@ describe('TherapeuticInsight', () => {
     const onClose = vi.fn();
 
     render(
-      <TherapeuticInsight
-        message="Test"
-        type="encouragement"
-        autoHide={false}
-        onClose={onClose}
-      />
+      <TherapeuticInsight message="Test" type="encouragement" autoHide={false} onClose={onClose} />,
     );
 
     const closeButton = screen.getByRole('button', { name: /close insight/i });
@@ -167,12 +137,7 @@ describe('TherapeuticInsight', () => {
 
   it('shows progress bar when auto-hiding', () => {
     render(
-      <TherapeuticInsight 
-        message="Test" 
-        type="encouragement"
-        autoHide={true}
-        duration={3000}
-      />
+      <TherapeuticInsight message="Test" type="encouragement" autoHide={true} duration={3000} />,
     );
 
     // Progress bar should be present
@@ -181,13 +146,7 @@ describe('TherapeuticInsight', () => {
   });
 
   it('does not show progress bar when not auto-hiding', () => {
-    render(
-      <TherapeuticInsight 
-        message="Test" 
-        type="encouragement"
-        autoHide={false}
-      />
-    );
+    render(<TherapeuticInsight message="Test" type="encouragement" autoHide={false} />);
 
     const progressBar = screen.getByRole('dialog').querySelector('.bg-white\\/60');
     expect(progressBar).not.toBeInTheDocument();
@@ -195,29 +154,23 @@ describe('TherapeuticInsight', () => {
 
   it('has proper accessibility attributes', () => {
     render(
-      <TherapeuticInsight 
-        message="Test message" 
+      <TherapeuticInsight
+        message="Test message"
         type="encouragement"
         guardianName="Test Guardian"
-      />
+      />,
     );
 
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-live', 'polite');
     expect(dialog).toHaveAttribute('aria-labelledby', 'therapeutic-insight-title');
-    
+
     const title = screen.getByText('Test Guardian');
     expect(title).toHaveAttribute('id', 'therapeutic-insight-title');
   });
 
   it('applies custom className', () => {
-    render(
-      <TherapeuticInsight 
-        message="Test" 
-        type="encouragement"
-        className="custom-class"
-      />
-    );
+    render(<TherapeuticInsight message="Test" type="encouragement" className="custom-class" />);
 
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveClass('custom-class');
@@ -226,13 +179,7 @@ describe('TherapeuticInsight', () => {
   it('uses default duration when not specified', async () => {
     const onClose = vi.fn();
 
-    render(
-      <TherapeuticInsight
-        message="Test"
-        type="encouragement"
-        onClose={onClose}
-      />
-    );
+    render(<TherapeuticInsight message="Test" type="encouragement" onClose={onClose} />);
 
     // Default duration should be 5000ms
     await act(async () => {

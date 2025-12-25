@@ -4,8 +4,8 @@ import { imageRegistry, type ImageAsset } from '../data/imageRegistry';
 describe('Image Registry', () => {
   it('contains all required page images', () => {
     const requiredImages = ['homeHero', 'adventureHero', 'progressHero', 'profileHero'];
-    
-    requiredImages.forEach(imageKey => {
+
+    requiredImages.forEach((imageKey) => {
       expect(imageRegistry[imageKey]).toBeDefined();
       expect(imageRegistry[imageKey]).toHaveProperty('src');
       expect(imageRegistry[imageKey]).toHaveProperty('alt');
@@ -31,7 +31,7 @@ describe('Image Registry', () => {
   it('sets priority correctly for LCP optimization', () => {
     // Home hero should be priority for LCP
     expect(imageRegistry.homeHero.priority).toBe(true);
-    
+
     // Other images should not be priority
     expect(imageRegistry.adventureHero.priority).toBe(false);
     expect(imageRegistry.progressHero.priority).toBe(false);

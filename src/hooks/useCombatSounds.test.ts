@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useCombatSounds, COMBAT_SOUND_MAPPINGS, DEFAULT_COMBAT_SOUNDS_CONFIG } from '../hooks/useCombatSounds';
+import {
+  useCombatSounds,
+  COMBAT_SOUND_MAPPINGS,
+  DEFAULT_COMBAT_SOUNDS_CONFIG,
+} from '../hooks/useCombatSounds';
 import { soundManager } from '../utils/sound-manager';
 
 // Mock the sound manager
@@ -10,8 +14,8 @@ vi.mock('../utils/sound-manager', () => ({
     setVolume: vi.fn(),
     setMuted: vi.fn(),
     isMuted: vi.fn().mockReturnValue(false),
-    getVolume: vi.fn().mockReturnValue(0.7)
-  }
+    getVolume: vi.fn().mockReturnValue(0.7),
+  },
 }));
 
 describe('useCombatSounds', () => {
@@ -22,7 +26,7 @@ describe('useCombatSounds', () => {
   describe('Hook Initialization', () => {
     it('should initialize with default options', () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       expect(result.current.isSoundsEnabled()).toBe(true);
       expect(soundManager.setVolume).toHaveBeenCalledWith(0.7);
     });
@@ -31,11 +35,11 @@ describe('useCombatSounds', () => {
       const customOptions = {
         enabled: false,
         volume: 0.5,
-        actionSoundDuration: 3
+        actionSoundDuration: 3,
       };
 
       const { result } = renderHook(() => useCombatSounds(customOptions));
-      
+
       expect(result.current.isSoundsEnabled()).toBe(false);
       expect(soundManager.setVolume).toHaveBeenCalledWith(0.5);
     });
@@ -44,7 +48,7 @@ describe('useCombatSounds', () => {
   describe('Action Sound Effects', () => {
     it('should play ILLUMINATE action sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playActionSound('ILLUMINATE');
       });
@@ -54,7 +58,7 @@ describe('useCombatSounds', () => {
 
     it('should play REFLECT action sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playActionSound('REFLECT');
       });
@@ -64,7 +68,7 @@ describe('useCombatSounds', () => {
 
     it('should play ENDURE action sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playActionSound('ENDURE');
       });
@@ -74,7 +78,7 @@ describe('useCombatSounds', () => {
 
     it('should play EMBRACE action sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playActionSound('EMBRACE');
       });
@@ -84,7 +88,7 @@ describe('useCombatSounds', () => {
 
     it('should not play action sounds when disabled', async () => {
       const { result } = renderHook(() => useCombatSounds({ enabled: false }));
-      
+
       await act(async () => {
         await result.current.playActionSound('ILLUMINATE');
       });
@@ -94,7 +98,7 @@ describe('useCombatSounds', () => {
 
     it('should use custom action sound duration', async () => {
       const { result } = renderHook(() => useCombatSounds({ actionSoundDuration: 5 }));
-      
+
       await act(async () => {
         await result.current.playActionSound('ILLUMINATE');
       });
@@ -106,7 +110,7 @@ describe('useCombatSounds', () => {
   describe('Shadow Attack Sound Effects', () => {
     it('should play shadow attack sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playShadowAttackSound();
       });
@@ -116,7 +120,7 @@ describe('useCombatSounds', () => {
 
     it('should not play shadow attack sound when disabled', async () => {
       const { result } = renderHook(() => useCombatSounds({ enabled: false }));
-      
+
       await act(async () => {
         await result.current.playShadowAttackSound();
       });
@@ -128,7 +132,7 @@ describe('useCombatSounds', () => {
   describe('Victory/Defeat Sound Effects', () => {
     it('should play victory sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playVictorySound();
       });
@@ -138,7 +142,7 @@ describe('useCombatSounds', () => {
 
     it('should play defeat sound', async () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       await act(async () => {
         await result.current.playDefeatSound();
       });
@@ -148,7 +152,7 @@ describe('useCombatSounds', () => {
 
     it('should not play victory/defeat sounds when disabled', async () => {
       const { result } = renderHook(() => useCombatSounds({ enabled: false }));
-      
+
       await act(async () => {
         await result.current.playVictorySound();
         await result.current.playDefeatSound();
@@ -161,13 +165,13 @@ describe('useCombatSounds', () => {
   describe('Sound Control', () => {
     it('should enable/disable sounds', () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       act(() => {
         result.current.setSoundsEnabled(false);
       });
 
       expect(soundManager.setMuted).toHaveBeenCalledWith(true);
-      
+
       act(() => {
         result.current.setSoundsEnabled(true);
       });
@@ -177,7 +181,7 @@ describe('useCombatSounds', () => {
 
     it('should set sound volume', () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       act(() => {
         result.current.setSoundVolume(0.3);
       });
@@ -187,13 +191,13 @@ describe('useCombatSounds', () => {
 
     it('should clamp volume to valid range', () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       act(() => {
         result.current.setSoundVolume(-0.5);
       });
 
       expect(soundManager.setVolume).toHaveBeenCalledWith(0);
-      
+
       act(() => {
         result.current.setSoundVolume(1.5);
       });
@@ -203,7 +207,7 @@ describe('useCombatSounds', () => {
 
     it('should check if sounds are enabled', () => {
       const { result } = renderHook(() => useCombatSounds());
-      
+
       expect(result.current.isSoundsEnabled()).toBe(true);
     });
   });

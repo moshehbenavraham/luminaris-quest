@@ -29,7 +29,7 @@ export const imageRegistry: Record<string, ImageAsset> = {
     webp: '/images/home-hero.webp',
     avif: '/images/home-hero.avif',
     fallback: '/images/home-page.png',
-    alt: 'Luminari\'s Quest - A therapeutic RPG journey for healing and growth',
+    alt: "Luminari's Quest - A therapeutic RPG journey for healing and growth",
     aspectRatio: 16 / 9,
     priority: true, // Critical for LCP on home page
   },

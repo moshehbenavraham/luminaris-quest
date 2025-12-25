@@ -1,7 +1,7 @@
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Debug test to verify combat trigger mechanism works correctly
  * when failing DC checks on combat-type scenes.
  */
@@ -25,12 +25,15 @@ describe('Combat Trigger Debug Tests', () => {
       }
     }
 
-    console.log('Combat scenes found:', scenes.map(s => ({
-      index: s.index,
-      id: s.scene.id,
-      shadowType: s.scene.shadowType,
-      dc: s.scene.dc
-    })));
+    console.log(
+      'Combat scenes found:',
+      scenes.map((s) => ({
+        index: s.index,
+        id: s.scene.id,
+        shadowType: s.scene.shadowType,
+        dc: s.scene.dc,
+      })),
+    );
 
     expect(scenes.length).toBeGreaterThan(0);
   });
@@ -50,7 +53,7 @@ describe('Combat Trigger Debug Tests', () => {
       success: false,
       triggeredCombat: outcome.triggeredCombat,
       shadowType: outcome.shadowType,
-      resourceChanges: outcome.resourceChanges
+      resourceChanges: outcome.resourceChanges,
     });
 
     expect(outcome.triggeredCombat).toBe(true);
@@ -67,7 +70,7 @@ describe('Combat Trigger Debug Tests', () => {
       name: shadow?.name,
       type: shadow?.type,
       currentHP: shadow?.currentHP,
-      maxHP: shadow?.maxHP
+      maxHP: shadow?.maxHP,
     });
 
     expect(shadow).toBeTruthy();
@@ -81,19 +84,19 @@ describe('Combat Trigger Debug Tests', () => {
       { index: 2, expectedShadow: SHADOW_IDS.WHISPER_OF_DOUBT },
       { index: 7, expectedShadow: SHADOW_IDS.VEIL_OF_ISOLATION },
       { index: 12, expectedShadow: SHADOW_IDS.STORM_OF_OVERWHELM },
-      { index: 17, expectedShadow: SHADOW_IDS.ECHO_OF_PAST_PAIN }
+      { index: 17, expectedShadow: SHADOW_IDS.ECHO_OF_PAST_PAIN },
     ];
 
     combatScenes.forEach(({ index, expectedShadow }) => {
       const scene = getScene(index);
       expect(scene.type).toBe('combat');
-      
+
       const outcome = handleSceneOutcome(scene, false, 1); // Failed check
-      
+
       console.log(`Scene ${index} (${scene.id}):`, {
         triggeredCombat: outcome.triggeredCombat,
         shadowType: outcome.shadowType,
-        expectedShadow
+        expectedShadow,
       });
 
       expect(outcome.triggeredCombat).toBe(true);
@@ -109,7 +112,7 @@ describe('Combat Trigger Debug Tests', () => {
       sceneId: scene.id,
       success: true,
       triggeredCombat: outcome.triggeredCombat,
-      resourceChanges: outcome.resourceChanges
+      resourceChanges: outcome.resourceChanges,
     });
 
     expect(outcome.triggeredCombat).toBe(false);
@@ -137,8 +140,8 @@ describe('Combat Trigger Debug Tests', () => {
       trials,
       failures: failureCount,
       combatTriggered: combatTriggeredCount,
-      failureRate: (failureCount / trials * 100).toFixed(1) + '%',
-      expectedFailureRate: ((20 - scene.dc + 1) / 20 * 100).toFixed(1) + '%'
+      failureRate: ((failureCount / trials) * 100).toFixed(1) + '%',
+      expectedFailureRate: (((20 - scene.dc + 1) / 20) * 100).toFixed(1) + '%',
     });
 
     // Should have some failures for DC 14 (35% expected failure rate)

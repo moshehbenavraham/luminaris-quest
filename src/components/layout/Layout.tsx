@@ -1,4 +1,3 @@
- 
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
@@ -14,9 +13,9 @@ export function Layout() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-neutral-100">
+      <div className="from-background flex min-h-screen items-center justify-center bg-gradient-to-br to-neutral-100">
         <div className="glass rounded-2xl p-8 text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <div className="border-primary mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent"></div>
           <p className="text-muted-foreground">Loading your adventure...</p>
         </div>
       </div>
@@ -25,14 +24,14 @@ export function Layout() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-neutral-100">
+      <div className="from-background flex min-h-screen items-center justify-center bg-gradient-to-br to-neutral-100">
         <div className="w-full max-w-md p-6 text-center">
           <div className="glass rounded-2xl p-8">
             <div className="bg-destructive/10 mx-auto mb-4 w-fit rounded-full p-4">
-              <Sparkles className="h-8 w-8 text-destructive" />
+              <Sparkles className="text-destructive h-8 w-8" />
             </div>
-            <h2 className="mb-4 font-heading text-2xl font-bold">Authentication Error</h2>
-            <p className="mb-6 text-muted-foreground">
+            <h2 className="font-heading mb-4 text-2xl font-bold">Authentication Error</h2>
+            <p className="text-muted-foreground mb-6">
               {error.message || 'Failed to initialize authentication'}
             </p>
             <Button onClick={() => window.location.reload()} className="btn-primary">
@@ -45,7 +44,7 @@ export function Layout() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-background via-neutral-100 to-background">
+    <div className="from-background to-background relative flex min-h-screen flex-col bg-gradient-to-br via-neutral-100">
       <header>
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
       </header>

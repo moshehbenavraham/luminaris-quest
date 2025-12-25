@@ -7,11 +7,11 @@ vi.mock('@/lib/environment', () => ({
     info: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-    error: vi.fn()
+    error: vi.fn(),
   })),
   featureFlags: {
-    enablePerformanceMonitoring: vi.fn(() => true)
-  }
+    enablePerformanceMonitoring: vi.fn(() => true),
+  },
 }));
 
 describe('useWebVitals', () => {
@@ -26,7 +26,7 @@ describe('useWebVitals', () => {
       value: 1500,
       delta: 1500,
       id: 'test-lcp',
-      entries: []
+      entries: [],
     };
 
     expect(testMetric.name).toBe('LCP');
@@ -39,13 +39,13 @@ describe('useWebVitals', () => {
   it('should validate metric names are correct', () => {
     const validNames: Array<WebVitalsMetric['name']> = ['CLS', 'FID', 'FCP', 'LCP', 'TTFB'];
 
-    validNames.forEach(name => {
+    validNames.forEach((name) => {
       const metric: WebVitalsMetric = {
         name,
         value: 100,
         delta: 100,
         id: `test-${name}`,
-        entries: []
+        entries: [],
       };
 
       expect(metric.name).toBe(name);
@@ -55,7 +55,7 @@ describe('useWebVitals', () => {
   it('should handle performance monitoring feature flag', () => {
     // Mock the environment module
     const mockFeatureFlags = {
-      enablePerformanceMonitoring: vi.fn(() => true)
+      enablePerformanceMonitoring: vi.fn(() => true),
     };
 
     // Test that the feature flag function exists and returns a boolean
@@ -69,7 +69,7 @@ describe('useWebVitals', () => {
       info: vi.fn(),
       warn: vi.fn(),
       debug: vi.fn(),
-      error: vi.fn()
+      error: vi.fn(),
     }));
 
     // Test that createLogger is called and returns expected methods
@@ -93,7 +93,7 @@ describe('useWebVitals', () => {
       ttfb: 300,
       timestamp: Date.now(),
       url: 'https://test.com',
-      userAgent: 'test-agent'
+      userAgent: 'test-agent',
     };
 
     expect(typeof webVitalsData.cls).toBe('number');

@@ -1,4 +1,3 @@
- 
 import { useEffect } from 'react';
 import { useGameStore } from '@/store/game-store';
 
@@ -8,12 +7,7 @@ import { useGameStore } from '@/store/game-store';
  * Also pauses regeneration when in combat
  */
 export function useEnergyRegeneration() {
-  const { 
-    startEnergyRegeneration, 
-    stopEnergyRegeneration,
-    _hasHydrated,
-    combat
-  } = useGameStore();
+  const { startEnergyRegeneration, stopEnergyRegeneration, _hasHydrated, combat } = useGameStore();
 
   useEffect(() => {
     // Only start regeneration after store has hydrated
@@ -40,4 +34,4 @@ export function useEnergyRegeneration() {
       console.debug('[Energy Regeneration] Resumed after combat');
     }
   }, [_hasHydrated, combat.inCombat]);
-} 
+}

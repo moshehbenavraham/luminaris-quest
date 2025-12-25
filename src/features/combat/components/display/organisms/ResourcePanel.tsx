@@ -1,14 +1,14 @@
 /**
  * MIT License
  * Copyright (c) 2024 Luminari's Quest
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
@@ -35,15 +35,15 @@ export function ResourcePanel({
   statusEffects,
   playerLevel,
   isPlayerTurn,
-  className
+  className,
 }: ResourcePanelProps) {
   return (
-    <div 
+    <div
       className={cn(
-        'bg-combat-card rounded-lg border border-combat-border p-4 space-y-4',
+        'bg-combat-card border-combat-border space-y-4 rounded-lg border p-4',
         'transition-all duration-300',
-        isPlayerTurn && 'ring-2 ring-blue-400/50 bg-blue-950/20',
-        className
+        isPlayerTurn && 'bg-blue-950/20 ring-2 ring-blue-400/50',
+        className,
       )}
       role="region"
       aria-label="Player resources and status"
@@ -54,12 +54,8 @@ export function ResourcePanel({
         resources={resources}
         playerLevel={playerLevel}
       />
-      
-      <StatusEffectList
-        statusEffects={statusEffects}
-        target="player"
-      />
-      
+
+      <StatusEffectList statusEffects={statusEffects} target="player" />
     </div>
   );
 }
