@@ -11,6 +11,7 @@ import type {
   GameState,
   JournalEntry,
   Milestone,
+  PlayerStatistics,
   SaveError,
   SaveState,
 } from '@/types';
@@ -21,6 +22,7 @@ import {
   detectEnvironment,
 } from '@/lib/database-health';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 import { createLogger as createEnvLogger, getEnvironmentConfig } from '@/lib/environment';
 import { isLastScene } from '@/engine/scene-engine';
 import { usePlayerResources } from '@/store/slices';
@@ -838,7 +840,7 @@ export const useGameStoreBase = create<GameState>()(
             // Prepare game state data
             // Ensure all data is properly formatted for database
             // Note: Resource values come from shared resource store
-            const gameState: any = {
+            const gameState = {
               user_id: user.id,
               guardian_trust: currentState.guardianTrust,
               player_level: currentState.playerLevel,
@@ -851,11 +853,12 @@ export const useGameStoreBase = create<GameState>()(
               light_points: resourceSnapshot.lightPoints,
               shadow_points: resourceSnapshot.shadowPoints,
               player_health: resourceSnapshot.playerHealth,
+              max_player_health: resourceSnapshot.maxPlayerHealth,
               // Experience points system
               experience_points: currentState.experiencePoints,
               experience_to_next: currentState.experienceToNext,
-              // Player statistics for therapeutic analytics
-              player_statistics: currentState.playerStatistics,
+              // Player statistics for therapeutic analytics (cast to Json for Supabase JSONB)
+              player_statistics: currentState.playerStatistics as unknown as Json,
               updated_at: new Date().toISOString(),
             };
 
@@ -1089,12 +1092,12 @@ export const useGameStoreBase = create<GameState>()(
             if (gameState) {
               const currentResources = usePlayerResources.getState().getResourceSnapshot();
               usePlayerResources.getState().setAllResources({
-                playerEnergy: (gameState as any).player_energy ?? currentResources.playerEnergy,
-                maxPlayerEnergy:
-                  (gameState as any).max_player_energy ?? currentResources.maxPlayerEnergy,
-                lightPoints: (gameState as any).light_points ?? currentResources.lightPoints,
-                shadowPoints: (gameState as any).shadow_points ?? currentResources.shadowPoints,
-                playerHealth: (gameState as any).player_health ?? currentResources.playerHealth,
+                playerEnergy: gameState.player_energy ?? currentResources.playerEnergy,
+                maxPlayerEnergy: gameState.max_player_energy ?? currentResources.maxPlayerEnergy,
+                lightPoints: gameState.light_points ?? currentResources.lightPoints,
+                shadowPoints: gameState.shadow_points ?? currentResources.shadowPoints,
+                playerHealth: gameState.player_health ?? currentResources.playerHealth,
+                maxPlayerHealth: gameState.max_player_health ?? currentResources.maxPlayerHealth,
               });
             }
 
@@ -1106,10 +1109,12 @@ export const useGameStoreBase = create<GameState>()(
                 milestones: parsedMilestones,
                 sceneHistory: parsedSceneHistory,
                 // Experience points system
-                experiencePoints: (gameState as any).experience_points ?? get().experiencePoints,
-                experienceToNext: (gameState as any).experience_to_next ?? get().experienceToNext,
-                // Player statistics for therapeutic analytics
-                playerStatistics: (gameState as any).player_statistics ?? get().playerStatistics,
+                experiencePoints: gameState.experience_points ?? get().experiencePoints,
+                experienceToNext: gameState.experience_to_next ?? get().experienceToNext,
+                // Player statistics for therapeutic analytics (cast from Json)
+                playerStatistics:
+                  (gameState.player_statistics as unknown as PlayerStatistics) ??
+                  get().playerStatistics,
               }),
               journalEntries:
                 journalEntries?.map(

@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 3-4 days
 
-**Progress**: 1/6 sessions (17%)
+**Progress**: 2/6 sessions (33%)
 
 ---
 
@@ -21,7 +21,7 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 | Session | Name                 | Status      | Est. Tasks | Validated  |
 | ------- | -------------------- | ----------- | ---------- | ---------- |
 | 01      | Schema and Types     | Complete    | 18         | 2025-12-25 |
-| 02      | Critical Persistence | Not Started | ~18        | -          |
+| 02      | Critical Persistence | Complete    | 18         | 2025-12-26 |
 | 03      | Offline Resilience   | Not Started | ~22        | -          |
 | 04      | Combat History       | Not Started | ~20        | -          |
 | 05      | User Settings        | Not Started | ~18        | -          |
@@ -37,11 +37,18 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 - Regenerated TypeScript types from database schema
 - Documented type audit for Session 02 cleanup
 
+### Session 02: Critical Persistence (2025-12-26)
+
+- Added `max_player_health` to `saveToSupabase()` and `loadFromSupabase()`
+- Removed all `as any` type casts in persistence logic
+- All 6 resource variables (health, maxHealth, energy, maxEnergy, LP, SP) now sync to DB
+- Created integration tests for cross-device state restoration
+
 ---
 
 ## Upcoming Sessions
 
-- Session 02: Critical Persistence
+- Session 03: Offline Resilience
 
 ---
 
