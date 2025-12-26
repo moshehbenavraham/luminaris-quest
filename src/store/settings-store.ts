@@ -60,6 +60,9 @@ export interface SettingsState {
   ui: UIPreferences;
   tutorial: TutorialState;
 
+  // Audio player track index (persisted separately for UX)
+  audioTrackIndex: number;
+
   // Save state
   saveStatus: SettingsSaveStatus;
   lastSyncTimestamp?: number;
@@ -70,6 +73,9 @@ export interface SettingsState {
   setMasterVolume: (volume: number) => void;
   toggleMusicMute: () => void;
   toggleSfxMute: () => void;
+
+  // Actions - Audio Player Track
+  setAudioTrackIndex: (index: number) => void;
 
   // Actions - Accessibility
   updateAccessibility: (settings: Partial<AccessibilitySettings>) => void;
@@ -141,6 +147,9 @@ export const useSettingsStoreBase = create<SettingsState>()(
       ui: defaultUI,
       tutorial: defaultTutorial,
 
+      // Audio player track index (default to first track)
+      audioTrackIndex: 0,
+
       saveStatus: 'idle',
       _hasHydrated: false,
 
@@ -171,6 +180,12 @@ export const useSettingsStoreBase = create<SettingsState>()(
         set((state) => ({
           audio: { ...state.audio, sfxMuted: !state.audio.sfxMuted },
         }));
+        get().debouncedSave();
+      },
+
+      // Audio player track index action
+      setAudioTrackIndex: (index) => {
+        set({ audioTrackIndex: Math.max(0, index) });
         get().debouncedSave();
       },
 
@@ -341,7 +356,10 @@ export const useSettingsStoreBase = create<SettingsState>()(
               user_id: user.id,
               audio_settings: state.audio as unknown as Record<string, unknown>,
               accessibility: state.accessibility as unknown as Record<string, unknown>,
-              ui_preferences: state.ui as unknown as Record<string, unknown>,
+              ui_preferences: {
+                ...state.ui,
+                audioTrackIndex: state.audioTrackIndex,
+              } as unknown as Record<string, unknown>,
               tutorial_state: state.tutorial as unknown as Record<string, unknown>,
               updated_at: new Date().toISOString(),
             } as any,
@@ -408,11 +426,17 @@ export const useSettingsStoreBase = create<SettingsState>()(
           if (data) {
             logger.info('Settings loaded from Supabase');
 
+            // Extract audioTrackIndex from ui_preferences with fallback to 0
+            const uiPrefs = data.ui_preferences as unknown as Record<string, unknown>;
+            const audioTrackIndex =
+              typeof uiPrefs?.audioTrackIndex === 'number' ? uiPrefs.audioTrackIndex : 0;
+
             set({
               audio: data.audio_settings as unknown as AudioSettings,
               accessibility: data.accessibility as unknown as AccessibilitySettings,
               ui: data.ui_preferences as unknown as UIPreferences,
               tutorial: data.tutorial_state as unknown as TutorialState,
+              audioTrackIndex,
               lastSyncTimestamp: new Date(data.updated_at || Date.now()).getTime(),
             });
 
@@ -448,6 +472,7 @@ export const useSettingsStoreBase = create<SettingsState>()(
         accessibility: state.accessibility,
         ui: state.ui,
         tutorial: state.tutorial,
+        audioTrackIndex: state.audioTrackIndex,
       }),
       onRehydrateStorage: () => (state) => {
         state?._setHasHydrated(true);
@@ -474,6 +499,7 @@ export const useSettingsStore = () => {
       accessibility: defaultAccessibility,
       ui: defaultUI,
       tutorial: defaultTutorial,
+      audioTrackIndex: 0,
       saveStatus: 'idle' as SettingsSaveStatus,
       _hasHydrated: false,
 
@@ -482,6 +508,7 @@ export const useSettingsStore = () => {
       setMasterVolume: store.setMasterVolume,
       toggleMusicMute: store.toggleMusicMute,
       toggleSfxMute: store.toggleSfxMute,
+      setAudioTrackIndex: store.setAudioTrackIndex,
       updateAccessibility: store.updateAccessibility,
       setTextSize: store.setTextSize,
       toggleReducedMotion: store.toggleReducedMotion,
@@ -511,3 +538,7 @@ export const useAudioSettings = () => useSettingsStore().audio;
 export const useAccessibilitySettings = () => useSettingsStore().accessibility;
 export const useUIPreferences = () => useSettingsStore().ui;
 export const useTutorialState = () => useSettingsStore().tutorial;
+
+// Selector for audio track index (selective subscription for AudioPlayer)
+export const useAudioTrackIndex = () =>
+  useSettingsStoreBase((state) => (state._hasHydrated ? state.audioTrackIndex : 0));

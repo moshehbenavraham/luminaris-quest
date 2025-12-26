@@ -6,6 +6,7 @@ import { persist } from 'zustand/middleware';
 import type { CombatAction, ShadowManifestation } from '@/types';
 import { getEnvironmentConfig } from '@/lib/environment';
 import { usePlayerResources } from '@/store/slices';
+import { useGameStoreBase } from '@/store/game-store';
 import {
   saveCombatHistory,
   type ResourcesSnapshot,
@@ -372,6 +373,10 @@ export const useCombatStore = create<CombatState>()(
             set({ lastCombatHistoryId: historyId });
           }
         });
+
+        // Persist preferredActions to game-store playerStatistics for therapeutic analytics
+        // This accumulates action counts across all combats
+        useGameStoreBase.getState().updatePlayerStatistics(state.preferredActions);
 
         const reason = victory
           ? `You've overcome ${state.enemy?.name}!`

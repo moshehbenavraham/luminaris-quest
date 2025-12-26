@@ -79,6 +79,7 @@ export interface GameState {
     victory: boolean,
     turnsPlayed: number,
   ) => void;
+  updatePlayerStatistics: (preferredActions: Partial<Record<CombatAction, number>>) => void;
   getPlayerStatistics: () => PlayerStatistics;
 
   // Combat System Actions (simplified - new combat system in @/features/combat)

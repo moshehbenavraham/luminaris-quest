@@ -725,6 +725,32 @@ export const useGameStoreBase = create<GameState>()(
 
       getPlayerStatistics: () => get().playerStatistics,
 
+      // Partial update for player statistics - merges preferredActions from combat
+      updatePlayerStatistics: (preferredActions) => {
+        set((state) => {
+          const currentStats = state.playerStatistics;
+
+          logger.debug('Updating player statistics with preferredActions', {
+            incoming: preferredActions,
+            current: currentStats.combatActions,
+          });
+
+          return {
+            playerStatistics: {
+              ...currentStats,
+              combatActions: {
+                ILLUMINATE:
+                  currentStats.combatActions.ILLUMINATE + (preferredActions.ILLUMINATE || 0),
+                REFLECT: currentStats.combatActions.REFLECT + (preferredActions.REFLECT || 0),
+                ENDURE: currentStats.combatActions.ENDURE + (preferredActions.ENDURE || 0),
+                EMBRACE: currentStats.combatActions.EMBRACE + (preferredActions.EMBRACE || 0),
+              },
+            },
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
+          };
+        });
+      },
+
       // Simplified endCombat - called by new combat system (CombatEndModal)
       // Advances scene on victory and restores player health
       endCombat: (victory: boolean) => {
@@ -1526,6 +1552,7 @@ export const useGameStore = () => {
 
       // Player Statistics Management
       updateCombatStatistics: store.updateCombatStatistics,
+      updatePlayerStatistics: store.updatePlayerStatistics,
       getPlayerStatistics: store.getPlayerStatistics,
 
       // Combat System Actions (simplified)

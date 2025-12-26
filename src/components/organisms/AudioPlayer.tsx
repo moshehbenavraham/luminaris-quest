@@ -5,6 +5,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import AudioPlayerLib from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import { useAudioTrackIndex, useSettingsStoreBase } from '@/store/settings-store';
 
 export interface Track {
   src: string;
@@ -19,22 +20,29 @@ export interface AudioPlayerProps {
 }
 
 /**
- * AudioPlayer – wraps `react-h5-audio-player` to provide a simple playlist with
- * next-track handling. Meant to live at the organism layer.
+ * AudioPlayer - wraps `react-h5-audio-player` to provide a simple playlist with
+ * next-track handling. Track index persists to settings store for cross-session UX.
+ * Always starts paused for therapeutic safety (unexpected audio can be triggering).
  */
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
-  const [currentIdx, setCurrentIdx] = useState(0);
+  // Use persisted track index from settings store
+  const audioTrackIndex = useAudioTrackIndex();
+  const setAudioTrackIndex = useSettingsStoreBase((state) => state.setAudioTrackIndex);
+  const _hasHydrated = useSettingsStoreBase((state) => state._hasHydrated);
+
+  // Use hydrated index or fallback to 0 during hydration
+  // Clamp to valid range in case playlist is shorter than saved index
+  const currentIdx = _hasHydrated ? Math.min(audioTrackIndex, Math.max(0, tracks.length - 1)) : 0;
+
   const [isPlaying, setIsPlaying] = useState(false);
   const playerRef = useRef<AudioPlayerLib>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleNext = useCallback(
     (autoplay = false) => {
-      setCurrentIdx((prev) => {
-        const next = (prev + 1) % tracks.length;
-        onTrackChange?.(next);
-        return next;
-      });
+      const next = (currentIdx + 1) % tracks.length;
+      setAudioTrackIndex(next);
+      onTrackChange?.(next);
 
       // Auto-start next track if:
       // 1. User was playing music (isPlaying is true), OR
@@ -58,16 +66,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
         }, 100);
       }
     },
-    [tracks.length, onTrackChange, isPlaying],
+    [currentIdx, tracks.length, onTrackChange, isPlaying, setAudioTrackIndex],
   );
 
   const handlePrevious = useCallback(() => {
-    setCurrentIdx((prev) => {
-      const previous = prev === 0 ? tracks.length - 1 : prev - 1;
-      onTrackChange?.(previous);
-      return previous;
-    });
-  }, [tracks.length, onTrackChange]);
+    const previous = currentIdx === 0 ? tracks.length - 1 : currentIdx - 1;
+    setAudioTrackIndex(previous);
+    onTrackChange?.(previous);
+  }, [currentIdx, tracks.length, onTrackChange, setAudioTrackIndex]);
 
   // Handler for manual next button clicks - doesn't need autoplay
   const handleClickNext = useCallback(() => {
@@ -146,7 +152,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ tracks, onTrackChange }) => {
         Now playing: {currentTrack.title}, track {currentIdx + 1} of {tracks.length}
       </div>
       <div className="text-muted-foreground mb-2 text-sm">
-        Keyboard shortcuts: Space/K = Play/Pause, ←/J = Previous, →/L = Next
+        Keyboard shortcuts: Space/K = Play/Pause, Left/J = Previous, Right/L = Next
       </div>
       <AudioPlayerLib
         ref={playerRef}

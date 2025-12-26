@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 3-4 days
 
-**Progress**: 4/6 sessions (67%)
+**Progress**: 5/6 sessions (83%)
 
 ---
 
@@ -24,7 +24,7 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 | 02      | Critical Persistence | Complete    | 18         | 2025-12-26 |
 | 03      | Offline Resilience   | Complete    | 23         | 2025-12-26 |
 | 04      | Combat History       | Complete    | 22         | 2025-12-26 |
-| 05      | User Settings        | Not Started | ~18        | -          |
+| 05      | User Settings        | Complete    | 22         | 2025-12-26 |
 | 06      | Therapeutic Data     | Not Started | ~15        | -          |
 
 ---
@@ -59,11 +59,19 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 - Added lastCombatHistoryId for future journal linking (Session 06)
 - Created 10 integration tests for combat history persistence
 
+### Session 05: User Settings (2025-12-26)
+
+- Added audioTrackIndex persistence to settings-store with Supabase sync
+- Refactored AudioPlayer.tsx to use settings store instead of local state
+- Implemented updatePlayerStatistics action for partial playerStatistics updates
+- Combat preferredActions now persist to game-store playerStatistics after each combat
+- Created 14 new tests (9 unit tests for settings, 5 integration tests for combat flow)
+
 ---
 
 ## Upcoming Sessions
 
-- Session 05: User Settings
+- Session 06: Therapeutic Data
 
 ---
 

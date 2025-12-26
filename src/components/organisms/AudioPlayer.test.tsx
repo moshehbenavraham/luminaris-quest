@@ -1,6 +1,17 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import AudioPlayer from '@/components/organisms/AudioPlayer';
+import { useSettingsStoreBase } from '@/store/settings-store';
+
+// Mock the settings store to reset audioTrackIndex before each test
+vi.mock('@/store/settings-store', async () => {
+  const actual =
+    await vi.importActual<typeof import('@/store/settings-store')>('@/store/settings-store');
+  return {
+    ...actual,
+  };
+});
 
 const playlist = [
   { src: '/audio/track-1.mp3', title: 'Track 1' },
@@ -8,6 +19,16 @@ const playlist = [
 ];
 
 describe('AudioPlayer', () => {
+  beforeEach(() => {
+    // Reset the settings store audioTrackIndex to 0 before each test
+    act(() => {
+      useSettingsStoreBase.setState({
+        audioTrackIndex: 0,
+        _hasHydrated: true,
+      });
+    });
+  });
+
   it('renders without crashing and shows first track title', () => {
     render(<AudioPlayer tracks={playlist} />);
     expect(screen.getByText('Track 1')).not.toBeNull();

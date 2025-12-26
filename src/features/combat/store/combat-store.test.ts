@@ -16,7 +16,11 @@ vi.mock('@/utils/sound-manager', () => ({
 }));
 
 // Mock game store for combat history tests
-const mockGameStoreState = { currentSceneIndex: 5 };
+const mockUpdatePlayerStatistics = vi.fn();
+const mockGameStoreState = {
+  currentSceneIndex: 5,
+  updatePlayerStatistics: mockUpdatePlayerStatistics,
+};
 vi.mock('@/store/game-store', () => ({
   useGameStoreBase: {
     getState: () => mockGameStoreState,
