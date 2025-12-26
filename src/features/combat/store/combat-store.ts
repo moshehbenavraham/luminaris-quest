@@ -1,29 +1,15 @@
-/**
- * MIT License
- * Copyright (c) 2024 Luminari's Quest
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- */
-
-// ✅✅✅ THIS IS THE NEW COMBAT SYSTEM - USE THIS ✅✅✅
-// This is the ACTIVE combat store for all new development
-// Located in: /src/features/combat/
-// DO NOT confuse with OLD system in /src/store/game-store.ts
-// See docs/archive/COMBAT_MIGRATION_GUIDE.md for details
+// Combat Store - NEW combat system (see docs/archive/COMBAT_MIGRATION_GUIDE.md)
+// MIT License - Copyright (c) 2024 Luminari's Quest
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CombatAction, ShadowManifestation } from '@/types';
 import { getEnvironmentConfig } from '@/lib/environment';
 import { usePlayerResources } from '@/store/slices';
+import {
+  saveCombatHistory,
+  type ResourcesSnapshot,
+} from '@/features/combat/utils/save-combat-history';
 import {
   canPerformAction as engineCanPerformAction,
   executeEnemyTurn as engineExecuteEnemyTurn,
@@ -37,6 +23,9 @@ export interface CombatResources {
   lp: number;
   sp: number;
 }
+
+// Re-export types from utilities for external use
+export type { ResourcesSnapshot } from '@/features/combat/utils/save-combat-history';
 
 export interface GameResources {
   lightPoints: number;
@@ -87,16 +76,11 @@ export interface CombatState {
   // Status effects
   statusEffects: StatusEffects;
 
-  // Combat log
   log: CombatLogEntry[];
-
-  // Action tracking
   preferredActions: Record<CombatAction, number>;
-
-  // Feature flags
-  flags: {
-    newCombatUI: boolean;
-  };
+  resourcesAtStart: ResourcesSnapshot | null;
+  lastCombatHistoryId: string | null;
+  flags: { newCombatUI: boolean };
 
   // Actions
   startCombat: (enemy: ShadowManifestation, gameResources?: GameResources) => void;
@@ -105,13 +89,9 @@ export interface CombatState {
   surrender: () => void;
   endCombat: (victory: boolean) => void;
   clearCombatEnd: () => void;
-
-  // Helper actions
   addLogEntry: (entry: Omit<CombatLogEntry, 'timestamp'>) => void;
   updateStatusEffect: (effect: keyof StatusEffects, value: number | boolean) => void;
   _executeEnemyTurn: () => void;
-
-  // Hydration
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
 }
@@ -146,9 +126,9 @@ const initialState = {
     ENDURE: 0,
     EMBRACE: 0,
   } as Record<CombatAction, number>,
-  flags: {
-    newCombatUI: true, // Default to new UI
-  },
+  resourcesAtStart: null,
+  lastCombatHistoryId: null,
+  flags: { newCombatUI: true },
   _hasHydrated: false,
 };
 
@@ -194,6 +174,14 @@ export const useCombatStore = create<CombatState>()(
         const maxPlayerEnergy = resourceSnapshot.maxPlayerEnergy;
         const playerLevel = gameResources?.playerLevel ?? initialState.playerLevel;
 
+        // Capture resources at start for combat history tracking
+        const resourcesAtStart: ResourcesSnapshot = {
+          lp,
+          sp,
+          energy: playerEnergy,
+          health: playerHealth,
+        };
+
         set({
           isActive: true,
           enemy,
@@ -211,6 +199,16 @@ export const useCombatStore = create<CombatState>()(
           },
           log: [],
           statusEffects: initialState.statusEffects,
+          // Combat history tracking
+          resourcesAtStart,
+          lastCombatHistoryId: null,
+          // Reset action counts for this combat
+          preferredActions: {
+            ILLUMINATE: 0,
+            REFLECT: 0,
+            ENDURE: 0,
+            EMBRACE: 0,
+          },
         });
 
         get().addLogEntry({
@@ -353,6 +351,28 @@ export const useCombatStore = create<CombatState>()(
 
       endCombat: (victory) => {
         const state = get();
+
+        // Save combat history BEFORE any state resets (capture current state)
+        // This is async but non-blocking - errors are logged, not thrown
+        saveCombatHistory(
+          {
+            enemy: state.enemy,
+            resources: state.resources,
+            playerHealth: state.playerHealth,
+            playerEnergy: state.playerEnergy,
+            playerLevel: state.playerLevel,
+            turn: state.turn,
+            resourcesAtStart: state.resourcesAtStart,
+            preferredActions: state.preferredActions,
+            log: state.log,
+          },
+          victory,
+        ).then((historyId) => {
+          if (historyId) {
+            set({ lastCombatHistoryId: historyId });
+          }
+        });
+
         const reason = victory
           ? `You've overcome ${state.enemy?.name}!`
           : 'You retreat to gather your strength...';
@@ -428,6 +448,8 @@ export const useCombatStore = create<CombatState>()(
       name: 'combat-storage',
       partialize: (state) => ({
         // Only persist certain fields
+        // NOTE: resourcesAtStart and lastCombatHistoryId are ephemeral per-combat,
+        // so they are intentionally excluded from localStorage persistence
         resources: state.resources,
         playerHealth: state.playerHealth,
         playerLevel: state.playerLevel,

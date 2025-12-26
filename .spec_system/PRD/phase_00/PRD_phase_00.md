@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 3-4 days
 
-**Progress**: 3/6 sessions (50%)
+**Progress**: 4/6 sessions (67%)
 
 ---
 
@@ -23,7 +23,7 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 | 01      | Schema and Types     | Complete    | 18         | 2025-12-25 |
 | 02      | Critical Persistence | Complete    | 18         | 2025-12-26 |
 | 03      | Offline Resilience   | Complete    | 23         | 2025-12-26 |
-| 04      | Combat History       | Not Started | ~20        | -          |
+| 04      | Combat History       | Complete    | 22         | 2025-12-26 |
 | 05      | User Settings        | Not Started | ~18        | -          |
 | 06      | Therapeutic Data     | Not Started | ~15        | -          |
 
@@ -51,11 +51,19 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 - Implemented graceful fallback in loadFromSupabase() when database is unreachable
 - Created 17 integration tests for offline resilience scenarios
 
+### Session 04: Combat History (2025-12-26)
+
+- Implemented saveCombatHistory() utility to persist combat records to Supabase
+- Added resourcesAtStart state field to capture LP, SP, energy, health at combat start
+- Integrated combat history save into endCombat() flow (victory and defeat)
+- Added lastCombatHistoryId for future journal linking (Session 06)
+- Created 10 integration tests for combat history persistence
+
 ---
 
 ## Upcoming Sessions
 
-- Session 04: Combat History
+- Session 05: User Settings
 
 ---
 

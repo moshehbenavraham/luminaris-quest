@@ -15,6 +15,41 @@ vi.mock('@/utils/sound-manager', () => ({
   },
 }));
 
+// Mock game store for combat history tests
+const mockGameStoreState = { currentSceneIndex: 5 };
+vi.mock('@/store/game-store', () => ({
+  useGameStoreBase: {
+    getState: () => mockGameStoreState,
+  },
+}));
+
+// Mock Supabase for combat history tests
+const mockSupabaseInsert = vi.fn();
+const mockSupabaseSelect = vi.fn();
+const mockSupabaseSingle = vi.fn();
+const mockSupabaseGetUser = vi.fn();
+
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    auth: {
+      getUser: () => mockSupabaseGetUser(),
+    },
+    from: () => ({
+      insert: (data: unknown) => {
+        mockSupabaseInsert(data);
+        return {
+          select: (cols: string) => {
+            mockSupabaseSelect(cols);
+            return {
+              single: () => mockSupabaseSingle(),
+            };
+          },
+        };
+      },
+    }),
+  },
+}));
+
 // Mock timers for enemy turn delays
 vi.useFakeTimers({ shouldAdvanceTime: false });
 
@@ -476,6 +511,275 @@ describe('Combat Store - Action Execution Flow', () => {
       expect(finalState.resources.sp).toBe(5);
       expect(finalState.playerHealth).toBe(75);
       expect(finalState.playerLevel).toBe(2);
+    });
+  });
+
+  describe('Combat History Persistence', () => {
+    beforeEach(() => {
+      // Reset Supabase mocks before each test
+      mockSupabaseInsert.mockClear();
+      mockSupabaseSelect.mockClear();
+      mockSupabaseSingle.mockClear();
+      mockSupabaseGetUser.mockClear();
+
+      // Default: authenticated user
+      mockSupabaseGetUser.mockResolvedValue({
+        data: { user: { id: 'test-user-123' } },
+      });
+
+      // Default: successful insert
+      mockSupabaseSingle.mockResolvedValue({
+        data: { id: 'history-record-456' },
+        error: null,
+      });
+    });
+
+    it('captures resourcesAtStart on combat start', () => {
+      const gameResources = {
+        lightPoints: 15,
+        shadowPoints: 5,
+        playerHealth: 90,
+        playerLevel: 2,
+        playerEnergy: 80,
+        maxPlayerEnergy: 100,
+      };
+
+      store.getState().startCombat(mockEnemy, gameResources);
+      const state = store.getState();
+
+      expect(state.resourcesAtStart).toEqual({
+        lp: 15,
+        sp: 5,
+        energy: 80,
+        health: 90,
+      });
+    });
+
+    it('resets preferredActions to zero on combat start', () => {
+      // Set some action counts
+      store.setState({
+        preferredActions: { ILLUMINATE: 5, REFLECT: 3, ENDURE: 2, EMBRACE: 1 },
+      });
+
+      // Start new combat
+      store.getState().startCombat(mockEnemy);
+      const state = store.getState();
+
+      expect(state.preferredActions).toEqual({
+        ILLUMINATE: 0,
+        REFLECT: 0,
+        ENDURE: 0,
+        EMBRACE: 0,
+      });
+    });
+
+    it('saves combat history on victory', async () => {
+      // Setup combat state
+      store.setState({
+        resources: { lp: 10, sp: 0 },
+        enemy: { ...mockEnemy, currentHP: 1 },
+        resourcesAtStart: { lp: 15, sp: 0, energy: 100, health: 100 },
+        preferredActions: { ILLUMINATE: 3, REFLECT: 1, ENDURE: 0, EMBRACE: 0 },
+      });
+
+      // Execute action that defeats enemy
+      store.getState().executeAction('ILLUMINATE');
+
+      // Wait for async save to complete
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Verify insert was called with victory = true
+      expect(mockSupabaseInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: 'test-user-123',
+          enemy_id: 'test-shadow',
+          enemy_name: 'Test Shadow',
+          victory: true,
+          scene_index: 5,
+        }),
+      );
+    });
+
+    it('saves combat history on defeat (surrender)', async () => {
+      // Setup combat state
+      store.setState({
+        resourcesAtStart: { lp: 10, sp: 0, energy: 100, health: 100 },
+        preferredActions: { ILLUMINATE: 2, REFLECT: 0, ENDURE: 1, EMBRACE: 0 },
+      });
+
+      // Surrender
+      store.getState().surrender();
+
+      // Wait for async save
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Verify insert was called with victory = false
+      expect(mockSupabaseInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          victory: false,
+        }),
+      );
+    });
+
+    it('captures resources_start and resources_end correctly', async () => {
+      const startResources = { lp: 20, sp: 5, energy: 100, health: 100 };
+      store.setState({
+        resourcesAtStart: startResources,
+        resources: { lp: 15, sp: 8 },
+        playerHealth: 75,
+        playerEnergy: 85,
+      });
+
+      store.getState().endCombat(true);
+
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSupabaseInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resources_start: startResources,
+          resources_end: { lp: 15, sp: 8, energy: 85, health: 75 },
+        }),
+      );
+    });
+
+    it('tracks actions_used accurately', async () => {
+      store.setState({
+        resources: { lp: 30, sp: 10 },
+        playerEnergy: 50,
+        resourcesAtStart: { lp: 30, sp: 10, energy: 100, health: 100 },
+      });
+
+      // Execute multiple actions
+      store.getState().executeAction('ILLUMINATE');
+      store.setState({ isPlayerTurn: true });
+      store.getState().executeAction('ILLUMINATE');
+      store.setState({ isPlayerTurn: true });
+      store.getState().executeAction('ENDURE');
+      store.setState({ isPlayerTurn: true });
+
+      // End combat
+      store.getState().endCombat(true);
+
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSupabaseInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          actions_used: { ILLUMINATE: 2, REFLECT: 0, ENDURE: 1, EMBRACE: 0 },
+        }),
+      );
+    });
+
+    it('stores lastCombatHistoryId on successful save', async () => {
+      store.setState({
+        resourcesAtStart: { lp: 10, sp: 0, energy: 100, health: 100 },
+      });
+
+      store.getState().endCombat(true);
+
+      // Wait for the async save and state update
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(store.getState().lastCombatHistoryId).toBe('history-record-456');
+    });
+
+    it('skips save when no authenticated user', async () => {
+      mockSupabaseGetUser.mockResolvedValue({ data: { user: null } });
+
+      store.setState({
+        resourcesAtStart: { lp: 10, sp: 0, energy: 100, health: 100 },
+      });
+
+      store.getState().endCombat(true);
+
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSupabaseInsert).not.toHaveBeenCalled();
+    });
+
+    it('handles save errors gracefully without blocking combat', async () => {
+      mockSupabaseSingle.mockResolvedValue({
+        data: null,
+        error: { message: 'Database error' },
+      });
+
+      store.setState({
+        resourcesAtStart: { lp: 10, sp: 0, energy: 100, health: 100 },
+      });
+
+      // This should not throw
+      store.getState().endCombat(true);
+
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // Combat should still end properly
+      const state = store.getState();
+      expect(state.isActive).toBe(false);
+      expect(state.combatEndStatus.isEnded).toBe(true);
+
+      // lastCombatHistoryId should remain null due to error
+      expect(state.lastCombatHistoryId).toBeNull();
+    });
+
+    it('limits combat_log to last 50 entries', async () => {
+      // Create 60 log entries
+      const longLog = Array.from({ length: 60 }, (_, i) => ({
+        turn: i + 1,
+        actor: 'PLAYER' as const,
+        action: 'ILLUMINATE',
+        effect: `Effect ${i}`,
+        message: `Message ${i}`,
+        timestamp: Date.now() + i,
+      }));
+
+      store.setState({
+        log: longLog,
+        resourcesAtStart: { lp: 10, sp: 0, energy: 100, health: 100 },
+      });
+
+      store.getState().endCombat(true);
+
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      const insertCall = mockSupabaseInsert.mock.calls[0][0];
+      expect(insertCall.combat_log).toHaveLength(50);
+      // Should be the last 50 entries (entries 10-59)
+      expect(insertCall.combat_log[0].effect).toBe('Effect 10');
+      expect(insertCall.combat_log[49].effect).toBe('Effect 59');
+    });
+
+    it('includes scene_index from game store', async () => {
+      store.setState({
+        resourcesAtStart: { lp: 10, sp: 0, energy: 100, health: 100 },
+      });
+
+      store.getState().endCombat(true);
+
+      await vi.advanceTimersByTimeAsync(100);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSupabaseInsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          scene_index: 5, // From mockGameStoreState
+        }),
+      );
     });
   });
 });

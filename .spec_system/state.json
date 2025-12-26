@@ -15,7 +15,8 @@
   "completed_sessions": [
     "phase00-session01-schema_and_types",
     "phase00-session02-critical_persistence",
-    "phase00-session03-offline_resilience"
+    "phase00-session03-offline_resilience",
+    "phase00-session04-combat_history"
   ],
   "next_session_history": [
     {
@@ -31,6 +32,11 @@
     {
       "date": "2025-12-26",
       "session": "phase00-session03-offline_resilience",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-26",
+      "session": "phase00-session04-combat_history",
       "status": "completed"
     }
   ]
