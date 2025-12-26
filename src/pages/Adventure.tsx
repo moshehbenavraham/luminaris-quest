@@ -51,8 +51,8 @@ export function Adventure() {
   useEffect(() => {
     if (!_hasHydrated || !isClient || showJournalModal) return;
 
-    if (pendingMilestoneJournals && pendingMilestoneJournals.size > 0) {
-      const pendingLevels = Array.from(pendingMilestoneJournals) as number[];
+    if (pendingMilestoneJournals && pendingMilestoneJournals.length > 0) {
+      const pendingLevels = pendingMilestoneJournals;
       const levelToShow = pendingLevels[0];
 
       setCurrentMilestoneLevel(levelToShow);

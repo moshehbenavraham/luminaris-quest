@@ -161,7 +161,7 @@ export const useGameStoreBase = create<GameState>()(
       journalEntries: [],
       milestones: initialMilestones,
       sceneHistory: [],
-      pendingMilestoneJournals: new Set(),
+      pendingMilestoneJournals: [],
 
       // Player Health System
       playerHealth: 100,
@@ -330,7 +330,7 @@ export const useGameStoreBase = create<GameState>()(
           // Check if we actually need to add new pending journals
           const levelsToAdd = milestonesToAchieve
             .map((m) => m.level)
-            .filter((level) => !state.pendingMilestoneJournals.has(level));
+            .filter((level) => !state.pendingMilestoneJournals.includes(level));
 
           // If nothing new to add to pending journals, just update milestones
           if (levelsToAdd.length === 0) {
@@ -351,9 +351,8 @@ export const useGameStoreBase = create<GameState>()(
             };
           }
 
-          // Only create new Set if we're actually adding new levels
-          const newPendingJournals = new Set(state.pendingMilestoneJournals);
-          levelsToAdd.forEach((level) => newPendingJournals.add(level));
+          // Create new array with added levels (immutable update)
+          const newPendingJournals = [...state.pendingMilestoneJournals, ...levelsToAdd];
 
           const updatedMilestones = state.milestones.map((milestone) => {
             if (trustLevel >= milestone.level && !milestone.achieved) {
@@ -376,14 +375,13 @@ export const useGameStoreBase = create<GameState>()(
 
       markMilestoneJournalShown: (level: number) => {
         set((state) => {
-          // Only update if the level exists in the pending set
-          if (!state.pendingMilestoneJournals.has(level)) {
+          // Only update if the level exists in the pending array
+          if (!state.pendingMilestoneJournals.includes(level)) {
             return state; // Return same state reference - no change
           }
 
-          // Create new Set and remove the level
-          const newPendingJournals = new Set(state.pendingMilestoneJournals);
-          newPendingJournals.delete(level);
+          // Create new array without the level (immutable update)
+          const newPendingJournals = state.pendingMilestoneJournals.filter((l) => l !== level);
           return { pendingMilestoneJournals: newPendingJournals };
         });
       },
@@ -403,7 +401,7 @@ export const useGameStoreBase = create<GameState>()(
             achievedAt: undefined,
           })),
           sceneHistory: [],
-          pendingMilestoneJournals: new Set(),
+          pendingMilestoneJournals: [],
           // Reset experience points
           experiencePoints: 0,
           experienceToNext: 100,
@@ -647,7 +645,7 @@ export const useGameStoreBase = create<GameState>()(
 
             const benefitsDescription =
               benefitsText.length > 0
-                ? `\n\nNew benefits gained:\n• ${benefitsText.join('\n• ')}`
+                ? `\n\nNew benefits gained:\n- ${benefitsText.join('\n- ')}`
                 : '';
 
             // Trigger level-up celebration and journal prompt
@@ -1047,10 +1045,28 @@ export const useGameStoreBase = create<GameState>()(
             .eq('user_id', user.id)
             .single();
 
+          // Handle database errors gracefully - preserve localStorage cache
           if (stateError && stateError.code !== 'PGRST116') {
-            // PGRST116 = no rows
-            logger.error('Error loading game state:', stateError);
-            throw stateError;
+            // PGRST116 = no rows (expected for new users)
+            // For other errors (network, permission, etc.), log warning and skip database merge
+            // localStorage values remain intact from Zustand's automatic rehydration
+            logger.warn('Database error loading game state - using cached localStorage values', {
+              error: stateError.message,
+              code: stateError.code,
+            });
+
+            // Update save state to reflect offline mode
+            set((state) => ({
+              saveState: {
+                ...state.saveState,
+                status: 'error',
+                lastError: `Database unavailable: ${stateError.message}`,
+                hasUnsavedChanges: state.saveState.hasUnsavedChanges,
+              },
+            }));
+
+            // Skip database merge - localStorage values are already hydrated
+            return;
           }
 
           logger.debug('Game state loaded', {
@@ -1066,8 +1082,11 @@ export const useGameStoreBase = create<GameState>()(
             .order('created_at', { ascending: false });
 
           if (journalError) {
-            logger.error('Error loading journal entries:', journalError);
-            throw journalError;
+            // Log warning and continue with cached data instead of throwing
+            logger.warn('Error loading journal entries - using cached data', {
+              error: journalError.message,
+            });
+            // Continue with empty journal entries from database, localStorage cache is preserved
           }
 
           logger.debug('Journal entries loaded', {
@@ -1350,6 +1369,13 @@ export const useGameStoreBase = create<GameState>()(
           ...scene,
           completedAt: new Date(scene.completedAt).toISOString(),
         })),
+        // Experience points for offline resilience
+        experiencePoints: state.experiencePoints,
+        experienceToNext: state.experienceToNext,
+        // Player statistics for therapeutic analytics
+        playerStatistics: state.playerStatistics,
+        // Pending milestone journals (already an array, serializes correctly)
+        pendingMilestoneJournals: state.pendingMilestoneJournals,
       }),
       // Add a merge function to handle rehydration
       merge: (persistedState: any, currentState) => {
@@ -1377,11 +1403,31 @@ export const useGameStoreBase = create<GameState>()(
             : initialMilestone;
         });
 
+        // Handle pendingMilestoneJournals migration from Set to Array
+        // Legacy localStorage may have {} (failed Set serialization) or undefined
+        const migratePendingMilestoneJournals = (data: any): number[] => {
+          // Already a valid array
+          if (Array.isArray(data)) return data;
+          // Empty object from failed Set serialization or undefined/null
+          if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) return [];
+          // Fallback for any other unexpected format
+          return [];
+        };
+
         return {
           ...currentState,
           ...persistedState,
           journalEntries: hydratedJournalEntries,
           milestones: mergedMilestones,
+          // Experience points with defaults for backwards compatibility
+          experiencePoints: persistedState.experiencePoints ?? currentState.experiencePoints,
+          experienceToNext: persistedState.experienceToNext ?? currentState.experienceToNext,
+          // Player statistics with defaults
+          playerStatistics: persistedState.playerStatistics ?? currentState.playerStatistics,
+          // Pending milestone journals with legacy migration
+          pendingMilestoneJournals: migratePendingMilestoneJournals(
+            persistedState.pendingMilestoneJournals,
+          ),
         };
       },
       onRehydrateStorage: () => (state) => {
@@ -1412,7 +1458,7 @@ export const useGameStore = () => {
       journalEntries: [],
       milestones: initialMilestones,
       sceneHistory: [],
-      pendingMilestoneJournals: new Set(),
+      pendingMilestoneJournals: [],
 
       // Player Health System - from shared resource store
       playerHealth: resources.playerHealth,

@@ -11,7 +11,7 @@ export interface GameState {
   journalEntries: JournalEntry[];
   milestones: Milestone[];
   sceneHistory: CompletedScene[];
-  pendingMilestoneJournals: Set<number>;
+  pendingMilestoneJournals: number[];
 
   // Player Health System
   playerHealth: number; // 0-100, represents player's overall health

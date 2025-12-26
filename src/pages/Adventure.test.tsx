@@ -9,7 +9,7 @@ const mockGameStore = {
   guardianTrust: 50,
   setGuardianTrust: vi.fn(),
   addJournalEntry: vi.fn(),
-  pendingMilestoneJournals: new Set(),
+  pendingMilestoneJournals: [],
   markMilestoneJournalShown: vi.fn(),
   currentSceneIndex: 0,
   _hasHydrated: true,

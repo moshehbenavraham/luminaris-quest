@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 3-4 days
 
-**Progress**: 2/6 sessions (33%)
+**Progress**: 3/6 sessions (50%)
 
 ---
 
@@ -22,7 +22,7 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 | ------- | -------------------- | ----------- | ---------- | ---------- |
 | 01      | Schema and Types     | Complete    | 18         | 2025-12-25 |
 | 02      | Critical Persistence | Complete    | 18         | 2025-12-26 |
-| 03      | Offline Resilience   | Not Started | ~22        | -          |
+| 03      | Offline Resilience   | Complete    | 23         | 2025-12-26 |
 | 04      | Combat History       | Not Started | ~20        | -          |
 | 05      | User Settings        | Not Started | ~18        | -          |
 | 06      | Therapeutic Data     | Not Started | ~15        | -          |
@@ -44,11 +44,18 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 - All 6 resource variables (health, maxHealth, energy, maxEnergy, LP, SP) now sync to DB
 - Created integration tests for cross-device state restoration
 
+### Session 03: Offline Resilience (2025-12-26)
+
+- Added experiencePoints, experienceToNext, playerStatistics to localStorage partialize
+- Converted pendingMilestoneJournals from Set<number> to number[] for proper serialization
+- Implemented graceful fallback in loadFromSupabase() when database is unreachable
+- Created 17 integration tests for offline resilience scenarios
+
 ---
 
 ## Upcoming Sessions
 
-- Session 03: Offline Resilience
+- Session 04: Combat History
 
 ---
 
