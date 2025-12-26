@@ -60,6 +60,7 @@ export const useCombatStore = () => {
   const preferredActions = useStore((state) => state.preferredActions);
   const flags = useStore((state) => state.flags);
   const hasHydrated = useStore((state) => state._hasHydrated);
+  const lastCombatHistoryId = useStore((state) => state.lastCombatHistoryId);
 
   // Actions
   const startCombat = useStore((state) => state.startCombat);
@@ -143,6 +144,7 @@ export const useCombatStore = () => {
       preferredActions: {},
       flags: { newCombatUI: true },
       hasHydrated: false,
+      lastCombatHistoryId: null,
 
       // Actions & Helpers (Safe to pass through)
       startCombat,
@@ -177,6 +179,7 @@ export const useCombatStore = () => {
     preferredActions,
     flags,
     hasHydrated,
+    lastCombatHistoryId,
 
     // Actions
     startCombat,

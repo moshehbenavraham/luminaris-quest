@@ -29,7 +29,11 @@ import { Button } from '@/components/ui/button';
 import { Heart, CheckCircle } from 'lucide-react';
 import { useCombatStore } from '../../hooks/useCombatStore';
 import { useGameStore } from '@/store/game-store';
-import { getTherapeuticPrompts, getContextualMessage } from '../../utils/therapeutic-content';
+import {
+  getTherapeuticPrompts,
+  getContextualMessage,
+  linkJournalToCombatHistory,
+} from '../../utils';
 import { CombatSummaryCard } from './CombatSummaryCard';
 import { TherapeuticPromptsCard } from './TherapeuticPromptsCard';
 import { ReflectionTextCard } from './ReflectionTextCard';
@@ -81,7 +85,7 @@ interface CombatReflectionModalProps {
 
 export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React.memo(
   function CombatReflectionModal({ isOpen, onClose, combatSnapshot, 'data-testid': testId }) {
-    const { clearCombatEnd } = useCombatStore();
+    const { clearCombatEnd, lastCombatHistoryId } = useCombatStore();
     const gameStore = useGameStore();
 
     const [reflectionText, setReflectionText] = useState('');
@@ -193,6 +197,17 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
 
       setIsSaving(true);
 
+      // Build therapeutic context tags for enhanced tracking
+      const therapeuticTags = [
+        'combat',
+        'reflection',
+        reflectionData.enemy.type,
+        reflectionData.victory ? 'victory' : 'learning',
+        `turns-${reflectionData.turnsElapsed}`,
+        `action-${reflectionData.mostUsedAction.toLowerCase()}`,
+        `enemy-${reflectionData.enemy.name.toLowerCase().replace(/\s+/g, '-')}`,
+      ];
+
       const journalEntry: JournalEntry = {
         id: `combat-reflection-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: 'learning',
@@ -201,24 +216,29 @@ export const CombatReflectionModal: React.FC<CombatReflectionModalProps> = React
         timestamp: new Date(),
         title: `Reflection: ${reflectionData.enemy.name}`,
         sceneId: `combat-${reflectionData.enemy.id}`,
-        tags: [
-          'combat',
-          'reflection',
-          reflectionData.enemy.type,
-          reflectionData.victory ? 'victory' : 'learning',
-        ],
+        tags: therapeuticTags,
         isEdited: false,
       };
 
       try {
         gameStore.addJournalEntry(journalEntry);
+
+        // Link journal entry to combat history (non-blocking, logs errors)
+        if (lastCombatHistoryId) {
+          linkJournalToCombatHistory(lastCombatHistoryId, journalEntry.id).then((result) => {
+            if (!result.success) {
+              console.warn('Failed to link journal to combat history:', result.error);
+            }
+          });
+        }
+
         handleClose();
       } catch (error) {
         console.error('Failed to save reflection:', error);
       } finally {
         setIsSaving(false);
       }
-    }, [reflectionText, reflectionData, gameStore, handleClose]);
+    }, [reflectionText, reflectionData, gameStore, handleClose, lastCombatHistoryId]);
 
     const togglePrompts = useCallback(() => setShowPrompts((prev) => !prev), []);
 

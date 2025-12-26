@@ -79,6 +79,7 @@ export interface GameState {
     victory: boolean,
     turnsPlayed: number,
   ) => void;
+  addGrowthInsight: (insight: string) => void;
   updatePlayerStatistics: (preferredActions: Partial<Record<CombatAction, number>>) => void;
   getPlayerStatistics: () => PlayerStatistics;
 

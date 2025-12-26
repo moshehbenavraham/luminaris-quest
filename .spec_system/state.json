@@ -8,7 +8,7 @@
     "0": {
       "name": "DB Audit and Improvements",
       "description": "Fix critical data persistence gaps, implement offline resilience, and activate combat_history for therapeutic analytics",
-      "status": "in_progress",
+      "status": "complete",
       "session_count": 6
     }
   },
@@ -17,7 +17,8 @@
     "phase00-session02-critical_persistence",
     "phase00-session03-offline_resilience",
     "phase00-session04-combat_history",
-    "phase00-session05-user_settings"
+    "phase00-session05-user_settings",
+    "phase00-session06-therapeutic_data"
   ],
   "next_session_history": [
     {
@@ -43,6 +44,11 @@
     {
       "date": "2025-12-26",
       "session": "phase00-session05-user_settings",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-26",
+      "session": "phase00-session06-therapeutic_data",
       "status": "completed"
     }
   ]

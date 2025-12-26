@@ -192,6 +192,7 @@ export const useGameStoreBase = create<GameState>()(
         totalCombatsLost: 0,
         totalTurnsPlayed: 0,
         averageCombatLength: 0,
+        growthInsights: [],
       },
 
       // Combat System State
@@ -417,6 +418,7 @@ export const useGameStoreBase = create<GameState>()(
             totalCombatsLost: 0,
             totalTurnsPlayed: 0,
             averageCombatLength: 0,
+            growthInsights: [],
           },
           // Reset combat state
           combat: {
@@ -717,6 +719,8 @@ export const useGameStoreBase = create<GameState>()(
               totalCombatsLost: currentStats.totalCombatsLost + (victory ? 0 : 1),
               totalTurnsPlayed: currentStats.totalTurnsPlayed + turnsPlayed,
               averageCombatLength: newAverageCombatLength,
+              // Preserve existing growth insights
+              growthInsights: currentStats.growthInsights,
             },
             saveState: { ...state.saveState, hasUnsavedChanges: true },
           };
@@ -724,6 +728,28 @@ export const useGameStoreBase = create<GameState>()(
       },
 
       getPlayerStatistics: () => get().playerStatistics,
+
+      // Add a growth insight to player statistics (therapeutic tracking)
+      addGrowthInsight: (insight: string) => {
+        if (!insight.trim()) return;
+
+        set((state) => {
+          // Avoid duplicate insights
+          if (state.playerStatistics.growthInsights.includes(insight.trim())) {
+            return state;
+          }
+
+          logger.debug('Adding growth insight', { insight: insight.trim() });
+
+          return {
+            playerStatistics: {
+              ...state.playerStatistics,
+              growthInsights: [...state.playerStatistics.growthInsights, insight.trim()],
+            },
+            saveState: { ...state.saveState, hasUnsavedChanges: true },
+          };
+        });
+      },
 
       // Partial update for player statistics - merges preferredActions from combat
       updatePlayerStatistics: (preferredActions) => {
@@ -1440,6 +1466,14 @@ export const useGameStoreBase = create<GameState>()(
           return [];
         };
 
+        // Merge playerStatistics with defaults for backwards compatibility
+        // Ensures growthInsights array exists even if missing from persisted data
+        const mergedPlayerStatistics = {
+          ...currentState.playerStatistics,
+          ...(persistedState.playerStatistics || {}),
+          growthInsights: persistedState.playerStatistics?.growthInsights ?? [],
+        };
+
         return {
           ...currentState,
           ...persistedState,
@@ -1448,8 +1482,8 @@ export const useGameStoreBase = create<GameState>()(
           // Experience points with defaults for backwards compatibility
           experiencePoints: persistedState.experiencePoints ?? currentState.experiencePoints,
           experienceToNext: persistedState.experienceToNext ?? currentState.experienceToNext,
-          // Player statistics with defaults
-          playerStatistics: persistedState.playerStatistics ?? currentState.playerStatistics,
+          // Player statistics with proper merge for backwards compatibility
+          playerStatistics: mergedPlayerStatistics,
           // Pending milestone journals with legacy migration
           pendingMilestoneJournals: migratePendingMilestoneJournals(
             persistedState.pendingMilestoneJournals,
@@ -1552,6 +1586,7 @@ export const useGameStore = () => {
 
       // Player Statistics Management
       updateCombatStatistics: store.updateCombatStatistics,
+      addGrowthInsight: store.addGrowthInsight,
       updatePlayerStatistics: store.updatePlayerStatistics,
       getPlayerStatistics: store.getPlayerStatistics,
 

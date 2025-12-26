@@ -1,10 +1,10 @@
 # PRD Phase 00: DB Audit and Improvements
 
-**Status**: In Progress
-**Sessions**: 6 (initial estimate)
-**Estimated Duration**: 3-4 days
+**Status**: Complete
+**Sessions**: 6
+**Duration**: 2025-12-25 to 2025-12-26
 
-**Progress**: 5/6 sessions (83%)
+**Progress**: 6/6 sessions (100%)
 
 ---
 
@@ -18,14 +18,14 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 
 ## Progress Tracker
 
-| Session | Name                 | Status      | Est. Tasks | Validated  |
-| ------- | -------------------- | ----------- | ---------- | ---------- |
-| 01      | Schema and Types     | Complete    | 18         | 2025-12-25 |
-| 02      | Critical Persistence | Complete    | 18         | 2025-12-26 |
-| 03      | Offline Resilience   | Complete    | 23         | 2025-12-26 |
-| 04      | Combat History       | Complete    | 22         | 2025-12-26 |
-| 05      | User Settings        | Complete    | 22         | 2025-12-26 |
-| 06      | Therapeutic Data     | Not Started | ~15        | -          |
+| Session | Name                 | Status   | Tasks | Validated  |
+| ------- | -------------------- | -------- | ----- | ---------- |
+| 01      | Schema and Types     | Complete | 18    | 2025-12-25 |
+| 02      | Critical Persistence | Complete | 18    | 2025-12-26 |
+| 03      | Offline Resilience   | Complete | 23    | 2025-12-26 |
+| 04      | Combat History       | Complete | 22    | 2025-12-26 |
+| 05      | User Settings        | Complete | 22    | 2025-12-26 |
+| 06      | Therapeutic Data     | Complete | 22    | 2025-12-26 |
 
 ---
 
@@ -67,11 +67,13 @@ Reliable state persistence is foundational to the therapeutic value of the appli
 - Combat preferredActions now persist to game-store playerStatistics after each combat
 - Created 14 new tests (9 unit tests for settings, 5 integration tests for combat flow)
 
----
+### Session 06: Therapeutic Data (2025-12-26)
 
-## Upcoming Sessions
-
-- Session 06: Therapeutic Data
+- Added growthInsights to PlayerStatistics interface and game-store state
+- Created linkJournalToCombatHistory utility to link journal entries to combat records
+- Integrated journal-combat linking in CombatReflectionModal.handleSave
+- Added therapeutic context tags (turns, action, enemy) to journal entries
+- Created 22 tests (13 for growthInsights persistence, 9 for link utility)
 
 ---
 
@@ -163,7 +165,7 @@ ADD COLUMN max_player_health INTEGER DEFAULT 100;
 
 ---
 
-## Files to Modify
+## Files Modified
 
 1. `supabase/migrations/` - New migration file
 2. `src/store/game-store.ts` - saveToSupabase(), loadFromSupabase(), partialize()
@@ -179,15 +181,15 @@ ADD COLUMN max_player_health INTEGER DEFAULT 100;
 
 Phase complete when:
 
-- [ ] All 6 sessions completed
-- [ ] All 6 resource variables (health, maxHealth, energy, maxEnergy, LP, SP) sync to database
-- [ ] Cross-device login preserves all state including maxPlayerHealth
-- [ ] experiencePoints, experienceToNext, playerStatistics have localStorage fallback
-- [ ] pendingMilestoneJournals serializes correctly (Array instead of Set)
-- [ ] combat_history receives records after each combat
-- [ ] Audio track index persists in user_settings
-- [ ] Integration tests verify cross-device state restoration
-- [ ] Supabase types regenerated and type-safe
+- [x] All 6 sessions completed
+- [x] All 6 resource variables (health, maxHealth, energy, maxEnergy, LP, SP) sync to database
+- [x] Cross-device login preserves all state including maxPlayerHealth
+- [x] experiencePoints, experienceToNext, playerStatistics have localStorage fallback
+- [x] pendingMilestoneJournals serializes correctly (Array instead of Set)
+- [x] combat_history receives records after each combat
+- [x] Audio track index persists in user_settings
+- [x] Integration tests verify cross-device state restoration
+- [x] Supabase types regenerated and type-safe
 
 ---
 
@@ -205,11 +207,21 @@ Phase complete when:
 
 ---
 
-## Open Questions
+## Phase Statistics
 
-1. **Combat-in-progress persistence**: Should mid-combat state be persisted (complex) or only post-combat results (simpler)?
-   - _Current decision_: Post-combat only (Sessions 04, 06)
-2. **combat_history retention**: Keep all records, rolling window, or user-deletable?
-   - _To be decided in Session 04_
-3. **Audio playing state**: Should it persist or always start paused for safety?
-   - _To be decided in Session 05_
+| Metric         | Value  |
+| -------------- | ------ |
+| Sessions       | 6      |
+| Total Tasks    | 125    |
+| Tests Added    | ~80    |
+| Files Created  | 12     |
+| Files Modified | 25+    |
+| Duration       | 2 days |
+
+---
+
+## Resolved Questions
+
+1. **Combat-in-progress persistence**: Post-combat only (Sessions 04, 06)
+2. **combat_history retention**: Keep all records for therapeutic review
+3. **Audio playing state**: Persist track index, always start paused for safety

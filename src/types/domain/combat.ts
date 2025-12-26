@@ -45,6 +45,8 @@ export interface PlayerStatistics {
   totalCombatsLost: number;
   totalTurnsPlayed: number;
   averageCombatLength: number;
+  // Therapeutic growth insights collected during the player's journey
+  growthInsights: string[];
 }
 
 export interface CombatState {
