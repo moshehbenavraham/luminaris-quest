@@ -1,0 +1,24 @@
+AUDIT REPORT | luminaris-quest | 2025-12-26 15:38
+Git: clean | Stack: TypeScript 5.9.3, React 19.2, Vite 7.2.2, Tailwind 4.1
+Conventions: loaded (151 lines)
+Known issues: 1 path, 2 rules, 1 test pattern
+
+[SETUP] npm | Linter: ok | Fmt: ok | Types: ok
+  Tools: ESLint 9.39.1, Prettier 3.6.2, TypeScript 5.9.3, Vitest 4.0.10
+
+[luminaris-quest]
+  Fmt: 0 fixed (all unchanged)
+  Lint: 0 fixed, 0 remain, 0 known
+  Types: 0 errors
+  Tests: 816/850 pass (69 files), 34 known-skip
+    Known-skip: energy-regeneration.test.ts (10), combat-focus-management.test.tsx (6),
+                componentDocumentation.test.ts (4), other component skips (14)
+
+[CONVENTIONS] 151/300 lines | +0 -0 ~0
+  No changes needed - all patterns current and followed
+
+SUMMARY: P1 ok | P2 0/0 fixed, 0 known | P3 pass (816/816 expected) | P4 ok
+
+AUDIT CLEAN - No action items.
+
+Consider running /carryforward to update CONSIDERATIONS.md with learnings.
