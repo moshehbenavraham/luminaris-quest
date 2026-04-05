@@ -1,5 +1,7 @@
 # Luminari's Quest
 
+**Version: 0.2.7**
+
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/moshehbenavraham/luminaris-quest)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.2+-61DAFB)](https://reactjs.org/)
@@ -17,9 +19,11 @@ A therapeutic AI-powered RPG adventure designed to help young adults process tra
 **Luminari's Quest** is a therapeutic, AI-powered interactive RPG adventure designed to help young adults process trauma from losing parents and experiencing homelessness during their teenage years. The game combines fantasy storytelling with evidence-based therapeutic techniques to create a safe space for healing and growth.
 
 ### 🎯 Mission Statement
+
 This project addresses the critical need for accessible mental health resources by transforming traditional therapy concepts into engaging, interactive experiences. Built for the World's Largest AI Hackathon, it demonstrates how AI can be used for therapeutic purposes while maintaining clinical effectiveness.
 
 ### 🧠 Therapeutic Approach
+
 - **Evidence-Based**: Incorporates cognitive behavioral therapy (CBT) and narrative therapy principles
 - **Trauma-Informed**: Designed specifically for young adults with complex trauma histories
 - **Safe Space**: Non-judgmental environment for emotional exploration and growth
@@ -28,6 +32,7 @@ This project addresses the critical need for accessible mental health resources 
 ## 🛠️ Tech Stack
 
 ### Core Technologies
+
 - **Frontend**: React 18.2+ with TypeScript 5.3+ and Vite 6.3+
 - **Styling**: Tailwind CSS 3.4+ with Shadcn/UI component library
 - **State Management**: Zustand 5.0+ with persistence and hydration safety
@@ -35,18 +40,21 @@ This project addresses the critical need for accessible mental health resources 
 - **Animations**: Framer Motion 12.18+ for therapeutic UX transitions
 
 ### Backend & Database
+
 - **Backend**: Supabase (PostgreSQL with real-time capabilities)
 - **Authentication**: Supabase Auth with email/password and social providers
 - **Database**: PostgreSQL with Row Level Security (RLS) policies
 - **Real-time**: Supabase real-time subscriptions for live updates
 
 ### AI & External Services
+
 - **Narrative AI**: OpenAI GPT-4 for dynamic storytelling (planned)
 - **Image Generation**: Leonardo.AI for scene illustrations (planned)
 - **Voice Synthesis**: ElevenLabs for therapeutic narration (planned)
 - **Audio**: React H5 Audio Player for background music and sound effects
 
 ### Development & Deployment
+
 - **Build Tool**: Vite with TypeScript compilation and hot reload
 - **Testing**: Vitest 3.2+ with React Testing Library and Jest-axe
 - **Linting**: ESLint 8.56+ with TypeScript and React plugins
@@ -54,6 +62,7 @@ This project addresses the critical need for accessible mental health resources 
 - **Deployment**: Netlify with automatic builds and environment management
 
 ### Quality Assurance
+
 - **Type Safety**: Strict TypeScript configuration with zero compilation errors
 - **Accessibility**: WCAG 2.1 AA compliance with automated testing
 - **Performance**: Lighthouse optimization with performance budgets
@@ -71,12 +80,14 @@ This project addresses the critical need for accessible mental health resources 
 ### Quick Start
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/moshehbenavraham/luminaris-quest.git
    cd luminaris-quest
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    # or
@@ -84,61 +95,68 @@ This project addresses the critical need for accessible mental health resources 
    ```
 
 3. **Set up environment variables:**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Edit `.env` with your configuration:
+
    ```env
    # Required - Get from your Supabase project settings
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
-   
+
    # Required for AI features (when implemented)
    VITE_OPENAI_API_KEY=your-openai-api-key
-   
+
    # Optional - For enhanced features
    VITE_LEONARDO_API_KEY=your-leonardo-api-key
    VITE_ELEVENLABS_API_KEY=your-elevenlabs-api-key
    ```
 
 4. **Set up the database:**
+
    ```bash
    # If you have Supabase CLI installed
    supabase db push
-   
+
    # Or manually run the migration SQL in your Supabase dashboard
    # See docs/migrations/ for migration files
    ```
 
 5. **Start the development server:**
+
    ```bash
    npm run dev
    ```
-   
+
    The app will be available at `http://localhost:5173`
 
 ### Environment Configuration
 
 #### Required Variables
-| Variable | Description | Where to Get |
-|----------|-------------|--------------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL | Supabase Dashboard → Settings → API |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Supabase Dashboard → Settings → API |
+
+| Variable                 | Description               | Where to Get                        |
+| ------------------------ | ------------------------- | ----------------------------------- |
+| `VITE_SUPABASE_URL`      | Your Supabase project URL | Supabase Dashboard → Settings → API |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key    | Supabase Dashboard → Settings → API |
 
 #### Optional Variables
-| Variable | Description | Purpose |
-|----------|-------------|---------|
-| `VITE_OPENAI_API_KEY` | OpenAI API key | Dynamic narrative generation |
-| `VITE_LEONARDO_API_KEY` | Leonardo.AI API key | Scene image generation |
-| `VITE_ELEVENLABS_API_KEY` | ElevenLabs API key | Voice narration |
-| `VITE_DEBUG_MODE` | Enable debug logging | Development debugging |
+
+| Variable                  | Description          | Purpose                      |
+| ------------------------- | -------------------- | ---------------------------- |
+| `VITE_OPENAI_API_KEY`     | OpenAI API key       | Dynamic narrative generation |
+| `VITE_LEONARDO_API_KEY`   | Leonardo.AI API key  | Scene image generation       |
+| `VITE_ELEVENLABS_API_KEY` | ElevenLabs API key   | Voice narration              |
+| `VITE_DEBUG_MODE`         | Enable debug logging | Development debugging        |
 
 ### Database Setup
 
 The application requires a Supabase database with specific tables and policies. Choose one of these setup methods:
 
 #### Option 1: Supabase CLI (Recommended)
+
 ```bash
 # Install Supabase CLI
 npm install -g supabase
@@ -154,12 +172,15 @@ supabase db push
 ```
 
 #### Option 2: Manual Setup
+
 1. Go to your Supabase Dashboard → SQL Editor
 2. Copy and paste the contents of `docs/migrations/PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql`
 3. Run the migration
 
 #### Verify Database Setup
+
 After setup, verify these tables exist:
+
 - `game_states` - Stores player progress
 - `journal_entries` - Stores therapeutic journal entries
 
@@ -168,6 +189,7 @@ After setup, verify these tables exist:
 #### Common Issues
 
 **Node.js Version Error**
+
 ```bash
 # Check your Node.js version
 node --version
@@ -177,11 +199,13 @@ node --version
 ```
 
 **Database Connection Issues**
+
 - Verify your Supabase URL and anon key are correct
 - Check that your Supabase project is active
 - Ensure RLS policies are properly configured
 
 **Build Errors**
+
 ```bash
 # Clear node_modules and reinstall
 rm -rf node_modules package-lock.json
@@ -192,6 +216,7 @@ npm run dev -- --force
 ```
 
 **Port Already in Use**
+
 ```bash
 # Use a different port
 npm run dev -- --port 3000
@@ -204,12 +229,14 @@ For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubl
 ### 🌟 Core Gameplay Systems
 
 #### Guardian Trust System
+
 - **Dynamic Relationship**: Core mechanic tracking player's bond with their guardian spirit (0-100)
 - **Meaningful Progression**: Trust level affects combat effectiveness and story outcomes
 - **Milestone Rewards**: Unlock new abilities and story content at trust thresholds (25, 50, 75, 100)
 - **Therapeutic Metaphor**: Represents building trust in therapeutic relationships
 
 #### Light & Shadow Combat System
+
 - **Therapeutic Combat**: Transform traditional RPG combat into emotional regulation practice
 - **Dual Resources**: Light Points (positive emotions) and Shadow Points (challenges to overcome)
 - **Four Combat Actions**:
@@ -221,12 +248,14 @@ For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubl
 - **Combat Reflection**: Post-battle therapeutic processing and insight generation
 
 > **🔄 Combat System Rebuild in Progress**: The project currently contains TWO combat systems running in parallel:
+>
 > - **Original System** (`src/components/combat/`) - The initial implementation with known issues
 > - **New System** (`src/features/combat/`) - Complete mobile-first rebuild with proper architecture
 > - **Feature Flag**: The new system is enabled by default. Add `?legacyCombat=1` to URL to use the original system
 > - **Status**: New system is feature-complete and in testing phase (see [docs/contributing/roadmap.md](docs/contributing/roadmap.md) for details)
 
 #### Scene Engine (20 Therapeutic Scenarios)
+
 - **Diverse Scene Types**: Social, skill, combat, journal, and exploration scenarios
 - **Progressive Difficulty**: Carefully balanced therapeutic challenges across 4 complete cycles
 - **Dice-Based Mechanics**: d20 rolls against difficulty checks with meaningful outcomes
@@ -235,8 +264,9 @@ For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubl
 ### 📝 Therapeutic Features
 
 #### Advanced Journal System
+
 - **Therapeutic Reflection**: AI-guided prompts for processing experiences and emotions
-- **Two Journal Types**: 
+- **Two Journal Types**:
   - **Milestone Journals**: Celebrate achievements and growth moments
   - **Learning Journals**: Process setbacks and extract wisdom from challenges
 - **Full CRUD Operations**: Create, read, update, delete with comprehensive edit history
@@ -244,6 +274,7 @@ For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubl
 - **Persistent Storage**: Secure cloud storage with user authentication
 
 #### Progress Tracking
+
 - **Comprehensive Analytics**: Track trust progression, scene completion, and journal insights
 - **Achievement System**: Meaningful milestones that celebrate therapeutic progress
 - **Visual Progress**: Charts and graphs showing growth over time
@@ -252,18 +283,21 @@ For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubl
 ### 🎨 User Experience
 
 #### Accessibility & Inclusion
+
 - **WCAG 2.1 AA Compliance**: Full keyboard navigation and screen reader support
 - **Multiple Input Methods**: Mouse, keyboard, and touch-friendly interfaces
 - **Visual Accessibility**: High contrast modes and customizable text sizes
 - **Cognitive Accessibility**: Clear navigation and consistent interaction patterns
 
 #### Responsive Design
+
 - **Mobile-First**: Optimized for smartphones and tablets
 - **Cross-Platform**: Works seamlessly on desktop, tablet, and mobile devices
 - **Progressive Enhancement**: Core functionality works without JavaScript
 - **Performance Optimized**: Fast loading with image optimization and code splitting
 
 #### Audio & Multimedia
+
 - **Therapeutic Soundscapes**: Custom-composed background music for emotional regulation
 - **Combat Sound Effects**: Audio feedback for actions and therapeutic insights
 - **Visual Alternatives**: All audio content has visual equivalents for accessibility
@@ -272,12 +306,14 @@ For more detailed troubleshooting, see [docs/troubleshooting/faq.md](docs/troubl
 ### 🔒 Security & Privacy
 
 #### Data Protection
+
 - **End-to-End Security**: All user data encrypted in transit and at rest
 - **HIPAA-Aware Design**: Built with healthcare privacy standards in mind
 - **User Control**: Complete control over data sharing and deletion
 - **Anonymous Options**: Play without creating an account for maximum privacy
 
 #### Authentication
+
 - **Secure Login**: Email/password authentication with optional social providers
 - **Password Recovery**: Secure password reset via email
 - **Session Management**: Automatic logout and secure session handling
@@ -327,18 +363,21 @@ src/
 ### 🏛️ Architectural Patterns
 
 #### Component Architecture
+
 - **Atomic Design**: Components organized by complexity (atoms → molecules → organisms)
 - **Composition over Inheritance**: Flexible component composition with props
 - **Single Responsibility**: Each component has one clear purpose
 - **Prop Drilling Prevention**: Context and state management for shared data
 
 #### State Management
+
 - **Zustand Store**: Centralized state with persistence and hydration safety
 - **Immutable Updates**: All state changes follow immutability patterns
 - **Optimistic Updates**: UI updates immediately with rollback on failure
 - **Selective Subscriptions**: Components only re-render when relevant state changes
 
 #### Data Flow
+
 ```
 User Action → Component → Hook → Store → Engine → Database
      ↑                                              ↓
@@ -348,18 +387,21 @@ UI Update ← Component ← Hook ← Store ← Response ← Database
 ### 🔧 Design Principles
 
 #### Therapeutic-First Design
+
 - **Safety**: All interactions designed to be emotionally safe
 - **Progress**: Every action contributes to therapeutic progress
 - **Reflection**: Built-in opportunities for self-reflection and insight
 - **Empowerment**: User maintains control over their therapeutic journey
 
 #### Performance Optimization
+
 - **Code Splitting**: Lazy loading of route components
 - **Image Optimization**: WebP/AVIF formats with responsive sizing
 - **Bundle Analysis**: Regular monitoring of bundle size and dependencies
 - **Caching Strategy**: Intelligent caching of static assets and API responses
 
 #### Accessibility Architecture
+
 - **Semantic HTML**: Proper HTML structure for screen readers
 - **ARIA Integration**: Comprehensive ARIA labels and roles
 - **Keyboard Navigation**: Full keyboard accessibility for all interactions
@@ -368,12 +410,14 @@ UI Update ← Component ← Hook ← Store ← Response ← Database
 ### 🔄 Data Architecture
 
 #### Database Design
+
 - **PostgreSQL**: Robust relational database with JSONB for flexible data
 - **Row Level Security**: User data isolation at the database level
 - **Optimized Queries**: Indexed columns for common query patterns
 - **Backup Strategy**: Automated backups with point-in-time recovery
 
 #### API Design
+
 - **RESTful Patterns**: Consistent API design following REST principles
 - **Type Safety**: Full TypeScript types generated from database schema
 - **Error Handling**: Comprehensive error handling with user-friendly messages
@@ -382,12 +426,14 @@ UI Update ← Component ← Hook ← Store ← Response ← Database
 ### 🧪 Testing Architecture
 
 #### Testing Strategy
+
 - **Unit Tests**: Individual component and function testing
 - **Integration Tests**: Component interaction and data flow testing
 - **Accessibility Tests**: Automated WCAG compliance testing
 - **Performance Tests**: Bundle size and runtime performance monitoring
 
 #### Quality Gates
+
 - **TypeScript**: Zero compilation errors required
 - **ESLint**: Zero linting warnings required
 - **Test Coverage**: Minimum 80% code coverage maintained
@@ -397,21 +443,22 @@ UI Update ← Component ← Hook ← Store ← Response ← Database
 
 ### Available Scripts
 
-| Command | Description | Usage |
-|---------|-------------|-------|
-| `npm run dev` | Start development server | Development with hot reload |
-| `npm run build` | Build for production | Creates optimized production build |
-| `npm run build:dev` | Build in development mode | Build with development optimizations |
-| `npm run preview` | Preview production build | Test production build locally |
-| `npm run lint` | Run ESLint | Check code quality and standards |
-| `npm run format` | Format code with Prettier | Auto-format all code files |
-| `npm test` | Run tests with Vitest | Execute test suite |
-| `npm run test:coverage` | Run tests with coverage | Generate coverage reports |
-| `npm run optimize-images` | Optimize image assets | Convert and compress images |
+| Command                   | Description               | Usage                                |
+| ------------------------- | ------------------------- | ------------------------------------ |
+| `npm run dev`             | Start development server  | Development with hot reload          |
+| `npm run build`           | Build for production      | Creates optimized production build   |
+| `npm run build:dev`       | Build in development mode | Build with development optimizations |
+| `npm run preview`         | Preview production build  | Test production build locally        |
+| `npm run lint`            | Run ESLint                | Check code quality and standards     |
+| `npm run format`          | Format code with Prettier | Auto-format all code files           |
+| `npm test`                | Run tests with Vitest     | Execute test suite                   |
+| `npm run test:coverage`   | Run tests with coverage   | Generate coverage reports            |
+| `npm run optimize-images` | Optimize image assets     | Convert and compress images          |
 
 ### Development Workflow
 
 #### 1. Setting Up Development Environment
+
 ```bash
 # Clone and setup
 git clone https://github.com/moshehbenavraham/luminaris-quest.git
@@ -427,6 +474,7 @@ npm run dev
 ```
 
 #### 2. Making Changes
+
 ```bash
 # Create feature branch
 git checkout -b feature/your-feature-name
@@ -442,6 +490,7 @@ git commit -m "feat: add your feature description"
 ```
 
 #### 3. Quality Checks
+
 ```bash
 # Before submitting PR
 npm run lint --fix  # Fix linting issues
@@ -453,12 +502,14 @@ npm run build      # Verify production build
 ### Development Standards
 
 #### Code Quality
+
 - **TypeScript**: Strict typing required for all components and functions
 - **ESLint**: Zero warnings policy - all linting issues must be resolved
 - **Prettier**: Consistent code formatting across the entire codebase
 - **Imports**: Use absolute imports with `@/` prefix for src directory
 
 #### Component Guidelines
+
 - **Atomic Design**: Follow atoms → molecules → organisms → pages hierarchy
 - **Single Responsibility**: Each component should have one clear purpose
 - **Props Interface**: Define clear TypeScript interfaces for all props
@@ -466,12 +517,14 @@ npm run build      # Verify production build
 - **Naming**: Use PascalCase for components, camelCase for functions and variables
 
 #### Testing Requirements
+
 - **Test Coverage**: Minimum 80% coverage for new code
 - **Test Types**: Unit tests for functions, integration tests for components
 - **Accessibility**: Include accessibility tests using jest-axe
 - **Performance**: Test critical user paths for performance regressions
 
 #### Accessibility Standards
+
 - **WCAG 2.1 AA**: All components must meet accessibility standards
 - **Semantic HTML**: Use proper HTML elements and structure
 - **Keyboard Navigation**: Full keyboard accessibility for all interactions
@@ -481,17 +534,20 @@ npm run build      # Verify production build
 ### Development Tools
 
 #### IDE Configuration
+
 - **VS Code**: Recommended with ESLint, Prettier, and TypeScript extensions
 - **Cursor**: Supported with custom rules in `.cursor/rules/`
 - **Windsurf**: Supported with custom rules in `.windsurf/rules/`
 
 #### Debugging
+
 - **React DevTools**: For component inspection and state debugging
 - **Vite DevTools**: For build and performance analysis
 - **Supabase Dashboard**: For database queries and real-time data
 - **Browser DevTools**: For performance profiling and accessibility testing
 
 #### Performance Monitoring
+
 - **Lighthouse**: Regular performance audits
 - **Bundle Analyzer**: Monitor bundle size and dependencies
 - **Web Vitals**: Track Core Web Vitals metrics
@@ -500,12 +556,14 @@ npm run build      # Verify production build
 ### Contributing Guidelines
 
 #### Before Contributing
+
 1. Read [docs/contributing/index.md](docs/contributing/index.md) for detailed guidelines
 2. Check [docs/contributing/roadmap.md](docs/contributing/roadmap.md) for current priorities
 3. Review [docs/architecture/components.md](docs/architecture/components.md) for architecture overview
 4. Understand the therapeutic goals and user safety considerations
 
 #### Pull Request Process
+
 1. **Fork** the repository and create a feature branch
 2. **Implement** your changes following the development standards
 3. **Test** thoroughly including accessibility and performance
@@ -513,6 +571,7 @@ npm run build      # Verify production build
 5. **Submit** PR with clear description and testing instructions
 
 #### Code Review Criteria
+
 - **Functionality**: Does the code work as intended?
 - **Quality**: Does it follow coding standards and best practices?
 - **Testing**: Are there adequate tests with good coverage?
@@ -523,6 +582,7 @@ npm run build      # Verify production build
 ## 📚 Documentation & Platform Integration
 
 ### 📋 **Core Project Documentation**
+
 - **[README.md](README.md)** - Project overview, getting started guide, and feature documentation
 - **[docs/troubleshooting/faq.md](docs/troubleshooting/faq.md)** - Frequently asked questions, troubleshooting, and setup guidance
 - **[docs/contributing/index.md](docs/contributing/index.md)** - Development guidelines, coding standards, and contribution workflows
@@ -530,6 +590,7 @@ npm run build      # Verify production build
 - **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Version history, notable changes, and release notes
 
 ### 🏗️ **Architecture & Technical Documentation**
+
 - **[docs/architecture/components.md](docs/architecture/components.md)** - Architecture overview, component relationships, and build priorities
 - **[docs/architecture/database.md](docs/architecture/database.md)** - Database table structures, relationships, and RLS policies
 - **[docs/api/index.md](docs/api/index.md)** - Complete API reference, data structures, and integration guides
@@ -537,22 +598,26 @@ npm run build      # Verify production build
 - **[docs/contributing/roadmap.md](docs/contributing/roadmap.md)** - Comprehensive development roadmap and project management
 
 ### 🚀 **Deployment & Operations**
+
 - **[docs/guides/deployment.md](docs/guides/deployment.md)** - Comprehensive deployment guide for all environments
 - **[docs/migrations/](docs/migrations/)** - Database migration files and execution history
   - `PRODUCTION_MIGRATION_EXECUTED_2025-06-17.sql` - Production database schema
 - **[netlify.toml](netlify.toml)** - Netlify deployment configuration
 
 ### 🔒 **Security & Privacy**
+
 - **[docs/contributing/security.md](docs/contributing/security.md)** - Comprehensive security documentation, practices, and compliance
 - **[Privacy Policy](docs/PRIVACY_POLICY.md)** - User privacy protection and data handling practices (planned)
 
 ### 🧪 **Testing & Quality Assurance**
+
 - **[docs/guides/testing.md](docs/guides/testing.md)** - Comprehensive testing strategies, frameworks, and best practices
 - **[docs/archive/MILESTONE_FIX_SUMMARY.md](docs/archive/MILESTONE_FIX_SUMMARY.md)** - Critical bug fix documentation and lessons learned
 
 ### 🤖 **AI Development Platform Integration**
 
 ### ⚖️ **Legal & Licensing Documentation**
+
 - **[LICENSE](LICENSE)** - MIT License for codebase
 - **[licenses/](licenses/)** - Comprehensive licensing documentation
   - `OGL.txt` - Open Game License for RPG content
@@ -561,22 +626,26 @@ npm run build      # Verify production build
 ### ⚙️ **Configuration & Standards**
 
 #### Code Quality & Formatting
+
 - **[eslint.config.js](eslint.config.js)** - ESLint rules and code quality standards
 - **[.prettierrc](.prettierrc)** - Prettier code formatting configuration
 - **[.prettierignore](.prettierignore)** - Files excluded from Prettier formatting
 
 #### TypeScript Configuration
+
 - **[tsconfig.json](tsconfig.json)** - Main TypeScript configuration
 - **[tsconfig.app.json](tsconfig.app.json)** - Application-specific TypeScript settings
 - **[tsconfig.node.json](tsconfig.node.json)** - Node.js TypeScript configuration
 
 #### Build & Styling
+
 - **[vite.config.ts](vite.config.ts)** - Vite build tool configuration
 - **[tailwind.config.ts](tailwind.config.ts)** - Tailwind CSS styling configuration
 - **[postcss.config.js](postcss.config.js)** - PostCSS processing configuration
 - **[components.json](components.json)** - Shadcn/UI component library configuration
 
 #### Package Management
+
 - **[package.json](package.json)** - Dependencies, scripts, and project metadata
 
 ### 📊 **Documentation Organization**
@@ -635,18 +704,21 @@ We welcome contributions! Please read our guidelines:
 ## 🚀 Next Steps
 
 ### For New Contributors
+
 1. **[Read the FAQ](docs/troubleshooting/faq.md)** - Common questions and setup help
 2. **[Review Contributing Guidelines](docs/contributing/index.md)** - Development standards and workflow
 3. **[Explore the Architecture](docs/architecture/components.md)** - Understand the system design
 4. **[Check Current Priorities](docs/contributing/roadmap.md)** - See what needs work
 
 ### For Users
+
 1. **[Try the Live Demo](https://luminarisquest.org)** - Experience the therapeutic journey
 2. **[Read About Our Mission](#about)** - Understand our therapeutic approach
 3. **[Explore Features](#features)** - Discover what makes this special
 4. **[Join the Community](https://github.com/moshehbenavraham/luminaris-quest/discussions)** - Connect with others
 
 ### For Developers
+
 1. **[Quick Start Guide](#getting-started)** - Get up and running
 2. **[API Documentation](docs/api/index.md)** - Technical reference
 3. **[Testing Guide](docs/guides/testing.md)** - Quality assurance
@@ -655,6 +727,7 @@ We welcome contributions! Please read our guidelines:
 ---
 
 **🚨 CRITICAL: TWO COMBAT SYSTEMS EXIST**
+
 - **NEW System** ✅: `/src/features/combat/` - Active development, default behavior
 - **OLD System** ❌: `/src/components/combat/` - DEPRECATED, only with `?legacyCombat=1`
 - See [`docs/archive/COMBAT_MIGRATION_GUIDE.md`](docs/archive/COMBAT_MIGRATION_GUIDE.md) for full details
@@ -663,4 +736,4 @@ We welcome contributions! Please read our guidelines:
 
 Thank you for your interest in Luminari's Quest! Together, we're creating a meaningful therapeutic experience that can help young adults on their healing journey.
 
-*Last updated: December 2024*
+_Last updated: December 2024_
