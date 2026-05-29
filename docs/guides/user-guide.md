@@ -20,7 +20,7 @@
 
 ### Creating Your Account
 
-1. Navigate to the homepage at [https://luminarisquest.org](https://luminarisquest.org)
+1. Navigate to the homepage at [https://luminariquest.org](https://luminariquest.org)
 2. Click **"Start Your Journey"**
 3. Enter your email and create a secure password
 4. Click **"Sign Up"** to create your account
@@ -47,11 +47,13 @@ After logging in, you'll be taken to the **Adventure** page where your journey b
 The app has four main pages accessible from the top navigation bar:
 
 #### 🏠 Home
+
 - Landing page with authentication
 - Sign up / Sign in options
 - Hero image and welcome message
 
 #### ⚔️ Adventure
+
 - Main gameplay area
 - Scene selection and story progression
 - Combat encounters
@@ -59,6 +61,7 @@ The app has four main pages accessible from the top navigation bar:
 - Audio player with therapeutic music
 
 #### 📊 Progress
+
 - View your Guardian Trust progression
 - Track completed scenes
 - Review journal entries
@@ -66,6 +69,7 @@ The app has four main pages accessible from the top navigation bar:
 - Export progress reports
 
 #### 👤 Profile
+
 - Account settings
 - Logout option
 - Preference management
@@ -92,12 +96,12 @@ The app has four main pages accessible from the top navigation bar:
 
 ### Stats Bar Explained
 
-| Stat | Range | Description |
-|------|-------|-------------|
-| **Guardian Trust** | 0-100 | Your bond with your guardian spirit. Core progression metric. |
-| **Energy** | 0-100 | Required for actions. Regenerates 1 per minute when not in combat. |
-| **Light Points (LP)** | 0+ | Positive emotional resources for combat. Used for Illuminate and Embrace actions. |
-| **Shadow Points (SP)** | 0+ | Challenges to transform into growth. Used for Reflect action. |
+| Stat                   | Range | Description                                                                       |
+| ---------------------- | ----- | --------------------------------------------------------------------------------- |
+| **Guardian Trust**     | 0-100 | Your bond with your guardian spirit. Core progression metric.                     |
+| **Energy**             | 0-100 | Required for actions. Regenerates 1 per minute when not in combat.                |
+| **Light Points (LP)**  | 0+    | Positive emotional resources for combat. Used for Illuminate and Embrace actions. |
+| **Shadow Points (SP)** | 0+    | Challenges to transform into growth. Used for Reflect action.                     |
 
 ---
 
@@ -108,30 +112,35 @@ The app has four main pages accessible from the top navigation bar:
 The game features 20 therapeutic scenarios across 5 types:
 
 #### 1. Social Scenes (🤝)
+
 - **Focus**: Interpersonal connection and empathy
 - **Example**: "The Worried Merchant" - Offering comfort to someone in distress
 - **Skills**: Emotional intelligence, compassion, active listening
 - **DC Range**: 9-13
 
 #### 2. Skill Scenes (🎯)
+
 - **Focus**: Problem-solving and competence building
 - **Example**: "The Ancient Lock" - Solving a complex puzzle
 - **Skills**: Patience, analytical thinking, persistence
 - **DC Range**: 11-15
 
 #### 3. Combat Scenes (⚔️)
+
 - **Focus**: Confronting internal struggles
 - **Example**: "Shadow of Doubt" - Facing your inner critic
 - **Skills**: Emotional regulation, courage, self-compassion
 - **DC Range**: 12-16
 
 #### 4. Journal Scenes (📝)
+
 - **Focus**: Self-reflection and processing
 - **Example**: Milestone journals at Trust levels 25, 50, 75
 - **Skills**: Self-awareness, introspection, emotional literacy
 - **DC Range**: N/A (triggered automatically)
 
 #### 5. Exploration Scenes (🗺️)
+
 - **Focus**: Discovery and perspective-taking
 - **Example**: "The Hidden Grove" - Finding beauty in unexpected places
 - **Skills**: Curiosity, mindfulness, openness
@@ -142,16 +151,18 @@ The game features 20 therapeutic scenarios across 5 types:
 Every scene presents two options:
 
 **Bold Choice** (🔥)
+
 - Immediate, direct action
 - Higher risk, higher reward
 - Often involves courage or assertiveness
-- Example: *"Offer immediate help and comfort"*
+- Example: _"Offer immediate help and comfort"_
 
 **Cautious Choice** (🌙)
+
 - Thoughtful, measured response
 - Lower risk, steady progress
 - Often involves patience or wisdom
-- Example: *"Listen carefully before responding"*
+- Example: _"Listen carefully before responding"_
 
 **There is no "correct" choice** - both paths are valid therapeutic approaches.
 
@@ -188,6 +199,7 @@ Total: 7 + 0 = 7 < 14 → FAILURE ✗
 ### Success & Failure
 
 **On Success:**
+
 - Guardian Trust increases (+5 base, +1-3 from level bonuses)
 - Receive positive guardian message
 - Earn experience points
@@ -196,6 +208,7 @@ Total: 7 + 0 = 7 < 14 → FAILURE ✗
 - Progress to next scene
 
 **On Failure:**
+
 - Guardian Trust decreases (-5)
 - Receive encouraging guardian message
 - May trigger "learning moment" journal prompt
@@ -240,35 +253,41 @@ Combat scenes trigger when you face Shadow Manifestations:
 ### Combat Actions
 
 #### 1. ILLUMINATE (💡)
+
 **Cost:** 2 Light Points  
 **Effect:** Deal damage to shadow manifestation  
 **Damage:** 3 + floor(Guardian Trust / 4)  
 **Therapeutic Insight:** Awareness and understanding reduce emotional pain
 
 **Example:**
+
 ```
 Trust: 60 → Damage: 3 + floor(60/4) = 3 + 15 = 18 damage
 Trust: 40 → Damage: 3 + floor(40/4) = 3 + 10 = 13 damage
 ```
 
 **When to Use:**
+
 - High Guardian Trust (maximum effectiveness)
 - Sufficient Light Points available
 - Aggressive combat strategy
 
 #### 2. REFLECT (🔄)
+
 **Cost:** 3 Shadow Points  
 **Effect:** Transform shadows into light + heal 1 HP  
 **Conversion:** 3 SP → 2 LP + 1 HP healing  
 **Therapeutic Insight:** Transforming challenges into wisdom and growth
 
 **When to Use:**
+
 - High Shadow Points accumulated
 - Need healing
 - Want to convert challenges into resources
 - Defensive/recovery strategy
 
 #### 3. ENDURE (🛡️)
+
 **Cost:** None  
 **Effect:** Reduce incoming damage by 50% + gain 2 LP  
 **Duration:** Until end of shadow's next turn  
@@ -276,24 +295,28 @@ Trust: 40 → Damage: 3 + floor(40/4) = 3 + 10 = 13 damage
 **Therapeutic Insight:** Patience and resilience build strength over time
 
 **When to Use:**
+
 - Low on resources
 - Expecting heavy shadow attack
 - Building up Light Points
 - Stalling for better positioning
 
 #### 4. EMBRACE (🌑)
+
 **Cost:** All Shadow Points  
 **Effect:** Massive damage (2x SP as damage)  
 **Risk:** Deals 1 HP damage to you per SP consumed  
 **Therapeutic Insight:** High-risk integration of difficult emotions
 
 **Example:**
+
 ```
 SP: 10 → Damage to Shadow: 20
       → Damage to You: 10 HP
 ```
 
 **When to Use:**
+
 - Shadow at low HP (finishing move)
 - High Shadow Points accumulated
 - Willing to accept health cost
@@ -311,6 +334,7 @@ Shadows have unique abilities that activate on their turns:
 ### Combat Victory
 
 **Victory Rewards:**
+
 - Full HP restoration (back to 100)
 - Light Point bonus (+5-8)
 - Guardian Trust increase
@@ -319,6 +343,7 @@ Shadows have unique abilities that activate on their turns:
 - Combat reflection journal prompt
 
 **Defeat:**
+
 - HP drops to 0
 - Combat ends with learning opportunity
 - Guardian encourages trying again
@@ -332,7 +357,9 @@ Shadows have unique abilities that activate on their turns:
 ### Journal Types
 
 #### 1. Milestone Journals (🏆)
+
 **Triggered automatically when Guardian Trust reaches:**
+
 - **Level 25** - "Inner Strength"
 - **Level 50** - "Finding Balance"
 - **Level 75** - "Deep Connection"
@@ -340,9 +367,10 @@ Shadows have unique abilities that activate on their turns:
 **Purpose:** Celebrate achievements and reflect on growth
 
 **Prompts:**
+
 ```
 "You've reached a significant milestone in your journey.
- 
+
  Reflect on:
  - What have you learned about yourself?
  - How has your relationship with your guardian changed?
@@ -350,7 +378,9 @@ Shadows have unique abilities that activate on their turns:
 ```
 
 #### 2. Learning Journals (📖)
+
 **Triggered after:**
+
 - Failed scene attempts
 - Combat defeats
 - Challenging moments
@@ -359,6 +389,7 @@ Shadows have unique abilities that activate on their turns:
 **Purpose:** Process setbacks and extract wisdom from challenges
 
 **Prompts:**
+
 ```
 "This moment offers valuable lessons.
 
@@ -377,6 +408,7 @@ Consider:
 5. **Save:** Click "Save Entry" - automatically saved to cloud
 
 **Entry fields:**
+
 - **Title**: 50 character maximum
 - **Content**: 5000 character maximum
 - **Tags**: Up to 5 tags, each 20 characters maximum
@@ -419,24 +451,28 @@ Access your journal from the **Progress** page:
 Access via top navigation → **Progress**
 
 #### Trust Progression Chart
+
 - Visual graph of Guardian Trust over time
 - Shows milestones at 25, 50, 75
 - Displays current trust level
 - Tracks trust changes per scene
 
 #### Scene Completion
+
 - Total scenes completed
 - Success/failure ratio
 - Most recent completions
 - Scene types attempted
 
 #### Journal Stats
+
 - Total entries written
 - Milestone vs. learning ratio
 - Most recent entries
 - Tags used frequently
 
 #### Achievements
+
 - Milestones unlocked
 - Level progression
 - Combat victories
@@ -445,6 +481,7 @@ Access via top navigation → **Progress**
 ### Experience & Leveling
 
 **XP System:**
+
 ```
 Level 1 → 2: 100 XP required
 Level 2 → 3: 140 XP required
@@ -453,6 +490,7 @@ Level 3 → 4: 196 XP required
 ```
 
 **XP Sources:**
+
 - Scene success: +20-30 XP
 - Scene failure: +5-10 XP
 - Combat victory: +30-50 XP
@@ -461,15 +499,16 @@ Level 3 → 4: 196 XP required
 
 **Level Benefits:**
 
-| Benefit | Every N Levels | Effect |
-|---------|---------------|--------|
-| Max Energy Bonus | 2 levels | +10 max energy |
-| Starting LP Bonus | 3 levels | +5 Light Points at combat start |
-| Energy Cost Reduction | 4 levels | -1 energy cost for actions |
-| Trust Gain Multiplier | 5 levels | +20% trust gain from scenes |
-| Dice Roll Bonus | 1 level | +1 to all d20 rolls |
+| Benefit               | Every N Levels | Effect                          |
+| --------------------- | -------------- | ------------------------------- |
+| Max Energy Bonus      | 2 levels       | +10 max energy                  |
+| Starting LP Bonus     | 3 levels       | +5 Light Points at combat start |
+| Energy Cost Reduction | 4 levels       | -1 energy cost for actions      |
+| Trust Gain Multiplier | 5 levels       | +20% trust gain from scenes     |
+| Dice Roll Bonus       | 1 level        | +1 to all d20 rolls             |
 
 **Example at Level 10:**
+
 - Max Energy: 100 → 150 (+50)
 - Starting LP: 10 → 25 (+15)
 - Energy Cost: -2 (from base costs)
@@ -483,24 +522,28 @@ Level 3 → 4: 196 XP required
 ### For New Players
 
 **1. Start Slow**
+
 - Complete the first 5 scenes to understand mechanics
 - Don't worry about optimizing every choice
 - Experiment with both Bold and Cautious options
 - Read guardian messages carefully
 
 **2. Manage Energy**
+
 - Energy regenerates 1 per minute outside combat
 - Each scene action costs 5-10 energy
 - At 0 energy, wait or rest
 - Level up to increase max energy
 
 **3. Journal Regularly**
+
 - Don't skip journal prompts
 - Write authentic reflections (this is for YOU)
 - Use tags to organize thoughts
 - Review old entries to see growth
 
 **4. Understand Failure**
+
 - Failure is part of the therapeutic process
 - You still gain XP and resources from failures
 - Guardian always supports you
@@ -509,6 +552,7 @@ Level 3 → 4: 196 XP required
 ### Combat Strategies
 
 **Balanced Strategy (Recommended for Beginners):**
+
 ```
 Turn 1: ENDURE (build LP, reduce damage)
 Turn 2: ILLUMINATE (deal damage)
@@ -519,6 +563,7 @@ Final: EMBRACE (finish if SP > 10)
 ```
 
 **Aggressive Strategy:**
+
 ```
 Requirements: High Guardian Trust (60+)
 Turn 1: ILLUMINATE
@@ -529,6 +574,7 @@ Keep pressure on shadow
 ```
 
 **Defensive Strategy:**
+
 ```
 Best for: Low HP, Low Trust
 Turn 1: ENDURE
@@ -539,6 +585,7 @@ Prioritize survival
 ```
 
 **EMBRACE Finisher:**
+
 ```
 Best when: Shadow HP ≤ 20, Your SP ≥ 10
 Cost: 10 HP damage to you
@@ -549,6 +596,7 @@ Risk: Only use if your HP > 10
 ### Trust Management
 
 **Building Trust:**
+
 - Complete scenes successfully
 - Make thoughtful choices
 - Write journal entries
@@ -556,6 +604,7 @@ Risk: Only use if your HP > 10
 - Reach milestones
 
 **Maintaining Trust:**
+
 - Don't panic after failures (only -5)
 - One success recovers a failure
 - Level bonuses multiply positive gains
@@ -563,26 +612,29 @@ Risk: Only use if your HP > 10
 
 **Trust Milestones:**
 
-| Trust Level | Milestone | Reward |
-|-------------|-----------|--------|
-| 25 | Inner Strength | Milestone journal, +50 XP |
-| 50 | Finding Balance | Milestone journal, +50 XP, combat bonus |
-| 75 | Deep Connection | Milestone journal, +50 XP, major combat bonus |
-| 100 | Perfect Bond | Story completion, special rewards |
+| Trust Level | Milestone       | Reward                                        |
+| ----------- | --------------- | --------------------------------------------- |
+| 25          | Inner Strength  | Milestone journal, +50 XP                     |
+| 50          | Finding Balance | Milestone journal, +50 XP, combat bonus       |
+| 75          | Deep Connection | Milestone journal, +50 XP, major combat bonus |
+| 100         | Perfect Bond    | Story completion, special rewards             |
 
 ### Resource Management
 
 **Light Points:**
+
 - Earned from: Scene success, Endure action, victory bonuses
 - Spent on: Illuminate (2 LP), Embrace (LP converted from SP)
 - Strategy: Maintain 4-6 LP reserve for ILLUMINATE actions
 
 **Shadow Points:**
+
 - Earned from: Scene failure, combat, shadow attacks
 - Spent on: Reflect (3 SP), Embrace (all SP)
 - Strategy: Convert to LP via REFLECT when SP > 6
 
 **Energy:**
+
 - Regenerates: 1 per minute (passive)
 - Used for: Scene actions (5-10 energy each)
 - Strategy: Don't drop below 20 energy (save for important scenes)
@@ -590,18 +642,21 @@ Risk: Only use if your HP > 10
 ### Advanced Tips
 
 **Scene Selection:**
+
 1. **Mix scene types** for balanced progression
 2. **Save combat scenes** for when Trust > 40
 3. **Do journal scenes** immediately (don't skip milestones)
 4. **Retry failed scenes** with opposite choice
 
 **Combat Optimization:**
+
 1. **Track shadow cooldowns** (abilities have 2-3 turn cooldowns)
 2. **ENDURE before heavy attacks** (check combat log for patterns)
 3. **REFLECT when SP > 6** (optimal conversion rate)
 4. **Save EMBRACE for HP < 25%** (finishing move)
 
 **Progression Path:**
+
 ```
 Scenes 1-5:   Learn mechanics (Trust 40-60)
 Scenes 6-10:  First combat (Trust 50-70)
@@ -616,18 +671,21 @@ Scenes 16-20: Mastery (Trust 75-100)
 ## Accessibility Features
 
 ### Keyboard Navigation
+
 - **Tab**: Navigate between elements
 - **Enter/Space**: Activate buttons
 - **Arrow Keys**: Navigate choices
 - **Esc**: Close modals
 
 ### Screen Reader Support
+
 - All images have descriptive alt text
 - Form fields properly labeled
 - Combat log announces actions
 - ARIA labels on interactive elements
 
 ### Visual Accessibility
+
 - High contrast text
 - Minimum 44px touch targets
 - Clear focus indicators
@@ -638,18 +696,21 @@ Scenes 16-20: Mastery (Trust 75-100)
 ## Privacy & Data
 
 ### What We Store
+
 - Game progress (scenes, trust, resources)
 - Journal entries (encrypted)
 - Account information (email, password hash)
 - Gameplay statistics
 
 ### What We Don't Store
+
 - Personal identifying information beyond email
 - Third-party tracking data
 - Cookies beyond authentication
 - Social media connections
 
 ### Data Control
+
 - **Export**: Download all data as JSON
 - **Delete**: Permanently remove account and data
 - **Privacy**: Your journal is private and encrypted
@@ -690,6 +751,5 @@ Remember: This game is a supplemental tool for healing and growth, not a replace
 
 ---
 
-*Last Updated: 2025-11-17*  
-*Verified Against: Source code v0.1.1*
-
+_Last Updated: 2025-11-17_  
+_Verified Against: Source code v0.1.1_

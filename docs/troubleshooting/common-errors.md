@@ -9,6 +9,7 @@
 ### TypeScript Compilation Errors
 
 **Error:** `Cannot find module '@/components/...'`
+
 ```
 TS2307: Cannot find module '@/components/Example' or its corresponding type declarations.
 ```
@@ -16,6 +17,7 @@ TS2307: Cannot find module '@/components/Example' or its corresponding type decl
 **Cause:** Path alias not recognized
 
 **Solution:**
+
 ```bash
 # Verify tsconfig.json paths configuration
 cat tsconfig.json | grep -A5 paths
@@ -36,6 +38,7 @@ Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
 **Cause:** Type mismatch in props or state
 
 **Solution:**
+
 ```typescript
 // Check interface definitions
 // Ensure type compatibility
@@ -52,6 +55,7 @@ const value = unknownValue as KnownType;
 **Cause:** Missing dependency or incorrect import path
 
 **Solution:**
+
 ```bash
 # Reinstall dependencies
 rm -rf node_modules package-lock.json
@@ -68,6 +72,7 @@ npm run dev -- --force
 **Cause:** Large build size exceeding Node.js memory
 
 **Solution:**
+
 ```bash
 # Increase Node.js memory limit
 NODE_OPTIONS="--max-old-space-size=4096" npm run build
@@ -82,6 +87,7 @@ NODE_OPTIONS="--max-old-space-size=4096" npm run build
 **Error:** Browser console shows `Failed to fetch from Supabase`
 
 **Causes:**
+
 1. Invalid Supabase credentials
 2. Network issues
 3. RLS policies blocking access
@@ -120,9 +126,10 @@ curl https://your-project.supabase.co/rest/v1/
 **Cause:** Server-rendered HTML doesn't match client-rendered HTML
 
 **Solution:**
+
 ```typescript
 // Use hydration-safe hook
-const trust = useGameStore(state => state.guardianTrust);
+const trust = useGameStore((state) => state.guardianTrust);
 
 // Or add client-only check
 const [mounted, setMounted] = useState(false);
@@ -137,15 +144,17 @@ if (!mounted) return null;
 **Error:** State updates not persisting
 
 **Causes:**
+
 1. Auto-save not triggered
 2. Database write failure
 3. RLS policy blocking save
 4. Not authenticated
 
 **Solutions:**
+
 ```typescript
 // Check save state
-const saveState = useGameStore(state => state.saveState);
+const saveState = useGameStore((state) => state.saveState);
 console.log('Save status:', saveState.status);
 console.log('Has unsaved changes:', saveState.hasUnsavedChanges);
 console.log('Last error:', saveState.lastError);
@@ -155,7 +164,9 @@ const { saveNow } = useAutoSave();
 await saveNow();
 
 // Check authentication
-const { data: { user } } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 console.log('User:', user);
 ```
 
@@ -166,11 +177,13 @@ console.log('User:', user);
 **Error:** Combat action not executing
 
 **Causes:**
+
 1. Insufficient resources
 2. Action blocked by status effect
 3. Not player's turn
 
 **Solutions:**
+
 ```typescript
 // Check if action is allowed
 const combat = useCombat();
@@ -195,6 +208,7 @@ console.log('LP generation blocked:', combat.statusEffects.lpGenerationBlocked);
 **Error:** `Port 5173 is already in use`
 
 **Solution:**
+
 ```bash
 # Option 1: Kill process on port
 lsof -ti:5173 | xargs kill -9  # macOS/Linux
@@ -214,6 +228,7 @@ npm run dev -- --port 3000
 **Cause:** Missing React import (old React versions)
 
 **Solution:**
+
 ```typescript
 // React 18+ doesn't need explicit import for JSX
 // But if error persists:
@@ -227,6 +242,7 @@ import React from 'react';
 **Cause:** Mixing component exports with non-component exports
 
 **Solution:**
+
 ```typescript
 // ❌ BAD: Mixed exports
 export const MyComponent = () => <div />;
@@ -247,6 +263,7 @@ export const someConstant = 42;
 ### Slow Page Load
 
 **Symptoms:**
+
 - First Contentful Paint > 2 seconds
 - Time to Interactive > 3 seconds
 
@@ -273,22 +290,21 @@ npm run optimize-images
 ### Excessive Re-renders
 
 **Symptoms:**
+
 - UI feels sluggish
 - Browser DevTools shows many re-renders
 
 **Solution:**
+
 ```typescript
 // ❌ BAD: Full store subscription
 const store = useGameStore();
 
 // ✅ GOOD: Selective subscription
-const trust = useGameStore(state => state.guardianTrust);
+const trust = useGameStore((state) => state.guardianTrust);
 
 // ✅ GOOD: Memoize derived values
-const percentage = useMemo(
-  () => (trust / 100) * 100,
-  [trust]
-);
+const percentage = useMemo(() => (trust / 100) * 100, [trust]);
 ```
 
 ---
@@ -302,6 +318,7 @@ const percentage = useMemo(
 **Cause:** Test expectations outdated
 
 **Solution:**
+
 ```bash
 # Update snapshots if UI changed
 npm test -- -u
@@ -322,6 +339,7 @@ npm test -- --watch
 **Cause:** Missing ARIA labels or improper HTML structure
 
 **Solution:**
+
 ```typescript
 // Add aria-label to interactive elements
 <button aria-label="Save journal entry">Save</button>
@@ -343,11 +361,13 @@ npm test -- --watch
 ### Build Succeeds Locally but Fails in CI/CD
 
 **Causes:**
+
 1. Environment variable mismatch
 2. Different Node.js versions
 3. Missing dependencies in `package.json`
 
 **Solutions:**
+
 ```bash
 # 1. Check CI environment variables
 # Netlify: Site settings → Build & deploy → Environment variables
@@ -372,6 +392,7 @@ npm run preview
 **Cause:** Database tables not created
 
 **Solution:**
+
 ```bash
 # Run migrations
 supabase db push
@@ -387,6 +408,7 @@ supabase db push
 ### How to Report Bugs
 
 **Include:**
+
 1. Error message (full text)
 2. Browser console logs
 3. Network tab (if database-related)
@@ -395,13 +417,16 @@ supabase db push
 6. Browser/OS version
 
 **Example:**
+
 ```markdown
 **Error:** State not saving to database
 
 **Console logs:**
 ```
+
 Failed to save game state: TypeError: Cannot read property 'id' of undefined
-  at saveToSupabase (game-store.ts:1244)
+at saveToSupabase (game-store.ts:1244)
+
 ```
 
 **Steps:**
@@ -417,7 +442,7 @@ Failed to save game state: TypeError: Cannot read property 'id' of undefined
 **Environment:**
 - Chrome 120.0.6099.109
 - macOS 14.1.1
-- Production: luminarisquest.org
+- Production: luminariquest.org
 ```
 
 ---
@@ -463,5 +488,4 @@ npm run build
 
 ---
 
-*Last Updated: 2025-11-17*
-
+_Last Updated: 2025-11-17_

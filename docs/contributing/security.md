@@ -54,22 +54,24 @@ Our security model implements multiple layers of protection:
 
 ### Data Classification
 
-| Classification | Description | Examples | Protection Level |
-|----------------|-------------|----------|------------------|
-| **Public** | Non-sensitive information | Marketing content, public documentation | Basic |
-| **Internal** | Business information | System logs, analytics | Standard |
-| **Confidential** | Sensitive user data | Email addresses, preferences | High |
-| **Restricted** | Therapeutic content | Journal entries, progress data | Maximum |
+| Classification   | Description               | Examples                                | Protection Level |
+| ---------------- | ------------------------- | --------------------------------------- | ---------------- |
+| **Public**       | Non-sensitive information | Marketing content, public documentation | Basic            |
+| **Internal**     | Business information      | System logs, analytics                  | Standard         |
+| **Confidential** | Sensitive user data       | Email addresses, preferences            | High             |
+| **Restricted**   | Therapeutic content       | Journal entries, progress data          | Maximum          |
 
 ### Encryption Standards
 
 #### Data in Transit
+
 - **TLS 1.3**: All communications encrypted with modern TLS
 - **HSTS**: HTTP Strict Transport Security enforced
 - **Certificate Pinning**: Prevents man-in-the-middle attacks
 - **Perfect Forward Secrecy**: Session keys cannot be compromised retroactively
 
 #### Data at Rest
+
 - **AES-256**: Database encryption using industry-standard algorithms
 - **Key Management**: Supabase handles encryption key rotation
 - **Backup Encryption**: All backups encrypted with separate keys
@@ -87,12 +89,14 @@ Our security model implements multiple layers of protection:
 ### Authentication Methods
 
 #### Primary Authentication
+
 - **Email/Password**: Secure password requirements enforced
 - **Password Hashing**: Argon2 hashing with salt (handled by Supabase)
 - **Account Verification**: Email verification required for new accounts
 - **Password Reset**: Secure password reset via email tokens
 
 #### Multi-Factor Authentication (Planned)
+
 - **TOTP**: Time-based one-time passwords
 - **SMS**: SMS-based verification (with privacy considerations)
 - **Hardware Keys**: FIDO2/WebAuthn support
@@ -103,40 +107,42 @@ Our security model implements multiple layers of protection:
 
 ```typescript
 enum UserRole {
-  PATIENT = 'patient',        // Standard user access
-  THERAPIST = 'therapist',    // Professional access (planned)
-  ADMIN = 'admin',           // System administration
-  RESEARCHER = 'researcher'   // Anonymized data access (planned)
+  PATIENT = 'patient', // Standard user access
+  THERAPIST = 'therapist', // Professional access (planned)
+  ADMIN = 'admin', // System administration
+  RESEARCHER = 'researcher', // Anonymized data access (planned)
 }
 ```
 
 #### Permission Matrix
 
-| Resource | Patient | Therapist | Admin | Researcher |
-|----------|---------|-----------|-------|------------|
-| Own journal entries | CRUD | Read | Read | None |
-| Own game progress | CRUD | Read | Read | Anonymized |
-| Other user data | None | Assigned only | All | Anonymized |
-| System configuration | None | None | CRUD | None |
+| Resource             | Patient | Therapist     | Admin | Researcher |
+| -------------------- | ------- | ------------- | ----- | ---------- |
+| Own journal entries  | CRUD    | Read          | Read  | None       |
+| Own game progress    | CRUD    | Read          | Read  | Anonymized |
+| Other user data      | None    | Assigned only | All   | Anonymized |
+| System configuration | None    | None          | CRUD  | None       |
 
 ### Session Management
 
 #### Session Security
+
 - **Session Tokens**: Cryptographically secure random tokens
 - **Session Timeout**: 1 hour inactivity timeout
 - **Concurrent Sessions**: Limited to 3 active sessions per user
 - **Session Invalidation**: Logout invalidates all sessions
 
 #### JWT Token Security
+
 ```typescript
 interface JWTPayload {
-  sub: string;           // User ID
-  email: string;         // User email
-  role: UserRole;        // User role
-  iat: number;          // Issued at
-  exp: number;          // Expiration
-  aud: string;          // Audience
-  iss: string;          // Issuer
+  sub: string; // User ID
+  email: string; // User email
+  role: UserRole; // User role
+  iat: number; // Issued at
+  exp: number; // Expiration
+  aud: string; // Audience
+  iss: string; // Issuer
 }
 ```
 
@@ -147,17 +153,20 @@ interface JWTPayload {
 While not a covered entity, we follow HIPAA-inspired practices:
 
 #### Administrative Safeguards
+
 - **Security Officer**: Designated security responsibility
 - **Workforce Training**: Security awareness training
 - **Access Management**: Formal access control procedures
 - **Incident Response**: Documented incident response procedures
 
 #### Physical Safeguards
+
 - **Cloud Infrastructure**: Supabase provides physical security
 - **Workstation Security**: Development environment security guidelines
 - **Media Controls**: Secure handling of backup media
 
 #### Technical Safeguards
+
 - **Access Control**: Unique user identification and authentication
 - **Audit Controls**: Comprehensive logging and monitoring
 - **Integrity**: Data integrity verification mechanisms
@@ -166,6 +175,7 @@ While not a covered entity, we follow HIPAA-inspired practices:
 ### GDPR Compliance
 
 #### Data Subject Rights
+
 - **Right to Access**: Users can export their data
 - **Right to Rectification**: Users can edit their information
 - **Right to Erasure**: Users can delete their accounts and data
@@ -173,11 +183,13 @@ While not a covered entity, we follow HIPAA-inspired practices:
 - **Right to Object**: Users can opt out of data processing
 
 #### Legal Basis for Processing
+
 - **Consent**: Explicit consent for therapeutic data processing
 - **Legitimate Interest**: System functionality and security
 - **Vital Interest**: Crisis intervention (if implemented)
 
 #### Data Protection by Design
+
 - **Privacy by Default**: Most privacy-friendly settings as default
 - **Data Minimization**: Only collect necessary data
 - **Purpose Limitation**: Clear purpose for all data collection
@@ -188,6 +200,7 @@ While not a covered entity, we follow HIPAA-inspired practices:
 ### Secure Coding Standards
 
 #### Input Validation
+
 ```typescript
 // Example: Secure input validation
 const validateJournalEntry = (entry: unknown): JournalEntry => {
@@ -195,20 +208,22 @@ const validateJournalEntry = (entry: unknown): JournalEntry => {
     content: z.string().min(1).max(10000),
     title: z.string().min(1).max(200),
     type: z.enum(['milestone', 'learning']),
-    tags: z.array(z.string().max(50)).max(10)
+    tags: z.array(z.string().max(50)).max(10),
   });
-  
+
   return schema.parse(entry);
 };
 ```
 
 #### Output Encoding
+
 - **React XSS Protection**: React's built-in XSS protection
 - **Content Security Policy**: Strict CSP headers
 - **Sanitization**: User content sanitized before display
 - **Safe HTML**: No innerHTML usage with user content
 
 #### SQL Injection Prevention
+
 - **Parameterized Queries**: All database queries use parameters
 - **ORM Protection**: Supabase client provides SQL injection protection
 - **Input Validation**: All inputs validated before database operations
@@ -217,6 +232,7 @@ const validateJournalEntry = (entry: unknown): JournalEntry => {
 ### Code Review Process
 
 #### Security Review Checklist
+
 - [ ] Input validation implemented
 - [ ] Authentication/authorization checked
 - [ ] Sensitive data handling reviewed
@@ -225,6 +241,7 @@ const validateJournalEntry = (entry: unknown): JournalEntry => {
 - [ ] OWASP Top 10 considerations addressed
 
 #### Automated Security Scanning
+
 ```bash
 # Dependency vulnerability scanning
 npm audit
@@ -241,12 +258,14 @@ npm run license-check
 ### Cloud Security (Supabase)
 
 #### Database Security
+
 - **Row Level Security (RLS)**: Database-level access control
 - **Connection Encryption**: All connections use TLS
 - **Network Isolation**: Database not directly accessible from internet
 - **Backup Encryption**: Automated encrypted backups
 
 #### Authentication Infrastructure
+
 - **OAuth 2.0**: Industry-standard authentication protocol
 - **JWT Tokens**: Secure token-based authentication
 - **Rate Limiting**: Protection against brute force attacks
@@ -255,8 +274,9 @@ npm run license-check
 ### Application Security
 
 #### Content Security Policy
+
 ```http
-Content-Security-Policy: 
+Content-Security-Policy:
   default-src 'self';
   script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline';
@@ -269,6 +289,7 @@ Content-Security-Policy:
 ```
 
 #### Security Headers
+
 ```http
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 X-Content-Type-Options: nosniff
@@ -280,11 +301,13 @@ Referrer-Policy: strict-origin-when-cross-origin
 ### Deployment Security
 
 #### Environment Separation
+
 - **Development**: Isolated development environment
 - **Staging**: Production-like testing environment
 - **Production**: Live environment with maximum security
 
 #### Secrets Management
+
 - **Environment Variables**: Sensitive data in environment variables
 - **No Hardcoded Secrets**: No secrets in source code
 - **Key Rotation**: Regular rotation of API keys and secrets
@@ -294,34 +317,38 @@ Referrer-Policy: strict-origin-when-cross-origin
 
 ### Incident Classification
 
-| Severity | Description | Response Time | Examples |
-|----------|-------------|---------------|----------|
-| **Critical** | Data breach or system compromise | 1 hour | Unauthorized data access |
-| **High** | Security vulnerability exploitation | 4 hours | Authentication bypass |
-| **Medium** | Potential security issue | 24 hours | Suspicious activity |
-| **Low** | Security concern | 72 hours | Configuration issue |
+| Severity     | Description                         | Response Time | Examples                 |
+| ------------ | ----------------------------------- | ------------- | ------------------------ |
+| **Critical** | Data breach or system compromise    | 1 hour        | Unauthorized data access |
+| **High**     | Security vulnerability exploitation | 4 hours       | Authentication bypass    |
+| **Medium**   | Potential security issue            | 24 hours      | Suspicious activity      |
+| **Low**      | Security concern                    | 72 hours      | Configuration issue      |
 
 ### Response Procedures
 
 #### Immediate Response (0-1 hour)
+
 1. **Assess Impact**: Determine scope and severity
 2. **Contain Threat**: Isolate affected systems
 3. **Notify Team**: Alert security team and stakeholders
 4. **Document**: Begin incident documentation
 
 #### Investigation (1-24 hours)
+
 1. **Forensic Analysis**: Analyze logs and system state
 2. **Root Cause**: Identify how incident occurred
 3. **Impact Assessment**: Determine data/user impact
 4. **Evidence Collection**: Preserve evidence for analysis
 
 #### Recovery (24-72 hours)
+
 1. **System Restoration**: Restore affected systems
 2. **Security Patches**: Apply necessary security fixes
 3. **Monitoring**: Enhanced monitoring for related threats
 4. **User Communication**: Notify affected users if required
 
 #### Post-Incident (1-2 weeks)
+
 1. **Lessons Learned**: Document lessons and improvements
 2. **Process Updates**: Update security procedures
 3. **Training**: Additional security training if needed
@@ -330,12 +357,14 @@ Referrer-Policy: strict-origin-when-cross-origin
 ### Communication Plan
 
 #### Internal Communication
+
 - **Security Team**: Immediate notification
 - **Development Team**: Technical details and fixes
 - **Management**: Business impact and decisions
 - **Legal Team**: Compliance and legal implications
 
 #### External Communication
+
 - **Users**: Transparent communication about impact
 - **Authorities**: Regulatory reporting if required
 - **Partners**: Notification of potential impact
@@ -346,6 +375,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 ### Automated Testing
 
 #### Static Application Security Testing (SAST)
+
 ```bash
 # ESLint security rules
 npm run lint:security
@@ -359,6 +389,7 @@ npm run license-check
 ```
 
 #### Dynamic Application Security Testing (DAST)
+
 - **Penetration Testing**: Regular third-party security assessments
 - **Vulnerability Scanning**: Automated vulnerability scans
 - **Security Monitoring**: Continuous security monitoring
@@ -366,12 +397,14 @@ npm run license-check
 ### Manual Testing
 
 #### Security Test Cases
+
 - **Authentication Testing**: Login, logout, session management
 - **Authorization Testing**: Access control verification
 - **Input Validation Testing**: XSS, SQL injection, CSRF
 - **Session Management Testing**: Session timeout, concurrent sessions
 
 #### Accessibility Security
+
 - **Screen Reader Testing**: Ensure security features are accessible
 - **Keyboard Navigation**: Security controls accessible via keyboard
 - **High Contrast**: Security indicators visible in high contrast mode
@@ -381,6 +414,7 @@ npm run license-check
 ### Security Frameworks
 
 #### OWASP Top 10 (2021)
+
 1. **Broken Access Control**: ✅ Implemented RLS and proper authorization
 2. **Cryptographic Failures**: ✅ TLS 1.3 and AES-256 encryption
 3. **Injection**: ✅ Parameterized queries and input validation
@@ -393,6 +427,7 @@ npm run license-check
 10. **Server-Side Request Forgery**: ✅ Input validation and allowlists
 
 #### NIST Cybersecurity Framework
+
 - **Identify**: Asset inventory and risk assessment
 - **Protect**: Access controls and data protection
 - **Detect**: Security monitoring and incident detection
@@ -402,11 +437,13 @@ npm run license-check
 ### Regulatory Compliance
 
 #### Healthcare Considerations
+
 - **HIPAA Inspiration**: Following HIPAA-inspired practices
 - **State Regulations**: Compliance with applicable state laws
 - **International**: GDPR compliance for EU users
 
 #### Data Protection Laws
+
 - **CCPA**: California Consumer Privacy Act compliance
 - **PIPEDA**: Personal Information Protection (Canada)
 - **LGPD**: Lei Geral de Proteção de Dados (Brazil)
@@ -416,6 +453,7 @@ npm run license-check
 ### Logging and Monitoring
 
 #### Security Events Logged
+
 - **Authentication Events**: Login, logout, failed attempts
 - **Authorization Events**: Access granted/denied
 - **Data Access**: Sensitive data access and modifications
@@ -423,6 +461,7 @@ npm run license-check
 - **Security Events**: Potential threats and incidents
 
 #### Log Analysis
+
 ```typescript
 interface SecurityEvent {
   timestamp: string;
@@ -440,12 +479,14 @@ interface SecurityEvent {
 ### Threat Detection
 
 #### Anomaly Detection
+
 - **Unusual Login Patterns**: Geographic or time-based anomalies
 - **Excessive Failed Attempts**: Brute force attack detection
 - **Data Access Patterns**: Unusual data access behavior
 - **System Resource Usage**: Potential DoS attack detection
 
 #### Automated Response
+
 - **Account Lockout**: Temporary lockout for suspicious activity
 - **Rate Limiting**: Automatic rate limiting for abuse
 - **Alert Generation**: Immediate alerts for security events
@@ -454,12 +495,14 @@ interface SecurityEvent {
 ### Security Metrics
 
 #### Key Performance Indicators (KPIs)
+
 - **Mean Time to Detection (MTTD)**: Average time to detect incidents
 - **Mean Time to Response (MTTR)**: Average time to respond to incidents
 - **False Positive Rate**: Percentage of false security alerts
 - **Security Training Completion**: Percentage of team trained
 
 #### Security Dashboard
+
 - **Real-time Threats**: Current security threats and status
 - **Incident Trends**: Historical incident patterns
 - **Compliance Status**: Current compliance posture
@@ -470,15 +513,17 @@ interface SecurityEvent {
 ## Security Contacts
 
 ### Internal Contacts
-- **Security Team**: security@luminarisquest.org
-- **Development Team**: dev@luminarisquest.org
-- **Incident Response**: incident@luminarisquest.org
+
+- **Security Team**: security@luminariquest.org
+- **Development Team**: dev@luminariquest.org
+- **Incident Response**: incident@luminariquest.org
 
 ### External Contacts
+
 - **Supabase Security**: security@supabase.com
 - **Netlify Security**: security@netlify.com
 - **Emergency Services**: Local law enforcement if required
 
 ---
 
-*This security documentation is reviewed quarterly and updated as needed. Last updated: December 2024*
+_This security documentation is reviewed quarterly and updated as needed. Last updated: December 2024_

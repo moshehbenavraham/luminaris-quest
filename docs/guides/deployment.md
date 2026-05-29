@@ -22,12 +22,12 @@ This guide covers deploying Luminari's Quest across different environments, from
 
 ### Environment Strategy
 
-| Environment     | Purpose                | Platform       | Database       | Domain                     |
-| --------------- | ---------------------- | -------------- | -------------- | -------------------------- |
-| **Local**       | Development & testing  | Local machine  | Supabase Cloud | localhost:8086             |
-| **Development** | Team integration       | Netlify/Vercel | Supabase Cloud | dev.luminarisquest.org     |
-| **Staging**     | Pre-production testing | Netlify/Vercel | Supabase Cloud | staging.luminarisquest.org |
-| **Production**  | Live application       | Netlify/Vercel | Supabase Cloud | luminarisquest.org         |
+| Environment     | Purpose                | Platform       | Database       | Domain                    |
+| --------------- | ---------------------- | -------------- | -------------- | ------------------------- |
+| **Local**       | Development & testing  | Local machine  | Supabase Cloud | localhost:8086            |
+| **Development** | Team integration       | Netlify/Vercel | Supabase Cloud | dev.luminariquest.org     |
+| **Staging**     | Pre-production testing | Netlify/Vercel | Supabase Cloud | staging.luminariquest.org |
+| **Production**  | Live application       | Netlify/Vercel | Supabase Cloud | luminariquest.org         |
 
 ### Deployment Flow
 

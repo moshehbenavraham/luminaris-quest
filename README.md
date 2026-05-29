@@ -1,6 +1,6 @@
 # Luminari's Quest
 
-**Version: 0.2.7**
+**Version: 0.2.8**
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/moshehbenavraham/luminaris-quest)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue)](https://www.typescriptlang.org/)
@@ -712,7 +712,7 @@ We welcome contributions! Please read our guidelines:
 
 ### For Users
 
-1. **[Try the Live Demo](https://luminarisquest.org)** - Experience the therapeutic journey
+1. **[Try the Live Demo](https://luminariquest.org)** - Experience the therapeutic journey
 2. **[Read About Our Mission](#about)** - Understand our therapeutic approach
 3. **[Explore Features](#features)** - Discover what makes this special
 4. **[Join the Community](https://github.com/moshehbenavraham/luminaris-quest/discussions)** - Connect with others
