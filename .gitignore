@@ -37,3 +37,8 @@ Thumbs.db
 supabase/.branches/
 supabase/.temp/
 supabase/logs/
+
+# Supabase backups (sensitive PII - never commit, esp. on a public repo)
+*.backup.gz
+*.storage.zip
+db_cluster-*

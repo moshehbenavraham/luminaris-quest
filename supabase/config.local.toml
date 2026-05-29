@@ -1,7 +1,7 @@
 # Supabase Local Environment Configuration
 # This configuration is used for local development
 
-project_id = "lxjetnrmjyazegwnymkk"
+project_id = "yvuenajqwmbfyecfoalc"
 api_port = 54321
 db_port = 54322
 studio_port = 54323

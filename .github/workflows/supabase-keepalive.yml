@@ -1,0 +1,85 @@
+name: Supabase Keep-Alive
+
+# Why this exists:
+# Supabase free-tier projects auto-PAUSE after ~7 days with no incoming API
+# traffic, and are permanently DELETED after ~90 days paused. This workflow
+# sends a tiny daily request to the project's REST + Auth endpoints, which
+# counts as activity and resets the inactivity timer. Costs nothing on a
+# public repo. (Internal DB cron does NOT count — the pause is based on
+# external API ingress, so the ping must come from outside.)
+
+on:
+  schedule:
+    # Daily at 07:23 UTC (off the hour, as GitHub recommends, to avoid
+    # congestion-related skips). Daily gives ~7x safety margin vs the pause window.
+    - cron: '23 7 * * *'
+  workflow_dispatch: {}   # lets you run it manually from the Actions tab anytime
+
+# Avoid stacking runs if one is slow/delayed.
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit REST + Auth endpoints
+        env:
+          # Public anon key — identical to the one shipped in the deployed
+          # frontend bundle, so there is no secret to protect here. RLS still
+          # blocks all data; this only registers "the project is in use".
+          SUPABASE_URL: https://yvuenajqwmbfyecfoalc.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2dWVuYWpxd21iZnllY2ZvYWxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMzA5MDUsImV4cCI6MjA5NTYwNjkwNX0.dFxWsFPfNyNiW0OmkW-mh7eNPQ3WAZ5i_TpFnSNvWvE
+        run: |
+          set -euo pipefail
+          echo "Pinging REST (PostgREST)..."
+          rest=$(curl -fsS -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/game_states?select=user_id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "  REST -> HTTP $rest"
+
+          echo "Pinging Auth (GoTrue)..."
+          auth=$(curl -fsS -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/auth/v1/settings" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "  Auth -> HTTP $auth"
+
+          if [ "$rest" = "200" ] && [ "$auth" = "200" ]; then
+            echo "Keep-alive OK — project is awake."
+          else
+            echo "::error::Unexpected status (REST=$rest, Auth=$auth). The project may be paused/deleted."
+            exit 1
+          fi
+
+  prevent-self-disable:
+    name: Prevent workflow auto-disable
+    needs: ping
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # only used for the rare heartbeat commit below
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Heartbeat commit only if repo idle 45+ days
+        run: |
+          set -euo pipefail
+          last=$(git log -1 --format=%ct)
+          now=$(date +%s)
+          age_days=$(( (now - last) / 86400 ))
+          echo "Most recent commit: ${age_days} day(s) ago."
+          if [ "$age_days" -ge 45 ]; then
+            echo "Repo idle 45+ days — committing a heartbeat so GitHub won't disable this cron."
+            git config user.name  "keepalive-bot"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            mkdir -p .github
+            date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/.keepalive
+            git add .github/.keepalive
+            git commit -m "chore: keepalive heartbeat [skip ci]"
+            git push
+          else
+            echo "Repo recently active — no heartbeat needed."
+          fi
