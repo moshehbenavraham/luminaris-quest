@@ -1,6 +1,6 @@
 # Luminari's Quest
 
-**Version: 0.2.8**
+**Version: 0.2.9**
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/moshehbenavraham/luminaris-quest)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue)](https://www.typescriptlang.org/)

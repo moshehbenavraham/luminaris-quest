@@ -1,7 +1,3 @@
-# AI Assistant Configuration
-AGENTS.md
-CLAUDE.md
-
 # Dependency directories
 node_modules
 dist
